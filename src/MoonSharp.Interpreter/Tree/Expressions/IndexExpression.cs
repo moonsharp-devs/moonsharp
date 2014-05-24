@@ -27,7 +27,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 			if (baseValue.Type != DataType.Table)
 			{
-				throw new LuaRuntimeException(this.TreeNode, "Can't index: {0}", baseValue.Type);
+				throw new ScriptRuntimeException(this.TreeNode, "Can't index: {0}", baseValue.Type);
 			}
 			else
 			{

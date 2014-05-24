@@ -29,7 +29,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			RValue v = scope.Get(m_Ref);
 
 			if (v == null)
-				throw new LuaRuntimeException(this.TreeNode, "Undefined symbol: {0}", m_Ref.Name);
+				throw new ScriptRuntimeException(this.TreeNode, "Undefined symbol: {0}", m_Ref.Name);
 
 			return v;
 		}

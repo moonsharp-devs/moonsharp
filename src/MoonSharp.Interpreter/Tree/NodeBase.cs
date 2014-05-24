@@ -26,7 +26,7 @@ namespace MoonSharp.Interpreter.Tree
 
 		public Exception RuntimeError(string format, params object[] args)
 		{
-			return new LuaRuntimeException(TreeNode, format, args);
+			return new ScriptRuntimeException(TreeNode, format, args);
 		}
 
 		public void SyntaxAssert(bool condition, string format, params object[] args)

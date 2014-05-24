@@ -76,20 +76,20 @@ namespace MoonSharp.Interpreter.Execution
 
 		private void AssignNil()
 		{
-			if (this.ReadOnly) throw new LuaRuntimeException(null, "Writing on r-value");
+			if (this.ReadOnly) throw new ScriptRuntimeException(null, "Writing on r-value");
 			Type = DataType.Nil;
 			m_HashCode = -1;
 		}
 		private void Assign(bool v)
 		{
-			if (this.ReadOnly) throw new LuaRuntimeException(null, "Writing on r-value");
+			if (this.ReadOnly) throw new ScriptRuntimeException(null, "Writing on r-value");
 			Boolean = v;
 			Type = DataType.Boolean;
 			m_HashCode = -1;
 		}
 		public void Assign(double num)
 		{
-			if (this.ReadOnly) throw new LuaRuntimeException(null, "Writing on r-value");
+			if (this.ReadOnly) throw new ScriptRuntimeException(null, "Writing on r-value");
 			Number = num;
 			Type = DataType.Number;
 			m_HashCode = -1;
@@ -97,7 +97,7 @@ namespace MoonSharp.Interpreter.Execution
 
 		private void Assign(string str)
 		{
-			if (this.ReadOnly) throw new LuaRuntimeException(null, "Writing on r-value");
+			if (this.ReadOnly) throw new ScriptRuntimeException(null, "Writing on r-value");
 			String = str;
 			Type = DataType.String;
 			m_HashCode = -1;
@@ -105,7 +105,7 @@ namespace MoonSharp.Interpreter.Execution
 
 		private void Assign(Closure function)
 		{
-			if (this.ReadOnly) throw new LuaRuntimeException(null, "Writing on r-value");
+			if (this.ReadOnly) throw new ScriptRuntimeException(null, "Writing on r-value");
 			Function = function;
 			Type = DataType.Function;
 			m_HashCode = -1;
@@ -113,7 +113,7 @@ namespace MoonSharp.Interpreter.Execution
 
 		private void Assign(CallbackFunction function)
 		{
-			if (this.ReadOnly) throw new LuaRuntimeException(null, "Writing on r-value");
+			if (this.ReadOnly) throw new ScriptRuntimeException(null, "Writing on r-value");
 			Callback = function;
 			Type = DataType.ClrFunction;
 			m_HashCode = -1;
@@ -121,7 +121,7 @@ namespace MoonSharp.Interpreter.Execution
 
 		private void Assign(Table table)
 		{
-			if (this.ReadOnly) throw new LuaRuntimeException(null, "Writing on r-value");
+			if (this.ReadOnly) throw new ScriptRuntimeException(null, "Writing on r-value");
 			Table = table;
 			Type = DataType.Table;
 			m_HashCode = -1;
@@ -129,7 +129,7 @@ namespace MoonSharp.Interpreter.Execution
 
 		public void Assign(RValue[] tuple)
 		{
-			if (this.ReadOnly) throw new LuaRuntimeException(null, "Writing on r-value");
+			if (this.ReadOnly) throw new ScriptRuntimeException(null, "Writing on r-value");
 			Tuple = tuple;
 			Type = DataType.Tuple;
 			m_HashCode = -1;
@@ -405,7 +405,7 @@ namespace MoonSharp.Interpreter.Execution
 		public void Assign(RValue value)
 		{
 			if (this.ReadOnly)
-				throw new LuaRuntimeException(null, "Assigning on r-value");
+				throw new ScriptRuntimeException(null, "Assigning on r-value");
 
 			this.Boolean = value.Boolean;
 			this.Function = value.Function;
@@ -427,7 +427,7 @@ namespace MoonSharp.Interpreter.Execution
 			if (this.Type == DataType.String)
 				return new RValue(this.String.Length);
 
-			throw new LuaRuntimeException(null, "Can't get length of type {0}", this.Type);
+			throw new ScriptRuntimeException(null, "Can't get length of type {0}", this.Type);
 		}
 
 

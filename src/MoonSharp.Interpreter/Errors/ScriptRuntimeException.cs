@@ -8,9 +8,9 @@ using Antlr4.Runtime.Tree;
 namespace MoonSharp.Interpreter
 {
 	[Serializable]
-	public class LuaRuntimeException : Exception
+	public class ScriptRuntimeException : Exception
 	{
-		internal LuaRuntimeException(IParseTree tree, string format, params object[] args)
+		internal ScriptRuntimeException(IParseTree tree, string format, params object[] args)
 			: base(string.Format(format, args) + FormatTree(tree))
 		{
 

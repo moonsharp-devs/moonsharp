@@ -49,7 +49,7 @@ namespace MoonSharp.Interpreter.Execution
 					return "thread";
 				case DataType.Tuple:
 				default:
-					throw new LuaRuntimeException(null, "Unexpected LuaType {0}", type);
+					throw new ScriptRuntimeException(null, "Unexpected LuaType {0}", type);
 			}
 		}
 	}

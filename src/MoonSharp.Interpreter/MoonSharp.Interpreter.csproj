@@ -61,7 +61,7 @@
     <Compile Include="Execution\Behaviours\DefaultBehaviour.cs" />
     <Compile Include="Diagnostics\AstDump.cs" />
     <Compile Include="Diagnostics\CodeChrono.cs" />
-    <Compile Include="Errors\LuaRuntimeException.cs" />
+    <Compile Include="Errors\ScriptRuntimeException.cs" />
     <Compile Include="Errors\SyntaxErrorException.cs" />
     <Compile Include="Execution\DataTypes\Closure.cs" />
     <Compile Include="Execution\ExecutionFlow.cs" />

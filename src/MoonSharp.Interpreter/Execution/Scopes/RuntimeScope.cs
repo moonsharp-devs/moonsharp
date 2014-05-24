@@ -98,13 +98,13 @@ namespace MoonSharp.Interpreter.Execution
 						}
 						else
 						{
-							throw new LuaRuntimeException(null, "Invalid upvalue at resolution: {0}", symref.Name);
+							throw new ScriptRuntimeException(null, "Invalid upvalue at resolution: {0}", symref.Name);
 						}
 					}
 				case SymbolRefType.Invalid:
 				default:
 					{
-						throw new LuaRuntimeException(null, "Invalid value at resolution: {0}", symref.Name);
+						throw new ScriptRuntimeException(null, "Invalid value at resolution: {0}", symref.Name);
 					}
 			}
 		}
@@ -138,14 +138,14 @@ namespace MoonSharp.Interpreter.Execution
 						}
 						else
 						{
-							throw new LuaRuntimeException(null, "Invalid upvalue at resolution: {0}", symref.Name);
+							throw new ScriptRuntimeException(null, "Invalid upvalue at resolution: {0}", symref.Name);
 						}
 					}
 					break;
 				case SymbolRefType.Invalid:
 				default:
 					{
-						throw new LuaRuntimeException(null, "Invalid value at resolution: {0}", symref.Name);
+						throw new ScriptRuntimeException(null, "Invalid value at resolution: {0}", symref.Name);
 					}
 			}
 		}
@@ -153,7 +153,7 @@ namespace MoonSharp.Interpreter.Execution
 		public void ExpandGlobal(int maxidx)
 		{
 			if (m_GlobalScope.Count > 0)
-				throw new LuaRuntimeException(null, "INTERNAL ERROR");
+				throw new ScriptRuntimeException(null, "INTERNAL ERROR");
 
 			for (int i = 0; i <= maxidx; i++)
 				m_GlobalScope.Add(RValue.Nil);
