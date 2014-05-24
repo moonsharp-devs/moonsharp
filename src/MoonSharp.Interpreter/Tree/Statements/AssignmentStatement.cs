@@ -1,0 +1,68 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+using MoonSharp.Interpreter.Execution;
+using MoonSharp.Interpreter.Grammar;
+using MoonSharp.Interpreter.Tree.Expressions;
+
+namespace MoonSharp.Interpreter.Tree.Statements
+{
+	class AssignmentStatement : Statement
+	{
+		IVariable[] m_LValues;
+		Expression[] m_RValues;
+
+		public AssignmentStatement(LuaParser.Stat_assignmentContext context, ScriptLoadingContext lcontext)
+			: base(context, lcontext)
+		{
+			m_LValues = context.varlist().var()
+				.Select(v => NodeFactory.CreateVariableExpression(v, lcontext))
+				.Cast<IVariable>()
+				.ToArray();
+
+			m_RValues = context.explist()
+				.exp()
+				.Select(e => NodeFactory.CreateExpression(e, lcontext))
+				.ToArray();
+		}
+
+		public override ExecutionFlow Exec(RuntimeScope scope)
+		{
+			if (m_LValues.Length == 1 && m_RValues.Length >= 1)
+			{
+				m_LValues[0].SetValue(scope, m_RValues[0].Eval(scope).ToSingleValue());
+				return ExecutionFlow.None;
+			}
+			else
+			{
+				return PairMultipleAssignment(scope, m_LValues, m_RValues, (l, s, v) => 
+				{ 
+					l.SetValue(s, v); 
+				} );
+			}
+		}
+
+		public override void Compile(Execution.VM.Chunk bc)
+		{
+			if (m_LValues.Length == 1 && m_RValues.Length == 1)
+			{
+				m_LValues[0].CompileAssignment(bc);
+				m_RValues[0].Compile(bc);
+				bc.Store();
+			}
+			else
+			{
+				foreach (var var in m_LValues)
+					var.CompileAssignment(bc);
+
+				foreach (var exp in m_RValues)
+					exp.Compile(bc);
+
+				bc.Assign(m_LValues.Length, m_RValues.Length);
+			}
+		}
+
+	}
+}
