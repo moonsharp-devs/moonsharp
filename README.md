@@ -18,8 +18,10 @@ The project has just been started,  yet it is able to parse most Lua structures 
 * REPL interpreter
 * standard library 
 
+**Associated Resources**
 
-You can see the future backlog and status on [https://www.pivotaltracker.com/n/projects/1082626](https://www.pivotaltracker.com/n/projects/1082626 "Moon# Backlog on Pivotal Tracker")
+* You can see the future backlog and status on [https://www.pivotaltracker.com/n/projects/1082626](https://www.pivotaltracker.com/n/projects/1082626 "Moon# Backlog on Pivotal Tracker")
+* You can read some posts about the design choices of Moon# on my blog: http://www.mastropaolo.com/category/programming/moonsharp/
 
 
 **License**
