@@ -1,6 +1,9 @@
 Copyright (c) 2014, Marco Mastropaolo
 All rights reserved.
 
+This work is based on the ANTLR4 Lua grammar Copyright (c) 2013, Kazunori Sakamoto
+(see GRAMMAR_LICENSE for details).
+
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
