@@ -22,6 +22,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			: base(context, lcontext)
 		{
 			m_Flow = ExecutionFlow.GoTo(context.NAME().GetText());
+			throw new NotImplementedException("GoTo not implemented yet!");
 		}
 
 		public override ExecutionFlow Exec(RuntimeScope scope)
@@ -31,7 +32,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 
 		public override void Compile(Chunk bc)
 		{
-			
+			bc.LoopTracker.Loops.Peek().CompileBreak(bc);
 		}
 	}
 }

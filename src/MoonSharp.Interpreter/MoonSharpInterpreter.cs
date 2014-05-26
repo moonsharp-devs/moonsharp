@@ -14,11 +14,11 @@ namespace MoonSharp.Interpreter
 {
 	public static class MoonSharpInterpreter
 	{
-		public enum MoonSharpExecutionMode
+		public enum MoonSharpExecutionProfile
 		{
 			MoonSharp,
 			LuaCompatibility,
-			LuaFacade
+			LuaStrict
 		}
 
 		private static Script LoadFromICharStream(ICharStream charStream, Table globalTable)

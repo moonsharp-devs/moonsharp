@@ -298,7 +298,7 @@ namespace MoonSharp.Interpreter.Tests
 		}
 
 
-		[Test][Ignore("VM Transition")]
+		[Test]
 		public void ForLoopWithBreakAndScopeCheck()
 		{
 			string script = @"    
@@ -343,7 +343,7 @@ namespace MoonSharp.Interpreter.Tests
 			Assert.AreEqual(120.0, res.Number);
 		}
 
-		[Test][Ignore("VM Transition")]
+		[Test]
 		public void OperatorPrecedenceAndAssociativity()
 		{
 			string script = @"return 5+3*7-2*5+2^3^2";
@@ -354,7 +354,7 @@ namespace MoonSharp.Interpreter.Tests
 			Assert.AreEqual(528, res.Number);
 		}
 
-		[Test][Ignore("VM Transition")]
+		[Test]
 		public void OperatorParenthesis()
 		{
 			string script = @"return (5+3)*7-2*5+(2^3)^2";
@@ -365,7 +365,7 @@ namespace MoonSharp.Interpreter.Tests
 			Assert.AreEqual(110, res.Number);
 		}
 
-		[Test][Ignore("VM Transition")]
+		[Test]
 		public void GlobalVarAssignment()
 		{
 			string script = @"x = 1; return x;";    
@@ -375,7 +375,7 @@ namespace MoonSharp.Interpreter.Tests
 			Assert.AreEqual(DataType.Number, res.Type);
 			Assert.AreEqual(1, res.Number);
 		}
-		[Test][Ignore("VM Transition")]
+		[Test]
 		public void TupleAssignment1()
 		{
 			string script = @"    
@@ -500,12 +500,10 @@ namespace MoonSharp.Interpreter.Tests
 		}
 
 
-		[Test][Ignore("VM Transition")]
+		[Test]
 		public void LocalFunctionsObscureScopeRule()
 		{
 			string script = @"    
-				local fact;
-
 				local function fact()
 					return fact;
 				end
@@ -518,7 +516,7 @@ namespace MoonSharp.Interpreter.Tests
 			Assert.AreEqual(DataType.Function, res.Type);
 		}
 
-		[Test][Ignore("VM Transition")]
+		[Test]
 		public void FunctionWithStringArg()
 		{
 			string script = @"    
@@ -564,7 +562,7 @@ namespace MoonSharp.Interpreter.Tests
 		}
 
 
-		[Test][Ignore("VM Transition")]
+		[Test]
 		public void TupleAssignment2()
 		{
 			string script = @"    

@@ -10,11 +10,12 @@ namespace MoonSharp.Interpreter.Execution.VM
 	public class Chunk
 	{
 		public List<Instruction> Code = new List<Instruction>();
+		internal LoopTracker LoopTracker = new LoopTracker();
+
 		
 		static int s_RefIDCounter = 0;
 		private int m_RefID = Interlocked.Increment(ref s_RefIDCounter);
 
-		private LoopTracker m_FlowTracker = new LoopTracker();
 
 		public int ReferenceID { get { return m_RefID; } }
 
@@ -147,23 +148,17 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		public Instruction Enter(RuntimeScopeFrame runtimeScopeFrame)
 		{
-			//if (runtimeScopeFrame.RestartOfBase)
-			//	m_FlowTracker.EnterFunction(runtimeScopeFrame);
-
 			return Emit(new Instruction() { OpCode = OpCode.Enter, Frame = runtimeScopeFrame });
 		}
 
 		public Instruction Leave(RuntimeScopeFrame runtimeScopeFrame)
 		{
-			//if (runtimeScopeFrame.RestartOfBase)
-			//	m_FlowTracker.LeaveFunction(runtimeScopeFrame);
-
 			return Emit(new Instruction() { OpCode = OpCode.Leave });
 		}
 
-		public Instruction Exit()
+		public Instruction Exit(RuntimeScopeFrame runtimeScopeFrame = null)
 		{
-			return Emit(new Instruction() { OpCode = OpCode.Exit });
+			return Emit(new Instruction() { OpCode = OpCode.Exit, Frame = runtimeScopeFrame });
 		}
 
 		public Instruction Closure(SymbolRef[] symbols, int jmpnum)

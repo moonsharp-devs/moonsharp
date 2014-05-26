@@ -67,6 +67,7 @@
     <Compile Include="Execution\ExecutionFlow.cs" />
     <Compile Include="Execution\ExecutionFlowType.cs" />
     <Compile Include="Execution\DataTypes\CallbackFunction.cs" />
+    <Compile Include="Execution\Scopes\LoopTracker.cs" />
     <Compile Include="Execution\Scopes\BuildTimeScope.cs" />
     <Compile Include="Execution\Scopes\BuildTimeScopeFrame.cs" />
     <Compile Include="Execution\Scopes\IClosureBuilder.cs" />

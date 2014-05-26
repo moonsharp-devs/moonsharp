@@ -139,6 +139,9 @@ namespace MoonSharp.Interpreter.Execution.VM
 					case OpCode.Div:
 						Div(i);
 						break;
+					case OpCode.Power:
+						Power(i);
+						break;
 					case OpCode.Eq:
 						Eq(i);
 						break;
@@ -177,9 +180,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 						m_Scope.PopFrame();
 						break;
 					case OpCode.Exit:
-						m_Scope.PopFramesToFunction();
-						if (m_ExecutionStack.Count > 0)
-							m_Scope.LeaveClosure();
+						ExecExit(i);
 						break;
 					case OpCode.Closure:
 						m_ValueStack.Push(new RValue(new Closure(i.NumVal, i.SymbolList, m_Scope)));
@@ -219,6 +220,21 @@ namespace MoonSharp.Interpreter.Execution.VM
 			else
 				throw new InternalErrorException("Unexpected value stack count at program end : {0}", m_ValueStack.Count);
 
+		}
+
+
+		private void ExecExit(Instruction i)
+		{
+			if (i.Frame == null)
+			{
+				m_Scope.PopFramesToFunction();
+				if (m_ExecutionStack.Count > 0)
+					m_Scope.LeaveClosure();
+			}
+			else
+			{
+				m_Scope.PopFramesToFrame(i.Frame);
+			}
 		}
 
 		private void DebugInterface(Instruction i)
@@ -405,6 +421,16 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 			if (r.Type == DataType.Number)
 				m_ValueStack.Push(new RValue( -r.Number));
+			else
+				throw new NotImplementedException("Meta operators");
+		}
+		private void Power(Instruction i)
+		{
+			RValue r = m_ValueStack.Pop();
+			RValue l = m_ValueStack.Pop();
+
+			if (r.Type == DataType.Number && l.Type == DataType.Number)
+				m_ValueStack.Push(new RValue(Math.Pow(l.Number, r.Number)));
 			else
 				throw new NotImplementedException("Meta operators");
 		}

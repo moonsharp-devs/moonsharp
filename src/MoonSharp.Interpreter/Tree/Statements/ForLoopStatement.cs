@@ -65,8 +65,28 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			return ExecutionFlow.None;
 		}
 
+		private class Loop : ILoop
+		{
+			public RuntimeScopeFrame Scope;
+			public List<Instruction> BreakJumps = new List<Instruction>();
+
+			public void CompileBreak(Chunk bc)
+			{
+				bc.Exit(Scope);
+				BreakJumps.Add(bc.Jump(OpCode.Jump, -1));
+			}
+		}
+
+
 		public override void Compile(Chunk bc)
 		{
+			Loop L = new Loop()
+			{
+				Scope = m_StackFrame
+			};
+
+			bc.LoopTracker.Loops.Push(L);
+
 			m_End.Compile(bc);
 			bc.ToNum();
 			m_Step.Compile(bc);
@@ -83,7 +103,13 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			bc.Leave(m_StackFrame);
 			bc.Incr(1);
 			bc.Jump(OpCode.Jump, start);
-			jumpend.NumVal = bc.GetJumpPointForNextInstruction();
+
+			int exitpoint = bc.GetJumpPointForNextInstruction();
+
+			foreach (Instruction i in L.BreakJumps)
+				i.NumVal = exitpoint;
+
+			jumpend.NumVal = exitpoint;
 			bc.Pop(3);
 		}
 

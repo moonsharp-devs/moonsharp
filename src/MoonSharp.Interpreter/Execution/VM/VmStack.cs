@@ -9,7 +9,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 	class VmStackFrame
 	{
 		public int ReturnIndex;
-		public Chunk Chunk;
+		public int BasePointer;
+
 	}
 
 }

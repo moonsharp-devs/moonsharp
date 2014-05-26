@@ -50,7 +50,7 @@ namespace MoonSharp.Interpreter.Execution
 		}
 
 
-		public bool PopFrame()
+		public RuntimeScopeFrame PopFrame()
 		{
 			RuntimeScopeFrame frame = m_ScopeFrames.Pop();
 
@@ -64,16 +64,20 @@ namespace MoonSharp.Interpreter.Execution
 			if (frame.RestartOfBase)
 			{
 				m_LocalBaseIndexes.RemoveAt(m_LocalBaseIndexes.Count - 1);
-				return true;
 			}
-			return false;
+			return frame;
 		}
 
 		public void PopFramesToFunction()
 		{
-			while (!PopFrame()) ;
+			while (!PopFrame().RestartOfBase) ;
 		}
 
+		public void PopFramesToFrame(RuntimeScopeFrame runtimeScopeFrame)
+		{
+			while (m_ScopeFrames.Peek() != runtimeScopeFrame)
+				PopFrame();
+		}
 
 		public RValue Get(SymbolRef symref)
 		{
@@ -158,6 +162,7 @@ namespace MoonSharp.Interpreter.Execution
 			for (int i = 0; i <= maxidx; i++)
 				m_GlobalScope.Add(RValue.Nil);
 		}
+
 
 
 
