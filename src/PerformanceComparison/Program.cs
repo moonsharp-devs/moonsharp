@@ -41,6 +41,16 @@ namespace PerformanceComparison
 			return RValue.Nil;
 		}
 
+		private static void Example()
+		{
+			Table t = new Table();
+			t[new RValue("print")] = new RValue(new CallbackFunction(Print));
+
+			Script script = MoonSharpInterpreter.LoadFromFile(@"c:\temp\test.lua", t);
+
+			RValue retVal = script.Execute();
+		}
+
 		public static void NPrint(params object[] values)
 		{
 			foreach (var val in values)
