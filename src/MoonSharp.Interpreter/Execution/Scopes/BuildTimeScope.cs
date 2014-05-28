@@ -10,7 +10,7 @@ namespace MoonSharp.Interpreter.Execution
 	{
 		BuildTimeScopeFrame m_GlobalRuntimeScope = new BuildTimeScopeFrame(0, 0, true);
 
-		Dictionary<SymbolRef, RValue> m_PredefinedGlobals = new Dictionary<SymbolRef, RValue>();
+		Dictionary<LRef, RValue> m_PredefinedGlobals = new Dictionary<LRef, RValue>();
 
 		List<BuildTimeScopeFrame> m_Locals = new List<BuildTimeScopeFrame>();
 
@@ -24,7 +24,7 @@ namespace MoonSharp.Interpreter.Execution
 			foreach (var kvp in t.Pairs().Where(e => e.Key.Type == DataType.String))
 			{
 				int idx = m_GlobalRuntimeScope.Define(kvp.Key.String);
-				m_PredefinedGlobals.Add(SymbolRef.Global(kvp.Key.String, idx), kvp.Value);
+				m_PredefinedGlobals.Add(LRef.Global(kvp.Key.String, idx), kvp.Value);
 			}
 
 		}
@@ -64,14 +64,14 @@ namespace MoonSharp.Interpreter.Execution
 
 		RuntimeScopeFrame GetRuntimeFrameFromBuildFrame(BuildTimeScopeFrame frame, bool local)
 		{
-			List<SymbolRef> symbols = new List<SymbolRef>();
+			List<LRef> symbols = new List<LRef>();
 			for (int i = frame.StartIndex; i < frame.MaxIndex; i++)
 			{
-				SymbolRef s;
+				LRef s;
 				if (local)
-					s = SymbolRef.Local(frame.FindRev(i - frame.BaseIndex), i - frame.BaseIndex);
+					s = LRef.Local(frame.FindRev(i - frame.BaseIndex), i - frame.BaseIndex);
 				else
-					s = SymbolRef.Global(frame.FindRev(i - frame.BaseIndex), i - frame.BaseIndex);
+					s = LRef.Global(frame.FindRev(i - frame.BaseIndex), i - frame.BaseIndex);
 
 				symbols.Add(s);
 			}
@@ -88,13 +88,13 @@ namespace MoonSharp.Interpreter.Execution
 			return GetRuntimeFrameFromBuildFrame(frame, true);
 		}
 
-		public SymbolRef Find(string name)
+		public LRef Find(string name)
 		{
 			for (int i = m_Locals.Count - 1; i >= 0; i--)
 			{
 				int idx = m_Locals[i].Find(name);
 				if (idx >= 0)
-					return SymbolRef.Local(name, idx);
+					return LRef.Local(name, idx);
 
 				if (m_Locals[i].Breaking)
 					break;
@@ -112,7 +112,7 @@ namespace MoonSharp.Interpreter.Execution
 					{
 						int idx = m_Locals[i].Find(name);
 						if (idx >= 0)
-							return closure.CreateUpvalue(this, SymbolRef.Local(name, idx));
+							return closure.CreateUpvalue(this, LRef.Local(name, idx));
 
 						if (m_Locals[i].Breaking)
 							break;
@@ -122,39 +122,39 @@ namespace MoonSharp.Interpreter.Execution
 
 			int idxglob = m_GlobalRuntimeScope.Find(name);
 			if (idxglob >= 0)
-				return SymbolRef.Global(name, idxglob);
+				return LRef.Global(name, idxglob);
 
 			// Debug.WriteLine(string.Format("Attempted to find '{0}' failed", name));
-			return SymbolRef.Invalid();
+			return LRef.Invalid();
 		}
 
-		public SymbolRef DefineLocal(string name)
+		public LRef DefineLocal(string name)
 		{
-			var s = SymbolRef.Local(name, m_Locals[m_Locals.Count - 1].Define(name));
+			var s = LRef.Local(name, m_Locals[m_Locals.Count - 1].Define(name));
 			// Debug.WriteLine(string.Format("Define local  : {0}", s));
 			return s;
 		}
 
-		public SymbolRef TryDefineLocal(string name)
+		public LRef TryDefineLocal(string name)
 		{
 			int idx = m_Locals[m_Locals.Count - 1].Find(name);
 
 			if (idx >= 0)
-				return SymbolRef.Local(name, idx);
+				return LRef.Local(name, idx);
 
-			var s = SymbolRef.Local(name, m_Locals[m_Locals.Count - 1].Define(name));
+			var s = LRef.Local(name, m_Locals[m_Locals.Count - 1].Define(name));
 			// Debug.WriteLine(string.Format("Define local : {0}", s));
 			return s;
 		}
 
 
-		public SymbolRef DefineGlobal(string name)
+		public LRef DefineGlobal(string name)
 		{
 			int idxglob = m_GlobalRuntimeScope.Find(name);
 			if (idxglob >= 0)
-				return SymbolRef.Global(name, idxglob);
+				return LRef.Global(name, idxglob);
 
-			var s = SymbolRef.Global(name, m_GlobalRuntimeScope.Define(name));
+			var s = LRef.Global(name, m_GlobalRuntimeScope.Define(name));
 			// Debug.WriteLine(string.Format("Define global : {0}", s));
 			return s;
 		}

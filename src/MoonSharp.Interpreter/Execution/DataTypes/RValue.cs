@@ -24,7 +24,7 @@ namespace MoonSharp.Interpreter.Execution
 		public string String { get; private set; }
 		public bool ReadOnly { get; internal set; }
 
-		internal SymbolRef Symbol { get; private set; }
+		internal LRef Symbol { get; private set; }
 
 
 
@@ -42,7 +42,7 @@ namespace MoonSharp.Interpreter.Execution
 		{
 			Assign(num);
 		}
-		public RValue(SymbolRef symbol)
+		public RValue(LRef symbol)
 		{
 			this.Symbol = symbol;
 			this.Type = DataType.Symbol;

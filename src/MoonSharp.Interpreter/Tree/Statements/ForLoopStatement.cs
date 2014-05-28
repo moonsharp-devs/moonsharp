@@ -14,7 +14,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		//for' NAME '=' exp ',' exp (',' exp)? 'do' block 'end'
 		RuntimeScopeFrame m_StackFrame;
 		Statement m_InnerBlock;
-		SymbolRef m_VarName;
+		LRef m_VarName;
 		Expression m_Start, m_End, m_Step;
 
 		public ForLoopStatement(LuaParser.Stat_forloopContext context, ScriptLoadingContext lcontext)

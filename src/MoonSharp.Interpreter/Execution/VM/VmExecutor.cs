@@ -95,17 +95,17 @@ namespace MoonSharp.Interpreter.Execution.VM
 				Instruction i = m_CurChunk.Code[m_InstructionPtr];
 
 
-				if (m_DoDebug)
-				{
-					DebugInterface(i);
-				}
+				//if (m_DoDebug)
+				//{
+				//	DebugInterface(i);
+				//}
 
-				if (System.Diagnostics.Debugger.IsAttached && m_StepEnabled)
-				{
-					ConsoleKeyInfo cki = Console.ReadKey();
-					if (cki.Key == ConsoleKey.Escape)
-						m_StepEnabled = false;
-				}
+				//if (System.Diagnostics.Debugger.IsAttached && m_StepEnabled)
+				//{
+				//	ConsoleKeyInfo cki = Console.ReadKey();
+				//	if (cki.Key == ConsoleKey.Escape)
+				//		m_StepEnabled = false;
+				//}
 
 				++m_InstructionPtr;
 
@@ -443,8 +443,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 			for (int i = 0; i < I.SymbolList.Length; i++)
 			{
 				m_Scope.Assign(I.SymbolList[i], m_ValueStack.Peek(i + 1));
-
-				Console.WriteLine("ARGS: {0} <- {1}", I.SymbolList[i], m_ValueStack.Peek(i + 1));
 			}
 		}
 
@@ -621,11 +619,11 @@ namespace MoonSharp.Interpreter.Execution.VM
 		}
 
 
-		private void Internal_Assign(SymbolRef l, RValue r)
+		private void Internal_Assign(LRef l, RValue r)
 		{
-			if (l.Type == SymbolRefType.Index)
+			if (l.i_Type == LRefType.Index)
 			{
-				l.TableRefObject.Table[l.TableRefIndex] = r;
+				l.i_TableRefObject.Table[l.i_TableRefIndex] = r;
 			}
 			else
 			{
@@ -672,7 +670,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			}
 			else
 			{
-				SymbolRef s = SymbolRef.ObjIndex(baseValue, indexValue);
+				LRef s = LRef.ObjIndex(baseValue, indexValue);
 				m_ValueStack.Push(new RValue(s));
 			}
 		}

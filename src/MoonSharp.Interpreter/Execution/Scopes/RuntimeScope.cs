@@ -10,7 +10,7 @@ namespace MoonSharp.Interpreter.Execution
 	{
 		List<RValue> m_GlobalScope = new List<RValue>(131072); // start with a 512KB scope stack
 		List<RValue> m_ScopeStack = new List<RValue>(131072); // start with a 512KB scope stack
-		List<SymbolRef> m_DebugStack = new List<SymbolRef>(131072); // start with a 512KB scope stack
+		List<LRef> m_DebugStack = new List<LRef>(131072); // start with a 512KB scope stack
 		List<int> m_LocalBaseIndexes = new List<int>(16384);
 		List<List<RValue>> m_ClosureStack = new List<List<RValue>>();
 		List<RuntimeScopeFrame> m_ScopeFrames = new List<RuntimeScopeFrame>(2048);
@@ -79,77 +79,77 @@ namespace MoonSharp.Interpreter.Execution
 				PopFrame();
 		}
 
-		public RValue Get(SymbolRef symref)
+		public RValue Get(LRef symref)
 		{
-			switch (symref.Type)
+			switch (symref.i_Type)
 			{
-				case SymbolRefType.Global:
+				case LRefType.Global:
 					{
-						return m_GlobalScope[symref.Index] ?? RValue.Nil;
+						return m_GlobalScope[symref.i_Index] ?? RValue.Nil;
 					}
-				case SymbolRefType.Local:
+				case LRefType.Local:
 					{
 						int lastBaseIdx = m_LocalBaseIndexes[m_LocalBaseIndexes.Count - 1];
-						return m_ScopeStack[lastBaseIdx + symref.Index] ?? RValue.Nil;
+						return m_ScopeStack[lastBaseIdx + symref.i_Index] ?? RValue.Nil;
 					}
-				case SymbolRefType.Upvalue:
+				case LRefType.Upvalue:
 					{
 						List<RValue> closureValues = m_ClosureStack.Count > 0 ? m_ClosureStack[m_ClosureStack.Count - 1] : null;
 
 						if (closureValues != null)
 						{
-							return closureValues[symref.Index];
+							return closureValues[symref.i_Index];
 						}
 						else
 						{
-							throw new ScriptRuntimeException(null, "Invalid upvalue at resolution: {0}", symref.Name);
+							throw new ScriptRuntimeException(null, "Invalid upvalue at resolution: {0}", symref.i_Name);
 						}
 					}
-				case SymbolRefType.Invalid:
+				case LRefType.Invalid:
 				default:
 					{
-						throw new ScriptRuntimeException(null, "Invalid value at resolution: {0}", symref.Name);
+						throw new ScriptRuntimeException(null, "Invalid value at resolution: {0}", symref.i_Name);
 					}
 			}
 		}
 
 
-		public void Assign(SymbolRef symref, RValue value)
+		public void Assign(LRef symref, RValue value)
 		{
 			// Debug.WriteLine(string.Format("Assigning {0} = {1}", symref, value));
 
-			switch (symref.Type)
+			switch (symref.i_Type)
 			{
-				case SymbolRefType.Global:
+				case LRefType.Global:
 					{
-						m_GlobalScope[symref.Index] = value.CloneAsWritable();
+						m_GlobalScope[symref.i_Index] = value.CloneAsWritable();
 					}
 					break;
-				case SymbolRefType.Local:
+				case LRefType.Local:
 					{
 						int lastBaseIdx = m_LocalBaseIndexes[m_LocalBaseIndexes.Count - 1];
-						m_ScopeStack[lastBaseIdx + symref.Index].Assign(value);
+						m_ScopeStack[lastBaseIdx + symref.i_Index].Assign(value);
 						//m_ScopeStack[lastBaseIdx + symref.Index] = value.CloneAsWritable();
 					}
 					break;
-				case SymbolRefType.Upvalue:
+				case LRefType.Upvalue:
 					{
 						List<RValue> closureValues = m_ClosureStack.Count > 0 ? m_ClosureStack[m_ClosureStack.Count - 1] : null;
 
 						if (closureValues != null)
 						{
-							closureValues[symref.Index].Assign(value);
+							closureValues[symref.i_Index].Assign(value);
 						}
 						else
 						{
-							throw new ScriptRuntimeException(null, "Invalid upvalue at resolution: {0}", symref.Name);
+							throw new ScriptRuntimeException(null, "Invalid upvalue at resolution: {0}", symref.i_Name);
 						}
 					}
 					break;
-				case SymbolRefType.Invalid:
+				case LRefType.Invalid:
 				default:
 					{
-						throw new ScriptRuntimeException(null, "Invalid value at resolution: {0}", symref.Name);
+						throw new ScriptRuntimeException(null, "Invalid value at resolution: {0}", symref.i_Name);
 					}
 			}
 		}

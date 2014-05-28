@@ -1,5 +1,8 @@
-﻿using System;
+﻿#define EMIT_DEBUG_OPS
+
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -80,7 +83,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			return Emit(new Instruction() { OpCode = OpCode.Call, NumVal = argCount });
 		}
 
-		public Instruction Load(SymbolRef symref)
+		public Instruction Load(LRef symref)
 		{
 			return Emit(new Instruction() { OpCode = OpCode.Load, Symbol = symref });
 		}
@@ -100,7 +103,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			return Emit(new Instruction() { OpCode = OpCode.Store });
 		}
 
-		public Instruction Symbol(SymbolRef symref)
+		public Instruction Symbol(LRef symref)
 		{
 			return Emit(new Instruction() { OpCode = OpCode.Symbol, Symbol = symref });
 		}
@@ -125,14 +128,17 @@ namespace MoonSharp.Interpreter.Execution.VM
 			return Emit(new Instruction() { OpCode = OpCode.Bool });
 		}
 
-		public Instruction Debug(string str)
+		[Conditional("EMIT_DEBUG_OPS")]
+		public void Debug(string str)
 		{
-			return Emit(new Instruction() { OpCode = OpCode.Debug, Name = str.Substring(0, Math.Min(32, str.Length)) });
+			Emit(new Instruction() { OpCode = OpCode.Debug, Name = str.Substring(0, Math.Min(32, str.Length)) });
 		}
-		public Instruction Debug(Antlr4.Runtime.Tree.IParseTree parseTree)
+
+		[Conditional("EMIT_DEBUG_OPS")]
+		public void Debug(Antlr4.Runtime.Tree.IParseTree parseTree)
 		{
 			string str = parseTree.GetText();
-			return Emit(new Instruction() { OpCode = OpCode.Debug, Name = str.Substring(0, Math.Min(32, str.Length)) });
+			Emit(new Instruction() { OpCode = OpCode.Debug, Name = str.Substring(0, Math.Min(32, str.Length)) });
 		}
 
 		public Instruction Enter(RuntimeScopeFrame runtimeScopeFrame)
@@ -150,12 +156,12 @@ namespace MoonSharp.Interpreter.Execution.VM
 			return Emit(new Instruction() { OpCode = OpCode.Exit, Frame = runtimeScopeFrame });
 		}
 
-		public Instruction Closure(SymbolRef[] symbols, int jmpnum)
+		public Instruction Closure(LRef[] symbols, int jmpnum)
 		{
 			return Emit(new Instruction() { OpCode = OpCode.Closure, SymbolList = symbols, NumVal = jmpnum });
 		}
 
-		public Instruction Args(SymbolRef[] symbols)
+		public Instruction Args(LRef[] symbols)
 		{
 			return Emit(new Instruction() { OpCode = OpCode.Args, SymbolList = symbols });
 		}
@@ -175,7 +181,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			return Emit(new Instruction() { OpCode = OpCode.ToNum });
 		}
 
-		public Instruction SymStorN(SymbolRef symb)
+		public Instruction SymStorN(LRef symb)
 		{
 			return Emit(new Instruction() { OpCode = OpCode.SymStorN, Symbol = symb });
 		}
@@ -224,9 +230,10 @@ namespace MoonSharp.Interpreter.Execution.VM
 			return Emit(new Instruction() { OpCode = OpCode.IterUpd });
 		}
 
-		public Instruction Reverse(int p)
+		public void Reverse(int p)
 		{
-			return Emit(new Instruction() { OpCode = OpCode.Reverse, NumVal = p });
+			if (p > 1)
+				Emit(new Instruction() { OpCode = OpCode.Reverse, NumVal = p });
 		}
 	}
 }

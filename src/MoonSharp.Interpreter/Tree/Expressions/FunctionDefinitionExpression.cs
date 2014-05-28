@@ -10,10 +10,10 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 {
 	class FunctionDefinitionExpression : Expression, IClosureBuilder
 	{
-		SymbolRef[] m_ParamNames;
+		LRef[] m_ParamNames;
 		Statement m_Statement;
 		RuntimeScopeFrame m_StackFrame;
-		List<SymbolRef> m_Closure = new List<SymbolRef>();
+		List<LRef> m_Closure = new List<LRef>();
 		public object UpvalueCreationTag { get; set; }
 
 		public FunctionDefinitionExpression(LuaParser.AnonfunctiondefContext context, ScriptLoadingContext lcontext, bool pushSelfParam = false)
@@ -21,18 +21,18 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 		{
 		}
 
-		public SymbolRef CreateUpvalue(BuildTimeScope scope, SymbolRef symbol)
+		public LRef CreateUpvalue(BuildTimeScope scope, LRef symbol)
 		{
 			for (int i = 0; i < m_Closure.Count; i++)
 			{
-				if (m_Closure[i].Name == symbol.Name)
+				if (m_Closure[i].i_Name == symbol.i_Name)
 				{
-					return SymbolRef.Upvalue(symbol.Name, i);
+					return LRef.Upvalue(symbol.i_Name, i);
 				}
 			}
 
 			m_Closure.Add(symbol);
-			return SymbolRef.Upvalue(symbol.Name, m_Closure.Count - 1);
+			return LRef.Upvalue(symbol.i_Name, m_Closure.Count - 1);
 		}
 
 		public FunctionDefinitionExpression(LuaParser.FuncbodyContext context, ScriptLoadingContext lcontext, bool pushSelfParam = false)

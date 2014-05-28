@@ -10,7 +10,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 {
 	class FunctionDefinitionStatement : Statement
 	{
-		SymbolRef m_FuncName;
+		LRef m_FuncName;
 		List<string> m_TableAccessors;
 		string m_MethodName;
 

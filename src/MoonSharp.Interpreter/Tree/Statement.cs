@@ -62,7 +62,7 @@ namespace MoonSharp.Interpreter.Tree
 			return ExecutionFlow.None;
 		}
 
-		protected ExecutionFlow ExecuteStatementInBlockScope(Statement s, RuntimeScope scope, RuntimeScopeFrame stackframe, SymbolRef symb = null, RValue varvalue = null)
+		protected ExecutionFlow ExecuteStatementInBlockScope(Statement s, RuntimeScope scope, RuntimeScopeFrame stackframe, LRef symb = null, RValue varvalue = null)
 		{
 			scope.PushFrame(stackframe);
 

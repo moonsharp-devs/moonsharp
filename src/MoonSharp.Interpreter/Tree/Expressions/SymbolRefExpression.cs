@@ -10,7 +10,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 {
 	class SymbolRefExpression : Expression, IVariable
 	{
-		SymbolRef m_Ref;
+		LRef m_Ref;
 
 		public SymbolRefExpression(ITerminalNode terminalNode, ScriptLoadingContext lcontext)
 			: base(terminalNode, lcontext)
@@ -29,7 +29,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			RValue v = scope.Get(m_Ref);
 
 			if (v == null)
-				throw new ScriptRuntimeException(this.TreeNode, "Undefined symbol: {0}", m_Ref.Name);
+				throw new ScriptRuntimeException(this.TreeNode, "Undefined symbol: {0}", m_Ref.i_Name);
 
 			return v;
 		}

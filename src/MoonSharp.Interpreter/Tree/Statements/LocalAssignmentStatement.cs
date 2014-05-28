@@ -11,7 +11,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 {
 	class LocalAssignmentStatement : Statement
 	{
-		SymbolRef[] m_Names;
+		LRef[] m_Names;
 		Expression[] m_RValues;
 
 		public LocalAssignmentStatement(LuaParser.Stat_localassignmentContext context, ScriptLoadingContext lcontext)

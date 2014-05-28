@@ -72,10 +72,10 @@
     <Compile Include="Execution\Scopes\BuildTimeScope.cs" />
     <Compile Include="Execution\Scopes\BuildTimeScopeFrame.cs" />
     <Compile Include="Execution\Scopes\IClosureBuilder.cs" />
-    <Compile Include="Execution\Scopes\SymbolRefType.cs" />
+    <Compile Include="Execution\Scopes\LRefType.cs" />
     <Compile Include="Execution\Scopes\RuntimeScope.cs" />
     <Compile Include="Execution\Scopes\RuntimeScopeFrame.cs" />
-    <Compile Include="Execution\Scopes\SymbolRef.cs" />
+    <Compile Include="Execution\Scopes\LRef.cs" />
     <Compile Include="Execution\ScriptLoadingContext.cs" />
     <Compile Include="Execution\DataTypes\DataType.cs" />
     <Compile Include="Execution\DataTypes\RValue.cs" />

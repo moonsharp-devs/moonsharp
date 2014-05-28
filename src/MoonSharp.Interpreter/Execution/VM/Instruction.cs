@@ -8,8 +8,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 	public class Instruction
 	{
 		public OpCode OpCode;
-		public SymbolRef Symbol;
-		public SymbolRef[] SymbolList;
+		public LRef Symbol;
+		public LRef[] SymbolList;
 		public string Name;
 		public RValue Value;
 		public int NumVal;
