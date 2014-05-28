@@ -12,7 +12,7 @@ namespace MoonSharpTests
 {
 	class Program
 	{
-		public const string RESTRICT_TEST = "TableMethod6";
+		public const string RESTRICT_TEST = "ForEachLoop";
 
 		static void Main(string[] args)
 		{

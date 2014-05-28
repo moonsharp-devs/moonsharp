@@ -31,7 +31,7 @@ namespace MoonSharp
 		[STAThread]
 		static void Main(string[] args)
 		{
-			Console.WriteLine("Moon# REPL {0}\nCopyright (C) 2014 Marco Mastropaolo",
+			Console.WriteLine("Moon# {0}\nCopyright (C) 2014 Marco Mastropaolo\nhttp://www.moonsharp.org",
 				Assembly.GetExecutingAssembly().GetName().Version);
 
 			Console.WriteLine("Based on Lua 5.2, Copyright (C) 1994-2013 Lua.org");
@@ -40,12 +40,12 @@ namespace MoonSharp
 
 			if (args.Length == 1)
 			{
-				var script = MoonSharpInterpreter.LoadFromFile(args[0]);
+				Table globalTable = new Table();
+				globalTable[new RValue("print")] = new RValue(new CallbackFunction(Print));
 
-				RuntimeScope globalScope = new RuntimeScope();
-				globalScope["print"] = new RValue(new CallbackFunction(Print));
+				var script = MoonSharpInterpreter.LoadFromFile(args[0], globalTable);
 
-				script.Execute(globalScope);
+				script.Execute();
 
 				Console.WriteLine("Done.");
 				

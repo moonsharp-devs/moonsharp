@@ -54,7 +54,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 			return Code.Count - 1;
 		}
 
-
 		private Instruction Emit(Instruction c)
 		{
 			Code.Add(c);
@@ -106,9 +105,9 @@ namespace MoonSharp.Interpreter.Execution.VM
 			return Emit(new Instruction() { OpCode = OpCode.Symbol, Symbol = symref });
 		}
 
-		public Instruction Jump(OpCode jumpOpCode, int idx)
+		public Instruction Jump(OpCode jumpOpCode, int idx, int optPar = 0)
 		{
-			return Emit(new Instruction() { OpCode = jumpOpCode, NumVal = idx });
+			return Emit(new Instruction() { OpCode = jumpOpCode, NumVal = idx, NumVal2 = optPar });
 		}
 
 		public Instruction MkTuple(int cnt)
@@ -176,9 +175,9 @@ namespace MoonSharp.Interpreter.Execution.VM
 			return Emit(new Instruction() { OpCode = OpCode.ToNum });
 		}
 
-		public Instruction NSymStor(SymbolRef symb)
+		public Instruction SymStorN(SymbolRef symb)
 		{
-			return Emit(new Instruction() { OpCode = OpCode.NSymStor, Symbol = symb });
+			return Emit(new Instruction() { OpCode = OpCode.SymStorN, Symbol = symb });
 		}
 
 		public Instruction Incr(int i)
@@ -186,18 +185,18 @@ namespace MoonSharp.Interpreter.Execution.VM
 			return Emit(new Instruction() { OpCode = OpCode.Incr, NumVal = i });
 		}
 
-		public Instruction IndexGet()
+		public Instruction Index()
 		{
-			return Emit(new Instruction() { OpCode = OpCode.IndexGet });
+			return Emit(new Instruction() { OpCode = OpCode.Index });
 		}
 
-		public Instruction IndexSet()
+		public Instruction IndexRef()
 		{
-			return Emit(new Instruction() { OpCode = OpCode.IndexSet });
+			return Emit(new Instruction() { OpCode = OpCode.IndexRef });
 		}
-		public Instruction IndexSetN()
+		public Instruction IndexRefN()
 		{
-			return Emit(new Instruction() { OpCode = OpCode.IndexSetN });
+			return Emit(new Instruction() { OpCode = OpCode.IndexRefN });
 		}
 
 		public Instruction NewTable()
@@ -208,6 +207,26 @@ namespace MoonSharp.Interpreter.Execution.VM
 		public Instruction TempOp(OpCode opCode, int regNum)
 		{
 			return Emit(new Instruction() { OpCode = opCode, NumVal = regNum });
+		}
+
+		public Instruction IterPrep()
+		{
+			return Emit(new Instruction() { OpCode = OpCode.IterPrep });
+		}
+
+		public Instruction ExpTuple(int stackOffset)
+		{
+			return Emit(new Instruction() { OpCode = OpCode.ExpTuple, NumVal = stackOffset });
+		}
+
+		public Instruction IterUpd()
+		{
+			return Emit(new Instruction() { OpCode = OpCode.IterUpd });
+		}
+
+		public Instruction Reverse(int p)
+		{
+			return Emit(new Instruction() { OpCode = OpCode.Reverse, NumVal = p });
 		}
 	}
 }

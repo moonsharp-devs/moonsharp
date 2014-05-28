@@ -110,12 +110,12 @@ namespace MoonSharp.Interpreter.Tree.Statements
 				foreach (string str in m_TableAccessors)
 				{
 					bc.Literal(new RValue(str));
-					bc.IndexGet();
+					bc.Index();
 				}
 
 				bc.Literal(new RValue(m_MethodName));
 
-				bc.IndexSet();
+				bc.IndexRef();
 
 				m_FuncDef.Compile(bc);
 

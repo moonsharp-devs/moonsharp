@@ -67,12 +67,14 @@ namespace MoonSharp.Interpreter.Tree
 			{
 				bc.TempOp(OpCode.TmpPeek, 0);
 				bc.Literal(new RValue(m_Name));
-				bc.IndexGet();
+				bc.Index();
 			}
 
 
-			for (int i = m_Arguments.Length - 1; i >= 0; i--)
+			for (int i = 0; i < m_Arguments.Length; i++)
 				m_Arguments[i].Compile(bc);
+
+			bc.Reverse(m_Arguments.Length);
 
 			if (string.IsNullOrEmpty(m_Name))
 			{

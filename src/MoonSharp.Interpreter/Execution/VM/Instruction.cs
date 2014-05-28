@@ -22,22 +22,34 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 			switch (OpCode)
 			{
+				case OpCode.Closure:
+					append = string.Format("{0}{1:X8}({2})", GenSpaces(), NumVal, string.Join(",", SymbolList.Select(s => s.ToString()).ToArray()));
+					break;
+				case OpCode.Args:
+					append = string.Format("{0}({1})", GenSpaces(), string.Join(",", SymbolList.Select(s => s.ToString()).ToArray()));
+					break;
+				case OpCode.Enter:
+				case OpCode.Exit:
+					append = string.Format("{0}{1}", GenSpaces(), FrameToString(Frame));
+					break;
 				case OpCode.Debug:
 					return string.Format("[[ {0} ]]", Name);
 				case OpCode.Load:
 				case OpCode.Symbol:
-				case OpCode.NSymStor:
+				case OpCode.SymStorN:
 					append = string.Format("{0}{1}", GenSpaces(), Symbol);
 					break;
 				case OpCode.Literal:
 					append = string.Format("{0}{1}", GenSpaces(), PurifyFromNewLines(Value));
 					break;
 				case OpCode.Nop:
-					append = string.Format("{0}// {1}", GenSpaces(), Name);
+					append = string.Format("{0}#{1}", GenSpaces(), Name);
 					break;
 				case OpCode.Call:
 				case OpCode.Ret:
 				case OpCode.MkTuple:
+				case OpCode.ExpTuple:
+				case OpCode.Reverse:
 				case OpCode.Incr:
 				case OpCode.Pop:
 				case OpCode.TmpClear:
@@ -51,6 +63,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				case OpCode.Jf:
 				case OpCode.Jump:
 				case OpCode.JFor:
+				case OpCode.JNil:
 					append = string.Format("{0}{1:X8}", GenSpaces(), NumVal);
 					break;
 				case OpCode.Invalid:
@@ -63,7 +76,15 @@ namespace MoonSharp.Interpreter.Execution.VM
 					break;
 			}
 
-			return this.OpCode.ToString().ToLowerInvariant() + append;
+			return this.OpCode.ToString().ToUpperInvariant() + append;
+		}
+
+		private string FrameToString(RuntimeScopeFrame frame)
+		{
+			if (frame == null)
+				return "<null>";
+			else
+				return string.Format("{0}({1})", frame.RestartOfBase ? "function" : "block", frame.Count);
 		}
 
 		private string PurifyFromNewLines(RValue Value)
@@ -73,7 +94,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		private string GenSpaces()
 		{
-			return new string(' ', 9 - this.OpCode.ToString().Length);
+			return new string(' ', 10 - this.OpCode.ToString().Length);
 		}
 
 

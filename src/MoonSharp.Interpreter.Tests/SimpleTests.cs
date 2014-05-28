@@ -240,7 +240,50 @@ namespace MoonSharp.Interpreter.Tests
 		}
 
 
-		[Test][Ignore("VM Transition")]
+		[Test]
+		public void ForEachLoopWithBreak()
+		{
+			string script = @"    
+				x = 0
+				y = 0
+
+				t = { 2, 4, 6, 8, 10, 12 };
+
+				function iter (a, ii)
+				  ii = ii + 1
+				  local v = a[ii]
+				  if v then
+					return ii, v
+				  end
+				end
+    
+				function ipairslua (a)
+				  return iter, a, 0
+				end
+
+				for i,j in ipairslua(t) do
+					x = x + i
+					y = y + j
+
+					if (i >= 3) then
+						break
+					end
+				end
+    
+				return x, y";
+
+			RValue res = MoonSharpInterpreter.LoadFromString(script, null).Execute();
+
+			Assert.AreEqual(DataType.Tuple, res.Type);
+			Assert.AreEqual(2, res.Tuple.Length);
+			Assert.AreEqual(DataType.Number, res.Tuple[0].Type);
+			Assert.AreEqual(DataType.Number, res.Tuple[1].Type);
+			Assert.AreEqual(6, res.Tuple[0].Number);
+			Assert.AreEqual(12, res.Tuple[1].Number);
+		}
+
+
+		[Test]
 		public void ForEachLoop()
 		{
 			string script = @"    
@@ -249,11 +292,11 @@ namespace MoonSharp.Interpreter.Tests
 
 				t = { 2, 4, 6, 8, 10, 12 };
 
-				function iter (a, i)
-				  i = i + 1
-				  local v = a[i]
+				function iter (a, ii)
+				  ii = ii + 1
+				  local v = a[ii]
 				  if v then
-					return i, v
+					return ii, v
 				  end
 				end
     
@@ -397,7 +440,7 @@ namespace MoonSharp.Interpreter.Tests
 			Assert.AreEqual(6, res.Number);
 		}
 
-		[Test][Ignore("VM Transition")]
+		[Test]
 		public void IterativeFactorialWithWhile()
 		{
 			string script = @"    
@@ -420,7 +463,7 @@ namespace MoonSharp.Interpreter.Tests
 
 
 
-		[Test][Ignore("VM Transition")]
+		[Test]
 		public void IterativeFactorialWithRepeatUntilAndScopeCheck()
 		{
 			string script = @"    

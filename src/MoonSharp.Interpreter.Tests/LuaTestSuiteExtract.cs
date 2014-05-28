@@ -43,7 +43,7 @@ namespace MoonSharp.Interpreter.Tests
 				string.Join(", ", failedTests.Select(xi => xi.ToString()).ToArray())));
 		}
 
-		[Test][Ignore("VM Transition")]
+		[Test]
 		public void LuaSuite_Calls_LocalFunctionRecursion()
 		{
 			RunTest(@"
@@ -62,7 +62,7 @@ namespace MoonSharp.Interpreter.Tests
 				");
 		}
 
-		[Test][Ignore("VM Transition")]
+		[Test]
 		public void LuaSuite_Calls_Declarations()
 		{
 			RunTest(@"
@@ -108,7 +108,7 @@ namespace MoonSharp.Interpreter.Tests
 				");
 		}
 
-		[Test][Ignore("VM Transition")]
+		[Test]
 		public void LuaSuite_Calls_Closures()
 		{
 			RunTest(@"

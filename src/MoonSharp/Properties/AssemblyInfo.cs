@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("MoonSharp")]
 [assembly: AssemblyDescription("REPL Interpreter for the MoonSharp language")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Marco Mastropaolo")]
+[assembly: AssemblyCompany("http://www.moonsharp.org")]
 [assembly: AssemblyProduct("MoonSharp")]
 [assembly: AssemblyCopyright("Copyright ©  2014, Marco Mastropaolo")]
 [assembly: AssemblyTrademark("")]
@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("0.1.1")]
+[assembly: AssemblyVersion("0.1.8.*")]
 [assembly: AssemblyFileVersion("1.0.0.0")]

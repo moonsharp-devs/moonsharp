@@ -95,17 +95,17 @@ namespace MoonSharp.Interpreter.Execution.VM
 				Instruction i = m_CurChunk.Code[m_InstructionPtr];
 
 
-				//if (m_DoDebug)
-				//{
-				//	DebugInterface(i);
-				//}
+				if (m_DoDebug)
+				{
+					DebugInterface(i);
+				}
 
-				//if (System.Diagnostics.Debugger.IsAttached && m_StepEnabled)
-				//{
-				//	ConsoleKeyInfo cki = Console.ReadKey();
-				//	if (cki.Key == ConsoleKey.Escape)
-				//		m_StepEnabled = false;
-				//}
+				if (System.Diagnostics.Debugger.IsAttached && m_StepEnabled)
+				{
+					ConsoleKeyInfo cki = Console.ReadKey();
+					if (cki.Key == ConsoleKey.Escape)
+						m_StepEnabled = false;
+				}
 
 				++m_InstructionPtr;
 
@@ -150,6 +150,9 @@ namespace MoonSharp.Interpreter.Execution.VM
 					case OpCode.LessEq:
 						ExecLessEq(i);
 						break;
+					case OpCode.Less:
+						ExecLess(i);
+						break;
 					case OpCode.Call:
 						ExecCall(i);
 						break;
@@ -162,6 +165,9 @@ namespace MoonSharp.Interpreter.Execution.VM
 					case OpCode.JfOrPop:
 					case OpCode.JtOrPop:
 						ExecShortCircuitingOperator(i);
+						break;
+					case OpCode.JNil:
+						ExecJNil(i);
 						break;
 					case OpCode.Store:
 						ExecStore(i);
@@ -205,20 +211,20 @@ namespace MoonSharp.Interpreter.Execution.VM
 					case OpCode.ToNum:
 						m_ValueStack.Push(m_ValueStack.Pop().AsNumber());
 						break;
-					case OpCode.NSymStor:
-						ExecNSymStor(i);
+					case OpCode.SymStorN:
+						ExecSymStorN(i);
 						break;
 					case OpCode.JFor:
 						ExecJFor(i);
 						break;
-					case OpCode.IndexGet:
+					case OpCode.Index:
 						ExecIndexGet(i);
 						break;
-					case OpCode.IndexSet:
-						ExecIndexSet(i, false);
+					case OpCode.IndexRef:
+						ExecIndexRef(i, false);
 						break;
-					case OpCode.IndexSetN:
-						ExecIndexSet(i, true);
+					case OpCode.IndexRefN:
+						ExecIndexRef(i, true);
 						break;
 					case OpCode.NewTable:
 						m_ValueStack.Push(new RValue(new Table()));
@@ -232,11 +238,23 @@ namespace MoonSharp.Interpreter.Execution.VM
 					case OpCode.TmpPop:
 						m_TempRegs[i.NumVal] = m_ValueStack.Pop();
 						break;
+					case OpCode.Reverse:
+						ExecReverse(i);
+						break;
 					case OpCode.Len:
 						ExecLen(i);
 						break;
 					case OpCode.TmpPush:
 						m_ValueStack.Push(m_TempRegs[i.NumVal]);
+						break;
+					case OpCode.IterPrep:
+						ExecIterPrep(i);
+						break;
+					case OpCode.IterUpd:
+						ExecIterUpd(i);
+						break;
+					case OpCode.ExpTuple:
+						ExecExpTuple(i);
 						break;
 					case OpCode.Invalid:
 						throw new NotImplementedException(string.Format("Compilation for {0} not implented yet!", i.Name));
@@ -254,6 +272,75 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		}
 
+		private void ExecJNil(Instruction i)
+		{
+			RValue v = m_ValueStack.Pop();
+
+			if (v.Type == DataType.Nil)
+				m_InstructionPtr = i.NumVal;
+		}
+
+		private void ExecIterUpd(Instruction i)
+		{
+			RValue v = m_ValueStack.Peek(0);
+			RValue t = m_ValueStack.Peek(1);
+			t.Tuple[2] = v;
+		}
+
+		private void ExecExpTuple(Instruction i)
+		{
+			RValue t = m_ValueStack.Peek(i.NumVal);
+
+			if (t.Type == DataType.Tuple)
+			{
+				for (int idx = 0; idx < t.Tuple.Length; idx++)
+					m_ValueStack.Push(t.Tuple[idx]);
+			}
+			else
+			{
+				m_ValueStack.Push(t);
+			}
+			
+		}
+
+		private void ExecIterPrep(Instruction i)
+		{
+			RValue v = m_ValueStack.Pop();
+
+			if (v.Type != DataType.Tuple)
+			{
+				v = new RValue(new RValue[] { v, RValue.Nil, RValue.Nil });
+			}
+			else if (v.Tuple.Length > 3)
+			{
+				v = new RValue(new RValue[] { v.Tuple[0], v.Tuple[1], v.Tuple[2] });
+			}
+			else if (v.Tuple.Length == 2)
+			{
+				v = new RValue(new RValue[] { v.Tuple[0], v.Tuple[1], RValue.Nil });
+			}
+			else if (v.Tuple.Length == 1)
+			{
+				v = new RValue(new RValue[] { v.Tuple[0], RValue.Nil, RValue.Nil });
+			}
+
+			m_ValueStack.Push(v);
+		}
+
+		private void ExecReverse(Instruction i)
+		{
+			int cnt = i.NumVal;
+			int cnth = cnt / 2;
+
+			int len = m_ValueStack.Count - 1;
+
+			for (int idx = 0; idx < cnth; idx++)
+			{
+				var tmp = m_ValueStack[len - idx];
+				m_ValueStack[len - idx] = m_ValueStack[len - (cnt - 1 - idx)];
+				m_ValueStack[len - (cnt - 1 - idx)] = tmp;
+			}
+		}
 
 
 		private void ExecExit(Instruction i)
@@ -356,6 +443,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 			for (int i = 0; i < I.SymbolList.Length; i++)
 			{
 				m_Scope.Assign(I.SymbolList[i], m_ValueStack.Peek(i + 1));
+
+				Console.WriteLine("ARGS: {0} <- {1}", I.SymbolList[i], m_ValueStack.Peek(i + 1));
 			}
 		}
 
@@ -423,6 +512,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 			if (r.Type == DataType.Table)
 				m_ValueStack.Push(new RValue(r.Table.Length));
+			else if (r.Type == DataType.String)
+				m_ValueStack.Push(new RValue(r.String.Length));
 			else
 				throw new NotImplementedException("Meta operators");
 		}
@@ -488,6 +579,20 @@ namespace MoonSharp.Interpreter.Execution.VM
 			m_ValueStack.Push(new RValue(r.Equals(l)));
 		}
 
+		private void ExecLess(Instruction i)
+		{
+			RValue r = m_ValueStack.Pop();
+			RValue l = m_ValueStack.Pop();
+
+			if (r.Type == DataType.Number && r.Type == DataType.Number)
+			{
+				m_ValueStack.Push(new RValue(l.Number < r.Number));
+			}
+			else
+			{
+				throw new NotImplementedException("Comparison between non numbers!");
+			}
+		}
 
 		private void ExecLessEq(Instruction i)
 		{
@@ -556,7 +661,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			}
 		}
 
-		private void ExecIndexSet(Instruction i, bool keepOnStack)
+		private void ExecIndexRef(Instruction i, bool keepOnStack)
 		{
 			RValue indexValue = m_ValueStack.Pop();
 			RValue baseValue = keepOnStack ? m_ValueStack.Peek() : m_ValueStack.Pop();
@@ -581,7 +686,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 		}
 
 
-		private void ExecNSymStor(Instruction i)
+		private void ExecSymStorN(Instruction i)
 		{
 			m_Scope.Assign(i.Symbol, m_ValueStack.Peek());
 		}
@@ -597,7 +702,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			m_ValueStack.CropAtCount(m_ValueStack.Count - i.NumVal - i.NumVal2);
 		}
 
-		public void Internal_MultiAssign(Slice<RValue> lValues, Slice<RValue> rValues)
+		private void Internal_MultiAssign(Slice<RValue> lValues, Slice<RValue> rValues)
 		{
 			int li = 0;
 			int rValues_Count = rValues.Count;

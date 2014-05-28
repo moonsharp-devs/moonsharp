@@ -66,7 +66,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			foreach (var kvp in m_CtorArgs)
 			{
 				kvp.Key.Compile(bc);
-				bc.IndexSetN();
+				bc.IndexRefN();
 				kvp.Value.Compile(bc);
 				bc.Store();
 			}
@@ -74,7 +74,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			for (int i = 0; i < m_PositionalValues.Count; i++)
 			{
 				bc.Literal(new RValue(i+1));
-				bc.IndexSetN();
+				bc.IndexRefN();
 				m_PositionalValues[i].Compile(bc);
 				bc.Store();
 			}

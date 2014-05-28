@@ -108,6 +108,7 @@
     <Compile Include="Tree\Expression.cs" />
     <Compile Include="Tree\Expressions\OperatorExpression.cs" />
     <Compile Include="Tree\Expressions\SymbolRefExpression.cs" />
+    <Compile Include="Tree\Loop.cs" />
     <Compile Include="Tree\NodeBase.cs" />
     <Compile Include="Tree\NodeFactory.cs" />
     <Compile Include="Tree\Statements\AssignmentStatement.cs" />

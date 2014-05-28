@@ -65,17 +65,6 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			return ExecutionFlow.None;
 		}
 
-		private class Loop : ILoop
-		{
-			public RuntimeScopeFrame Scope;
-			public List<Instruction> BreakJumps = new List<Instruction>();
-
-			public void CompileBreak(Chunk bc)
-			{
-				bc.Exit(Scope);
-				BreakJumps.Add(bc.Jump(OpCode.Jump, -1));
-			}
-		}
 
 
 		public override void Compile(Chunk bc)
@@ -97,7 +86,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			int start = bc.GetJumpPointForNextInstruction();
 			var jumpend = bc.Jump(OpCode.JFor, -1);
 			bc.Enter(m_StackFrame);
-			bc.NSymStor(m_VarName);
+			bc.SymStorN(m_VarName);
 			m_InnerBlock.Compile(bc);
 			bc.Debug("..end");
 			bc.Leave(m_StackFrame);

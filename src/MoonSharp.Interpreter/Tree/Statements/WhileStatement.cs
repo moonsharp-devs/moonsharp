@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using MoonSharp.Interpreter.Execution;
+using MoonSharp.Interpreter.Execution.VM;
 using MoonSharp.Interpreter.Grammar;
 
 namespace MoonSharp.Interpreter.Tree.Statements
@@ -36,6 +37,34 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			}
 
 			return ExecutionFlow.None;
+		}
+
+		public override void Compile(Chunk bc)
+		{
+			Loop L = new Loop()
+			{
+				Scope = m_StackFrame
+			};
+
+			bc.LoopTracker.Loops.Push(L);
+
+			int start = bc.GetJumpPointForNextInstruction();
+
+			m_Condition.Compile(bc);
+			var jumpend = bc.Jump(OpCode.Jf, -1);
+
+			bc.Enter(m_StackFrame);
+			m_Block.Compile(bc);
+			bc.Debug("..end");
+			bc.Leave(m_StackFrame);
+			bc.Jump(OpCode.Jump, start);
+
+			int exitpoint = bc.GetJumpPointForNextInstruction();
+
+			foreach (Instruction i in L.BreakJumps)
+				i.NumVal = exitpoint;
+
+			jumpend.NumVal = exitpoint;
 		}
 
 	}
