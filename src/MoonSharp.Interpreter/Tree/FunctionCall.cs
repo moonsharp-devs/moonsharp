@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
 using Antlr4.Runtime.Tree;
 using MoonSharp.Interpreter.Execution;
+using MoonSharp.Interpreter.Execution.VM;
 using MoonSharp.Interpreter.Grammar;
 using MoonSharp.Interpreter.Tree.Expressions;
 
@@ -63,16 +63,26 @@ namespace MoonSharp.Interpreter.Tree
 
 		public override void Compile(Execution.VM.Chunk bc)
 		{
+			if (!string.IsNullOrEmpty(m_Name))
+			{
+				bc.TempOp(OpCode.TmpPeek, 0);
+				bc.Literal(new RValue(m_Name));
+				bc.IndexGet();
+			}
+
+
 			for (int i = m_Arguments.Length - 1; i >= 0; i--)
 				m_Arguments[i].Compile(bc);
 
 			if (string.IsNullOrEmpty(m_Name))
 			{
-				bc.Invoke(m_Arguments.Length);
+				bc.Call(m_Arguments.Length);
 			}
 			else
 			{
-				bc.TableInvoke(m_Arguments.Length, m_Name);
+				bc.TempOp(OpCode.TmpPush, 0);
+				bc.TempOp(OpCode.TmpClear, 0);
+				bc.Call(m_Arguments.Length + 1);
 			}
 		}
 	}

@@ -105,7 +105,21 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			}
 			else
 			{
-				throw new NotImplementedException("table deindex in funcdef");
+				bc.Load(m_FuncName);
+
+				foreach (string str in m_TableAccessors)
+				{
+					bc.Literal(new RValue(str));
+					bc.IndexGet();
+				}
+
+				bc.Literal(new RValue(m_MethodName));
+
+				bc.IndexSet();
+
+				m_FuncDef.Compile(bc);
+
+				bc.Store();
 			}
 		}
 

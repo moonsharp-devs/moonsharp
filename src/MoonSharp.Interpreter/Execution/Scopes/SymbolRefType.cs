@@ -10,6 +10,7 @@ namespace MoonSharp.Interpreter.Execution
 		Invalid,
 		Global,
 		Local,
-		Upvalue
+		Upvalue,
+		Index
 	}
 }

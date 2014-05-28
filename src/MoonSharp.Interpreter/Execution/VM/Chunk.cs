@@ -76,7 +76,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			return Emit(new Instruction() { OpCode = OpCode.Pop, NumVal = num });
 		}
 
-		public Instruction Invoke(int argCount)
+		public Instruction Call(int argCount)
 		{
 			return Emit(new Instruction() { OpCode = OpCode.Call, NumVal = argCount });
 		}
@@ -89,11 +89,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 		public Instruction Literal(RValue value)
 		{
 			return Emit(new Instruction() { OpCode = OpCode.Literal, Value = value });
-		}
-
-		public Instruction TableInvoke(int argCount, string name)
-		{
-			return Emit(new Instruction() { OpCode = OpCode.Method, Name = name, NumVal = argCount });
 		}
 
 		public Instruction Assign(int cntL, int cntR)
@@ -124,11 +119,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 		public Instruction Operator(OpCode opcode)
 		{
 			return Emit(new Instruction() { OpCode = opcode });
-		}
-
-		public Instruction Reduce()
-		{
-			return Emit(new Instruction() { OpCode = OpCode.Reduce });
 		}
 
 		public Instruction Bool()
@@ -194,6 +184,30 @@ namespace MoonSharp.Interpreter.Execution.VM
 		public Instruction Incr(int i)
 		{
 			return Emit(new Instruction() { OpCode = OpCode.Incr, NumVal = i });
+		}
+
+		public Instruction IndexGet()
+		{
+			return Emit(new Instruction() { OpCode = OpCode.IndexGet });
+		}
+
+		public Instruction IndexSet()
+		{
+			return Emit(new Instruction() { OpCode = OpCode.IndexSet });
+		}
+		public Instruction IndexSetN()
+		{
+			return Emit(new Instruction() { OpCode = OpCode.IndexSetN });
+		}
+
+		public Instruction NewTable()
+		{
+			return Emit(new Instruction() { OpCode = OpCode.NewTable });
+		}
+
+		public Instruction TempOp(OpCode opCode, int regNum)
+		{
+			return Emit(new Instruction() { OpCode = opCode, NumVal = regNum });
 		}
 	}
 }

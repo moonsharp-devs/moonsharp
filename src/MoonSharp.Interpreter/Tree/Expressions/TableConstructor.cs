@@ -5,7 +5,7 @@ using System.Text;
 using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Grammar;
 
-namespace MoonSharp.Interpreter.Tree.Expressions.Tables
+namespace MoonSharp.Interpreter.Tree.Expressions
 {
 	class TableConstructor : Expression 
 	{
@@ -58,5 +58,27 @@ namespace MoonSharp.Interpreter.Tree.Expressions.Tables
 
 			return new RValue(t);
 		}
+
+		public override void Compile(Execution.VM.Chunk bc)
+		{
+			bc.NewTable();
+
+			foreach (var kvp in m_CtorArgs)
+			{
+				kvp.Key.Compile(bc);
+				bc.IndexSetN();
+				kvp.Value.Compile(bc);
+				bc.Store();
+			}
+
+			for (int i = 0; i < m_PositionalValues.Count; i++)
+			{
+				bc.Literal(new RValue(i+1));
+				bc.IndexSetN();
+				m_PositionalValues[i].Compile(bc);
+				bc.Store();
+			}
+		}
+
 	}
 }

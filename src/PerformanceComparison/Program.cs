@@ -13,7 +13,7 @@ namespace PerformanceComparison
 {
 	class Program
 	{
-		const int ITERATIONS = 1000000;
+		const int ITERATIONS = 10000;
 
 		static  string scriptText = @"
 			function move(n, src, dst, via)

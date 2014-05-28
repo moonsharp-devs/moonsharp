@@ -7,7 +7,7 @@ namespace MoonSharp.Interpreter.Tests
 	[TestFixture]
 	public class ClosureTests
 	{
-		[Test][Ignore("VM Transition")]
+		[Test]
 		public void Closures()
 		{
 			// expected : 201 2001 20001 200001 2000001
@@ -47,7 +47,7 @@ namespace MoonSharp.Interpreter.Tests
 			Assert.AreEqual(2000001, res.Tuple[4].Number);
 		}
 
-		[Test][Ignore("VM Transition")]
+		[Test]
 		public void ClosuresNonAnonymousLocal()
 		{
 			// expected : 201 2001 20001 200001 2000001
@@ -88,7 +88,7 @@ namespace MoonSharp.Interpreter.Tests
 		}
 
 
-		[Test][Ignore("VM Transition")]
+		[Test]
 		public void ClosuresNonAnonymous()
 		{
 			// expected : 201 2001 20001 200001 2000001

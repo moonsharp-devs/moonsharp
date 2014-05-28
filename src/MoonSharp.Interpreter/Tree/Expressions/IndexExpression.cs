@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Antlr4.Runtime.Tree;
 using MoonSharp.Interpreter.Execution;
+using MoonSharp.Interpreter.Execution.VM;
 using MoonSharp.Interpreter.Grammar;
 
 namespace MoonSharp.Interpreter.Tree.Expressions
@@ -43,11 +44,20 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			baseValue.Table[indexValue] = rValue;
 		}
 
-
-
-		public void CompileAssignment(Execution.VM.Chunk bc)
+		public override void Compile(Chunk bc)
 		{
-			throw new NotImplementedException();
+			m_BaseExp.Compile(bc);
+			m_IndexExp.Compile(bc);
+			bc.IndexGet();
+		}
+
+
+
+		public void CompileAssignment(Chunk bc)
+		{
+			m_BaseExp.Compile(bc);
+			m_IndexExp.Compile(bc);
+			bc.IndexSet();
 		}
 	}
 }

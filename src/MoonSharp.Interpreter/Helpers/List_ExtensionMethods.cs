@@ -10,7 +10,7 @@ namespace MoonSharp.Interpreter
 
 		public static void CropAtCount<T>(this List<T> list, int count)
 		{
-			list.RemoveRange(count - 1, list.Count - count);
+			list.RemoveRange(count, list.Count - count);
 		}
 
 		public static T Peek<T>(this List<T> list, int idxofs = 0)

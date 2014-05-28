@@ -54,7 +54,8 @@ namespace MoonSharp
 			}
 			else
 			{
-				Console.WriteLine("Usage : MoonSharp [filename]");
+				Console.WriteLine("Sorry, at the moment, only file operations are supported:");
+				Console.WriteLine("\tUsage : MoonSharp [filename]");
 			}
 		}
 

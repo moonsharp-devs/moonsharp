@@ -17,6 +17,7 @@ namespace MoonSharp.Interpreter.Execution
 		Tuple,
 
 		Symbol,
+		TableRef,
 		ClrFunction,
 
 		UNSUPPORTED_UserData,

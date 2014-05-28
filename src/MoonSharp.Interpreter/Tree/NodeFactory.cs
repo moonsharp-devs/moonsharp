@@ -6,7 +6,6 @@ using Antlr4.Runtime.Tree;
 using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Grammar;
 using MoonSharp.Interpreter.Tree.Expressions;
-using MoonSharp.Interpreter.Tree.Expressions.Tables;
 using MoonSharp.Interpreter.Tree.Statements;
 
 namespace MoonSharp.Interpreter.Tree

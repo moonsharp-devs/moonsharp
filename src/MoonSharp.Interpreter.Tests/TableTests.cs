@@ -10,7 +10,25 @@ namespace MoonSharp.Interpreter.Tests
 	[TestFixture]
 	public class TableTests
 	{
-		[Test][Ignore("VM Transition")]
+		[Test]
+		public void TableAccessAndEmptyCtor()
+		{
+			string script = @"
+						a = { }
+						
+						a[1] = 1;
+
+						return a[1]";
+
+			RValue res = MoonSharpInterpreter.LoadFromString(script, null).Execute();
+
+			Assert.AreEqual(DataType.Number, res.Type);
+			Assert.AreEqual(1, res.Number);
+		}
+
+
+
+		[Test]
 		public void TableAccessAndCtor()
 		{
 			string script = @"
@@ -42,7 +60,7 @@ namespace MoonSharp.Interpreter.Tests
 			Assert.AreEqual(7, res.Tuple[6].Number);
 		}
 
-		[Test][Ignore("VM Transition")]
+		[Test]
 		public void TableMethod1()
 		{
 			string script = @"
@@ -67,7 +85,7 @@ namespace MoonSharp.Interpreter.Tests
 			Assert.AreEqual(1994, res.Number);
 		}
 
-		[Test][Ignore("VM Transition")]
+		[Test]
 		public void TableMethod2()
 		{
 			string script = @"
@@ -92,7 +110,7 @@ namespace MoonSharp.Interpreter.Tests
 			Assert.AreEqual(1994, res.Number);
 		}
 
-		[Test][Ignore("VM Transition")]
+		[Test]
 		public void TableMethod3()
 		{
 			string script = @"
@@ -118,7 +136,7 @@ namespace MoonSharp.Interpreter.Tests
 		}
 
 
-		[Test][Ignore("VM Transition")]
+		[Test]
 		public void TableMethod4()
 		{
 			string script = @"
@@ -143,7 +161,7 @@ namespace MoonSharp.Interpreter.Tests
 			Assert.AreEqual(1994, res.Number);
 		}
 
-		[Test][Ignore("VM Transition")]
+		[Test]
 		public void TableMethod5()
 		{
 			string script = @"
@@ -172,7 +190,7 @@ namespace MoonSharp.Interpreter.Tests
 		}
 
 
-		[Test][Ignore("VM Transition")]
+		[Test]
 		public void TableMethod6()
 		{
 			string script = @"

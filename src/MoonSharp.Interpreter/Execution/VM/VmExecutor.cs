@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MoonSharp.Interpreter.DataStructs;
 
 namespace MoonSharp.Interpreter.Execution.VM
 {
@@ -9,17 +10,21 @@ namespace MoonSharp.Interpreter.Execution.VM
 	{
 		Chunk m_RootChunk;
 		Chunk m_CurChunk;
-		int m_ProgramCounter;
+		int m_InstructionPtr;
 
 		List<RValue> m_ValueStack = new List<RValue>();
 		List<int> m_ExecutionStack = new List<int>();
+		bool m_Terminate = false;
 
 		RuntimeScope m_Scope;
+
+		RValue[] m_TempRegs = new RValue[8];
+
 
 		public VmExecutor(Chunk rootChunk, RuntimeScope scope)
 		{
 			m_RootChunk = m_CurChunk = rootChunk;
-			m_ProgramCounter = 0;
+			m_InstructionPtr = 0;
 			m_Scope = scope;
 		}
 
@@ -72,7 +77,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			int cnt = 6;
 			List<RValue> values = new List<RValue>();
 
-			for(int i = m_ValueStack.Count - 1; i >= 0 && cnt > 0; i--)
+			for (int i = m_ValueStack.Count - 1; i >= 0 && cnt > 0; i--)
 			{
 				values.Add(m_ValueStack[i]);
 				cnt--;
@@ -85,9 +90,9 @@ namespace MoonSharp.Interpreter.Execution.VM
 		bool m_StepEnabled = true;
 		public RValue Execute()
 		{
-			while (m_ProgramCounter < m_CurChunk.Code.Count)
+			while (m_InstructionPtr < m_CurChunk.Code.Count && !m_Terminate)
 			{
-				Instruction i = m_CurChunk.Code[m_ProgramCounter];
+				Instruction i = m_CurChunk.Code[m_InstructionPtr];
 
 
 				//if (m_DoDebug)
@@ -102,7 +107,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				//		m_StepEnabled = false;
 				//}
 
-				++m_ProgramCounter;
+				++m_InstructionPtr;
 
 				switch (i.OpCode)
 				{
@@ -121,32 +126,29 @@ namespace MoonSharp.Interpreter.Execution.VM
 					case OpCode.Bool:
 						Bool(i);
 						break;
-					case OpCode.Reduce:
-						Reduce(i);
-						break;
 					case OpCode.Add:
-						Add(i);
+						ExecAdd(i);
 						break;
 					case OpCode.Neg:
-						Neg(i);
+						ExecNeg(i);
 						break;
 					case OpCode.Sub:
-						Sub(i);
+						ExecSub(i);
 						break;
 					case OpCode.Mul:
-						Mul(i);
+						ExecMul(i);
 						break;
 					case OpCode.Div:
-						Div(i);
+						ExecDiv(i);
 						break;
 					case OpCode.Power:
-						Power(i);
+						ExecPower(i);
 						break;
 					case OpCode.Eq:
-						Eq(i);
+						ExecEq(i);
 						break;
 					case OpCode.LessEq:
-						LessEq(i);
+						ExecLessEq(i);
 						break;
 					case OpCode.Call:
 						ExecCall(i);
@@ -167,8 +169,11 @@ namespace MoonSharp.Interpreter.Execution.VM
 					case OpCode.Symbol:
 						m_ValueStack.Push(new RValue(i.Symbol));
 						break;
+					case OpCode.Assign:
+						ExecAssign(i);
+						break;
 					case OpCode.Jump:
-						m_ProgramCounter = i.NumVal;
+						m_InstructionPtr = i.NumVal;
 						break;
 					case OpCode.MkTuple:
 						m_ValueStack.Push(RValue.FromPotentiallyNestedTuple(StackTopToArrayReverse(i.NumVal, true)));
@@ -206,6 +211,33 @@ namespace MoonSharp.Interpreter.Execution.VM
 					case OpCode.JFor:
 						ExecJFor(i);
 						break;
+					case OpCode.IndexGet:
+						ExecIndexGet(i);
+						break;
+					case OpCode.IndexSet:
+						ExecIndexSet(i, false);
+						break;
+					case OpCode.IndexSetN:
+						ExecIndexSet(i, true);
+						break;
+					case OpCode.NewTable:
+						m_ValueStack.Push(new RValue(new Table()));
+						break;
+					case OpCode.TmpClear:
+						m_TempRegs[i.NumVal] = null;
+						break;
+					case OpCode.TmpPeek:
+						m_TempRegs[i.NumVal] = m_ValueStack.Peek();
+						break;
+					case OpCode.TmpPop:
+						m_TempRegs[i.NumVal] = m_ValueStack.Pop();
+						break;
+					case OpCode.Len:
+						ExecLen(i);
+						break;
+					case OpCode.TmpPush:
+						m_ValueStack.Push(m_TempRegs[i.NumVal]);
+						break;
 					case OpCode.Invalid:
 						throw new NotImplementedException(string.Format("Compilation for {0} not implented yet!", i.Name));
 					default:
@@ -221,6 +253,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				throw new InternalErrorException("Unexpected value stack count at program end : {0}", m_ValueStack.Count);
 
 		}
+
 
 
 		private void ExecExit(Instruction i)
@@ -242,7 +275,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			if (i.OpCode == OpCode.Debug)
 				Console.Write("    {0}", i);
 			else
-				Console.Write("{0:X8}  {1}", m_ProgramCounter, i);
+				Console.Write("{0:X8}  {1}", m_InstructionPtr, i);
 
 			Console.SetCursorPosition(40, Console.CursorTop);
 			Console.WriteLine("|| VS={1:X4}  XS={2:X4} || {0}", DumpValueStack(), m_ValueStack.Count, m_ExecutionStack.Count);
@@ -260,13 +293,10 @@ namespace MoonSharp.Interpreter.Execution.VM
 			bool whileCond = (step > 0) ? val <= stop : val >= stop;
 
 			if (!whileCond)
-				m_ProgramCounter = i.NumVal;
+				m_InstructionPtr = i.NumVal;
 		}
 
-		private void ExecNSymStor(Instruction i)
-		{
-			m_Scope.Assign(i.Symbol, m_ValueStack.Peek());
-		}
+
 
 		private void ExecIncr(Instruction i)
 		{
@@ -291,17 +321,20 @@ namespace MoonSharp.Interpreter.Execution.VM
 			m_ValueStack.Push(new RValue(!(v.TestAsBoolean())));
 		}
 
-		
+
 		private void ExecRet(Instruction i)
 		{
 			if (m_ExecutionStack.Count == 0)
+			{
+				m_Terminate = true;
 				return;
+			}
 
 			if (i.NumVal == 0)
 			{
 				var argscnt = (int)(m_ValueStack.Pop().Number);
 				m_ValueStack.RemoveLast(argscnt + 1);
-				m_ProgramCounter = m_ExecutionStack.Pop();
+				m_InstructionPtr = m_ExecutionStack.Pop();
 				m_ValueStack.Push(RValue.Nil);
 			}
 			else if (i.NumVal == 1)
@@ -310,7 +343,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				var argscnt = (int)(m_ValueStack.Pop().Number);
 				m_ValueStack.RemoveLast(argscnt + 1);
 				m_ValueStack.Push(retval);
-				m_ProgramCounter = m_ExecutionStack.Pop();
+				m_InstructionPtr = m_ExecutionStack.Pop();
 			}
 			else
 			{
@@ -340,8 +373,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 			else if (fn.Type == DataType.Function)
 			{
 				m_ValueStack.Push(new RValue(i.NumVal));
-				m_ExecutionStack.Push(m_ProgramCounter);
-				m_ProgramCounter = fn.Function.ByteCodeLocation;
+				m_ExecutionStack.Push(m_InstructionPtr);
+				m_InstructionPtr = fn.Function.ByteCodeLocation;
 				fn.Function.EnterClosureBeforeCall(m_Scope);
 			}
 			else
@@ -358,7 +391,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			RValue op = m_ValueStack.Pop();
 
 			if (op.TestAsBoolean() == expectedValueForJump)
-				m_ProgramCounter = i.NumVal;
+				m_InstructionPtr = i.NumVal;
 		}
 
 		private void ExecShortCircuitingOperator(Instruction i)
@@ -368,7 +401,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			RValue op = m_ValueStack.Peek();
 
 			if (op.TestAsBoolean() == expectedValToShortCircuit)
-				m_ProgramCounter = i.NumVal;
+				m_InstructionPtr = i.NumVal;
 			else
 				m_ValueStack.Pop();
 		}
@@ -383,17 +416,18 @@ namespace MoonSharp.Interpreter.Execution.VM
 			}
 		}
 
-		private void Reduce(Instruction i)
+
+		private void ExecLen(Instruction i)
 		{
-			RValue v = m_ValueStack.Peek();
-			if (v.Type == DataType.Tuple)
-			{
-				m_ValueStack.Pop();
-				m_ValueStack.Push(v.ToSimplestValue());
-			}
+			RValue r = m_ValueStack.Pop();
+
+			if (r.Type == DataType.Table)
+				m_ValueStack.Push(new RValue(r.Table.Length));
+			else
+				throw new NotImplementedException("Meta operators");
 		}
 
-		private void Add(Instruction i)
+		private void ExecAdd(Instruction i)
 		{
 			RValue r = m_ValueStack.Pop();
 			RValue l = m_ValueStack.Pop();
@@ -404,7 +438,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				throw new NotImplementedException("Meta operators");
 		}
 
-		private void Sub(Instruction i)
+		private void ExecSub(Instruction i)
 		{
 			RValue r = m_ValueStack.Pop();
 			RValue l = m_ValueStack.Pop();
@@ -415,16 +449,16 @@ namespace MoonSharp.Interpreter.Execution.VM
 				throw new NotImplementedException("Meta operators");
 		}
 
-		private void Neg(Instruction i)
+		private void ExecNeg(Instruction i)
 		{
 			RValue r = m_ValueStack.Pop();
 
 			if (r.Type == DataType.Number)
-				m_ValueStack.Push(new RValue( -r.Number));
+				m_ValueStack.Push(new RValue(-r.Number));
 			else
 				throw new NotImplementedException("Meta operators");
 		}
-		private void Power(Instruction i)
+		private void ExecPower(Instruction i)
 		{
 			RValue r = m_ValueStack.Pop();
 			RValue l = m_ValueStack.Pop();
@@ -435,7 +469,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				throw new NotImplementedException("Meta operators");
 		}
 
-		private void Mul(Instruction i)
+		private void ExecMul(Instruction i)
 		{
 			RValue r = m_ValueStack.Pop();
 			RValue l = m_ValueStack.Pop();
@@ -446,7 +480,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				throw new NotImplementedException("Meta operators");
 		}
 
-		private void Eq(Instruction i)
+		private void ExecEq(Instruction i)
 		{
 			RValue r = m_ValueStack.Pop();
 			RValue l = m_ValueStack.Pop();
@@ -455,7 +489,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 		}
 
 
-		private void LessEq(Instruction i)
+		private void ExecLessEq(Instruction i)
 		{
 			RValue r = m_ValueStack.Pop();
 			RValue l = m_ValueStack.Pop();
@@ -470,7 +504,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			}
 		}
 
-		private void Div(Instruction i)
+		private void ExecDiv(Instruction i)
 		{
 			RValue r = m_ValueStack.Pop();
 			RValue l = m_ValueStack.Pop();
@@ -481,18 +515,111 @@ namespace MoonSharp.Interpreter.Execution.VM
 				throw new NotImplementedException("Meta operators");
 		}
 
+
+		private void Internal_Assign(SymbolRef l, RValue r)
+		{
+			if (l.Type == SymbolRefType.Index)
+			{
+				l.TableRefObject.Table[l.TableRefIndex] = r;
+			}
+			else
+			{
+				m_Scope.Assign(l, r.ToSimplestValue());
+			}
+		}
+
+		private void Internal_Assign(RValue l, RValue r)
+		{
+			if (l.Type == DataType.Symbol)
+			{
+				Internal_Assign(l.Symbol, r);
+			}
+			else
+			{
+				throw new NotImplementedException("How should we manage this ?");
+			}
+		}
+
+		private void ExecIndexGet(Instruction i)
+		{
+			RValue indexValue = m_ValueStack.Pop();
+			RValue baseValue = m_ValueStack.Pop();
+
+			if (baseValue.Type != DataType.Table)
+			{
+				throw new NotImplementedException("META! : Can't index non-table yet");
+			}
+			else
+			{
+				RValue v = baseValue.Table[indexValue];
+				m_ValueStack.Push(v.AsReadOnly());
+			}
+		}
+
+		private void ExecIndexSet(Instruction i, bool keepOnStack)
+		{
+			RValue indexValue = m_ValueStack.Pop();
+			RValue baseValue = keepOnStack ? m_ValueStack.Peek() : m_ValueStack.Pop();
+
+			if (baseValue.Type != DataType.Table)
+			{
+				throw new NotImplementedException("META! : Can't index non-table yet");
+			}
+			else
+			{
+				SymbolRef s = SymbolRef.ObjIndex(baseValue, indexValue);
+				m_ValueStack.Push(new RValue(s));
+			}
+		}
+
 		private void ExecStore(Instruction i)
 		{
 			RValue r = m_ValueStack.Pop();
 			RValue l = m_ValueStack.Pop();
 
-			if (l.Type == DataType.Symbol)
+			Internal_Assign(l, r);
+		}
+
+
+		private void ExecNSymStor(Instruction i)
+		{
+			m_Scope.Assign(i.Symbol, m_ValueStack.Peek());
+		}
+
+
+		private void ExecAssign(Instruction i)
+		{
+			Slice<RValue> rvalues = new Slice<RValue>(m_ValueStack, m_ValueStack.Count - i.NumVal2, i.NumVal2, false);
+			Slice<RValue> lvalues = new Slice<RValue>(m_ValueStack, m_ValueStack.Count - i.NumVal2 - i.NumVal, i.NumVal, false);
+
+			Internal_MultiAssign(lvalues, rvalues);
+
+			m_ValueStack.CropAtCount(m_ValueStack.Count - i.NumVal - i.NumVal2);
+		}
+
+		public void Internal_MultiAssign(Slice<RValue> lValues, Slice<RValue> rValues)
+		{
+			int li = 0;
+			int rValues_Count = rValues.Count;
+			int lValues_Count = lValues.Count;
+
+			for (int ri = 0; ri < rValues_Count && li < lValues_Count; ri++, li++)
 			{
-				m_Scope.Assign(l.Symbol, r.ToSimplestValue());
-			}
-			else
-			{
-				throw new InternalErrorException("Assignment on type {0}", l.Type);
+				RValue vv = rValues[ri];
+
+				if ((ri != rValues_Count - 1) || (vv.Type != DataType.Tuple))
+				{
+					Internal_Assign(lValues[li], vv.ToSingleValue());
+					// Debug.WriteLine(string.Format("{0} <- {1}", li, vv.ToSingleValue()));
+				}
+				else
+				{
+					for (int rri = 0, len = vv.Tuple.Length; rri < len && li < lValues_Count; rri++, li++)
+					{
+						Internal_Assign(lValues[li], vv.Tuple[rri].ToSingleValue());
+						// Debug.WriteLine(string.Format("{0} <- {1}", li, vv.Tuple[rri].ToSingleValue()));
+					}
+				}
 			}
 		}
 

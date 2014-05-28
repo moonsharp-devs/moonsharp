@@ -248,7 +248,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 				case Operator.Not:
 					return OpCode.Not;
 				case Operator.Size:
-					return OpCode.Size;
+					return OpCode.Len;
 				case Operator.Neg:
 					return OpCode.Neg;
 				case Operator.Power:

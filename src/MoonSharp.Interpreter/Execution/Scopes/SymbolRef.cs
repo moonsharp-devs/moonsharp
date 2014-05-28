@@ -14,6 +14,10 @@ namespace MoonSharp.Interpreter.Execution
 
 		public string Name { get; private set; }
 
+		public RValue TableRefObject { get; internal set; }
+		public RValue TableRefIndex { get; internal set; }
+
+
 		public static SymbolRef Global(string name, int index)
 		{
 			return new SymbolRef() { Index = index, Type = SymbolRefType.Global, Name = name };
@@ -32,6 +36,11 @@ namespace MoonSharp.Interpreter.Execution
 		public static SymbolRef Invalid()
 		{
 			return new SymbolRef() { Index = -1, Type = SymbolRefType.Invalid, Name = "!INV!" };
+		}
+
+		public static SymbolRef ObjIndex(RValue baseObject, RValue indexObject)
+		{
+			return new SymbolRef() { TableRefObject = baseObject, TableRefIndex = indexObject, Type = SymbolRefType.Index };
 		}
 
 		public bool IsValid()

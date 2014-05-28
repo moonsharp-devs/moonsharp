@@ -40,6 +40,10 @@ namespace MoonSharp.Interpreter.Execution.VM
 				case OpCode.MkTuple:
 				case OpCode.Incr:
 				case OpCode.Pop:
+				case OpCode.TmpClear:
+				case OpCode.TmpPush:
+				case OpCode.TmpPop:
+				case OpCode.TmpPeek:
 					append = string.Format("{0}{1}", GenSpaces(), NumVal);
 					break;
 				case OpCode.JtOrPop:
@@ -48,9 +52,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 				case OpCode.Jump:
 				case OpCode.JFor:
 					append = string.Format("{0}{1:X8}", GenSpaces(), NumVal);
-					break;
-				case OpCode.Method:
-					append = string.Format("{0}{1}:{2}", GenSpaces(), NumVal, Name ?? "(null)");
 					break;
 				case OpCode.Invalid:
 					append = string.Format("{0}{1}", GenSpaces(), Name ?? "(null)");

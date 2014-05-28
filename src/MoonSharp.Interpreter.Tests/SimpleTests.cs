@@ -278,7 +278,7 @@ namespace MoonSharp.Interpreter.Tests
 			Assert.AreEqual(42, res.Tuple[1].Number);
 		}
 
-		[Test][Ignore("VM Transition")]
+		[Test]
 		public void LengthOperator()
 		{
 			string script = @"    
@@ -539,7 +539,7 @@ namespace MoonSharp.Interpreter.Tests
 
 		}
 
-		[Test][Ignore("VM Transition")]
+		[Test]
 		public void FunctionWithTableArg()
 		{
 			string script = @"    

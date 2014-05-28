@@ -48,6 +48,7 @@ namespace MoonSharp.Interpreter.Execution
 			this.Type = DataType.Symbol;
 		}
 
+
 		public RValue(string str)
 		{
 			Assign(str);
@@ -150,6 +151,9 @@ namespace MoonSharp.Interpreter.Execution
 
 		public RValue Clone()
 		{
+			if (this.Type == DataType.Symbol)
+				throw new ArgumentException("Can't clone Symbol or TableRef values");
+
 			RValue v = new RValue();
 			v.Boolean = this.Boolean;
 			v.Callback = this.Callback;
@@ -166,6 +170,9 @@ namespace MoonSharp.Interpreter.Execution
 
 		public RValue CloneAsWritable()
 		{
+			if (this.Type == DataType.Symbol || this.Type == DataType.TableRef)
+				throw new ArgumentException("Can't clone Symbol or TableRef values");
+
 			RValue v = new RValue();
 			v.Boolean = this.Boolean;
 			v.Function = this.Function;
