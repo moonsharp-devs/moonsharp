@@ -8,12 +8,18 @@ namespace MoonSharp.Interpreter.Execution.VM
 {
 	sealed class VmExecutor
 	{
+		public class CallStackItem
+		{
+			public int IP;
+			public int SP;
+		}
+
 		Chunk m_RootChunk;
 		Chunk m_CurChunk;
 		int m_InstructionPtr;
 
 		List<RValue> m_ValueStack = new List<RValue>();
-		List<int> m_ExecutionStack = new List<int>();
+		List<CallStackItem> m_ExecutionStack = new List<CallStackItem>();
 		bool m_Terminate = false;
 
 		RuntimeScope m_Scope;
@@ -419,23 +425,41 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 			if (i.NumVal == 0)
 			{
+				int retpoint = PopToBasePointer();
 				var argscnt = (int)(m_ValueStack.Pop().Number);
 				m_ValueStack.RemoveLast(argscnt + 1);
-				m_InstructionPtr = m_ExecutionStack.Pop();
 				m_ValueStack.Push(RValue.Nil);
+				m_InstructionPtr = retpoint;
 			}
 			else if (i.NumVal == 1)
 			{
 				var retval = m_ValueStack.Pop();
+				int retpoint = PopToBasePointer();
 				var argscnt = (int)(m_ValueStack.Pop().Number);
 				m_ValueStack.RemoveLast(argscnt + 1);
 				m_ValueStack.Push(retval);
-				m_InstructionPtr = m_ExecutionStack.Pop();
+				m_InstructionPtr = retpoint;
 			}
 			else
 			{
 				throw new InternalErrorException("RET supports only 0 and 1 ret val scenarios");
 			}
+		}
+
+		private int PopToBasePointer()
+		{
+			var xs = m_ExecutionStack.Pop();
+			m_ValueStack.CropAtCount(xs.SP);
+			return xs.IP;
+		}
+
+		private int PopExecStackAndCheckVStack(int vstackguard)
+		{
+			var xs = m_ExecutionStack.Pop();
+			if (vstackguard != xs.SP)
+				throw new InternalErrorException("StackGuard violation");
+
+			return xs.IP;
 		}
 
 		private void ExecArgs(Instruction I)
@@ -460,7 +484,11 @@ namespace MoonSharp.Interpreter.Execution.VM
 			else if (fn.Type == DataType.Function)
 			{
 				m_ValueStack.Push(new RValue(i.NumVal));
-				m_ExecutionStack.Push(m_InstructionPtr);
+				m_ExecutionStack.Push(new CallStackItem()
+				{
+					SP = m_ValueStack.Count,
+					IP = m_InstructionPtr,
+				});
 				m_InstructionPtr = fn.Function.ByteCodeLocation;
 				fn.Function.EnterClosureBeforeCall(m_Scope);
 			}
@@ -483,7 +511,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		private void ExecShortCircuitingOperator(Instruction i)
 		{
-			bool expectedValToShortCircuit = i.OpCode == OpCode.JfOrPop;
+			bool expectedValToShortCircuit = i.OpCode == OpCode.JtOrPop;
 
 			RValue op = m_ValueStack.Peek();
 

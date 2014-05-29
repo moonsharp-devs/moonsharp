@@ -184,18 +184,16 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 			if (m_Operator == Operator.Or)
 			{
-				Instruction i = bc.Jump(OpCode.JfOrPop, -1);
+				Instruction i = bc.Jump(OpCode.JtOrPop, -1);
 				m_Exp2.Compile(bc);
-				bc.Bool();
 				i.NumVal = bc.GetJumpPointForNextInstruction();
 				return;
 			}
 
 			if (m_Operator == Operator.And)
 			{
-				Instruction i = bc.Jump(OpCode.JtOrPop, -1);
+				Instruction i = bc.Jump(OpCode.JfOrPop, -1);
 				m_Exp2.Compile(bc);
-				bc.Bool();
 				i.NumVal = bc.GetJumpPointForNextInstruction();
 				return;
 			}

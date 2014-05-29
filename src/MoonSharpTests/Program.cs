@@ -12,7 +12,7 @@ namespace MoonSharpTests
 {
 	class Program
 	{
-		public const string RESTRICT_TEST = null; //"ForEachLoop";
+		public const string RESTRICT_TEST = "LoopWithReturn";
 
 		static void Main(string[] args)
 		{

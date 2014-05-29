@@ -128,15 +128,15 @@ namespace MoonSharp.Interpreter.Tests
 			RValue res = MoonSharpInterpreter.LoadFromString(script, null).Execute();
 
 			Assert.AreEqual(5, res.Tuple.Length);
-			Assert.AreEqual(DataType.Boolean, res.Tuple[0].Type);
+			Assert.AreEqual(DataType.String, res.Tuple[0].Type);
 			Assert.AreEqual(DataType.Boolean, res.Tuple[1].Type);
 			Assert.AreEqual(DataType.Boolean, res.Tuple[2].Type);
-			Assert.AreEqual(DataType.Boolean, res.Tuple[3].Type);
+			Assert.AreEqual(DataType.String, res.Tuple[3].Type);
 			Assert.AreEqual(DataType.Number, res.Tuple[4].Type);
-			Assert.AreEqual(true, res.Tuple[0].Boolean);
+			Assert.AreEqual("!", res.Tuple[0].String);
 			Assert.AreEqual(true, res.Tuple[1].Boolean);
 			Assert.AreEqual(false, res.Tuple[2].Boolean);
-			Assert.AreEqual(true, res.Tuple[3].Boolean);
+			Assert.AreEqual("!", res.Tuple[3].String);
 			Assert.AreEqual(2, res.Tuple[4].Number);
 		}
 		[Test]
@@ -628,6 +628,59 @@ namespace MoonSharp.Interpreter.Tests
 			Assert.AreEqual(1, res.Tuple[0].Number);
 			Assert.AreEqual(1, res.Tuple[1].Number);
 			Assert.AreEqual(2, res.Tuple[2].Number);
+		}
+		[Test]
+		public void LoopWithReturn()
+		{
+			string script = @"function Allowed( )
+									for i = 1, 20 do
+  										return false 
+									end
+									return true
+								end
+						Allowed();
+								";
+
+			RValue res = MoonSharpInterpreter.LoadFromString(script, null).Execute();
+
+		}
+		[Test]
+		public void IfWithLongExpr()
+		{
+			string script = @"function Allowed( )
+									for i = 1, 20 do
+									if ( false ) or ( true and true ) or ( 7+i <= 9 and false ) then 
+  										return false 
+									end
+									end		
+									return true
+								end
+						Allowed();
+								";
+
+			RValue res = MoonSharpInterpreter.LoadFromString(script, null).Execute();
+
+		}
+
+		[Test]
+		public void IfWithLongExprTbl()
+		{
+			string script = @"
+						t = { {}, {} }
+						
+						function Allowed( )
+									for i = 1, 20 do
+									if ( t[1][3] ) or ( i <= 17 and t[1][1] ) or ( 7+i <= 9 and t[1][1] ) then 
+  										return false 
+									end
+									end		
+									return true
+								end
+						Allowed();
+								";
+
+			RValue res = MoonSharpInterpreter.LoadFromString(script, null).Execute();
+
 		}
 
 	}

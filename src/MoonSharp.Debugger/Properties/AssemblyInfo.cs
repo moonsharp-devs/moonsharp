@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("MoonSharp")]
-[assembly: AssemblyDescription("REPL Interpreter for the MoonSharp language")]
+[assembly: AssemblyTitle("MoonSharp.Debugger")]
+[assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("http://www.moonsharp.org")]
-[assembly: AssemblyProduct("MoonSharp")]
-[assembly: AssemblyCopyright("Copyright ©  2014, Marco Mastropaolo")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("MoonSharp.Debugger")]
+[assembly: AssemblyCopyright("Copyright ©  2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("5298f488-204c-4936-9737-104f3dc4fc6c")]
+[assembly: Guid("43c6203a-fd70-44f6-bdd9-30588e7c9733")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("0.1.9.1")]
+[assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]

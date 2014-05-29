@@ -128,13 +128,13 @@ namespace MoonSharp.Interpreter.Execution.VM
 			return Emit(new Instruction() { OpCode = OpCode.Bool });
 		}
 
-		[Conditional("EMIT_DEBUG_OPS")]
+		//[Conditional("EMIT_DEBUG_OPS")]
 		public void Debug(string str)
 		{
 			Emit(new Instruction() { OpCode = OpCode.Debug, Name = str.Substring(0, Math.Min(32, str.Length)) });
 		}
 
-		[Conditional("EMIT_DEBUG_OPS")]
+		//[Conditional("EMIT_DEBUG_OPS")]
 		public void Debug(Antlr4.Runtime.Tree.IParseTree parseTree)
 		{
 			string str = parseTree.GetText();

@@ -56,6 +56,8 @@
     <Compile Include="CoreLib\BasicMethods.cs" />
     <Compile Include="CoreLib\MetaTableMethods.cs" />
     <Compile Include="DataStructs\Slice.cs" />
+    <Compile Include="Debugging\IDebugGuest.cs" />
+    <Compile Include="Debugging\IDebugger.cs" />
     <Compile Include="Diagnostics\Debug.cs" />
     <Compile Include="Errors\InternalErrorException.cs" />
     <Compile Include="Execution\Behaviours\Behaviour.cs" />

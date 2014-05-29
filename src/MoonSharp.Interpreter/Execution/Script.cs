@@ -48,5 +48,14 @@ namespace MoonSharp.Interpreter.Execution
 			//	return m_Script.ExecRoot(runtimeScope);
 			//}
 		}
+
+		public RValue OldExecute()
+		{
+			using (var _ = new CodeChrono("MoonSharpScript.Execute"))
+			{
+				return m_Script.ExecRoot(runtimeScope);
+			}
+		}
+
 	}
 }
