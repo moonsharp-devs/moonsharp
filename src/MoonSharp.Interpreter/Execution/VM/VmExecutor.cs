@@ -18,8 +18,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 		Chunk m_CurChunk;
 		int m_InstructionPtr;
 
-		List<RValue> m_ValueStack = new List<RValue>();
-		List<CallStackItem> m_ExecutionStack = new List<CallStackItem>();
+		FastStack<RValue> m_ValueStack = new FastStack<RValue>(131072);
+		FastStack<CallStackItem> m_ExecutionStack = new FastStack<CallStackItem>(131072);
 		bool m_Terminate = false;
 
 		RuntimeScope m_Scope;
@@ -27,12 +27,19 @@ namespace MoonSharp.Interpreter.Execution.VM
 		RValue[] m_TempRegs = new RValue[8];
 
 
-		public VmExecutor(Chunk rootChunk, Table globalTable)
+		public VmExecutor(Chunk rootChunk, RuntimeScope runtimeScope)
 		{
 			m_RootChunk = m_CurChunk = rootChunk;
 			m_InstructionPtr = 0;
-			m_Scope = new RuntimeScope(globalTable);
+			m_Scope = runtimeScope;
 		}
+
+		public void Reset()
+		{
+			m_CurChunk = m_RootChunk ;
+			m_InstructionPtr = 0;
+		}
+
 
 		private RValue[] StackTopToArray(int items, bool pop)
 		{

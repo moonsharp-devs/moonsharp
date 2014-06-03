@@ -3,49 +3,49 @@ using System.Collections.Generic;
 using MoonSharp.Interpreter.Diagnostics;
 using System.Linq;
 using System.Text;
+using MoonSharp.Interpreter.Execution.VM;
 
 namespace MoonSharp.Interpreter.Execution
 {
 	public class RuntimeScope
 	{
 		Table m_GlobalTable;
-		List<RValue> m_ScopeStack = new List<RValue>(131072); // start with a 512KB scope stack
-		List<LRef> m_DebugStack = new List<LRef>(131072); // start with a 512KB scope stack
-		List<int> m_LocalBaseIndexes = new List<int>(16384);
-		List<List<RValue>> m_ClosureStack = new List<List<RValue>>();
-		List<RuntimeScopeFrame> m_ScopeFrames = new List<RuntimeScopeFrame>(2048);
+		FastStack<RValue> m_ScopeStack = new FastStack<RValue>(131072); // start with a 512KB scope stack
+//		FastStack<LRef> m_DebugStack = new FastStack<LRef>(131072); // start with a 512KB scope stack
+		FastStack<int> m_LocalBaseIndexes = new FastStack<int>(16384);
+		FastStack<List<RValue>> m_ClosureStack = new FastStack<List<RValue>>(4096);
+		FastStack<RuntimeScopeFrame> m_ScopeFrames = new FastStack<RuntimeScopeFrame>(8192);
 
-		public RuntimeScope(Table globalTable)
+		public RuntimeScope()
 		{
-			m_GlobalTable = globalTable;
+		}
+
+		public Table GlobalTable
+		{
+			get { return m_GlobalTable; }
+			set { m_GlobalTable = value; }
 		}
 
 		public void EnterClosure(List<RValue> closureValues)
 		{
-			m_ClosureStack.Add(closureValues);
+			m_ClosureStack.Push(closureValues);
 		}
 
 		public void LeaveClosure()
 		{
-			m_ClosureStack.RemoveAt(m_ClosureStack.Count - 1);
+			m_ClosureStack.RemoveLast();
 		}
 
 		public void PushFrame(RuntimeScopeFrame frame)
 		{
 			int size = frame.Count;
 
-			m_ScopeFrames.Add(frame);
+			m_ScopeFrames.Push(frame);
 
 			if (frame.RestartOfBase)
-				m_LocalBaseIndexes.Add(m_ScopeStack.Count);
+				m_LocalBaseIndexes.Push(m_ScopeStack.Count);
 
-			for (int i = 0; i < size; i++)
-			{
-				m_ScopeStack.Add(new RValue());
-				m_DebugStack.Add(frame.m_DebugSymbols[i]);
-			}
-
-			// Debug.WriteLine(string.Format("RPush : {0} - Stack is {1}", frame, m_ScopeStack.Count));
+			m_ScopeStack.Expand(size);
 		}
 
 		public void PopFrame(RuntimeScopeFrame frame)
@@ -62,13 +62,13 @@ namespace MoonSharp.Interpreter.Execution
 			int size = frame.Count;
 			if (size > 0)
 			{
-				m_ScopeStack.RemoveRange(m_ScopeStack.Count - size, size);
-				m_DebugStack.RemoveRange(m_DebugStack.Count - size, size);
+				m_ScopeStack.RemoveLast(size);
+				//m_DebugStack.RemoveLast(size);
 			}
 
 			if (frame.RestartOfBase)
 			{
-				m_LocalBaseIndexes.RemoveAt(m_LocalBaseIndexes.Count - 1);
+				m_LocalBaseIndexes.RemoveLast();
 			}
 			return frame;
 		}
@@ -133,7 +133,10 @@ namespace MoonSharp.Interpreter.Execution
 				case LRefType.Local:
 					{
 						int lastBaseIdx = m_LocalBaseIndexes[m_LocalBaseIndexes.Count - 1];
-						m_ScopeStack[lastBaseIdx + symref.i_Index].Assign(value);
+						RValue v = m_ScopeStack[lastBaseIdx + symref.i_Index];
+						if (v == null)
+							m_ScopeStack[lastBaseIdx + symref.i_Index] = v = new RValue();
+						v.Assign(value);
 						//m_ScopeStack[lastBaseIdx + symref.Index] = value.CloneAsWritable();
 					}
 					break;

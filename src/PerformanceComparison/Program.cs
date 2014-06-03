@@ -13,9 +13,9 @@ namespace PerformanceComparison
 {
 	class Program
 	{
-		const int ITERATIONS = 1000;
+		const int ITERATIONS = 100000;
 
-		static  string scriptText1 = @"
+		static  string scriptText = @"
 			function move(n, src, dst, via)
 				if n > 0 then
 					move(n - 1, src, via, dst)
@@ -26,7 +26,7 @@ namespace PerformanceComparison
  
 			move(4, 1, 2, 3)
 			";
-		static  string scriptText = @"
+		static  string scriptText2 = @"
 N = 8
  
 board = {}
@@ -63,15 +63,15 @@ if Find_Solution( 1 ) then
     for i = 1, N do
  	for j = 1, N do
   	    if board[i][j] then 
-		--print( 'Q' )
+		print( 'Q' )
 	    else 
-		--print( 'x' )
+		print( 'x' )
 	    end
 	end
-	--print( '|' )
+	print( '|' )
     end
 else
-    --print( 'NO!' )
+    print( 'NO!' )
 end
  
 			";
@@ -157,7 +157,7 @@ end
 			sw = Stopwatch.StartNew();
 			for (int i = 0; i < ITERATIONS; i++)
 			{
-				fn.Call();
+				//fn.Call();
 			}
 			sw.Stop();
 
@@ -165,11 +165,11 @@ end
 
 			Console.WriteLine("M# == NL ? {0}", g_MoonSharpStr.ToString() == g_NLuaStr.ToString());
 
-			//Console.WriteLine("=== Moon# ===");
-			//Console.WriteLine(g_MoonSharpStr.ToString());
-			//Console.WriteLine("");
-			//Console.WriteLine("=== NLua  ===");
-			//Console.WriteLine(g_NLuaStr.ToString());
+			Console.WriteLine("=== Moon# ===");
+			Console.WriteLine(g_MoonSharpStr.ToString());
+			Console.WriteLine("");
+			Console.WriteLine("=== NLua  ===");
+			Console.WriteLine(g_NLuaStr.ToString());
 
 			Console.ReadKey();
 		}

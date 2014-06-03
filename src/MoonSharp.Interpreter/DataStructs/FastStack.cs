@@ -5,7 +5,7 @@ using System.Text;
 
 namespace MoonSharp.Interpreter.Execution.VM
 {
-	public class FastStack<T> 
+	public class FastStack<T> : IList<T>
 	{
 		T[] m_Storage;
 		int m_HeadIdx = 0;
@@ -27,6 +27,11 @@ namespace MoonSharp.Interpreter.Execution.VM
 			return item;
 		}
 
+		public void Expand(int size)
+		{
+			m_HeadIdx += size;
+		}
+
 		public void Zero(int from, int to)
 		{
 			Array.Clear(m_Storage, from, to - from + 1);
@@ -41,6 +46,10 @@ namespace MoonSharp.Interpreter.Execution.VM
 		{
 			T item = m_Storage[m_HeadIdx - 1 - idxofs];
 			return item;
+		}
+		public void CropAtCount(int p)
+		{
+			RemoveLast(Count - p);
 		}
 
 		public void RemoveLast( int cnt = 1)
@@ -77,6 +86,78 @@ namespace MoonSharp.Interpreter.Execution.VM
 			get { return m_HeadIdx; }
 		}
 
+
+		int IList<T>.IndexOf(T item)
+		{
+			throw new NotImplementedException();
+		}
+
+		void IList<T>.Insert(int index, T item)
+		{
+			throw new NotImplementedException();
+		}
+
+		void IList<T>.RemoveAt(int index)
+		{
+			throw new NotImplementedException();
+		}
+
+		T IList<T>.this[int index]
+		{
+			get
+			{
+				return this[index];
+			}
+			set
+			{
+				this[index] = value;
+			}
+		}
+
+		void ICollection<T>.Add(T item)
+		{
+			Push(item);
+		}
+
+		void ICollection<T>.Clear()
+		{
+			Clear();
+		}
+
+		bool ICollection<T>.Contains(T item)
+		{
+			throw new NotImplementedException();
+		}
+
+		void ICollection<T>.CopyTo(T[] array, int arrayIndex)
+		{
+			throw new NotImplementedException();
+		}
+
+		int ICollection<T>.Count
+		{
+			get { return this.Count; }
+		}
+
+		bool ICollection<T>.IsReadOnly
+		{
+			get { return false; }
+		}
+
+		bool ICollection<T>.Remove(T item)
+		{
+			throw new NotImplementedException();
+		}
+
+		IEnumerator<T> IEnumerable<T>.GetEnumerator()
+		{
+			throw new NotImplementedException();
+		}
+
+		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+		{
+			throw new NotImplementedException();
+		}
 
 	}
 }

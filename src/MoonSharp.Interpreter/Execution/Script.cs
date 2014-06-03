@@ -33,9 +33,18 @@ namespace MoonSharp.Interpreter.Execution
 #endif
 		}
 
+		RuntimeScope scope = new RuntimeScope();
+		VmExecutor executor;
+
 		public RValue Execute(Table globalContext)
 		{
-			VmExecutor executor = new VmExecutor(m_GlobalChunk, globalContext ?? new Table());
+			scope.GlobalTable = globalContext ?? new Table();
+
+			if (executor == null)
+			{
+				executor= new VmExecutor(m_GlobalChunk, scope);
+			}
+			executor.Reset();
 
 			using (var _ = new CodeChrono("MoonSharpScript.Execute"))
 			{
