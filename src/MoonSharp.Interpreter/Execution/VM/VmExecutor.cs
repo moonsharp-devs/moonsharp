@@ -27,11 +27,11 @@ namespace MoonSharp.Interpreter.Execution.VM
 		RValue[] m_TempRegs = new RValue[8];
 
 
-		public VmExecutor(Chunk rootChunk, RuntimeScope scope)
+		public VmExecutor(Chunk rootChunk, Table globalTable)
 		{
 			m_RootChunk = m_CurChunk = rootChunk;
 			m_InstructionPtr = 0;
-			m_Scope = scope;
+			m_Scope = new RuntimeScope(globalTable);
 		}
 
 		private RValue[] StackTopToArray(int items, bool pop)
@@ -478,7 +478,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			{
 				RValue[] args = StackTopToArray(i.NumVal, true);
 				m_ValueStack.Pop();
-				var ret = fn.Callback.Invoke(m_Scope, args);
+				var ret = fn.Callback.Invoke(args);
 				m_ValueStack.Push(ret);
 			}
 			else if (fn.Type == DataType.Function)

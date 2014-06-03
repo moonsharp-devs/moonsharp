@@ -74,10 +74,10 @@
     <Compile Include="Execution\Scopes\BuildTimeScope.cs" />
     <Compile Include="Execution\Scopes\BuildTimeScopeFrame.cs" />
     <Compile Include="Execution\Scopes\IClosureBuilder.cs" />
-    <Compile Include="Execution\Scopes\LRefType.cs" />
+    <Compile Include="Execution\DataTypes\LRefType.cs" />
     <Compile Include="Execution\Scopes\RuntimeScope.cs" />
     <Compile Include="Execution\Scopes\RuntimeScopeFrame.cs" />
-    <Compile Include="Execution\Scopes\LRef.cs" />
+    <Compile Include="Execution\DataTypes\LRef.cs" />
     <Compile Include="Execution\ScriptLoadingContext.cs" />
     <Compile Include="Execution\DataTypes\DataType.cs" />
     <Compile Include="Execution\DataTypes\RValue.cs" />
@@ -98,7 +98,7 @@
     <Compile Include="Grammar\Lua.g4.parser.cs">
       <DependentUpon>Lua.g4</DependentUpon>
     </Compile>
-    <Compile Include="IVariable.cs" />
+    <Compile Include="Tree\IVariable.cs" />
     <Compile Include="MoonSharpInterpreter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tree\Expressions\ExprListExpression.cs" />
@@ -114,8 +114,9 @@
     <Compile Include="Tree\NodeBase.cs" />
     <Compile Include="Tree\NodeFactory.cs" />
     <Compile Include="Tree\Statements\AssignmentStatement.cs" />
+    <Compile Include="Tree\Statements\ChunkStatement.cs" />
     <Compile Include="Tree\Statements\CompositeStatement.cs" />
-    <Compile Include="Tree\Statements\ExecutionFlowStatement.cs" />
+    <Compile Include="Tree\Statements\BreakStatement.cs" />
     <Compile Include="Tree\Statements\ForEachLoopStatement.cs" />
     <Compile Include="Tree\Statements\ForLoopStatement.cs" />
     <Compile Include="Tree\Statements\FunctionCallStatement.cs" />

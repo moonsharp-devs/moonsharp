@@ -48,16 +48,6 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 		}
 
 
-		public override RValue Eval(RuntimeScope scope)
-		{
-			var dic = m_CtorArgs.ToDictionary(
-				kvp => kvp.Key.Eval(scope),
-				kvp => kvp.Value.Eval(scope).ToSimplestValue().CloneAsWritable());
-
-			Table t = new Table(dic, m_PositionalValues.Select(e => e.Eval(scope)));
-
-			return new RValue(t);
-		}
 
 		public override void Compile(Execution.VM.Chunk bc)
 		{

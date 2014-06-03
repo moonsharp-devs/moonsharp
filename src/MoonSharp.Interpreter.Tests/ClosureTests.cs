@@ -31,7 +31,7 @@ namespace MoonSharp.Interpreter.Tests
 						return a[1](), a[2](), a[3](), a[4](), a[5]()";
 
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script, null).Execute();
+			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(null);
 
 			Assert.AreEqual(DataType.Tuple, res.Type);
 			Assert.AreEqual(5, res.Tuple.Length);
@@ -71,7 +71,7 @@ namespace MoonSharp.Interpreter.Tests
 
 						return a[1](), a[2](), a[3](), a[4](), a[5]()";
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script, null).Execute();
+			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(null);
 
 			Assert.AreEqual(DataType.Tuple, res.Type);
 			Assert.AreEqual(5, res.Tuple.Length);
@@ -112,7 +112,7 @@ namespace MoonSharp.Interpreter.Tests
 
 						return a[1](), a[2](), a[3](), a[4](), a[5]()";
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script, null).Execute();
+			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(null);
 
 			Assert.AreEqual(DataType.Tuple, res.Type);
 			Assert.AreEqual(5, res.Tuple.Length);
@@ -156,7 +156,7 @@ namespace MoonSharp.Interpreter.Tests
 
 				return a1(), a2(), a3(), a4(), a5()";
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script, null).Execute();
+			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(null);
 
 			Assert.AreEqual(DataType.Tuple, res.Type);
 			Assert.AreEqual(5, res.Tuple.Length);

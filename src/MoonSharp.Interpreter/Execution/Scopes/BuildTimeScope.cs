@@ -8,25 +8,12 @@ namespace MoonSharp.Interpreter.Execution
 {
 	public class BuildTimeScope
 	{
-		BuildTimeScopeFrame m_GlobalRuntimeScope = new BuildTimeScopeFrame(0, 0, true);
-
-		Dictionary<LRef, RValue> m_PredefinedGlobals = new Dictionary<LRef, RValue>();
-
 		List<BuildTimeScopeFrame> m_Locals = new List<BuildTimeScopeFrame>();
-
 		List<IClosureBuilder> m_ClosureBuilders = new List<IClosureBuilder>();
 
-
-		public BuildTimeScope(Table t)
+		public BuildTimeScope()
 		{
 			PushFunction();
-
-			foreach (var kvp in t.Pairs().Where(e => e.Key.Type == DataType.String))
-			{
-				int idx = m_GlobalRuntimeScope.Define(kvp.Key.String);
-				m_PredefinedGlobals.Add(LRef.Global(kvp.Key.String, idx), kvp.Value);
-			}
-
 		}
 
 		public void EnterClosure(IClosureBuilder closureBuilder)
@@ -71,7 +58,7 @@ namespace MoonSharp.Interpreter.Execution
 				if (local)
 					s = LRef.Local(frame.FindRev(i - frame.BaseIndex), i - frame.BaseIndex);
 				else
-					s = LRef.Global(frame.FindRev(i - frame.BaseIndex), i - frame.BaseIndex);
+					s = LRef.Global(frame.FindRev(i - frame.BaseIndex));
 
 				symbols.Add(s);
 			}
@@ -120,19 +107,12 @@ namespace MoonSharp.Interpreter.Execution
 				}
 			}
 
-			int idxglob = m_GlobalRuntimeScope.Find(name);
-			if (idxglob >= 0)
-				return LRef.Global(name, idxglob);
-
-			// Debug.WriteLine(string.Format("Attempted to find '{0}' failed", name));
-			return LRef.Invalid();
+			return LRef.Global(name);
 		}
 
 		public LRef DefineLocal(string name)
 		{
-			var s = LRef.Local(name, m_Locals[m_Locals.Count - 1].Define(name));
-			// Debug.WriteLine(string.Format("Define local  : {0}", s));
-			return s;
+			return LRef.Local(name, m_Locals[m_Locals.Count - 1].Define(name));
 		}
 
 		public LRef TryDefineLocal(string name)
@@ -145,32 +125,6 @@ namespace MoonSharp.Interpreter.Execution
 			var s = LRef.Local(name, m_Locals[m_Locals.Count - 1].Define(name));
 			// Debug.WriteLine(string.Format("Define local : {0}", s));
 			return s;
-		}
-
-
-		public LRef DefineGlobal(string name)
-		{
-			int idxglob = m_GlobalRuntimeScope.Find(name);
-			if (idxglob >= 0)
-				return LRef.Global(name, idxglob);
-
-			var s = LRef.Global(name, m_GlobalRuntimeScope.Define(name));
-			// Debug.WriteLine(string.Format("Define global : {0}", s));
-			return s;
-		}
-
-		internal RuntimeScope SpawnRuntimeScope()
-		{
-			RuntimeScope scope = new RuntimeScope();
-
-			scope.ExpandGlobal(m_GlobalRuntimeScope.MaxIndex);
-
-			foreach (var kvp in m_PredefinedGlobals)
-				scope.Assign(kvp.Key, kvp.Value);
-
-			scope.PushFrame(GetRuntimeFrameFromBuildFrame(m_Locals[0], true));
-
-			return scope;
 		}
 
 	}

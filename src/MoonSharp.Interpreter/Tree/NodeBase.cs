@@ -40,6 +40,7 @@ namespace MoonSharp.Interpreter.Tree
 			if (!condition)
 				throw  RuntimeError(format, args);
 		}
+
 		public virtual void Compile(Chunk bc)
 		{
 			bc.Invalid(this.GetType().Name);

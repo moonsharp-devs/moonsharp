@@ -20,11 +20,6 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			m_StackFrame = lcontext.Scope.Pop();
 		}
 
-		public override ExecutionFlow Exec(RuntimeScope scope)
-		{
-			return ExecuteStatementInBlockScope(m_Block, scope, m_StackFrame);
-		}
-
 		public override void Compile(Execution.VM.Chunk bc)
 		{
 			bc.Enter(m_StackFrame);

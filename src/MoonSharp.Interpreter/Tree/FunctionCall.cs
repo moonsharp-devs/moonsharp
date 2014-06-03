@@ -19,47 +19,9 @@ namespace MoonSharp.Interpreter.Tree
 			: base(nameAndArgs, lcontext)
 		{
 			var name = nameAndArgs.NAME();
-
 			m_Name = name != null ? name.GetText().Trim() : null;
-
 			m_Arguments = nameAndArgs.args().children.SelectMany(t => NodeFactory.CreateExpressions(t, lcontext)).Where(t => t != null).ToArray();
 		}
-
-		public RValue Invoke(RuntimeScope scope, RValue value)
-		{
-			RValue[] args;
-
-			if (value.Type == DataType.Table)
-			{
-				var method = value.Table[new RValue(m_Name)];
-
-				args = new RValue[] { value }.Union(
-						m_Arguments
-						.Select(exp => exp.Eval(scope))
-						.SelectMany(val => val.ToArrayOfValues())
-					)
-					.ToArray();
-
-				value = method;
-			}
-			else
-			{
-				args = m_Arguments
-					.Select(exp => exp.Eval(scope))
-					.SelectMany(val => val.ToArrayOfValues())
-					.ToArray();
-			}
-
-			if (value.Type == DataType.ClrFunction)
-			{
-				return value.Callback.Invoke(scope, args);
-			}
-			else
-			{
-				throw RuntimeError("Function was expected, but a {0} was passed.", value.Type.ToString());
-			}
-		}
-
 
 		public override void Compile(Execution.VM.Chunk bc)
 		{

@@ -20,11 +20,6 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		}
 
 
-		public override ExecutionFlow Exec(RuntimeScope scope)
-		{
-			RValue val = m_Expression.Eval(scope);
-			return ExecutionFlow.Return(val);
-		}
 
 		public override void Compile(Execution.VM.Chunk bc)
 		{

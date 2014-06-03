@@ -21,28 +21,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			m_IndexExp = indexExp;
 		}
 
-		public override RValue Eval(RuntimeScope scope)
-		{
-			RValue baseValue = m_BaseExp.Eval(scope).ToSimplestValue();
-			RValue indexValue = m_IndexExp.Eval(scope).ToSimplestValue();
 
-			if (baseValue.Type != DataType.Table)
-			{
-				throw new ScriptRuntimeException(this.TreeNode, "Can't index: {0}", baseValue.Type);
-			}
-			else
-			{
-				return baseValue.Table[indexValue];
-			}
-		}
-
-		public void SetValue(RuntimeScope scope, RValue rValue)
-		{
-			RValue baseValue = m_BaseExp.Eval(scope).ToSimplestValue();
-			RValue indexValue = m_IndexExp.Eval(scope).ToSimplestValue();
-
-			baseValue.Table[indexValue] = rValue;
-		}
 
 		public override void Compile(Chunk bc)
 		{
@@ -50,7 +29,6 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			m_IndexExp.Compile(bc);
 			bc.Index();
 		}
-
 
 
 		public void CompileAssignment(Chunk bc)

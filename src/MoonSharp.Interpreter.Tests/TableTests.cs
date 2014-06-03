@@ -20,7 +20,7 @@ namespace MoonSharp.Interpreter.Tests
 
 						return a[1]";
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script, null).Execute();
+			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(null);
 
 			Assert.AreEqual(DataType.Number, res.Type);
 			Assert.AreEqual(1, res.Number);
@@ -40,7 +40,7 @@ namespace MoonSharp.Interpreter.Tests
 
 						return a[1], a[2], a[3], a['ciao'], a.hello, a.aurevoir, a[false]";
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script, null).Execute();
+			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(null);
 
 			Assert.AreEqual(DataType.Tuple, res.Type);
 			Assert.AreEqual(7, res.Tuple.Length);
@@ -79,7 +79,7 @@ namespace MoonSharp.Interpreter.Tests
 
 						return x";
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script, null).Execute();
+			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(null);
 
 			Assert.AreEqual(DataType.Number, res.Type);
 			Assert.AreEqual(1994, res.Number);
@@ -104,7 +104,7 @@ namespace MoonSharp.Interpreter.Tests
 
 						return x";
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script, null).Execute();
+			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(null);
 
 			Assert.AreEqual(DataType.Number, res.Type);
 			Assert.AreEqual(1994, res.Number);
@@ -129,7 +129,7 @@ namespace MoonSharp.Interpreter.Tests
 
 						return x";
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script, null).Execute();
+			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(null);
 
 			Assert.AreEqual(DataType.Number, res.Type);
 			Assert.AreEqual(1994, res.Number);
@@ -155,7 +155,7 @@ namespace MoonSharp.Interpreter.Tests
 
 						return x";
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script, null).Execute();
+			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(null);
 
 			Assert.AreEqual(DataType.Number, res.Type);
 			Assert.AreEqual(1994, res.Number);
@@ -183,7 +183,7 @@ namespace MoonSharp.Interpreter.Tests
 
 						return x";
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script, null).Execute();
+			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(null);
 
 			Assert.AreEqual(DataType.Number, res.Type);
 			Assert.AreEqual(1994, res.Number);
@@ -200,7 +200,7 @@ namespace MoonSharp.Interpreter.Tests
 						  return (a:add(10):add(20):add(30).x == 60 and a.y == 20)
 						end";
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script, null).Execute();
+			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(null);
 
 			Assert.AreEqual(DataType.Boolean, res.Type);
 			Assert.AreEqual(true, res.TestAsBoolean());

@@ -21,13 +21,10 @@ namespace MoonSharp.Interpreter
 			LuaStrict
 		}
 
-		private static Script LoadFromICharStream(ICharStream charStream, Table globalTable)
+		private static Script LoadFromICharStream(ICharStream charStream)
 		{
 			LuaLexer lexer;
 			LuaParser parser;
-
-			if (globalTable == null)
-				globalTable = new Table();
 
 			using (var _ = new CodeChrono("MoonSharpScript.LoadFromICharStream/AST"))
 			{
@@ -41,21 +38,21 @@ namespace MoonSharp.Interpreter
 #endif
 			using (var _ = new CodeChrono("MoonSharpScript.LoadFromICharStream/EXE"))
 			{
-				var lcontext = new ScriptLoadingContext() { Scope = new BuildTimeScope(globalTable) };
-				CompositeStatement stat = new CompositeStatement(parser.chunk(), lcontext);
+				var lcontext = new ScriptLoadingContext() { Scope = new BuildTimeScope() };
+				ChunkStatement stat = new ChunkStatement(parser.chunk(), lcontext);
 				return new Script(stat, lcontext);
 			}
 		}
 
 
-		public static Script LoadFromFile(string filename, Table globalTable)
+		public static Script LoadFromFile(string filename)
 		{
-			return LoadFromICharStream(new AntlrFileStream(filename), globalTable);
+			return LoadFromICharStream(new AntlrFileStream(filename));
 		}
 
-		public static Script LoadFromString(string text, Table globalTable)
+		public static Script LoadFromString(string text)
 		{
-			return LoadFromICharStream(new AntlrInputStream(text), globalTable);
+			return LoadFromICharStream(new AntlrInputStream(text));
 		}
 
 	}

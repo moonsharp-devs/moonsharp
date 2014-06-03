@@ -14,7 +14,7 @@ namespace MoonSharp.Interpreter.Execution
 			m_CallBack = callBack;
 		}
 
-		public RValue Invoke(RuntimeScope scope, RValue[] args)
+		public RValue Invoke(RValue[] args)
 		{
 			return m_CallBack(args);
 		}

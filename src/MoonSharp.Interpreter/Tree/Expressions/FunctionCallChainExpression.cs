@@ -39,17 +39,6 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			: this(context, lcontext, context.varOrExp(), context.nameAndArgs())
 		{ }
 
-		public override RValue Eval(RuntimeScope scope)
-		{
-			RValue value = m_StartingExpression.Eval(scope).AsReadOnly();
-
-			foreach (FunctionCall fn in m_CallChain)
-			{
-				value = fn.Invoke(scope, value).AsReadOnly();
-			}
-
-			return value;
-		}
 
 		public override void Compile(Execution.VM.Chunk bc)
 		{

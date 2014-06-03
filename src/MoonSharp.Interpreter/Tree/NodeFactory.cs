@@ -22,7 +22,7 @@ namespace MoonSharp.Interpreter.Tree
 				return new CompositeStatement((LuaParser.BlockContext)tree, lcontext);
 
 			if (tree is LuaParser.ChunkContext)
-				return new CompositeStatement((LuaParser.ChunkContext)tree, lcontext);
+				return new ChunkStatement((LuaParser.ChunkContext)tree, lcontext);
 
 			if (tree is LuaParser.Stat_funcdefContext)
 				return new FunctionDefinitionStatement((LuaParser.Stat_funcdefContext)tree, lcontext);
@@ -52,7 +52,7 @@ namespace MoonSharp.Interpreter.Tree
 				return new LocalAssignmentStatement((LuaParser.Stat_localassignmentContext)tree, lcontext);
 
 			if (tree is LuaParser.Stat_breakContext)
-				return new ExecutionFlowStatement((LuaParser.Stat_breakContext)tree, lcontext);
+				return new BreakStatement((LuaParser.Stat_breakContext)tree, lcontext);
 
 			if (tree is LuaParser.Stat_forloopContext)
 				return new ForLoopStatement((LuaParser.Stat_forloopContext)tree, lcontext);
@@ -184,7 +184,7 @@ namespace MoonSharp.Interpreter.Tree
 		public static Expression[] CreateExpressions(IParseTree tree, ScriptLoadingContext lcontext)
 		{
 			if (tree is LuaParser.ExplistContext)
-				return new ExprListExpression((LuaParser.ExplistContext)tree, lcontext).Unpack();
+				return new ExprListExpression((LuaParser.ExplistContext)tree, lcontext).GetExpressions();
 
 			return new Expression[] { CreateExpression(tree, lcontext) };
 		}

@@ -11,6 +11,7 @@ namespace MoonSharp.Interpreter.Execution
 		Global,
 		Local,
 		Upvalue,
-		Index
+		Index,
+		Argument
 	}
 }

@@ -107,71 +107,8 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			}
 		}
 
-		public override RValue Eval(RuntimeScope scope)
-		{
-			RValue v1 = m_Exp1.Eval(scope);
 
-			if (v1.Type == DataType.Tuple)
-				v1 = v1.ToSimplestValue();
 
-			if (m_Operator == Operator.Or && v1.TestAsBoolean())
-				return RValue.True;
-
-			if (m_Operator == Operator.And && !(v1.TestAsBoolean()))
-				return RValue.False;
-
-			RValue v2 = m_Exp2 != null ? m_Exp2.Eval(scope) : v1;
-
-			if (v2.Type == DataType.Tuple)
-				v2 = v2.ToSimplestValue();
-
-			return ExecuteOperator(m_Operator, v1, v2);
-		}
-
-		public static RValue ExecuteOperator(Operator op, RValue v1, RValue v2)
-		{
-			switch (op)
-			{
-				case Operator.Or:
-					return v2.AsBoolean();
-				case Operator.And:
-					return v2.AsBoolean();
-				case Operator.Less:
-					return new RValue(v1.Number < v2.Number).AsReadOnly();
-				case Operator.Greater:
-					return new RValue(v1.Number > v2.Number).AsReadOnly();
-				case Operator.LessOrEqual:
-					return new RValue(v1.Number < v2.Number).AsReadOnly();
-				case Operator.GreaterOrEqual:
-					return new RValue(v1.Number >= v2.Number).AsReadOnly();
-				case Operator.NotEqual:
-					return new RValue(v1.Number != v2.Number).AsReadOnly();
-				case Operator.Equal:
-					return new RValue(v1.Number == v2.Number).AsReadOnly();
-				case Operator.StrConcat:
-					return new RValue(v1.String + v2.String).AsReadOnly();
-				case Operator.Add:
-					return new RValue(v1.Number + v2.Number).AsReadOnly();
-				case Operator.Sub:
-					return new RValue(v1.Number - v2.Number).AsReadOnly();
-				case Operator.Mul:
-					return new RValue(v1.Number * v2.Number).AsReadOnly();
-				case Operator.Div:
-					return new RValue(v1.Number / v2.Number).AsReadOnly();
-				case Operator.Mod:
-					return new RValue(v1.Number % v2.Number).AsReadOnly();
-				case Operator.Not:
-					return new RValue(!v1.Boolean);
-				case Operator.Size:
-					return v1.GetLength();
-				case Operator.Neg:
-					return new RValue(-v1.Number).AsReadOnly();
-				case Operator.Power:
-					return new RValue(Math.Pow(v1.Number, v2.Number)).AsReadOnly();
-				default:
-					throw new NotImplementedException();
-			}
-		}
 
 		public static bool IsOperatorExpression(IParseTree tree)
 		{

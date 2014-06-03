@@ -45,7 +45,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			}
 			else
 			{
-				m_FuncName = lcontext.Scope.DefineGlobal(fnname.Text);
+				m_FuncName = LRef.Global(fnname.Text);
 			}
 
 			if (nameOfMethodAccessor != null)
@@ -59,40 +59,6 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			}
 		}
 
-
-		public override ExecutionFlow Exec(RuntimeScope scope)
-		{
-			if (m_Local)
-			{
-				scope.Assign(m_FuncName, m_FuncDef.Eval(scope));
-			}
-			else
-			{
-				if (m_MethodName == null)
-				{
-					scope.Assign(m_FuncName, m_FuncDef.Eval(scope));
-				}
-				else
-				{
-					RValue rvalue = scope.Get(m_FuncName);
-
-					foreach (string str in m_TableAccessors)
-					{
-						if (rvalue.Type != DataType.Table)
-							throw RuntimeError("Table expected, got {0}", rvalue.Type);
-
-						rvalue = rvalue.Table[new RValue(str)];
-					}
-
-					if (rvalue.Type != DataType.Table)
-						throw RuntimeError("Table expected, got {0}", rvalue.Type);
-
-					rvalue.Table[new RValue(m_MethodName)] = m_FuncDef.Eval(scope);
-				}
-			}
-
-			return ExecutionFlow.None;
-		}
 
 
 		public override void Compile(Execution.VM.Chunk bc)

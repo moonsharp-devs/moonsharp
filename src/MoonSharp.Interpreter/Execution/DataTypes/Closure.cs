@@ -14,7 +14,7 @@ namespace MoonSharp.Interpreter.Execution
 		private static List<RValue> emptyClosure = new List<RValue>();
 
 
-		public Closure(int idx, LRef[] symbols, RuntimeScope scope)
+		internal Closure(int idx, LRef[] symbols, RuntimeScope scope)
 		{
 			ByteCodeLocation = idx;
 
@@ -24,7 +24,7 @@ namespace MoonSharp.Interpreter.Execution
 				closureValues = emptyClosure;
 		}
 
-		public void EnterClosureBeforeCall(RuntimeScope scope)
+		internal void EnterClosureBeforeCall(RuntimeScope scope)
 		{
 			scope.EnterClosure(closureValues);
 		}

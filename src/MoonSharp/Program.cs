@@ -14,9 +14,7 @@ namespace MoonSharp
 		static RValue Print(RValue[] values)
 		{
 			string prn = string.Join(" ", values.Select(v => v.AsString()).ToArray());
-
 			Console.WriteLine("{0}", prn);
-
 			return RValue.Nil;
 		}
 
@@ -43,9 +41,9 @@ namespace MoonSharp
 				Table globalTable = new Table();
 				globalTable[new RValue("print")] = new RValue(new CallbackFunction(Print));
 
-				var script = MoonSharpInterpreter.LoadFromFile(args[0], globalTable);
+				var script = MoonSharpInterpreter.LoadFromFile(args[0]);
 
-				script.Execute();
+				script.Execute(globalTable);
 
 				Console.WriteLine("Done.");
 				

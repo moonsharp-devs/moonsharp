@@ -10,16 +10,14 @@ namespace MoonSharp.Interpreter.Execution
 {
 	public class Script
 	{
-		CompositeStatement m_Script;
+		ChunkStatement m_Script;
 		ScriptLoadingContext m_LoadingContext;
-		RuntimeScope runtimeScope;
 		Chunk m_GlobalChunk;
 
-		internal Script(CompositeStatement stat, ScriptLoadingContext lcontext)
+		internal Script(ChunkStatement stat, ScriptLoadingContext lcontext)
 		{
 			m_Script = stat;
 			m_LoadingContext = lcontext;
-			runtimeScope = m_LoadingContext.Scope.SpawnRuntimeScope();
 			Compile();
 		}
 
@@ -30,32 +28,21 @@ namespace MoonSharp.Interpreter.Execution
 			m_Script.Compile(m_GlobalChunk);
 			m_GlobalChunk.Nop("Script end");
 
+#if DEBUG
 			m_GlobalChunk.Dump(@"c:\temp\codedump.txt");
+#endif
 		}
 
-		public RValue Execute()
+		public RValue Execute(Table globalContext)
 		{
-
-			VmExecutor executor = new VmExecutor(m_GlobalChunk, runtimeScope);
+			VmExecutor executor = new VmExecutor(m_GlobalChunk, globalContext ?? new Table());
 
 			using (var _ = new CodeChrono("MoonSharpScript.Execute"))
 			{
 				return executor.Execute();
 			}
-
-			//using (var _ = new CodeChrono("MoonSharpScript.Execute"))
-			//{
-			//	return m_Script.ExecRoot(runtimeScope);
-			//}
 		}
 
-		public RValue OldExecute()
-		{
-			using (var _ = new CodeChrono("MoonSharpScript.Execute"))
-			{
-				return m_Script.ExecRoot(runtimeScope);
-			}
-		}
 
 	}
 }

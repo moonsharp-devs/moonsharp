@@ -17,35 +17,13 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 		{
 			string varName = terminalNode.GetText();
 			m_Ref = lcontext.Scope.Find(varName);
-
-			if (!m_Ref.IsValid())
-			{
-				m_Ref = lcontext.Scope.DefineGlobal(varName);
-			}
 		}
 
-		public override RValue Eval(RuntimeScope scope)
-		{
-			RValue v = scope.Get(m_Ref);
-
-			if (v == null)
-				throw new ScriptRuntimeException(this.TreeNode, "Undefined symbol: {0}", m_Ref.i_Name);
-
-			return v;
-		}
-
-		public void SetValue(RuntimeScope scope, RValue rValue)
-		{
-			scope.Assign(m_Ref, rValue);
-		}
 
 		public override void Compile(Execution.VM.Chunk bc)
 		{
 			bc.Load(m_Ref);
 		}
-
-
-
 
 		public void CompileAssignment(Execution.VM.Chunk bc)
 		{

@@ -14,8 +14,5 @@ namespace MoonSharp.Interpreter.Tree
 			: base(node, lcontext)
 		{ }
 
-
-		public abstract RValue Eval(RuntimeScope scope); 
-
 	}
 }

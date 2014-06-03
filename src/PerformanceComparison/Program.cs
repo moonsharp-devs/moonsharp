@@ -13,7 +13,7 @@ namespace PerformanceComparison
 {
 	class Program
 	{
-		const int ITERATIONS = 100;
+		const int ITERATIONS = 1000;
 
 		static  string scriptText1 = @"
 			function move(n, src, dst, via)
@@ -63,15 +63,15 @@ if Find_Solution( 1 ) then
     for i = 1, N do
  	for j = 1, N do
   	    if board[i][j] then 
-		print( 'Q' )
+		--print( 'Q' )
 	    else 
-		print( 'x' )
+		--print( 'x' )
 	    end
 	end
-	print( '|' )
+	--print( '|' )
     end
 else
-    print( 'NO!' )
+    --print( 'NO!' )
 end
  
 			";
@@ -94,9 +94,9 @@ end
 			Table t = new Table();
 			t[new RValue("print")] = new RValue(new CallbackFunction(Print));
 
-			Script script = MoonSharpInterpreter.LoadFromFile(@"c:\temp\test.lua", t);
+			Script script = MoonSharpInterpreter.LoadFromFile(@"c:\temp\test.lua");
 
-			RValue retVal = script.Execute();
+			RValue retVal = script.Execute(t);
 		}
 
 		public static void NPrint(params object[] values)
@@ -120,7 +120,7 @@ end
 			Table t = new Table();
 			t[new RValue("print")] = new RValue(new CallbackFunction(Print));
 
-			MoonSharpInterpreter.LoadFromString(scriptText, t);
+			MoonSharpInterpreter.LoadFromString(scriptText);
 
 			sw.Stop();
 
@@ -131,7 +131,7 @@ end
 			t = new Table();
 			t[new RValue("print")] = new RValue(new CallbackFunction(Print));
 
-			var script = MoonSharpInterpreter.LoadFromString(scriptText, t);
+			var script = MoonSharpInterpreter.LoadFromString(scriptText);
 
 			sw.Stop();
 
@@ -141,7 +141,7 @@ end
 			sw = Stopwatch.StartNew();
 			for (int i = 0; i < ITERATIONS; i++)
 			{
-				script.Execute();
+				script.Execute(t);
 			}
 			sw.Stop();
 

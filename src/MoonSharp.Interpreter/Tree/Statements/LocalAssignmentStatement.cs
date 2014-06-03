@@ -37,22 +37,6 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		}
 
 
-		public override ExecutionFlow Exec(RuntimeScope scope)
-		{
-			if (m_Names.Length == 1 && m_RValues.Length >= 1)
-			{
-				scope.Assign(m_Names[0], m_RValues[0].Eval(scope).ToSimplestValue());
-				return ExecutionFlow.None;
-			}
-			else
-			{
-				return PairMultipleAssignment(scope, m_Names, m_RValues, (l, s, v) => 
-				{
-					scope.Assign(l, v);
-				});
-			}
-		}
-
 		public override void Compile(Execution.VM.Chunk bc)
 		{
 			if (m_Names.Length == 1 && m_RValues.Length == 1)

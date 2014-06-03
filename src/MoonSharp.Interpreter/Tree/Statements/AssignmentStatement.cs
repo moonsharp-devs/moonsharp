@@ -28,21 +28,6 @@ namespace MoonSharp.Interpreter.Tree.Statements
 				.ToArray();
 		}
 
-		public override ExecutionFlow Exec(RuntimeScope scope)
-		{
-			if (m_LValues.Length == 1 && m_RValues.Length >= 1)
-			{
-				m_LValues[0].SetValue(scope, m_RValues[0].Eval(scope).ToSingleValue());
-				return ExecutionFlow.None;
-			}
-			else
-			{
-				return PairMultipleAssignment(scope, m_LValues, m_RValues, (l, s, v) => 
-				{ 
-					l.SetValue(s, v); 
-				} );
-			}
-		}
 
 		public override void Compile(Execution.VM.Chunk bc)
 		{

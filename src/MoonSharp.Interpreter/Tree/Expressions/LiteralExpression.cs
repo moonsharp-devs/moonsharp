@@ -86,11 +86,6 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			m_Value = new RValue(val).AsReadOnly();
 		}
 
-		public override RValue Eval(RuntimeScope scope)
-		{
-			return m_Value;
-		}
-
 		public override void Compile(Execution.VM.Chunk bc)
 		{
 			bc.Literal(m_Value);

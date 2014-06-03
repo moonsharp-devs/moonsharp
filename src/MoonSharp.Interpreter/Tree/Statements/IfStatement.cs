@@ -49,19 +49,6 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			}
 		}
 
-		public override ExecutionFlow Exec(RuntimeScope scope)
-		{
-			foreach (var ifblock in m_Ifs)
-			{
-				if (ifblock.Exp.Eval(scope).TestAsBoolean())
-					return ExecuteStatementInBlockScope(ifblock.Block, scope, ifblock.StackFrame);
-			}
-
-			if (m_Else != null)
-				return ExecuteStatementInBlockScope(m_Else, scope, m_ElseStackFrame);
-
-			return ExecutionFlow.None;
-		}
 
 		public override void Compile(Execution.VM.Chunk bc)
 		{

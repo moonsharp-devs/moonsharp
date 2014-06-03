@@ -36,37 +36,6 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			m_StackFrame = lcontext.Scope.Pop();
 		}
 
-		public override ExecutionFlow Exec(RuntimeScope scope)
-		{
-			RValue startv = m_Start.Eval(scope).AsNumber();
-			RValue stopv = m_End.Eval(scope).AsNumber();
-			RValue stepv = m_Step.Eval(scope).AsNumber();
-
-			RuntimeAssert(startv.Type == DataType.Number, "'for' initial value must be a number");
-			RuntimeAssert(stopv.Type == DataType.Number, "'for' stop value must be a number");
-			RuntimeAssert(stepv.Type == DataType.Number, "'for' step value must be a number");
-
-			RValue v = new RValue(startv.Number);
-
-			for (double d = startv.Number;
-				(stepv.Number > 0) ? d <= stopv.Number : d >= stopv.Number;
-				d += stepv.Number)
-			{
-				v.Assign(d);
-
-				ExecutionFlow flow = ExecuteStatementInBlockScope(m_InnerBlock, scope, m_StackFrame, m_VarName, v);
-
-				if (flow.Type == ExecutionFlowType.Break)
-					return ExecutionFlow.None;
-				else if (flow.Type == ExecutionFlowType.Return)
-					return flow;
-			}
-
-			return ExecutionFlow.None;
-		}
-
-
-
 		public override void Compile(Chunk bc)
 		{
 			Loop L = new Loop()

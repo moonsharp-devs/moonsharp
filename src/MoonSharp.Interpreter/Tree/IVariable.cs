@@ -4,12 +4,10 @@ using System.Linq;
 using System.Text;
 using MoonSharp.Interpreter.Execution;
 
-namespace MoonSharp.Interpreter
+namespace MoonSharp.Interpreter.Tree
 {
 	interface IVariable
 	{
-		void SetValue(RuntimeScope scope, RValue rValue);
-
 		void CompileAssignment(Execution.VM.Chunk bc);
 	}
 }

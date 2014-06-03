@@ -21,12 +21,6 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		}
 
 
-		public override ExecutionFlow Exec(RuntimeScope scope)
-		{
-			m_FunctionCallChain.Eval(scope);
-			return ExecutionFlow.None;
-		}
-
 		public override void Compile(Chunk bc)
 		{
 			m_FunctionCallChain.Compile(bc);

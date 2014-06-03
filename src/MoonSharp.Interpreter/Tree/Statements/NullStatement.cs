@@ -13,10 +13,6 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			: base(context, lcontext)
 		{ }
 
-		public override ExecutionFlow Exec(RuntimeScope scope)
-		{
-			return ExecutionFlow.None;
-		}
 
 		public override void Compile(Execution.VM.Chunk bc)
 		{

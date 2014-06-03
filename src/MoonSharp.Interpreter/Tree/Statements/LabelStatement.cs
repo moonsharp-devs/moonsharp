@@ -16,10 +16,5 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		{
 			Label = context.label().NAME().GetText();
 		}
-
-		public override ExecutionFlow Exec(RuntimeScope scope)
-		{
-			return ExecutionFlow.None;
-		}
 	}
 }

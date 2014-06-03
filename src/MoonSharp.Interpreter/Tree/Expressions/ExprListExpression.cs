@@ -20,21 +20,8 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 				.ToArray();
 		}
 
-		public override RValue Eval(RuntimeScope scope)
-		{
-			RValue[] values = expressions.Select(e => e.Eval(scope)).ToArray();
 
-			if (values.Length > 1)
-			{
-				return RValue.FromPotentiallyNestedTuple(values);
-			}
-			else if (values.Length == 0)
-				return RValue.Nil;
-			else
-				return values[0].AsReadOnly();
-		}
-
-		public Expression[] Unpack()
+		public Expression[] GetExpressions()
 		{
 			return expressions;
 		}

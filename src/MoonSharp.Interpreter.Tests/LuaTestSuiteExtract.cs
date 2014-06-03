@@ -37,7 +37,7 @@ namespace MoonSharp.Interpreter.Tests
 					return RValue.Nil;
 				}));
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script, globalCtx).Execute();
+			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(globalCtx);
 
 			Assert.IsFalse(failedTests.Any(), string.Format("Failed asserts {0}",
 				string.Join(", ", failedTests.Select(xi => xi.ToString()).ToArray())));

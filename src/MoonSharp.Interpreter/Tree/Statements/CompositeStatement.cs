@@ -17,7 +17,6 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		{
 			if (context.ChildCount > 0)
 			{
-
 				m_Statements = context.children
 					.Select(t => NodeFactory.CreateStatement(t, lcontext))
 					.Where(s => s != null)
@@ -37,34 +36,6 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			}
 		}
 
-		public CompositeStatement(LuaParser.ChunkContext context, ScriptLoadingContext lcontext)
-			: this((LuaParser.BlockContext)context.children.First(), lcontext)
-		{
-		}
-
-		public RValue ExecRoot(RuntimeScope scope)
-		{
-			ExecutionFlow flow = this.Exec(scope);
-			return base.GetReturnValueAtReturnPoint(flow);
-		}
-
-
-
-		public override ExecutionFlow Exec(RuntimeScope scope)
-		{
-			if (m_Statements != null)
-			{
-				foreach (Statement s in m_Statements)
-				{
-					ExecutionFlow flow = s.Exec(scope);
-
-					if (flow.ChangesFlow()) 
-						return flow;
-				}
-			}
-
-			return ExecutionFlow.None;
-		}
 
 		public override void Compile(Execution.VM.Chunk bc)
 		{

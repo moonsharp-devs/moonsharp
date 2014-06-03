@@ -24,20 +24,6 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			m_StackFrame = lcontext.Scope.Pop();
 		}
 
-		public override ExecutionFlow Exec(RuntimeScope scope)
-		{
-			while (m_Condition.Eval(scope).TestAsBoolean())
-			{
-				ExecutionFlow flow = ExecuteStatementInBlockScope(m_Block, scope, m_StackFrame);
-
-				if (flow.Type == ExecutionFlowType.Break)
-					return ExecutionFlow.None;
-				else if (flow.Type == ExecutionFlowType.Return)
-					return flow;
-			}
-
-			return ExecutionFlow.None;
-		}
 
 		public override void Compile(Chunk bc)
 		{

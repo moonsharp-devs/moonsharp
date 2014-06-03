@@ -73,7 +73,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 			lcontext.Scope.PushFunction();
 
-			m_ParamNames = paramnames.Select(n => lcontext.Scope.DefineLocal(n)).ToArray();
+			m_ParamNames = DefineArguments(paramnames, lcontext);
 
 			m_Statement = NodeFactory.CreateStatement(context.block(), lcontext);
 
@@ -82,17 +82,17 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			lcontext.Scope.LeaveClosure();
 		}
 
-
-		public override RValue Eval(RuntimeScope scope)
+		private LRef[] DefineArguments(string[] paramnames, ScriptLoadingContext lcontext)
 		{
-			//List<RValue> closureValues = m_Closure.Select(s => scope.Get(s)).ToList();
-			//scope.EnterClosure(closureValues);
-			////var closureFunc = new Closure(scope, m_Statement, m_ParamNames, m_StackFrame, closureValues);
-			//scope.LeaveClosure();
+			LRef[] ret = new LRef[paramnames.Length];
 
-			//return new RValue(closureFunc);
-			return null;
+			for (int i = 0; i < paramnames.Length; i++)
+				ret[i] = lcontext.Scope.DefineLocal(paramnames[i]);
+
+			return ret;
 		}
+
+
 
 		public void Compile(Execution.VM.Chunk bc, Action afterDecl)
 		{

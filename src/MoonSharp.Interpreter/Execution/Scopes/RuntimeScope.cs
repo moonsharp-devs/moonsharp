@@ -8,12 +8,17 @@ namespace MoonSharp.Interpreter.Execution
 {
 	public class RuntimeScope
 	{
-		List<RValue> m_GlobalScope = new List<RValue>(131072); // start with a 512KB scope stack
+		Table m_GlobalTable;
 		List<RValue> m_ScopeStack = new List<RValue>(131072); // start with a 512KB scope stack
 		List<LRef> m_DebugStack = new List<LRef>(131072); // start with a 512KB scope stack
 		List<int> m_LocalBaseIndexes = new List<int>(16384);
 		List<List<RValue>> m_ClosureStack = new List<List<RValue>>();
 		List<RuntimeScopeFrame> m_ScopeFrames = new List<RuntimeScopeFrame>(2048);
+
+		public RuntimeScope(Table globalTable)
+		{
+			m_GlobalTable = globalTable;
+		}
 
 		public void EnterClosure(List<RValue> closureValues)
 		{
@@ -85,7 +90,7 @@ namespace MoonSharp.Interpreter.Execution
 			{
 				case LRefType.Global:
 					{
-						return m_GlobalScope[symref.i_Index] ?? RValue.Nil;
+						return m_GlobalTable[symref.i_Name];
 					}
 				case LRefType.Local:
 					{
@@ -122,7 +127,7 @@ namespace MoonSharp.Interpreter.Execution
 			{
 				case LRefType.Global:
 					{
-						m_GlobalScope[symref.i_Index] = value.CloneAsWritable();
+						m_GlobalTable[symref.i_Name] = value.CloneAsWritable();
 					}
 					break;
 				case LRefType.Local:
@@ -152,15 +157,6 @@ namespace MoonSharp.Interpreter.Execution
 						throw new ScriptRuntimeException(null, "Invalid value at resolution: {0}", symref.i_Name);
 					}
 			}
-		}
-
-		public void ExpandGlobal(int maxidx)
-		{
-			if (m_GlobalScope.Count > 0)
-				throw new ScriptRuntimeException(null, "INTERNAL ERROR");
-
-			for (int i = 0; i <= maxidx; i++)
-				m_GlobalScope.Add(RValue.Nil);
 		}
 
 
