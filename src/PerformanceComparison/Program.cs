@@ -13,7 +13,7 @@ namespace PerformanceComparison
 {
 	class Program
 	{
-		const int ITERATIONS = 100000;
+		const int ITERATIONS = 10000;
 
 		static  string scriptText = @"
 			function move(n, src, dst, via)
@@ -157,7 +157,7 @@ end
 			sw = Stopwatch.StartNew();
 			for (int i = 0; i < ITERATIONS; i++)
 			{
-				//fn.Call();
+				fn.Call();
 			}
 			sw.Stop();
 
@@ -165,11 +165,11 @@ end
 
 			Console.WriteLine("M# == NL ? {0}", g_MoonSharpStr.ToString() == g_NLuaStr.ToString());
 
-			Console.WriteLine("=== Moon# ===");
-			Console.WriteLine(g_MoonSharpStr.ToString());
-			Console.WriteLine("");
-			Console.WriteLine("=== NLua  ===");
-			Console.WriteLine(g_NLuaStr.ToString());
+			//Console.WriteLine("=== Moon# ===");
+			//Console.WriteLine(g_MoonSharpStr.ToString());
+			//Console.WriteLine("");
+			//Console.WriteLine("=== NLua  ===");
+			//Console.WriteLine(g_NLuaStr.ToString());
 
 			Console.ReadKey();
 		}

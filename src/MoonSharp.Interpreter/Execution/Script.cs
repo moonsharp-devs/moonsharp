@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MoonSharp.Interpreter.Debugging;
 using MoonSharp.Interpreter.Diagnostics;
 using MoonSharp.Interpreter.Execution.VM;
 using MoonSharp.Interpreter.Tree.Statements;
@@ -13,6 +14,7 @@ namespace MoonSharp.Interpreter.Execution
 		ChunkStatement m_Script;
 		ScriptLoadingContext m_LoadingContext;
 		Chunk m_GlobalChunk;
+		Processor m_Main;
 
 		internal Script(ChunkStatement stat, ScriptLoadingContext lcontext)
 		{
@@ -27,29 +29,29 @@ namespace MoonSharp.Interpreter.Execution
 			m_GlobalChunk.Nop("Script start");
 			m_Script.Compile(m_GlobalChunk);
 			m_GlobalChunk.Nop("Script end");
-
 #if DEBUG
 			m_GlobalChunk.Dump(@"c:\temp\codedump.txt");
 #endif
+			if (m_Main == null)
+				m_Main = new Processor(m_GlobalChunk);
 		}
-
-		RuntimeScope scope = new RuntimeScope();
-		VmExecutor executor;
 
 		public RValue Execute(Table globalContext)
 		{
-			scope.GlobalTable = globalContext ?? new Table();
-
-			if (executor == null)
-			{
-				executor= new VmExecutor(m_GlobalChunk, scope);
-			}
-			executor.Reset();
+			m_Main.Reset(globalContext ?? new Table());
 
 			using (var _ = new CodeChrono("MoonSharpScript.Execute"))
 			{
-				return executor.Execute();
+				return m_Main.Execute();
 			}
+		}
+
+		public void AttachDebugger(IDebugger debugger)
+		{
+			if (debugger != null)
+				debugger.SetSourceCode(m_GlobalChunk, null);
+
+			m_Main.AttachDebugger(debugger);
 		}
 
 

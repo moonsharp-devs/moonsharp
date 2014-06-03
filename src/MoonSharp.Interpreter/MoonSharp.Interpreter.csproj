@@ -56,8 +56,9 @@
     <Compile Include="CoreLib\BasicMethods.cs" />
     <Compile Include="CoreLib\MetaTableMethods.cs" />
     <Compile Include="DataStructs\Slice.cs" />
-    <Compile Include="Debugging\IDebugGuest.cs" />
+    <Compile Include="Debugging\DebuggerAction.cs" />
     <Compile Include="Debugging\IDebugger.cs" />
+    <Compile Include="Debugging\SourceCodeType.cs" />
     <Compile Include="Diagnostics\Debug.cs" />
     <Compile Include="Errors\InternalErrorException.cs" />
     <Compile Include="Execution\Behaviours\Behaviour.cs" />
@@ -89,8 +90,8 @@
     <Compile Include="Execution\VM\LoopTracker.cs" />
     <Compile Include="Execution\VM\Instruction.cs" />
     <Compile Include="Execution\VM\OpCode.cs" />
-    <Compile Include="Execution\VM\VmExecutor.cs" />
-    <Compile Include="Execution\VM\VmStack.cs" />
+    <Compile Include="Execution\VM\Processor.cs" />
+    <Compile Include="Execution\VM\CallStackItem.cs" />
     <Compile Include="Helpers\List_ExtensionMethods.cs" />
     <Compile Include="Grammar\Lua.g4.lexer.cs">
       <DependentUpon>Lua.g4</DependentUpon>

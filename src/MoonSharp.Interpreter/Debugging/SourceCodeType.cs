@@ -5,7 +5,9 @@ using System.Text;
 
 namespace MoonSharp.Interpreter.Debugging
 {
-	public interface IDebugGuest
+	public enum SourceCodeType
 	{
+		Script,
+		Bytecode
 	}
 }

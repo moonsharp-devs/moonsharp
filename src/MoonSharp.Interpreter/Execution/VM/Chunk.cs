@@ -15,7 +15,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 		public List<Instruction> Code = new List<Instruction>();
 		internal LoopTracker LoopTracker = new LoopTracker();
 
-		
 		static int s_RefIDCounter = 0;
 		private int m_RefID = Interlocked.Increment(ref s_RefIDCounter);
 
@@ -234,6 +233,11 @@ namespace MoonSharp.Interpreter.Execution.VM
 		{
 			if (p > 1)
 				Emit(new Instruction() { OpCode = OpCode.Reverse, NumVal = p });
+		}
+
+		internal string[] ToSourceCode()
+		{
+			throw new NotImplementedException();
 		}
 	}
 }

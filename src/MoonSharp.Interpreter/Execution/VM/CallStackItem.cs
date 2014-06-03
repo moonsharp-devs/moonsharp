@@ -6,11 +6,10 @@ using System.Text;
 namespace MoonSharp.Interpreter.Execution.VM
 {
 
-	class VmStackFrame
+	public class CallStackItem
 	{
-		public int ReturnIndex;
-		public int BasePointer;
-
+		public int IP;
+		public int SP;
 	}
 
 }

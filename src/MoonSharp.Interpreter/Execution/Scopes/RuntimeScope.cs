@@ -46,6 +46,7 @@ namespace MoonSharp.Interpreter.Execution
 				m_LocalBaseIndexes.Push(m_ScopeStack.Count);
 
 			m_ScopeStack.Expand(size);
+
 		}
 
 		public void PopFrame(RuntimeScopeFrame frame)
@@ -95,7 +96,10 @@ namespace MoonSharp.Interpreter.Execution
 				case LRefType.Local:
 					{
 						int lastBaseIdx = m_LocalBaseIndexes[m_LocalBaseIndexes.Count - 1];
-						return m_ScopeStack[lastBaseIdx + symref.i_Index] ?? RValue.Nil;
+						var v = m_ScopeStack[lastBaseIdx + symref.i_Index];
+						if (v == null)
+							m_ScopeStack[lastBaseIdx + symref.i_Index] = v = new RValue();
+						return v;
 					}
 				case LRefType.Upvalue:
 					{

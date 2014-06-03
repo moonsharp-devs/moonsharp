@@ -3,17 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using MoonSharp.Interpreter.DataStructs;
+using MoonSharp.Interpreter.Debugging;
 
 namespace MoonSharp.Interpreter.Execution.VM
 {
-	sealed class VmExecutor
+	sealed class Processor
 	{
-		public class CallStackItem
-		{
-			public int IP;
-			public int SP;
-		}
-
 		Chunk m_RootChunk;
 		Chunk m_CurChunk;
 		int m_InstructionPtr;
@@ -21,23 +16,25 @@ namespace MoonSharp.Interpreter.Execution.VM
 		FastStack<RValue> m_ValueStack = new FastStack<RValue>(131072);
 		FastStack<CallStackItem> m_ExecutionStack = new FastStack<CallStackItem>(131072);
 		bool m_Terminate = false;
-
 		RuntimeScope m_Scope;
-
 		RValue[] m_TempRegs = new RValue[8];
 
+		IDebugger m_DebuggerAttached = null;
+		DebuggerAction.ActionType m_DebuggerCurrentAction = DebuggerAction.ActionType.None;
+		int m_DebuggerCurrentActionTarget = -1;
 
-		public VmExecutor(Chunk rootChunk, RuntimeScope runtimeScope)
+		public Processor(Chunk rootChunk)
 		{
 			m_RootChunk = m_CurChunk = rootChunk;
 			m_InstructionPtr = 0;
-			m_Scope = runtimeScope;
+			m_Scope = new RuntimeScope();
 		}
 
-		public void Reset()
+		public void Reset(Table global)
 		{
-			m_CurChunk = m_RootChunk ;
+			m_CurChunk = m_RootChunk;
 			m_InstructionPtr = 0;
+			m_Scope.GlobalTable = global;
 		}
 
 
@@ -99,26 +96,16 @@ namespace MoonSharp.Interpreter.Execution.VM
 			return string.Join(", ", values.Select(s => s.ToString()).ToArray());
 		}
 
-		bool m_DoDebug = true;
-		bool m_StepEnabled = true;
 		public RValue Execute()
 		{
 			while (m_InstructionPtr < m_CurChunk.Code.Count && !m_Terminate)
 			{
 				Instruction i = m_CurChunk.Code[m_InstructionPtr];
 
-
-				//if (m_DoDebug)
-				//{
-				//	DebugInterface(i);
-				//}
-
-				//if (System.Diagnostics.Debugger.IsAttached && m_StepEnabled)
-				//{
-				//	ConsoleKeyInfo cki = Console.ReadKey();
-				//	if (cki.Key == ConsoleKey.Escape)
-				//		m_StepEnabled = false;
-				//}
+				if (m_DebuggerAttached != null)
+				{
+					ListenDebugger(i);
+				}
 
 				++m_InstructionPtr;
 
@@ -313,7 +300,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			{
 				m_ValueStack.Push(t);
 			}
-			
+
 		}
 
 		private void ExecIterPrep(Instruction i)
@@ -748,22 +735,62 @@ namespace MoonSharp.Interpreter.Execution.VM
 				if ((ri != rValues_Count - 1) || (vv.Type != DataType.Tuple))
 				{
 					Internal_Assign(lValues[li], vv.ToSingleValue());
-					// Debug.WriteLine(string.Format("{0} <- {1}", li, vv.ToSingleValue()));
 				}
 				else
 				{
 					for (int rri = 0, len = vv.Tuple.Length; rri < len && li < lValues_Count; rri++, li++)
 					{
 						Internal_Assign(lValues[li], vv.Tuple[rri].ToSingleValue());
-						// Debug.WriteLine(string.Format("{0} <- {1}", li, vv.Tuple[rri].ToSingleValue()));
 					}
 				}
 			}
 		}
 
+		internal void AttachDebugger(IDebugger debugger)
+		{
+			m_DebuggerAttached = debugger;
+		}
 
+		private void ListenDebugger(Instruction instr)
+		{
+			if (instr.Breakpoint)
+			{
+				m_DebuggerCurrentAction = DebuggerAction.ActionType.None;
+				m_DebuggerCurrentActionTarget = -1;
+			}
 
+			if (m_DebuggerCurrentAction == DebuggerAction.ActionType.Run)
+				return;
 
+			if (m_DebuggerCurrentAction == DebuggerAction.ActionType.StepOver && m_DebuggerCurrentActionTarget != m_InstructionPtr)
+				return;
 
+			var action = m_DebuggerAttached.GetAction(m_InstructionPtr);
+
+			while (true)
+			{
+				switch (action.Action)
+				{
+					case DebuggerAction.ActionType.StepIn:
+						m_DebuggerCurrentAction = DebuggerAction.ActionType.StepIn;
+						m_DebuggerCurrentActionTarget = -1;
+						return;
+					case DebuggerAction.ActionType.StepOver:
+						m_DebuggerCurrentAction = DebuggerAction.ActionType.StepOver;
+						m_DebuggerCurrentActionTarget = m_InstructionPtr + 1;
+						return;
+					case DebuggerAction.ActionType.Run:
+						m_DebuggerCurrentAction = DebuggerAction.ActionType.Run;
+						m_DebuggerCurrentActionTarget = -1;
+						return;
+					case DebuggerAction.ActionType.ToggleBreakpoint:
+						m_CurChunk.Code[action.InstructionPtr].Breakpoint = !m_CurChunk.Code[action.InstructionPtr].Breakpoint;
+						break;
+					case DebuggerAction.ActionType.None:
+					default:
+						break;
+				}
+			}
+		}
 	}
 }

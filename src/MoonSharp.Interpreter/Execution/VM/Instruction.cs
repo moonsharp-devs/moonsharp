@@ -15,6 +15,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 		public int NumVal;
 		public int NumVal2;
 		public RuntimeScopeFrame Frame;
+		public bool Breakpoint;
 
 		public override string ToString()
 		{
