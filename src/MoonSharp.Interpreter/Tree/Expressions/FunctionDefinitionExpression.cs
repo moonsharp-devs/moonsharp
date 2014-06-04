@@ -94,14 +94,14 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 
 
-		public void Compile(Execution.VM.Chunk bc, Action afterDecl)
+		public void Compile(Chunk bc, Action afterDecl, string friendlyName)
 		{
 			bc.Closure(m_Closure.ToArray(), bc.GetJumpPointForNextInstruction() + 3);
 			afterDecl();
 
 			Instruction I = bc.Jump(OpCode.Jump, -1);
 
-			bc.Debug(this.TreeNode);
+			bc.DebugFn(friendlyName ?? "<anonymous>");
 
 			bc.Enter(m_StackFrame);
 
@@ -119,12 +119,10 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 		}
 
 
-		public override void Compile(Execution.VM.Chunk bc)
+		public override void Compile(Chunk bc)
 		{
-			Compile(bc, () => bc.Nop(null));
+			Compile(bc, () => bc.Nop(null), null);
 		}
-
-
 
 	}
 }

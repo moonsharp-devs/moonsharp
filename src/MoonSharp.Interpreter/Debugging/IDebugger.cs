@@ -10,5 +10,7 @@ namespace MoonSharp.Interpreter.Debugging
 	{
 		void SetSourceCode(Chunk byteCode, string[] code);
 		DebuggerAction GetAction(int ip);
+		void Update(WatchType watchType, List<WatchItem> items);
+		List<string> GetWatchItems();
 	}
 }

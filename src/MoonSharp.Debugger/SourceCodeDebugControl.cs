@@ -17,11 +17,29 @@ namespace MoonSharp.Debugger
 		int m_XOffs = 0;
 		int m_ActiveLine = -1;
 		int m_CursorLine = 0;
+		Brush m_CursorBrush = new SolidBrush(Color.FromArgb(64, Color.White));
 
 		public int ActiveLine
 		{
 			get { return m_ActiveLine; }
-			set { m_ActiveLine = value; Invalidate(); }
+			set 
+			{
+				m_CursorLine = m_ActiveLine = value;
+				ScrollToIncludeLine(m_ActiveLine);
+				Invalidate(); 
+			}
+		}
+
+		private void ScrollToIncludeLine(int line)
+		{
+			if (line == m_Line)
+				return;
+
+			if (line < m_Line)
+				m_Line = line;
+
+			if (line > m_Line + (this.Height / this.Font.Height))
+				m_Line = line;
 		}
 
 		public int CursorLine
@@ -107,15 +125,14 @@ namespace MoonSharp.Debugger
 //					e.Graphics.FillRectangle(Brushes.DarkRed, 0, Y, Width, H);
 				}
 
+				if (i == m_CursorLine)
+					e.Graphics.FillRectangle(m_CursorBrush, -1, Y, Width + 1, H);
 
 				if (m_ActiveLine == i)
 				{
 					e.Graphics.FillRectangle(Brushes.Aqua, 3, Y + 8, 14, 6);
 					e.Graphics.DrawRectangle(Pens.DarkBlue, 3, Y + 8, 14, 6);
 				}
-
-				if (i == m_CursorLine)
-					e.Graphics.FillRectangle(Brushes.Black, -1, Y, Width + 1, H);
 
 				string str = m_SourceCode[i];
 

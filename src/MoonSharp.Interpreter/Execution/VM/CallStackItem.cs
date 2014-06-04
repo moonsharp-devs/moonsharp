@@ -8,8 +8,9 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 	public class CallStackItem
 	{
-		public int IP;
-		public int SP;
+		public int BasePointer;
+		public int ReturnAddress;
+		public int Debug_EntryPoint;
 	}
 
 }

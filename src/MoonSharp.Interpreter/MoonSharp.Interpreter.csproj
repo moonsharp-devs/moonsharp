@@ -59,6 +59,8 @@
     <Compile Include="Debugging\DebuggerAction.cs" />
     <Compile Include="Debugging\IDebugger.cs" />
     <Compile Include="Debugging\SourceCodeType.cs" />
+    <Compile Include="Debugging\WatchItem.cs" />
+    <Compile Include="Debugging\WatchType.cs" />
     <Compile Include="Diagnostics\Debug.cs" />
     <Compile Include="Errors\InternalErrorException.cs" />
     <Compile Include="Execution\Behaviours\Behaviour.cs" />
@@ -71,6 +73,7 @@
     <Compile Include="Execution\ExecutionFlow.cs" />
     <Compile Include="Execution\ExecutionFlowType.cs" />
     <Compile Include="Execution\DataTypes\CallbackFunction.cs" />
+    <Compile Include="Execution\Scopes\ClosureContext.cs" />
     <Compile Include="Execution\Scopes\LoopTracker.cs" />
     <Compile Include="Execution\Scopes\BuildTimeScope.cs" />
     <Compile Include="Execution\Scopes\BuildTimeScopeFrame.cs" />
@@ -90,8 +93,13 @@
     <Compile Include="Execution\VM\LoopTracker.cs" />
     <Compile Include="Execution\VM\Instruction.cs" />
     <Compile Include="Execution\VM\OpCode.cs" />
-    <Compile Include="Execution\VM\Processor.cs" />
     <Compile Include="Execution\VM\CallStackItem.cs" />
+    <Compile Include="Execution\VM\Processor\Processor.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Execution\VM\Processor\Processor_Debugger.cs" />
+    <Compile Include="Execution\VM\Processor\Processor_InstructionLoop.cs" />
+    <Compile Include="Execution\VM\Processor\Processor_UtilityFunctions.cs" />
     <Compile Include="Helpers\List_ExtensionMethods.cs" />
     <Compile Include="Grammar\Lua.g4.lexer.cs">
       <DependentUpon>Lua.g4</DependentUpon>

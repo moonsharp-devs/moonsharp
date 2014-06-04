@@ -132,6 +132,10 @@ namespace MoonSharp.Interpreter.Execution.VM
 		{
 			Emit(new Instruction() { OpCode = OpCode.Debug, Name = str.Substring(0, Math.Min(32, str.Length)) });
 		}
+		public void DebugFn(string fnname)
+		{
+			Emit(new Instruction() { OpCode = OpCode.DebugFn, Name = fnname });
+		}
 
 		//[Conditional("EMIT_DEBUG_OPS")]
 		public void Debug(Antlr4.Runtime.Tree.IParseTree parseTree)

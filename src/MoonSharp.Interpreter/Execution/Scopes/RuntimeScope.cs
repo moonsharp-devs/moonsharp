@@ -11,9 +11,8 @@ namespace MoonSharp.Interpreter.Execution
 	{
 		Table m_GlobalTable;
 		FastStack<RValue> m_ScopeStack = new FastStack<RValue>(131072); // start with a 512KB scope stack
-//		FastStack<LRef> m_DebugStack = new FastStack<LRef>(131072); // start with a 512KB scope stack
 		FastStack<int> m_LocalBaseIndexes = new FastStack<int>(16384);
-		FastStack<List<RValue>> m_ClosureStack = new FastStack<List<RValue>>(4096);
+		FastStack<ClosureContext> m_ClosureStack = new FastStack<ClosureContext>(4096);
 		FastStack<RuntimeScopeFrame> m_ScopeFrames = new FastStack<RuntimeScopeFrame>(8192);
 
 		public RuntimeScope()
@@ -26,7 +25,7 @@ namespace MoonSharp.Interpreter.Execution
 			set { m_GlobalTable = value; }
 		}
 
-		public void EnterClosure(List<RValue> closureValues)
+		public void EnterClosure(ClosureContext closureValues)
 		{
 			m_ClosureStack.Push(closureValues);
 		}
@@ -64,7 +63,6 @@ namespace MoonSharp.Interpreter.Execution
 			if (size > 0)
 			{
 				m_ScopeStack.RemoveLast(size);
-				//m_DebugStack.RemoveLast(size);
 			}
 
 			if (frame.RestartOfBase)
@@ -125,8 +123,6 @@ namespace MoonSharp.Interpreter.Execution
 
 		public void Assign(LRef symref, RValue value)
 		{
-			// Debug.WriteLine(string.Format("Assigning {0} = {1}", symref, value));
-
 			switch (symref.i_Type)
 			{
 				case LRefType.Global:
@@ -141,7 +137,6 @@ namespace MoonSharp.Interpreter.Execution
 						if (v == null)
 							m_ScopeStack[lastBaseIdx + symref.i_Index] = v = new RValue();
 						v.Assign(value);
-						//m_ScopeStack[lastBaseIdx + symref.Index] = value.CloneAsWritable();
 					}
 					break;
 				case LRefType.Upvalue:
@@ -166,8 +161,35 @@ namespace MoonSharp.Interpreter.Execution
 			}
 		}
 
+		public LRef FindRefByName(string name)
+		{
+			for(int i = m_ScopeFrames.Count - 1; i >= 0; i--)
+			{
+				var frame = m_ScopeFrames[i];
+				
+				foreach(LRef l in frame.m_DebugSymbols)
+					if (l.i_Name == name)
+						return l;
+			
+				if (frame.RestartOfBase)
+					break;
+			}
 
+			if (m_ClosureStack.Count > 0)
+			{
+				var closure = m_ClosureStack.Peek(0);
 
+				for(int i = 0; i < closure.Symbols.Length; i++)
+					if (closure.Symbols[i] == name)
+					{
+						return LRef.Upvalue(name, i);
+					}
+			}
 
+			if (m_GlobalTable.HasStringSymbol(name))
+				return LRef.Global(name);
+
+			return null;
+		}
 	}
 }

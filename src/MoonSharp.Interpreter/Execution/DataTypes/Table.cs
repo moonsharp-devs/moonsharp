@@ -95,6 +95,12 @@ namespace MoonSharp.Interpreter.Execution
 			}
 		}
 
+		public bool HasStringSymbol(string symbol)
+		{
+			return m_StringSymbols.ContainsKey(symbol);
+		}
+
+
 		public RValue this[string key]
 		{
 			get 

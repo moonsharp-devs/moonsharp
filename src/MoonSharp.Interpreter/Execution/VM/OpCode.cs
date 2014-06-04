@@ -11,7 +11,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 		// Meta-opcodes
 		Nop,		// Does not perform any operation.
 		Invalid,	// Crashes the executor with an unrecoverable NotImplementedException.
-		Debug,		// Does not perform any operation.
+		Debug,		// Does not perform any operation. Used to help debugging.
+		DebugFn,	// Does not perform any operation. Used to help the debugger.
 
 		// Stack ops and assignment
 		Pop,		// Discards the topmost n elements from the v-stack. 

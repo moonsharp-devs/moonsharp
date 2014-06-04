@@ -57,6 +57,12 @@
     <Compile Include="SourceCodeDebugControl.Designer.cs">
       <DependentUpon>SourceCodeDebugControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="WatchInputDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="WatchInputDialog.Designer.cs">
+      <DependentUpon>WatchInputDialog.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -68,9 +74,13 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <EmbeddedResource Include="SourceCodeDebugControl.resx">
       <DependentUpon>SourceCodeDebugControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="WatchInputDialog.resx">
+      <DependentUpon>WatchInputDialog.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -87,6 +97,51 @@
       <Project>{91ea9b9d-fe03-4273-bdaf-8ad42ede1e59}</Project>
       <Name>MoonSharp.Interpreter</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Restart_6322.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\StepIn_6326.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Stepout_6327.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\StepOver_6328.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Breakall_6323.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\BreakpointEnabled_6584_16x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Open_6529.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\RPCThread_10388.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\DisassemblyWindow_6536.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Help_6522.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\startwithoutdebugging_6556.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AddConnection_477.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AddMark_10580.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Clearallrequests_8816.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\FindSymbol_6263.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

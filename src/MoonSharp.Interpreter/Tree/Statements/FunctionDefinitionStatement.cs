@@ -13,6 +13,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		LRef m_FuncName;
 		List<string> m_TableAccessors;
 		string m_MethodName;
+		string m_FriendlyName;
 
 		bool m_Local;
 		FunctionDefinitionExpression m_FuncDef;
@@ -42,10 +43,16 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			if (nameOfMethodAccessor != null || m_TableAccessors.Count > 0)
 			{
 				m_FuncName = lcontext.Scope.Find(fnname.Text);
+
+				m_FriendlyName = fnname.Text + "." + string.Join(".", m_TableAccessors.ToArray());
+
+				if (nameOfMethodAccessor != null)
+					m_FriendlyName += ":" + nameOfMethodAccessor;
 			}
 			else
 			{
 				m_FuncName = LRef.Global(fnname.Text);
+				m_FriendlyName = fnname.Text;
 			}
 
 			if (nameOfMethodAccessor != null)
@@ -66,7 +73,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			if (m_Local || m_MethodName == null)
 			{
 				bc.Symbol(m_FuncName);
-				m_FuncDef.Compile(bc, () => bc.Store());
+				m_FuncDef.Compile(bc, () => bc.Store(), m_FriendlyName);
 				return;
 			}
 			else
@@ -83,7 +90,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 
 				bc.IndexRef();
 
-				m_FuncDef.Compile(bc);
+				m_FuncDef.Compile(bc, () => bc.Nop(null), m_FriendlyName);
 
 				bc.Store();
 			}

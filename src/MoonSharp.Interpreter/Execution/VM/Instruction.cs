@@ -33,6 +33,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 				case OpCode.Exit:
 					append = string.Format("{0}{1}", GenSpaces(), FrameToString(Frame));
 					break;
+				case OpCode.DebugFn:
+					return string.Format("[[ function {0} ]]", Name);
 				case OpCode.Debug:
 					return string.Format("[[ {0} ]]", Name);
 				case OpCode.Load:

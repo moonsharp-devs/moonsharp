@@ -7,95 +7,8 @@ using MoonSharp.Interpreter.Debugging;
 
 namespace MoonSharp.Interpreter.Execution.VM
 {
-	sealed class Processor
+	sealed partial class Processor
 	{
-		Chunk m_RootChunk;
-		Chunk m_CurChunk;
-		int m_InstructionPtr;
-
-		FastStack<RValue> m_ValueStack = new FastStack<RValue>(131072);
-		FastStack<CallStackItem> m_ExecutionStack = new FastStack<CallStackItem>(131072);
-		bool m_Terminate = false;
-		RuntimeScope m_Scope;
-		RValue[] m_TempRegs = new RValue[8];
-
-		IDebugger m_DebuggerAttached = null;
-		DebuggerAction.ActionType m_DebuggerCurrentAction = DebuggerAction.ActionType.None;
-		int m_DebuggerCurrentActionTarget = -1;
-
-		public Processor(Chunk rootChunk)
-		{
-			m_RootChunk = m_CurChunk = rootChunk;
-			m_InstructionPtr = 0;
-			m_Scope = new RuntimeScope();
-		}
-
-		public void Reset(Table global)
-		{
-			m_CurChunk = m_RootChunk;
-			m_InstructionPtr = 0;
-			m_Scope.GlobalTable = global;
-		}
-
-
-		private RValue[] StackTopToArray(int items, bool pop)
-		{
-			RValue[] values = new RValue[items];
-
-			if (pop)
-			{
-				for (int i = 0; i < items; i++)
-				{
-					values[i] = m_ValueStack.Pop();
-				}
-			}
-			else
-			{
-				for (int i = 0; i < items; i++)
-				{
-					values[i] = m_ValueStack[m_ValueStack.Count - 1 - i];
-				}
-			}
-
-			return values;
-		}
-
-		private RValue[] StackTopToArrayReverse(int items, bool pop)
-		{
-			RValue[] values = new RValue[items];
-
-			if (pop)
-			{
-				for (int i = 0; i < items; i++)
-				{
-					values[items - 1 - i] = m_ValueStack.Pop();
-				}
-			}
-			else
-			{
-				for (int i = 0; i < items; i++)
-				{
-					values[items - 1 - i] = m_ValueStack[m_ValueStack.Count - 1 - i];
-				}
-			}
-
-			return values;
-		}
-
-		private string DumpValueStack()
-		{
-			int cnt = 6;
-			List<RValue> values = new List<RValue>();
-
-			for (int i = m_ValueStack.Count - 1; i >= 0 && cnt > 0; i--)
-			{
-				values.Add(m_ValueStack[i]);
-				cnt--;
-			}
-
-			return string.Join(", ", values.Select(s => s.ToString()).ToArray());
-		}
-
 		public RValue Execute()
 		{
 			while (m_InstructionPtr < m_CurChunk.Code.Count && !m_Terminate)
@@ -113,6 +26,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				{
 					case OpCode.Nop:
 					case OpCode.Debug:
+					case OpCode.DebugFn:
 						break;
 					case OpCode.Pop:
 						m_ValueStack.RemoveLast(i.NumVal);
@@ -357,18 +271,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			}
 		}
 
-		private void DebugInterface(Instruction i)
-		{
-			if (i.OpCode == OpCode.Debug)
-				Console.Write("    {0}", i);
-			else
-				Console.Write("{0:X8}  {1}", m_InstructionPtr, i);
 
-			Console.SetCursorPosition(40, Console.CursorTop);
-			Console.WriteLine("|| VS={1:X4}  XS={2:X4} || {0}", DumpValueStack(), m_ValueStack.Count, m_ExecutionStack.Count);
-
-			//Console.ReadKey();
-		}
 
 
 		private void ExecJFor(Instruction i)
@@ -443,17 +346,17 @@ namespace MoonSharp.Interpreter.Execution.VM
 		private int PopToBasePointer()
 		{
 			var xs = m_ExecutionStack.Pop();
-			m_ValueStack.CropAtCount(xs.SP);
-			return xs.IP;
+			m_ValueStack.CropAtCount(xs.BasePointer);
+			return xs.ReturnAddress;
 		}
 
 		private int PopExecStackAndCheckVStack(int vstackguard)
 		{
 			var xs = m_ExecutionStack.Pop();
-			if (vstackguard != xs.SP)
+			if (vstackguard != xs.BasePointer)
 				throw new InternalErrorException("StackGuard violation");
 
-			return xs.IP;
+			return xs.ReturnAddress;
 		}
 
 		private void ExecArgs(Instruction I)
@@ -480,8 +383,9 @@ namespace MoonSharp.Interpreter.Execution.VM
 				m_ValueStack.Push(new RValue(i.NumVal));
 				m_ExecutionStack.Push(new CallStackItem()
 				{
-					SP = m_ValueStack.Count,
-					IP = m_InstructionPtr,
+					BasePointer = m_ValueStack.Count,
+					ReturnAddress = m_InstructionPtr,
+					Debug_EntryPoint = fn.Function.ByteCodeLocation
 				});
 				m_InstructionPtr = fn.Function.ByteCodeLocation;
 				fn.Function.EnterClosureBeforeCall(m_Scope);
@@ -742,53 +646,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 					{
 						Internal_Assign(lValues[li], vv.Tuple[rri].ToSingleValue());
 					}
-				}
-			}
-		}
-
-		internal void AttachDebugger(IDebugger debugger)
-		{
-			m_DebuggerAttached = debugger;
-		}
-
-		private void ListenDebugger(Instruction instr)
-		{
-			if (instr.Breakpoint)
-			{
-				m_DebuggerCurrentAction = DebuggerAction.ActionType.None;
-				m_DebuggerCurrentActionTarget = -1;
-			}
-
-			if (m_DebuggerCurrentAction == DebuggerAction.ActionType.Run)
-				return;
-
-			if (m_DebuggerCurrentAction == DebuggerAction.ActionType.StepOver && m_DebuggerCurrentActionTarget != m_InstructionPtr)
-				return;
-
-			var action = m_DebuggerAttached.GetAction(m_InstructionPtr);
-
-			while (true)
-			{
-				switch (action.Action)
-				{
-					case DebuggerAction.ActionType.StepIn:
-						m_DebuggerCurrentAction = DebuggerAction.ActionType.StepIn;
-						m_DebuggerCurrentActionTarget = -1;
-						return;
-					case DebuggerAction.ActionType.StepOver:
-						m_DebuggerCurrentAction = DebuggerAction.ActionType.StepOver;
-						m_DebuggerCurrentActionTarget = m_InstructionPtr + 1;
-						return;
-					case DebuggerAction.ActionType.Run:
-						m_DebuggerCurrentAction = DebuggerAction.ActionType.Run;
-						m_DebuggerCurrentActionTarget = -1;
-						return;
-					case DebuggerAction.ActionType.ToggleBreakpoint:
-						m_CurChunk.Code[action.InstructionPtr].Breakpoint = !m_CurChunk.Code[action.InstructionPtr].Breakpoint;
-						break;
-					case DebuggerAction.ActionType.None:
-					default:
-						break;
 				}
 			}
 		}
