@@ -78,7 +78,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 		private List<WatchItem> Debugger_RefreshVStack()
 		{
 			List<WatchItem> lwi = new List<WatchItem>();
-			for (int i = 0; i < Math.Min(16, m_ValueStack.Count); i++)
+			for (int i = 0; i < Math.Min(32, m_ValueStack.Count); i++)
 			{
 				lwi.Add(new WatchItem()
 				{

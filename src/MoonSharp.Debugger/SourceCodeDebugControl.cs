@@ -38,8 +38,13 @@ namespace MoonSharp.Debugger
 			if (line < m_Line)
 				m_Line = line;
 
-			if (line > m_Line + (this.Height / this.Font.Height))
+			if (line > m_Line + (this.GetHeight() / this.Font.Height))
 				m_Line = line;
+		}
+
+		private int GetHeight()
+		{
+			return this.Height - horizScroll.Height;
 		}
 
 		public int CursorLine
@@ -111,7 +116,7 @@ namespace MoonSharp.Debugger
 			int W = (int)e.Graphics.MeasureString("X", this.Font).Width;
 			int Y = 0;
 
-			for (int i = m_Line; i < m_SourceCode.Length && H < this.Height; i++, Y += H)
+			for (int i = m_Line; i < m_SourceCode.Length && H < this.GetHeight(); i++, Y += H)
 			{
 				if (m_ActiveLine == i)
 				{

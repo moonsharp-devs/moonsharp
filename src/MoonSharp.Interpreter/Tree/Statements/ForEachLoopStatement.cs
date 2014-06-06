@@ -63,7 +63,6 @@ namespace MoonSharp.Interpreter.Tree.Statements
 
 			// expand the tuple - stack : iterator-tuple, iter-var-symbols, f, var, s
 			bc.ExpTuple(m_Names.Length);  
-			bc.Reverse(2);
 
 			// calls f(s, var) - stack : iterator-tuple, iter-var-symbols, iteration result
 			bc.Call(2);

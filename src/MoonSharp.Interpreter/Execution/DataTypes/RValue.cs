@@ -24,7 +24,7 @@ namespace MoonSharp.Interpreter.Execution
 		public string String { get; private set; }
 		public bool ReadOnly { get; internal set; }
 
-		internal LRef Symbol { get; private set; }
+		public LRef Symbol { get; private set; }
 
 
 
@@ -152,7 +152,7 @@ namespace MoonSharp.Interpreter.Execution
 		public RValue Clone()
 		{
 			if (this.Type == DataType.Symbol)
-				throw new ArgumentException("Can't clone Symbol or TableRef values");
+				throw new ArgumentException("Can't clone Symbol values");
 
 			RValue v = new RValue();
 			v.Boolean = this.Boolean;
@@ -170,8 +170,8 @@ namespace MoonSharp.Interpreter.Execution
 
 		public RValue CloneAsWritable()
 		{
-			if (this.Type == DataType.Symbol || this.Type == DataType.TableRef)
-				throw new ArgumentException("Can't clone Symbol or TableRef values");
+			if (this.Type == DataType.Symbol)
+				throw new ArgumentException("Can't clone Symbol values");
 
 			RValue v = new RValue();
 			v.Boolean = this.Boolean;

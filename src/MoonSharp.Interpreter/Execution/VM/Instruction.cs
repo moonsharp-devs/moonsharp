@@ -52,13 +52,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 				case OpCode.Ret:
 				case OpCode.MkTuple:
 				case OpCode.ExpTuple:
-				case OpCode.Reverse:
 				case OpCode.Incr:
 				case OpCode.Pop:
-				case OpCode.TmpClear:
-				case OpCode.TmpPush:
-				case OpCode.TmpPop:
-				case OpCode.TmpPeek:
 					append = string.Format("{0}{1}", GenSpaces(), NumVal);
 					break;
 				case OpCode.JtOrPop:

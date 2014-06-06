@@ -132,7 +132,10 @@ namespace MoonSharp.Interpreter.Execution.VM
 						ExecJFor(i);
 						break;
 					case OpCode.Index:
-						ExecIndexGet(i);
+						ExecIndexGet(i, false);
+						break;
+					case OpCode.Method:
+						ExecIndexGet(i, true);
 						break;
 					case OpCode.IndexRef:
 						ExecIndexRef(i, false);
@@ -143,23 +146,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 					case OpCode.NewTable:
 						m_ValueStack.Push(new RValue(new Table()));
 						break;
-					case OpCode.TmpClear:
-						m_TempRegs[i.NumVal] = null;
-						break;
-					case OpCode.TmpPeek:
-						m_TempRegs[i.NumVal] = m_ValueStack.Peek();
-						break;
-					case OpCode.TmpPop:
-						m_TempRegs[i.NumVal] = m_ValueStack.Pop();
-						break;
-					case OpCode.Reverse:
-						ExecReverse(i);
-						break;
 					case OpCode.Len:
 						ExecLen(i);
-						break;
-					case OpCode.TmpPush:
-						m_ValueStack.Push(m_TempRegs[i.NumVal]);
 						break;
 					case OpCode.IterPrep:
 						ExecIterPrep(i);
@@ -241,22 +229,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 			m_ValueStack.Push(v);
 		}
 
-		private void ExecReverse(Instruction i)
-		{
-			int cnt = i.NumVal;
-			int cnth = cnt / 2;
-
-			int len = m_ValueStack.Count - 1;
-
-			for (int idx = 0; idx < cnth; idx++)
-			{
-				var tmp = m_ValueStack[len - idx];
-				m_ValueStack[len - idx] = m_ValueStack[len - (cnt - 1 - idx)];
-				m_ValueStack[len - (cnt - 1 - idx)] = tmp;
-			}
-		}
-
-
 		private void ExecExit(Instruction i)
 		{
 			if (i.Frame == null)
@@ -270,9 +242,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 				m_Scope.PopFramesToFrame(i.Frame);
 			}
 		}
-
-
-
 
 		private void ExecJFor(Instruction i)
 		{
@@ -361,9 +330,18 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		private void ExecArgs(Instruction I)
 		{
+			int numargs = (int)m_ValueStack.Peek(0).Number;
+
 			for (int i = 0; i < I.SymbolList.Length; i++)
 			{
-				m_Scope.Assign(I.SymbolList[i], m_ValueStack.Peek(i + 1));
+				if (i >= numargs)
+				{
+					m_Scope.Assign(I.SymbolList[i], new RValue());
+				}
+				else
+				{
+					m_Scope.Assign(I.SymbolList[i], m_ValueStack.Peek(numargs - i).CloneAsWritable());
+				}
 			}
 		}
 
@@ -373,7 +351,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 			if (fn.Type == DataType.ClrFunction)
 			{
-				RValue[] args = StackTopToArray(i.NumVal, true);
+				RValue[] args = StackTopToArrayReverse(i.NumVal, true);
 				m_ValueStack.Pop();
 				var ret = fn.Callback.Invoke(args);
 				m_ValueStack.Push(ret);
@@ -569,7 +547,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			}
 		}
 
-		private void ExecIndexGet(Instruction i)
+		private void ExecIndexGet(Instruction i, bool methodCall)
 		{
 			RValue indexValue = m_ValueStack.Pop();
 			RValue baseValue = m_ValueStack.Pop();
@@ -583,6 +561,9 @@ namespace MoonSharp.Interpreter.Execution.VM
 				RValue v = baseValue.Table[indexValue];
 				m_ValueStack.Push(v.AsReadOnly());
 			}
+
+			if (methodCall)
+				m_ValueStack.Push(baseValue);
 		}
 
 		private void ExecIndexRef(Instruction i, bool keepOnStack)

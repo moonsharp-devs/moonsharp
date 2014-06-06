@@ -63,15 +63,11 @@
     <Compile Include="Debugging\WatchType.cs" />
     <Compile Include="Diagnostics\Debug.cs" />
     <Compile Include="Errors\InternalErrorException.cs" />
-    <Compile Include="Execution\Behaviours\Behaviour.cs" />
-    <Compile Include="Execution\Behaviours\DefaultBehaviour.cs" />
     <Compile Include="Diagnostics\AstDump.cs" />
     <Compile Include="Diagnostics\CodeChrono.cs" />
     <Compile Include="Errors\ScriptRuntimeException.cs" />
     <Compile Include="Errors\SyntaxErrorException.cs" />
     <Compile Include="Execution\DataTypes\Closure.cs" />
-    <Compile Include="Execution\ExecutionFlow.cs" />
-    <Compile Include="Execution\ExecutionFlowType.cs" />
     <Compile Include="Execution\DataTypes\CallbackFunction.cs" />
     <Compile Include="Execution\Scopes\ClosureContext.cs" />
     <Compile Include="Execution\Scopes\LoopTracker.cs" />
@@ -86,7 +82,6 @@
     <Compile Include="Execution\DataTypes\DataType.cs" />
     <Compile Include="Execution\DataTypes\RValue.cs" />
     <Compile Include="Execution\Script.cs" />
-    <Compile Include="Execution\Operator.cs" />
     <Compile Include="Execution\DataTypes\Table.cs" />
     <Compile Include="Execution\VM\Chunk.cs" />
     <Compile Include="DataStructs\FastStack.cs" />
@@ -100,7 +95,6 @@
     <Compile Include="Execution\VM\Processor\Processor_Debugger.cs" />
     <Compile Include="Execution\VM\Processor\Processor_InstructionLoop.cs" />
     <Compile Include="Execution\VM\Processor\Processor_UtilityFunctions.cs" />
-    <Compile Include="Helpers\List_ExtensionMethods.cs" />
     <Compile Include="Grammar\Lua.g4.lexer.cs">
       <DependentUpon>Lua.g4</DependentUpon>
     </Compile>
@@ -137,7 +131,7 @@
     <Compile Include="Tree\Statements\NullStatement.cs" />
     <Compile Include="Tree\Statements\RepeatStatement.cs" />
     <Compile Include="Tree\Statements\ReturnStatement.cs" />
-    <Compile Include="Helpers\LuaGrammar_ExtensionMethods.cs" />
+    <Compile Include="Grammar\LuaGrammar_ExtensionMethods.cs" />
     <Compile Include="Tree\Expressions\TableConstructor.cs" />
     <Compile Include="Tree\Statements\ScopeBlockStatement.cs" />
     <Compile Include="Tree\Statements\WhileStatement.cs" />

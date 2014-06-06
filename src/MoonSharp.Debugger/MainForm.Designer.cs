@@ -49,13 +49,13 @@
 			this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStrip1 = new System.Windows.Forms.ToolStrip();
-			this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
+			this.btnOpenFile = new System.Windows.Forms.ToolStripButton();
 			this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
 			this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
 			this.toolStripButton3 = new System.Windows.Forms.ToolStripButton();
 			this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
-			this.toolStripButton6 = new System.Windows.Forms.ToolStripButton();
-			this.toolStripButton4 = new System.Windows.Forms.ToolStripButton();
+			this.toolGO = new System.Windows.Forms.ToolStripButton();
+			this.toolStepOver = new System.Windows.Forms.ToolStripButton();
 			this.toolStepIN = new System.Windows.Forms.ToolStripButton();
 			this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
 			this.toolStripButton5 = new System.Windows.Forms.ToolStripButton();
@@ -64,7 +64,7 @@
 			this.splitContainer2 = new System.Windows.Forms.SplitContainer();
 			this.tabControl2 = new System.Windows.Forms.TabControl();
 			this.tabPage3 = new System.Windows.Forms.TabPage();
-			this.lvWatches = new System.Windows.Forms.ListView();
+			this.lvWatches = new MoonSharp.Debugger.DoubleBufferedListView();
 			this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -74,24 +74,32 @@
 			this.btnRemoveWatch = new System.Windows.Forms.ToolStripButton();
 			this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
 			this.btnViewWatch = new System.Windows.Forms.ToolStripButton();
+			this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
 			this.label3 = new System.Windows.Forms.Label();
 			this.tabPage4 = new System.Windows.Forms.TabPage();
+			this.lvVStack = new MoonSharp.Debugger.DoubleBufferedListView();
+			this.columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.columnHeader6 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.columnHeader7 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.toolStrip3 = new System.Windows.Forms.ToolStrip();
+			this.btnViewVStk = new System.Windows.Forms.ToolStripButton();
+			this.toolGoToCodeVStack = new System.Windows.Forms.ToolStripButton();
 			this.label2 = new System.Windows.Forms.Label();
 			this.imageList1 = new System.Windows.Forms.ImageList(this.components);
 			this.tabControl1 = new System.Windows.Forms.TabControl();
 			this.tabPage1 = new System.Windows.Forms.TabPage();
-			this.lvCallStack = new System.Windows.Forms.ListView();
+			this.lvCallStack = new MoonSharp.Debugger.DoubleBufferedListView();
 			this.colAddress = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.colName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.colReturn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.colBP = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.toolStrip4 = new System.Windows.Forms.ToolStrip();
+			this.toolGoToCodeXStack = new System.Windows.Forms.ToolStripButton();
 			this.tabPage2 = new System.Windows.Forms.TabPage();
 			this.label1 = new System.Windows.Forms.Label();
+			this.splitContainer3 = new System.Windows.Forms.SplitContainer();
 			this.codeView = new MoonSharp.Debugger.SourceCodeDebugControl();
-			this.lvVStack = new System.Windows.Forms.ListView();
-			this.columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-			this.columnHeader6 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-			this.columnHeader7 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.txtOutput = new System.Windows.Forms.TextBox();
 			this.menuStrip1.SuspendLayout();
 			this.toolStrip1.SuspendLayout();
 			this.splitContainer1.Panel1.SuspendLayout();
@@ -104,9 +112,14 @@
 			this.tabPage3.SuspendLayout();
 			this.toolStrip2.SuspendLayout();
 			this.tabPage4.SuspendLayout();
+			this.toolStrip3.SuspendLayout();
 			this.tabControl1.SuspendLayout();
 			this.tabPage1.SuspendLayout();
+			this.toolStrip4.SuspendLayout();
 			this.tabPage2.SuspendLayout();
+			this.splitContainer3.Panel1.SuspendLayout();
+			this.splitContainer3.Panel2.SuspendLayout();
+			this.splitContainer3.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// menuStrip1
@@ -203,6 +216,7 @@
 			this.stepOverToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F10;
 			this.stepOverToolStripMenuItem.Size = new System.Drawing.Size(190, 22);
 			this.stepOverToolStripMenuItem.Text = "Step-Over";
+			this.stepOverToolStripMenuItem.Click += new System.EventHandler(this.stepOverToolStripMenuItem_Click);
 			// 
 			// stepInToolStripMenuItem
 			// 
@@ -238,6 +252,7 @@
 			this.gOToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F5;
 			this.gOToolStripMenuItem.Size = new System.Drawing.Size(190, 22);
 			this.gOToolStripMenuItem.Text = "GO";
+			this.gOToolStripMenuItem.Click += new System.EventHandler(this.gOToolStripMenuItem_Click);
 			// 
 			// helpToolStripMenuItem
 			// 
@@ -256,13 +271,13 @@
 			// toolStrip1
 			// 
 			this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripButton1,
+            this.btnOpenFile,
             this.toolStripButton2,
             this.toolStripSeparator1,
             this.toolStripButton3,
             this.toolStripSeparator2,
-            this.toolStripButton6,
-            this.toolStripButton4,
+            this.toolGO,
+            this.toolStepOver,
             this.toolStepIN,
             this.toolStripSeparator3,
             this.toolStripButton5});
@@ -272,14 +287,15 @@
 			this.toolStrip1.TabIndex = 1;
 			this.toolStrip1.Text = "toolStrip1";
 			// 
-			// toolStripButton1
+			// btnOpenFile
 			// 
-			this.toolStripButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.toolStripButton1.Image = global::MoonSharp.Debugger.Properties.Resources.Open_6529;
-			this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.toolStripButton1.Name = "toolStripButton1";
-			this.toolStripButton1.Size = new System.Drawing.Size(23, 22);
-			this.toolStripButton1.Text = "toolStripButton1";
+			this.btnOpenFile.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.btnOpenFile.Image = global::MoonSharp.Debugger.Properties.Resources.Open_6529;
+			this.btnOpenFile.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.btnOpenFile.Name = "btnOpenFile";
+			this.btnOpenFile.Size = new System.Drawing.Size(23, 22);
+			this.btnOpenFile.Text = "Open File";
+			this.btnOpenFile.Click += new System.EventHandler(this.btnOpenFile_Click);
 			// 
 			// toolStripButton2
 			// 
@@ -310,23 +326,25 @@
 			this.toolStripSeparator2.Name = "toolStripSeparator2";
 			this.toolStripSeparator2.Size = new System.Drawing.Size(6, 25);
 			// 
-			// toolStripButton6
+			// toolGO
 			// 
-			this.toolStripButton6.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.toolStripButton6.Image = global::MoonSharp.Debugger.Properties.Resources.startwithoutdebugging_6556;
-			this.toolStripButton6.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.toolStripButton6.Name = "toolStripButton6";
-			this.toolStripButton6.Size = new System.Drawing.Size(23, 22);
-			this.toolStripButton6.Text = "toolStripButton6";
+			this.toolGO.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.toolGO.Image = global::MoonSharp.Debugger.Properties.Resources.startwithoutdebugging_6556;
+			this.toolGO.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.toolGO.Name = "toolGO";
+			this.toolGO.Size = new System.Drawing.Size(23, 22);
+			this.toolGO.Text = "GO";
+			this.toolGO.Click += new System.EventHandler(this.toolGO_Click);
 			// 
-			// toolStripButton4
+			// toolStepOver
 			// 
-			this.toolStripButton4.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.toolStripButton4.Image = global::MoonSharp.Debugger.Properties.Resources.StepOver_6328;
-			this.toolStripButton4.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.toolStripButton4.Name = "toolStripButton4";
-			this.toolStripButton4.Size = new System.Drawing.Size(23, 22);
-			this.toolStripButton4.Text = "toolStripButton4";
+			this.toolStepOver.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.toolStepOver.Image = global::MoonSharp.Debugger.Properties.Resources.StepOver_6328;
+			this.toolStepOver.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.toolStepOver.Name = "toolStepOver";
+			this.toolStepOver.Size = new System.Drawing.Size(23, 22);
+			this.toolStepOver.Text = "Step-Over";
+			this.toolStepOver.Click += new System.EventHandler(this.toolStepOver_Click);
 			// 
 			// toolStepIN
 			// 
@@ -372,7 +390,7 @@
 			// 
 			// splitContainer1.Panel2
 			// 
-			this.splitContainer1.Panel2.Controls.Add(this.codeView);
+			this.splitContainer1.Panel2.Controls.Add(this.splitContainer3);
 			this.splitContainer1.Size = new System.Drawing.Size(1094, 663);
 			this.splitContainer1.SplitterDistance = 364;
 			this.splitContainer1.TabIndex = 3;
@@ -438,6 +456,7 @@
 			this.lvWatches.TabIndex = 4;
 			this.lvWatches.UseCompatibleStateImageBehavior = false;
 			this.lvWatches.View = System.Windows.Forms.View.Details;
+			this.lvWatches.SelectedIndexChanged += new System.EventHandler(this.lvWatches_SelectedIndexChanged);
 			// 
 			// columnHeader1
 			// 
@@ -465,7 +484,8 @@
             this.btnAddWatch,
             this.btnRemoveWatch,
             this.toolStripSeparator4,
-            this.btnViewWatch});
+            this.btnViewWatch,
+            this.toolStripButton1});
 			this.toolStrip2.Location = new System.Drawing.Point(3, 3);
 			this.toolStrip2.Name = "toolStrip2";
 			this.toolStrip2.Size = new System.Drawing.Size(350, 25);
@@ -502,6 +522,16 @@
 			this.btnViewWatch.Name = "btnViewWatch";
 			this.btnViewWatch.Size = new System.Drawing.Size(52, 22);
 			this.btnViewWatch.Text = "View";
+			this.btnViewWatch.Click += new System.EventHandler(this.btnViewWatch_Click);
+			// 
+			// toolStripButton1
+			// 
+			this.toolStripButton1.Image = global::MoonSharp.Debugger.Properties.Resources.GoToDeclaration_5576;
+			this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.toolStripButton1.Name = "toolStripButton1";
+			this.toolStripButton1.Size = new System.Drawing.Size(87, 22);
+			this.toolStripButton1.Text = "Go to Code";
+			this.toolStripButton1.ToolTipText = "Go to Code";
 			// 
 			// label3
 			// 
@@ -516,6 +546,7 @@
 			// tabPage4
 			// 
 			this.tabPage4.Controls.Add(this.lvVStack);
+			this.tabPage4.Controls.Add(this.toolStrip3);
 			this.tabPage4.Controls.Add(this.label2);
 			this.tabPage4.ImageIndex = 1;
 			this.tabPage4.Location = new System.Drawing.Point(4, 23);
@@ -525,6 +556,67 @@
 			this.tabPage4.TabIndex = 1;
 			this.tabPage4.Text = "V-Stack";
 			this.tabPage4.UseVisualStyleBackColor = true;
+			// 
+			// lvVStack
+			// 
+			this.lvVStack.BackColor = System.Drawing.SystemColors.Window;
+			this.lvVStack.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnHeader5,
+            this.columnHeader6,
+            this.columnHeader7});
+			this.lvVStack.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.lvVStack.FullRowSelect = true;
+			this.lvVStack.GridLines = true;
+			this.lvVStack.Location = new System.Drawing.Point(3, 28);
+			this.lvVStack.Name = "lvVStack";
+			this.lvVStack.Size = new System.Drawing.Size(350, 249);
+			this.lvVStack.TabIndex = 7;
+			this.lvVStack.UseCompatibleStateImageBehavior = false;
+			this.lvVStack.View = System.Windows.Forms.View.Details;
+			// 
+			// columnHeader5
+			// 
+			this.columnHeader5.Text = "Stack ofs";
+			this.columnHeader5.Width = 72;
+			// 
+			// columnHeader6
+			// 
+			this.columnHeader6.Text = "Type";
+			this.columnHeader6.Width = 94;
+			// 
+			// columnHeader7
+			// 
+			this.columnHeader7.Text = "Value";
+			this.columnHeader7.Width = 157;
+			// 
+			// toolStrip3
+			// 
+			this.toolStrip3.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.btnViewVStk,
+            this.toolGoToCodeVStack});
+			this.toolStrip3.Location = new System.Drawing.Point(3, 3);
+			this.toolStrip3.Name = "toolStrip3";
+			this.toolStrip3.Size = new System.Drawing.Size(350, 25);
+			this.toolStrip3.TabIndex = 6;
+			this.toolStrip3.Text = "toolStrip3";
+			// 
+			// btnViewVStk
+			// 
+			this.btnViewVStk.Image = global::MoonSharp.Debugger.Properties.Resources.FindSymbol_6263;
+			this.btnViewVStk.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.btnViewVStk.Name = "btnViewVStk";
+			this.btnViewVStk.Size = new System.Drawing.Size(52, 22);
+			this.btnViewVStk.Text = "View";
+			this.btnViewVStk.Click += new System.EventHandler(this.btnViewVStk_Click);
+			// 
+			// toolGoToCodeVStack
+			// 
+			this.toolGoToCodeVStack.Image = global::MoonSharp.Debugger.Properties.Resources.GoToDeclaration_5576;
+			this.toolGoToCodeVStack.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.toolGoToCodeVStack.Name = "toolGoToCodeVStack";
+			this.toolGoToCodeVStack.Size = new System.Drawing.Size(87, 22);
+			this.toolGoToCodeVStack.Text = "Go to Code";
+			this.toolGoToCodeVStack.ToolTipText = "Go to Code";
 			// 
 			// label2
 			// 
@@ -560,6 +652,7 @@
 			// tabPage1
 			// 
 			this.tabPage1.Controls.Add(this.lvCallStack);
+			this.tabPage1.Controls.Add(this.toolStrip4);
 			this.tabPage1.ImageIndex = 0;
 			this.tabPage1.Location = new System.Drawing.Point(4, 23);
 			this.tabPage1.Name = "tabPage1";
@@ -580,10 +673,10 @@
 			this.lvCallStack.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.lvCallStack.FullRowSelect = true;
 			this.lvCallStack.GridLines = true;
-			this.lvCallStack.Location = new System.Drawing.Point(3, 3);
+			this.lvCallStack.Location = new System.Drawing.Point(3, 28);
 			this.lvCallStack.Name = "lvCallStack";
-			this.lvCallStack.Size = new System.Drawing.Size(350, 319);
-			this.lvCallStack.TabIndex = 0;
+			this.lvCallStack.Size = new System.Drawing.Size(350, 294);
+			this.lvCallStack.TabIndex = 8;
 			this.lvCallStack.UseCompatibleStateImageBehavior = false;
 			this.lvCallStack.View = System.Windows.Forms.View.Details;
 			// 
@@ -607,6 +700,25 @@
 			this.colBP.Text = "Base Ptr";
 			this.colBP.Width = 72;
 			// 
+			// toolStrip4
+			// 
+			this.toolStrip4.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolGoToCodeXStack});
+			this.toolStrip4.Location = new System.Drawing.Point(3, 3);
+			this.toolStrip4.Name = "toolStrip4";
+			this.toolStrip4.Size = new System.Drawing.Size(350, 25);
+			this.toolStrip4.TabIndex = 7;
+			this.toolStrip4.Text = "toolStrip4";
+			// 
+			// toolGoToCodeXStack
+			// 
+			this.toolGoToCodeXStack.Image = global::MoonSharp.Debugger.Properties.Resources.GoToDeclaration_5576;
+			this.toolGoToCodeXStack.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.toolGoToCodeXStack.Name = "toolGoToCodeXStack";
+			this.toolGoToCodeXStack.Size = new System.Drawing.Size(87, 22);
+			this.toolGoToCodeXStack.Text = "Go to Code";
+			this.toolGoToCodeXStack.ToolTipText = "Go to Code";
+			// 
 			// tabPage2
 			// 
 			this.tabPage2.Controls.Add(this.label1);
@@ -629,6 +741,24 @@
 			this.label1.Text = "Not Implemented Yet";
 			this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 			// 
+			// splitContainer3
+			// 
+			this.splitContainer3.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.splitContainer3.Location = new System.Drawing.Point(0, 0);
+			this.splitContainer3.Name = "splitContainer3";
+			this.splitContainer3.Orientation = System.Windows.Forms.Orientation.Horizontal;
+			// 
+			// splitContainer3.Panel1
+			// 
+			this.splitContainer3.Panel1.Controls.Add(this.codeView);
+			// 
+			// splitContainer3.Panel2
+			// 
+			this.splitContainer3.Panel2.Controls.Add(this.txtOutput);
+			this.splitContainer3.Size = new System.Drawing.Size(726, 663);
+			this.splitContainer3.SplitterDistance = 446;
+			this.splitContainer3.TabIndex = 0;
+			// 
 			// codeView
 			// 
 			this.codeView.ActiveLine = -1;
@@ -640,41 +770,21 @@
 			this.codeView.Location = new System.Drawing.Point(0, 0);
 			this.codeView.Margin = new System.Windows.Forms.Padding(4);
 			this.codeView.Name = "codeView";
-			this.codeView.Size = new System.Drawing.Size(726, 663);
+			this.codeView.Size = new System.Drawing.Size(726, 446);
 			this.codeView.SourceCode = null;
-			this.codeView.TabIndex = 0;
+			this.codeView.TabIndex = 1;
 			// 
-			// lvVStack
+			// txtOutput
 			// 
-			this.lvVStack.BackColor = System.Drawing.SystemColors.Window;
-			this.lvVStack.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeader5,
-            this.columnHeader6,
-            this.columnHeader7});
-			this.lvVStack.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.lvVStack.FullRowSelect = true;
-			this.lvVStack.GridLines = true;
-			this.lvVStack.Location = new System.Drawing.Point(3, 3);
-			this.lvVStack.Name = "lvVStack";
-			this.lvVStack.Size = new System.Drawing.Size(350, 274);
-			this.lvVStack.TabIndex = 5;
-			this.lvVStack.UseCompatibleStateImageBehavior = false;
-			this.lvVStack.View = System.Windows.Forms.View.Details;
-			// 
-			// columnHeader5
-			// 
-			this.columnHeader5.Text = "Stack ofs";
-			this.columnHeader5.Width = 72;
-			// 
-			// columnHeader6
-			// 
-			this.columnHeader6.Text = "Type";
-			this.columnHeader6.Width = 94;
-			// 
-			// columnHeader7
-			// 
-			this.columnHeader7.Text = "Value";
-			this.columnHeader7.Width = 157;
+			this.txtOutput.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+			this.txtOutput.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.txtOutput.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
+			this.txtOutput.Location = new System.Drawing.Point(0, 0);
+			this.txtOutput.Multiline = true;
+			this.txtOutput.Name = "txtOutput";
+			this.txtOutput.ReadOnly = true;
+			this.txtOutput.Size = new System.Drawing.Size(726, 213);
+			this.txtOutput.TabIndex = 0;
 			// 
 			// MainForm
 			// 
@@ -705,9 +815,19 @@
 			this.toolStrip2.ResumeLayout(false);
 			this.toolStrip2.PerformLayout();
 			this.tabPage4.ResumeLayout(false);
+			this.tabPage4.PerformLayout();
+			this.toolStrip3.ResumeLayout(false);
+			this.toolStrip3.PerformLayout();
 			this.tabControl1.ResumeLayout(false);
 			this.tabPage1.ResumeLayout(false);
+			this.tabPage1.PerformLayout();
+			this.toolStrip4.ResumeLayout(false);
+			this.toolStrip4.PerformLayout();
 			this.tabPage2.ResumeLayout(false);
+			this.splitContainer3.Panel1.ResumeLayout(false);
+			this.splitContainer3.Panel2.ResumeLayout(false);
+			this.splitContainer3.Panel2.PerformLayout();
+			this.splitContainer3.ResumeLayout(false);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -737,7 +857,6 @@
 		private System.Windows.Forms.ToolStripMenuItem scriptCodeToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem bytecodeToolStripMenuItem;
 		private System.Windows.Forms.ToolStripButton toolStepIN;
-		private SourceCodeDebugControl codeView;
 		private System.Windows.Forms.TabControl tabControl2;
 		private System.Windows.Forms.TabPage tabPage3;
 		private System.Windows.Forms.Label label3;
@@ -747,23 +866,18 @@
 		private System.Windows.Forms.TabPage tabPage1;
 		private System.Windows.Forms.TabPage tabPage2;
 		private System.Windows.Forms.Label label1;
-		private System.Windows.Forms.ListView lvCallStack;
-		private System.Windows.Forms.ColumnHeader colAddress;
-		private System.Windows.Forms.ColumnHeader colName;
-		private System.Windows.Forms.ColumnHeader colBP;
-		private System.Windows.Forms.ColumnHeader colReturn;
 		private System.Windows.Forms.ImageList imageList1;
-		private System.Windows.Forms.ToolStripButton toolStripButton1;
+		private System.Windows.Forms.ToolStripButton btnOpenFile;
 		private System.Windows.Forms.ToolStripButton toolStripButton2;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
 		private System.Windows.Forms.ToolStripButton toolStripButton3;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
-		private System.Windows.Forms.ToolStripButton toolStripButton6;
-		private System.Windows.Forms.ToolStripButton toolStripButton4;
+		private System.Windows.Forms.ToolStripButton toolGO;
+		private System.Windows.Forms.ToolStripButton toolStepOver;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
 		private System.Windows.Forms.ToolStripButton toolStripButton5;
 		private System.Windows.Forms.ToolStripMenuItem connectToolStripMenuItem;
-		private System.Windows.Forms.ListView lvWatches;
+		private DoubleBufferedListView lvWatches;
 		private System.Windows.Forms.ColumnHeader columnHeader1;
 		private System.Windows.Forms.ColumnHeader columnHeader2;
 		private System.Windows.Forms.ColumnHeader columnHeader3;
@@ -773,10 +887,24 @@
 		private System.Windows.Forms.ToolStripButton btnRemoveWatch;
 		private System.Windows.Forms.ToolStripButton btnViewWatch;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
-		private System.Windows.Forms.ListView lvVStack;
+		private System.Windows.Forms.SplitContainer splitContainer3;
+		private SourceCodeDebugControl codeView;
+		private System.Windows.Forms.TextBox txtOutput;
+		private DoubleBufferedListView lvVStack;
 		private System.Windows.Forms.ColumnHeader columnHeader5;
 		private System.Windows.Forms.ColumnHeader columnHeader6;
 		private System.Windows.Forms.ColumnHeader columnHeader7;
+		private System.Windows.Forms.ToolStrip toolStrip3;
+		private System.Windows.Forms.ToolStripButton btnViewVStk;
+		private System.Windows.Forms.ToolStripButton toolStripButton1;
+		private System.Windows.Forms.ToolStripButton toolGoToCodeVStack;
+		private DoubleBufferedListView lvCallStack;
+		private System.Windows.Forms.ColumnHeader colAddress;
+		private System.Windows.Forms.ColumnHeader colName;
+		private System.Windows.Forms.ColumnHeader colReturn;
+		private System.Windows.Forms.ColumnHeader colBP;
+		private System.Windows.Forms.ToolStrip toolStrip4;
+		private System.Windows.Forms.ToolStripButton toolGoToCodeXStack;
 
 
 	}

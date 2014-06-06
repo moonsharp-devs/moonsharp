@@ -100,9 +100,6 @@ namespace MoonSharp.Interpreter.Execution
 						int idx = m_Locals[i].Find(name);
 						if (idx >= 0)
 							return closure.CreateUpvalue(this, LRef.Local(name, idx));
-
-						if (m_Locals[i].Breaking)
-							break;
 					}
 				}
 			}

@@ -233,15 +233,9 @@ namespace MoonSharp.Interpreter.Execution.VM
 			return Emit(new Instruction() { OpCode = OpCode.IterUpd });
 		}
 
-		public void Reverse(int p)
+		public Instruction Method()
 		{
-			if (p > 1)
-				Emit(new Instruction() { OpCode = OpCode.Reverse, NumVal = p });
-		}
-
-		internal string[] ToSourceCode()
-		{
-			throw new NotImplementedException();
+			return Emit(new Instruction() { OpCode = OpCode.Method });
 		}
 	}
 }

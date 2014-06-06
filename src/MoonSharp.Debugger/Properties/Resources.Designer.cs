@@ -133,9 +133,39 @@ namespace MoonSharp.Debugger.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap GoToDeclaration_5576 {
+            get {
+                object obj = ResourceManager.GetObject("GoToDeclaration_5576", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap Help_6522 {
             get {
                 object obj = ResourceManager.GetObject("Help_6522", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap NavigateBackwards_6270 {
+            get {
+                object obj = ResourceManager.GetObject("NavigateBackwards_6270", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap NavigateForward_6271 {
+            get {
+                object obj = ResourceManager.GetObject("NavigateForward_6271", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

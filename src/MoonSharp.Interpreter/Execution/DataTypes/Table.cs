@@ -60,9 +60,13 @@ namespace MoonSharp.Interpreter.Execution
 			}
 		}
 
-		public IEnumerable<KeyValuePair<RValue, RValue>> Pairs()
+		public IEnumerable<KeyValuePair<RValue, RValue>> DebugPairs()
 		{
-			return m_Symbols;
+			foreach (var kvp in m_Symbols)
+				yield return kvp;
+
+			foreach (var kvp in m_StringSymbols)
+				yield return new KeyValuePair<RValue, RValue>(new RValue(kvp.Key), kvp.Value);
 		}
 
 		private void Remove(RValue key)

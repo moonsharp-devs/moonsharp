@@ -16,20 +16,28 @@ namespace MoonSharp.Interpreter.Tests
 	{
 		void RunTest(string script)
 		{
-			HashSet<int> failedTests = new HashSet<int>();
+			HashSet<string> failedTests = new HashSet<string>();
 			int i = 0;
 
 			var globalCtx = new Table();
-			globalCtx[new RValue("assert")] = new RValue(new CallbackFunction(
-				a => 
+			globalCtx[new RValue("xassert")] = new RValue(new CallbackFunction(
+				a =>
 				{
-					++i;
+					if (!a[1].TestAsBoolean())
+						failedTests.Add(a[0].String);
 
-					if (!a[0].TestAsBoolean())
-						failedTests.Add(i);
-
-					return RValue.Nil; 
+					return RValue.Nil;
 				}));
+			globalCtx[new RValue("assert")] = new RValue(new CallbackFunction(
+			 a =>
+			 {
+				 ++i;
+
+				 if (!a[0].TestAsBoolean())
+					 failedTests.Add(string.Format("assert #{0}", i));
+
+				 return RValue.Nil;
+			 }));
 
 			globalCtx[new RValue("print")] = new RValue(new CallbackFunction(a =>
 				{
@@ -56,9 +64,9 @@ namespace MoonSharp.Interpreter.Tests
 					else return n*fact(n-1)
 					end
 				  end
-				  assert(fact(5) == 120)
+				  xassert('fact(5) == 120', fact(5) == 120)
 				end
-				assert(fact == false)
+				xassert('fact == false', fact == false)
 				");
 		}
 
@@ -73,25 +81,25 @@ namespace MoonSharp.Interpreter.Tests
 				function a:x (x) return x+self.i end
 				function a.y (x) return x+self end
 
-				assert(a:x(1)+10 == a.y(1))
+				xassert('a:x(1)+10 == a.y(1)', a:x(1)+10 == a.y(1))
 
 				a.t = {i=-100}
 				a['t'].x = function (self, a,b) return self.i+a+b end
 
-				assert(a.t:x(2,3) == -95)
+				xassert('a.t:x(2,3) == -95', a.t:x(2,3) == -95)
 
 				do
 				  local a = {x=0}
 				  function a:add (x) self.x, a.y = self.x+x, 20; return self end
-				  assert(a:add(10):add(20):add(30).x == 60 and a.y == 20)
+				  xassert('a:add(10):add(20):add(30).x == 60 and a.y == 20', a:add(10):add(20):add(30).x == 60 and a.y == 20)
 				end
 
 				local a = {b={c={}}}
 
 				function a.b.c.f1 (x) return x+1 end
 				function a.b.c:f2 (x,y) self[x] = y end
-				assert(a.b.c.f1(4) == 5)
-				a.b.c:f2('k', 12); assert(a.b.c.k == 12)
+				xassert('a.b.c.f1(4) == 5', a.b.c.f1(4) == 5)
+				a.b.c:f2('k', 12); xassert('a.b.c.k == 12', a.b.c.k == 12)
 
 				print('+')
 
@@ -100,13 +108,15 @@ namespace MoonSharp.Interpreter.Tests
 
 				f(      -- this line change must be valid
 				  1,2)
-				assert(t[1] == 1 and t[2] == 2 and t[3] == nil and t[4] == 'a')
+				xassert('missingparam', t[1] == 1 and t[2] == 2 and t[3] == nil and t[4] == 'a')
 				f(1,2,   -- this one too
 					  3,4)
-				assert(t[1] == 1 and t[2] == 2 and t[3] == 3 and t[4] == 'a')
+				xassert('extraparam', t[1] == 1 and t[2] == 2 and t[3] == 3 and t[4] == 'a')
 
 				");
 		}
+
+
 
 		[Test]
 		public void LuaSuite_Calls_Closures()
@@ -132,7 +142,7 @@ namespace MoonSharp.Interpreter.Tests
 
 				fat = Z(F)
 
-				assert(fat(0) == 1 and fat(4) == 24 and Z(F)(5)==5*Z(F)(4))
+				xassert('fat(0) == 1 and fat(4) == 24 and Z(F)(5)==5*Z(F)(4)', fat(0) == 1 and fat(4) == 24 and Z(F)(5)==5*Z(F)(4))
 
 				local function g (z)
 				  local function f (a,b,c,d)
@@ -143,10 +153,10 @@ namespace MoonSharp.Interpreter.Tests
 
 				f = g(10)
 
-				assert(f(9, 16) == 10+11+12+13+10+9+16+10)
+				xassert('f(9, 16) == 10+11+12+13+10+9+16+10', f(9, 16) == 10+11+12+13+10+9+16+10)
 
 				Z, F, f = nil
-				print('+')
+				--print('+')
 				");
 		}
 

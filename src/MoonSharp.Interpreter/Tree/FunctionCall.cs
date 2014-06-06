@@ -25,29 +25,19 @@ namespace MoonSharp.Interpreter.Tree
 
 		public override void Compile(Execution.VM.Chunk bc)
 		{
+			int argslen = m_Arguments.Length;
+
 			if (!string.IsNullOrEmpty(m_Name))
 			{
-				bc.TempOp(OpCode.TmpPeek, 0);
 				bc.Literal(new RValue(m_Name));
-				bc.Index();
+				bc.Method();
+				++argslen;
 			}
-
 
 			for (int i = 0; i < m_Arguments.Length; i++)
 				m_Arguments[i].Compile(bc);
 
-			bc.Reverse(m_Arguments.Length);
-
-			if (string.IsNullOrEmpty(m_Name))
-			{
-				bc.Call(m_Arguments.Length);
-			}
-			else
-			{
-				bc.TempOp(OpCode.TmpPush, 0);
-				bc.TempOp(OpCode.TmpClear, 0);
-				bc.Call(m_Arguments.Length + 1);
-			}
+			bc.Call(argslen);
 		}
 	}
 }

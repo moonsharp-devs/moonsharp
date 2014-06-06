@@ -63,7 +63,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			{
 				int oldhead = m_HeadIdx;
 				m_HeadIdx -= cnt;
-				Zero(m_HeadIdx + 1, oldhead);
+				Zero(m_HeadIdx, oldhead);
 			}
 		}
 
@@ -86,6 +86,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 			get { return m_HeadIdx; }
 		}
 
+
+		#region IList<T> Impl.
 
 		int IList<T>.IndexOf(T item)
 		{
@@ -158,6 +160,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 		{
 			throw new NotImplementedException();
 		}
+
+		#endregion
 
 	}
 }

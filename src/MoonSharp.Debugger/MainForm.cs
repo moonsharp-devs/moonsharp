@@ -28,6 +28,7 @@ namespace MoonSharp.Debugger
 		private void MainForm_Load(object sender, EventArgs e)
 		{
 			m_Ctx = SynchronizationContext.Current;
+			MoonSharpInterpreter.WarmUp();
 		}
 
 		private void openToolStripMenuItem_Click(object sender, EventArgs e)
@@ -46,6 +47,43 @@ namespace MoonSharp.Debugger
 
 		Script m_Script;
 		SynchronizationContext m_Ctx;
+
+		RValue Print(RValue[] values)
+		{
+			string prn = string.Join(" ", values.Select(v => v.AsString()).ToArray());
+			Console_WriteLine("{0}", prn);
+			return RValue.Nil;
+		}
+
+		RValue Assert(RValue[] values)
+		{
+			if (!values[0].TestAsBoolean())
+				Console_WriteLine("ASSERT FAILED!");
+
+			return RValue.Nil;
+		}
+
+		RValue XAssert(RValue[] values)
+		{
+			if (!values[1].TestAsBoolean())
+				Console_WriteLine("ASSERT FAILED! : {0}", values[0].ToString());
+
+			return RValue.Nil;
+		}
+
+		private void Console_WriteLine(string fmt, params object[] args)
+		{
+			fmt = string.Format(fmt, args);
+
+			m_Ctx.Post(str =>
+			{
+				txtOutput.Text = txtOutput.Text + fmt.ToString() + "\n";
+				txtOutput.SelectionStart = txtOutput.Text.Length - 1;
+				txtOutput.SelectionLength = 0;
+				txtOutput.ScrollToCaret();
+			}, fmt);
+		}
+
 
 		private void DebugScript(string filename)
 		{
@@ -87,8 +125,6 @@ namespace MoonSharp.Debugger
 			DebuggerAction action = m_NextAction;
 			m_NextAction = null;
 
-			Debug.WriteLine("Sending " + action.ToString());
-
 			m_WaitBack.Set();
 
 			return action;
@@ -106,17 +142,34 @@ namespace MoonSharp.Debugger
 
 		void DebugMain()
 		{
-			m_Script.Execute(null);
-		}
+			Table T = new Table();
+			T["print"] = new RValue(new CallbackFunction(Print));
+			T["assert"] = new RValue(new CallbackFunction(Assert));
+			T["xassert"] = new RValue(new CallbackFunction(XAssert));
 
-		private void toolStripButton1_Click(object sender, EventArgs e)
-		{
-			StepIN();
+			try
+			{
+				m_Script.Execute(T);
+			}
+			catch (Exception ex)
+			{
+				Console_WriteLine("Guest raised unhandled CLR exception: {0}\n{1}\n", ex.GetType(), ex.ToString());
+			}
 		}
 
 		private void StepIN()
 		{
 			DebugAction(new DebuggerAction() { Action = DebuggerAction.ActionType.StepIn });
+		}
+
+		private void StepOVER()
+		{
+			DebugAction(new DebuggerAction() { Action = DebuggerAction.ActionType.StepOver });
+		}
+
+		private void GO()
+		{
+			DebugAction(new DebuggerAction() { Action = DebuggerAction.ActionType.Run });
 		}
 
 
@@ -138,12 +191,11 @@ namespace MoonSharp.Debugger
 
 			foreach (var item in items)
 			{
-				var lvi = BuildListViewItem(
+				lvVStack.Add(
 					item.Address.ToString("X4"),
 					(item.Value != null) ? item.Value.Type.ToString() : "(undefined)",
 					(item.Value != null) ? item.Value.ToString() : "(undefined)"
-					);
-				lvVStack.Items.Add(lvi);
+					).Tag = item.Value;
 			}
 
 			lvVStack.EndUpdate();
@@ -160,13 +212,12 @@ namespace MoonSharp.Debugger
 
 			foreach (var item in items)
 			{
-				var lvi = BuildListViewItem(
+				lvWatches.Add(
 					item.Name ?? "(???)",
 					(item.Value != null) ? item.Value.Type.ToLuaTypeString() : "(undefined)",
 					(item.Value != null) ? item.Value.ToString() : "(undefined)",
 					(item.LValue != null) ? item.LValue.ToString() : "(undefined)"
-					);
-				lvWatches.Items.Add(lvi);
+					).Tag = item.Value;
 			}
 
 			lvWatches.EndUpdate();
@@ -181,44 +232,25 @@ namespace MoonSharp.Debugger
 			lvCallStack.Items.Clear();
 			foreach (var item in items)
 			{
-				var lvi = BuildListViewItem(
+				lvCallStack.Add(
 					item.Address.ToString("X8"),
 					item.Name ?? "(???)",
 					item.RetAddress.ToString("X8"),
 					item.BasePtr.ToString("X8")
-					);
-				lvCallStack.Items.Add(lvi);
+					).Tag = item.Address;
 			}
 
-			lvCallStack.Items.Add(BuildListViewItem("---", "(main)", "---", "---"));
+			lvCallStack.Add("---", "(main)", "---", "---");
 
 			lvCallStack.EndUpdate();
 		}
 
-		private ListViewItem BuildListViewItem(params string[] texts)
-		{
-			ListViewItem lvi = new ListViewItem();
-			lvi.Text = texts[0];
 
-			for (int i = 1; i < texts.Length; i++)
-			{
-				ListViewItem.ListViewSubItem lvsi = new ListViewItem.ListViewSubItem();
-				lvsi.Text = texts[i];
-				lvi.SubItems.Add(lvsi);
-			}
-
-			return lvi;
-		}
 
 
 		List<string> IDebugger.GetWatchItems()
 		{
 			return m_Watches;
-		}
-
-		private void stepInToolStripMenuItem_Click(object sender, EventArgs e)
-		{
-			StepIN();
 		}
 
 		private void btnAddWatch_Click(object sender, EventArgs e)
@@ -241,5 +273,60 @@ namespace MoonSharp.Debugger
 			if (i != 0)
 				DebugAction(new DebuggerAction() { Action = DebuggerAction.ActionType.Refresh });
 		}
+		private void stepInToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			StepIN();
+		}
+
+		private void btnOpenFile_Click(object sender, EventArgs e)
+		{
+			openToolStripMenuItem.PerformClick();
+		}
+
+		private void stepOverToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			StepOVER();
+		}
+
+		private void toolGO_Click(object sender, EventArgs e)
+		{
+			GO();
+		}
+
+		private void gOToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			GO();
+		}
+		private void toolStripButton1_Click(object sender, EventArgs e)
+		{
+			StepIN();
+		}
+
+		private void toolStepOver_Click(object sender, EventArgs e)
+		{
+			StepOVER();
+		}
+
+		private void btnViewVStk_Click(object sender, EventArgs e)
+		{
+			ValueBrowser.StartBrowse(lvVStack.SelectedItems.OfType<ListViewItem>().Select(lvi => lvi.Tag).Cast<RValue>().FirstOrDefault());
+		}
+
+		private void lvVStack_MouseDoubleClick(object sender, MouseEventArgs e)
+		{
+
+		}
+
+		private void btnViewWatch_Click(object sender, EventArgs e)
+		{
+			ValueBrowser.StartBrowse(lvWatches.SelectedItems.OfType<ListViewItem>().Select(lvi => lvi.Tag).Cast<RValue>().FirstOrDefault());
+		}
+
+		private void lvWatches_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			ValueBrowser.StartBrowse(lvWatches.SelectedItems.OfType<ListViewItem>().Select(lvi => lvi.Tag).Cast<RValue>().FirstOrDefault());
+		}
+
+
 	}
 }

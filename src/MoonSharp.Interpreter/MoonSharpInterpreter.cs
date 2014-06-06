@@ -55,5 +55,11 @@ namespace MoonSharp.Interpreter
 			return LoadFromICharStream(new AntlrInputStream(text));
 		}
 
+
+
+		public static void WarmUp()
+		{
+			LoadFromString("return 1;");
+		}
 	}
 }

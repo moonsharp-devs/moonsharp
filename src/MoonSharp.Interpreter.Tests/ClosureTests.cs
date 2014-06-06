@@ -8,6 +8,27 @@ namespace MoonSharp.Interpreter.Tests
 	public class ClosureTests
 	{
 		[Test]
+		public void ClosureOnParam()
+		{
+			string script = @"
+				local function g (z)
+				  local function f(a)
+					return a + z;
+				  end
+				  return f;
+				end
+
+				return (g(3)(2));";
+
+			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(null);
+
+			Assert.AreEqual(DataType.Number, res.Type);
+			Assert.AreEqual(5, res.Number);
+		}
+
+
+
+		[Test]
 		public void Closures()
 		{
 			// expected : 201 2001 20001 200001 2000001

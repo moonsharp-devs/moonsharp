@@ -24,6 +24,8 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			m_Local = true;
 			m_FuncName = lcontext.Scope.TryDefineLocal(context.NAME().GetText());
 			m_FuncDef = new FunctionDefinitionExpression(context.funcbody(), lcontext);
+
+			m_FriendlyName = string.Format("{0} (local)", m_FuncName.i_Name);
 		}
 
 		public FunctionDefinitionStatement(LuaParser.Stat_funcdefContext context, ScriptLoadingContext lcontext)

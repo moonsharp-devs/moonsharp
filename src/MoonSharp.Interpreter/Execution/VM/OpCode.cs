@@ -22,7 +22,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 		SymStorN,	// Performs a store to a symbol, without needing the symbol on the v-stack and without extracting the operand from the v-stack.
 		Store,		// Performs a single value assignment [including table fields]
 		Assign,		// Performs complex assignment supporting tuples [including table fields]
-		Reverse,	// Reverses the last n elements of the stack
 		Closure,	// Creates a closure on the top of the v-stack, using the symbols for upvalues and num-val for entry point of the function.
 
 		// Stack-frame ops and calls
@@ -68,13 +67,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 		Index,		// Performs an index operation, pushing the indexed value on the stack.
 		IndexRef,	// Performs an index operation, pushing a writable indexded value on the stack.
 		IndexRefN,	// Performs an index operation, pushing a writable indexed value on the stack, does not pop the table.
+		Method,		// Performs an index operation and pushes the table after the indexed value on the stack
 		NewTable,	// Creates a new table on the stack
-
-		// ScratchPad
-		TmpPeek,	// Peeks the top of the stack in a temporary reg. 
-		TmpPush,	// Pushes a temporary reg on the top of the stack. 
-		TmpPop,		// Pops the top of the stack in a temporary reg. 
-		TmpClear,	// Clears a temporary reg
 
 		// Iterators
 		IterPrep,   // Prepares an interator for execution 

@@ -9,7 +9,7 @@ namespace MoonSharp.Interpreter.Execution
 	{
 		public int ByteCodeLocation { get; private set; }
 
-		private ClosureContext closureCtx = null;
+		public ClosureContext ClosureContext { get; private set; }
 
 		private static ClosureContext emptyClosure = new ClosureContext();
 
@@ -19,14 +19,14 @@ namespace MoonSharp.Interpreter.Execution
 			ByteCodeLocation = idx;
 
 			if (symbols.Length > 0)
-				closureCtx = new ClosureContext(symbols, symbols.Select(s => scope.Get(s)));
+				ClosureContext = new ClosureContext(symbols, symbols.Select(s => scope.Get(s)));
 			else
-				closureCtx = emptyClosure;
+				ClosureContext = emptyClosure;
 		}
 
 		internal void EnterClosureBeforeCall(RuntimeScope scope)
 		{
-			scope.EnterClosure(closureCtx);
+			scope.EnterClosure(ClosureContext);
 		}
 
 	}

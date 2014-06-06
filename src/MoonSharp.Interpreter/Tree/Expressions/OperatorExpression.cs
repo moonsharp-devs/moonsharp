@@ -11,6 +11,18 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 {
 	class OperatorExpression : Expression 
 	{
+		private enum Operator
+		{
+			Or,
+			And,
+			Less, Greater, LessOrEqual, GreaterOrEqual, NotEqual, Equal,
+			StrConcat,
+			Add, Sub,
+			Mul, Div, Mod,
+			Not, Size, Neg,
+			Power
+		}
+
 		static HashSet<Type> s_OperatorTypes = new HashSet<Type>();
 
 		static OperatorExpression()
