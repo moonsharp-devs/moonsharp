@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.Collections.Generic;
 using MoonSharp.Interpreter.Execution;
 using NUnit.Framework;
 
@@ -11,21 +13,21 @@ namespace MoonSharp.Interpreter.Tests
 		[Test]
 		public void CSharpStaticFunctionCallStatement()
 		{
-			RValue[] args = null;
+			IList<RValue> args = null;
 
 			string script = "print(\"hello\", \"world\");";
 
 			var globalCtx = new Table();
 			globalCtx[new RValue("print")] = new RValue(new CallbackFunction(a => 
-			{ 
-				args = a; 
+			{
+				args = a.ToArray(); 
 				return new RValue(1234.0); 
 			}));
 
 			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(globalCtx);
 
 			Assert.AreEqual(DataType.Nil, res.Type);
-			Assert.AreEqual(2, args.Length);
+			Assert.AreEqual(2, args.Count);
 			Assert.AreEqual(DataType.String, args[0].Type);
 			Assert.AreEqual("hello", args[0].String);
 			Assert.AreEqual(DataType.String, args[1].Type);
@@ -36,16 +38,16 @@ namespace MoonSharp.Interpreter.Tests
 		[Test]
 		public void CSharpStaticFunctionCall()
 		{
-			RValue[] args = null;
+			IList<RValue> args = null;
 
 			string script = "return print(\"hello\", \"world\");";
 
 			var globalCtx = new Table();
-			globalCtx[new RValue("print")] = new RValue(new CallbackFunction(a => { args = a; return new RValue(1234.0); }));
+			globalCtx[new RValue("print")] = new RValue(new CallbackFunction(a => { args = a.ToArray(); return new RValue(1234.0); }));
 
 			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(globalCtx);
 
-			Assert.AreEqual(2, args.Length);
+			Assert.AreEqual(2, args.Count);
 			Assert.AreEqual(DataType.String, args[0].Type);
 			Assert.AreEqual("hello", args[0].String);
 			Assert.AreEqual(DataType.String, args[1].Type);

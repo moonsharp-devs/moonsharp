@@ -13,18 +13,20 @@ namespace PerformanceComparison
 {
 	class Program
 	{
-		const int ITERATIONS = 10000;
+		const int ITERATIONS = 1;
 
 		static  string scriptText = @"
 			function move(n, src, dst, via)
 				if n > 0 then
 					move(n - 1, src, via, dst)
-					--print(src, 'to', dst)
+					print(src, 'to', dst)
 					move(n - 1, via, dst, src)
 				end
 			end
  
-			move(4, 1, 2, 3)
+			for i = 1, 10000 do
+				move(4, 1, 2, 3)
+			end
 			";
 		static  string scriptText2 = @"
 N = 8
@@ -78,7 +80,7 @@ end
 		static StringBuilder g_MoonSharpStr = new StringBuilder();
 		static StringBuilder g_NLuaStr = new StringBuilder();
 
-		public static RValue Print(RValue[] values)
+		public static RValue Print(IList<RValue> values)
 		{
 			foreach (var val in values)
 			{
@@ -151,6 +153,7 @@ end
 			lua.RegisterFunction("print", typeof(Program).GetMethod("NPrint"));
 
 			File.WriteAllText(@"c:\temp\hanoi.lua", scriptText);
+
 
 			var fn = lua.LoadFile(@"c:\temp\hanoi.lua");
 

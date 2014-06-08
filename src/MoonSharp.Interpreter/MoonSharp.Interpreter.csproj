@@ -45,6 +45,26 @@
     <RunCodeAnalysis>false</RunCodeAnalysis>
     <CodeAnalysisRuleSet>ExtendedDesignGuidelineRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <NoWarn>3021</NoWarn>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <NoWarn>3021</NoWarn>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>ExtendedDesignGuidelineRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Antlr4.Runtime.v3.5">
       <HintPath>..\MoonSharp\packages\Antlr4.Runtime.4.2.2-alpha001\lib\net35\Antlr4.Runtime.v3.5.dll</HintPath>
@@ -55,6 +75,7 @@
   <ItemGroup>
     <Compile Include="CoreLib\BasicMethods.cs" />
     <Compile Include="CoreLib\MetaTableMethods.cs" />
+    <Compile Include="DataStructs\FastStackDynamic.cs" />
     <Compile Include="DataStructs\Slice.cs" />
     <Compile Include="Debugging\DebuggerAction.cs" />
     <Compile Include="Debugging\IDebugger.cs" />

@@ -351,9 +351,10 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 			if (fn.Type == DataType.ClrFunction)
 			{
-				RValue[] args = StackTopToArrayReverse(i.NumVal, true);
-				m_ValueStack.Pop();
+				IList<RValue> args = new Slice<RValue>(m_ValueStack, m_ValueStack.Count - i.NumVal, i.NumVal, false);
+				//m_ValueStack.Pop();
 				var ret = fn.Callback.Invoke(args);
+				m_ValueStack.RemoveLast(i.NumVal + 1);
 				m_ValueStack.Push(ret);
 			}
 			else if (fn.Type == DataType.Function)

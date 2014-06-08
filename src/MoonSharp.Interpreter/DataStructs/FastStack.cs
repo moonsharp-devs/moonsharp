@@ -1,9 +1,11 @@
-﻿using System;
+﻿#if !USE_DYNAMIC_STACKS
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MoonSharp.Interpreter.Execution.VM
+namespace MoonSharp.Interpreter.DataStructs
 {
 	public class FastStack<T> : IList<T>
 	{
@@ -32,12 +34,12 @@ namespace MoonSharp.Interpreter.Execution.VM
 			m_HeadIdx += size;
 		}
 
-		public void Zero(int from, int to)
+		private void Zero(int from, int to)
 		{
 			Array.Clear(m_Storage, from, to - from + 1);
 		}
 
-		public void Zero(int index)
+		private void Zero(int index)
 		{
 			m_Storage[index] = default(T);
 		}
@@ -165,3 +167,5 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 	}
 }
+
+#endif

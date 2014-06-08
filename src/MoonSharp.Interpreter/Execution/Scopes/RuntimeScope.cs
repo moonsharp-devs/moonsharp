@@ -4,6 +4,7 @@ using MoonSharp.Interpreter.Diagnostics;
 using System.Linq;
 using System.Text;
 using MoonSharp.Interpreter.Execution.VM;
+using MoonSharp.Interpreter.DataStructs;
 
 namespace MoonSharp.Interpreter.Execution
 {

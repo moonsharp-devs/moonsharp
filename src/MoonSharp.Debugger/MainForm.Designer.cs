@@ -74,7 +74,7 @@
 			this.btnRemoveWatch = new System.Windows.Forms.ToolStripButton();
 			this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
 			this.btnViewWatch = new System.Windows.Forms.ToolStripButton();
-			this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
+			this.toolGoToCodeWatches = new System.Windows.Forms.ToolStripButton();
 			this.label3 = new System.Windows.Forms.Label();
 			this.tabPage4 = new System.Windows.Forms.TabPage();
 			this.lvVStack = new MoonSharp.Debugger.DoubleBufferedListView();
@@ -456,7 +456,7 @@
 			this.lvWatches.TabIndex = 4;
 			this.lvWatches.UseCompatibleStateImageBehavior = false;
 			this.lvWatches.View = System.Windows.Forms.View.Details;
-			this.lvWatches.SelectedIndexChanged += new System.EventHandler(this.lvWatches_SelectedIndexChanged);
+			this.lvWatches.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.lvWatches_MouseDoubleClick);
 			// 
 			// columnHeader1
 			// 
@@ -485,7 +485,7 @@
             this.btnRemoveWatch,
             this.toolStripSeparator4,
             this.btnViewWatch,
-            this.toolStripButton1});
+            this.toolGoToCodeWatches});
 			this.toolStrip2.Location = new System.Drawing.Point(3, 3);
 			this.toolStrip2.Name = "toolStrip2";
 			this.toolStrip2.Size = new System.Drawing.Size(350, 25);
@@ -524,14 +524,15 @@
 			this.btnViewWatch.Text = "View";
 			this.btnViewWatch.Click += new System.EventHandler(this.btnViewWatch_Click);
 			// 
-			// toolStripButton1
+			// toolGoToCodeWatches
 			// 
-			this.toolStripButton1.Image = global::MoonSharp.Debugger.Properties.Resources.GoToDeclaration_5576;
-			this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.toolStripButton1.Name = "toolStripButton1";
-			this.toolStripButton1.Size = new System.Drawing.Size(87, 22);
-			this.toolStripButton1.Text = "Go to Code";
-			this.toolStripButton1.ToolTipText = "Go to Code";
+			this.toolGoToCodeWatches.Image = global::MoonSharp.Debugger.Properties.Resources.GoToDeclaration_5576;
+			this.toolGoToCodeWatches.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.toolGoToCodeWatches.Name = "toolGoToCodeWatches";
+			this.toolGoToCodeWatches.Size = new System.Drawing.Size(87, 22);
+			this.toolGoToCodeWatches.Text = "Go to Code";
+			this.toolGoToCodeWatches.ToolTipText = "Go to Code";
+			this.toolGoToCodeWatches.Click += new System.EventHandler(this.toolGoToCodeWatches_Click);
 			// 
 			// label3
 			// 
@@ -573,6 +574,7 @@
 			this.lvVStack.TabIndex = 7;
 			this.lvVStack.UseCompatibleStateImageBehavior = false;
 			this.lvVStack.View = System.Windows.Forms.View.Details;
+			this.lvVStack.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.lvVStack_MouseDoubleClick);
 			// 
 			// columnHeader5
 			// 
@@ -617,6 +619,7 @@
 			this.toolGoToCodeVStack.Size = new System.Drawing.Size(87, 22);
 			this.toolGoToCodeVStack.Text = "Go to Code";
 			this.toolGoToCodeVStack.ToolTipText = "Go to Code";
+			this.toolGoToCodeVStack.Click += new System.EventHandler(this.toolGoToCodeVStack_Click);
 			// 
 			// label2
 			// 
@@ -718,6 +721,7 @@
 			this.toolGoToCodeXStack.Size = new System.Drawing.Size(87, 22);
 			this.toolGoToCodeXStack.Text = "Go to Code";
 			this.toolGoToCodeXStack.ToolTipText = "Go to Code";
+			this.toolGoToCodeXStack.Click += new System.EventHandler(this.toolGoToCodeXStack_Click);
 			// 
 			// tabPage2
 			// 
@@ -896,7 +900,7 @@
 		private System.Windows.Forms.ColumnHeader columnHeader7;
 		private System.Windows.Forms.ToolStrip toolStrip3;
 		private System.Windows.Forms.ToolStripButton btnViewVStk;
-		private System.Windows.Forms.ToolStripButton toolStripButton1;
+		private System.Windows.Forms.ToolStripButton toolGoToCodeWatches;
 		private System.Windows.Forms.ToolStripButton toolGoToCodeVStack;
 		private DoubleBufferedListView lvCallStack;
 		private System.Windows.Forms.ColumnHeader colAddress;

@@ -50,7 +50,7 @@ namespace MoonSharp.Debugger
 		public int CursorLine
 		{
 			get { return m_CursorLine; }
-			set { m_CursorLine = value; Invalidate(); }
+			set { m_CursorLine = value; ScrollToIncludeLine(m_CursorLine); Invalidate(); }
 		}
 
 		public SourceCodeDebugControl()

@@ -48,14 +48,14 @@ namespace MoonSharp.Debugger
 		Script m_Script;
 		SynchronizationContext m_Ctx;
 
-		RValue Print(RValue[] values)
+		RValue Print(IList<RValue> values)
 		{
 			string prn = string.Join(" ", values.Select(v => v.AsString()).ToArray());
 			Console_WriteLine("{0}", prn);
 			return RValue.Nil;
 		}
 
-		RValue Assert(RValue[] values)
+		RValue Assert(IList<RValue> values)
 		{
 			if (!values[0].TestAsBoolean())
 				Console_WriteLine("ASSERT FAILED!");
@@ -63,7 +63,7 @@ namespace MoonSharp.Debugger
 			return RValue.Nil;
 		}
 
-		RValue XAssert(RValue[] values)
+		RValue XAssert(IList<RValue> values)
 		{
 			if (!values[1].TestAsBoolean())
 				Console_WriteLine("ASSERT FAILED! : {0}", values[0].ToString());
@@ -314,7 +314,7 @@ namespace MoonSharp.Debugger
 
 		private void lvVStack_MouseDoubleClick(object sender, MouseEventArgs e)
 		{
-
+			ValueBrowser.StartBrowse(lvVStack.SelectedItems.OfType<ListViewItem>().Select(lvi => lvi.Tag).Cast<RValue>().FirstOrDefault());
 		}
 
 		private void btnViewWatch_Click(object sender, EventArgs e)
@@ -322,10 +322,40 @@ namespace MoonSharp.Debugger
 			ValueBrowser.StartBrowse(lvWatches.SelectedItems.OfType<ListViewItem>().Select(lvi => lvi.Tag).Cast<RValue>().FirstOrDefault());
 		}
 
-		private void lvWatches_SelectedIndexChanged(object sender, EventArgs e)
+
+		private void lvWatches_MouseDoubleClick(object sender, MouseEventArgs e)
 		{
 			ValueBrowser.StartBrowse(lvWatches.SelectedItems.OfType<ListViewItem>().Select(lvi => lvi.Tag).Cast<RValue>().FirstOrDefault());
 		}
+
+		private void toolGoToCodeVStack_Click(object sender, EventArgs e)
+		{
+			var v = lvVStack.SelectedItems.OfType<ListViewItem>().Select(lvi => lvi.Tag).Cast<RValue>().FirstOrDefault();
+
+			if (v != null && v.Type == DataType.Function)
+				GotoBytecode(v.Function.ByteCodeLocation);
+		}
+
+		private void toolGoToCodeWatches_Click(object sender, EventArgs e)
+		{
+			var v = lvWatches.SelectedItems.OfType<ListViewItem>().Select(lvi => lvi.Tag).Cast<RValue>().FirstOrDefault();
+
+			if (v != null && v.Type == DataType.Function)
+				GotoBytecode(v.Function.ByteCodeLocation);
+		}
+		private void toolGoToCodeXStack_Click(object sender, EventArgs e)
+		{
+			var v = lvCallStack.SelectedItems.OfType<ListViewItem>().Select(lvi => lvi.Tag).OfType<int>().FirstOrDefault();
+
+			if (v != 0)
+				GotoBytecode(v);
+		}
+
+		private void GotoBytecode(int code)
+		{
+			codeView.CursorLine = code;
+		}
+
 
 
 	}

@@ -145,7 +145,7 @@ namespace MoonSharp.Debugger
 		{
 			var F = V.Function;
 			var C = F.ClosureContext;
-			lvProps.Add("Bytecode Location", F.ByteCodeLocation);
+			lvProps.Add("Bytecode Location", F.ByteCodeLocation.ToString("X8"));
 
 			for (int i = 0; i < C.Count; i++)
 			{

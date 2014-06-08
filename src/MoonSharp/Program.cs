@@ -11,14 +11,14 @@ namespace MoonSharp
 {
 	class Program
 	{
-		static RValue Print(RValue[] values)
+		static RValue Print(IList<RValue> values)
 		{
 			string prn = string.Join(" ", values.Select(v => v.AsString()).ToArray());
 			Console.WriteLine("{0}", prn);
 			return RValue.Nil;
 		}
 
-		static RValue Read(RValue[] values)
+		static RValue Read(IList<RValue> values)
 		{
 			double d = double.Parse(Console.ReadLine());
 			return new RValue(d);
