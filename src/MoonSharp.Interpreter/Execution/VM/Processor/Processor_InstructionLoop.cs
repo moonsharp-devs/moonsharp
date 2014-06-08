@@ -43,6 +43,9 @@ namespace MoonSharp.Interpreter.Execution.VM
 					case OpCode.Add:
 						ExecAdd(i);
 						break;
+					case OpCode.Concat:
+						ExecConcat(i);
+						break;
 					case OpCode.Neg:
 						ExecNeg(i);
 						break;
@@ -428,6 +431,17 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 			if (r.Type == DataType.Number && l.Type == DataType.Number)
 				m_ValueStack.Push(new RValue(l.Number + r.Number));
+			else
+				throw new NotImplementedException("Meta operators");
+		}
+
+		private void ExecConcat(Instruction i)
+		{
+			RValue r = m_ValueStack.Pop();
+			RValue l = m_ValueStack.Pop();
+
+			if ((r.Type == DataType.String || r.Type == DataType.Number) && (l.Type == DataType.String || l.Type == DataType.Number))
+				m_ValueStack.Push(new RValue(l.AsString() + r.AsString()));
 			else
 				throw new NotImplementedException("Meta operators");
 		}

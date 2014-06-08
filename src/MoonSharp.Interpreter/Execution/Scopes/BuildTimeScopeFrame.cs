@@ -40,9 +40,16 @@ namespace MoonSharp.Interpreter.Execution
 
 		public int Define(string name)
 		{
-			m_IndexList.Add(name, MaxIndex - BaseIndex);
-			m_RevIndexList.Add(MaxIndex - BaseIndex, name);
-			return MaxIndex++;
+			if (!m_IndexList.ContainsKey(name))
+			{
+				m_IndexList.Add(name, MaxIndex - BaseIndex);
+				m_RevIndexList.Add(MaxIndex - BaseIndex, name);
+				return MaxIndex++;
+			}
+			else
+			{
+				return m_IndexList[name];
+			}
 		}
 
 	}
