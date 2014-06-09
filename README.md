@@ -14,6 +14,7 @@ The project has just been started,  yet it is able to parse most Lua structures 
 **Roadmap**
 
 * support for all core language structures (see documentation for differences between Moon# and Lua)
+* compatibility with all applyable tests in Lua Test Suite (http://www.lua.org/tests/5.2/) and Lua Test More (http://fperrad.github.io/lua-TestMore/) 
 * optimizations 
 * better integration between Lua/Moon# tables and CLR objects
 * debugger embeddable in applications using Moon# 
