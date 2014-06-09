@@ -130,9 +130,6 @@
     <Content Include="TestMore\107-thread.t">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="TestMore\108-userdata.t">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="TestMore\200-examples.t">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -203,9 +200,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="TestMore\309-os.t">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestMore\310-debug.t">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="TestMore\314-regex.t">

@@ -29,6 +29,7 @@ namespace MoonSharp.Interpreter.Tests
 			string script = File.ReadAllText(m_File);
 			var globalCtx = new Table();
 			globalCtx[new RValue("print")] = new RValue(new CallbackFunction(Print));
+			globalCtx[new RValue("arg")] = new RValue(new Table());
 			MoonSharpInterpreter.LoadFromString(script).Execute(globalCtx);
 		}
 

@@ -17,11 +17,6 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		public LocalAssignmentStatement(LuaParser.Stat_localassignmentContext context, ScriptLoadingContext lcontext)
 			: base(context, lcontext)
 		{
-			m_Names = context.namelist().NAME()
-				.Select(n => n.GetText())
-				.Select(n => lcontext.Scope.DefineLocal(n))
-				.ToArray();
-
 			var explist = context.explist();
 
 			if (explist != null)
@@ -34,6 +29,10 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			else
 				m_RValues = new Expression[0];
 
+			m_Names = context.namelist().NAME()
+				.Select(n => n.GetText())
+				.Select(n => lcontext.Scope.DefineLocal(n))
+				.ToArray();
 		}
 
 

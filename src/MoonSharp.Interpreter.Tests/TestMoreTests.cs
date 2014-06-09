@@ -51,7 +51,7 @@ namespace MoonSharp.Interpreter.Tests
 		}
 
 
-		[Test]
+		[Test] [Ignore]
 		public void TestMore_015_forlist()
 		{
 			TapRunner.Run(@"TestMore\015-forlist.t");
@@ -59,6 +59,7 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
+		[Ignore]
 		public void TestMore_101_boolean()
 		{
 			TapRunner.Run(@"TestMore\101-boolean.t");
@@ -66,6 +67,7 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
+		[Ignore]
 		public void TestMore_102_function()
 		{
 			TapRunner.Run(@"TestMore\102-function.t");
@@ -73,6 +75,7 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
+		[Ignore]
 		public void TestMore_103_nil()
 		{
 			TapRunner.Run(@"TestMore\103-nil.t");
@@ -80,6 +83,7 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
+		[Ignore]
 		public void TestMore_104_number()
 		{
 			TapRunner.Run(@"TestMore\104-number.t");
@@ -87,6 +91,7 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
+		[Ignore]
 		public void TestMore_105_string()
 		{
 			TapRunner.Run(@"TestMore\105-string.t");
@@ -94,6 +99,7 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
+		[Ignore]
 		public void TestMore_106_table()
 		{
 			TapRunner.Run(@"TestMore\106-table.t");
@@ -101,6 +107,7 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
+		[Ignore]
 		public void TestMore_107_thread()
 		{
 			TapRunner.Run(@"TestMore\107-thread.t");
@@ -108,6 +115,7 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
+		[Ignore]
 		public void TestMore_108_userdata()
 		{
 			TapRunner.Run(@"TestMore\108-userdata.t");
@@ -115,6 +123,7 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
+		[Ignore]
 		public void TestMore_200_examples()
 		{
 			TapRunner.Run(@"TestMore\200-examples.t");
@@ -122,6 +131,7 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
+		[Ignore]
 		public void TestMore_201_assign()
 		{
 			TapRunner.Run(@"TestMore\201-assign.t");
@@ -129,6 +139,7 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
+		[Ignore]
 		public void TestMore_202_expr()
 		{
 			TapRunner.Run(@"TestMore\202-expr.t");
@@ -136,6 +147,7 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
+		[Ignore]
 		public void TestMore_203_lexico()
 		{
 			TapRunner.Run(@"TestMore\203-lexico.t");
@@ -143,6 +155,7 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
+		[Ignore]
 		public void TestMore_204_grammar()
 		{
 			TapRunner.Run(@"TestMore\204-grammar.t");
@@ -150,6 +163,7 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
+		[Ignore]
 		public void TestMore_211_scope()
 		{
 			TapRunner.Run(@"TestMore\211-scope.t");
@@ -157,6 +171,7 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
+		[Ignore]
 		public void TestMore_212_function()
 		{
 			TapRunner.Run(@"TestMore\212-function.t");
@@ -164,6 +179,7 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
+		[Ignore]
 		public void TestMore_213_closure()
 		{
 			TapRunner.Run(@"TestMore\213-closure.t");
@@ -171,6 +187,7 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
+		[Ignore]
 		public void TestMore_214_coroutine()
 		{
 			TapRunner.Run(@"TestMore\214-coroutine.t");
@@ -178,6 +195,7 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
+		[Ignore]
 		public void TestMore_221_table()
 		{
 			TapRunner.Run(@"TestMore\221-table.t");
@@ -185,6 +203,7 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
+		[Ignore]
 		public void TestMore_222_constructor()
 		{
 			TapRunner.Run(@"TestMore\222-constructor.t");
@@ -192,6 +211,7 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
+		[Ignore]
 		public void TestMore_223_iterator()
 		{
 			TapRunner.Run(@"TestMore\223-iterator.t");
@@ -199,6 +219,7 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
+		[Ignore]
 		public void TestMore_231_metatable()
 		{
 			TapRunner.Run(@"TestMore\231-metatable.t");
@@ -206,6 +227,7 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
+		[Ignore]
 		public void TestMore_232_object()
 		{
 			TapRunner.Run(@"TestMore\232-object.t");
@@ -213,6 +235,7 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
+		[Ignore]
 		public void TestMore_241_standalone()
 		{
 			TapRunner.Run(@"TestMore\241-standalone.t");
@@ -220,6 +243,7 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
+		[Ignore]
 		public void TestMore_242_luac()
 		{
 			TapRunner.Run(@"TestMore\242-luac.t");
@@ -227,6 +251,7 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
+		[Ignore]
 		public void TestMore_301_basic()
 		{
 			TapRunner.Run(@"TestMore\301-basic.t");
@@ -234,6 +259,7 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
+		[Ignore]
 		public void TestMore_303_package()
 		{
 			TapRunner.Run(@"TestMore\303-package.t");
@@ -241,6 +267,7 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
+		[Ignore]
 		public void TestMore_304_string()
 		{
 			TapRunner.Run(@"TestMore\304-string.t");
@@ -248,6 +275,7 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
+		[Ignore]
 		public void TestMore_305_table()
 		{
 			TapRunner.Run(@"TestMore\305-table.t");
@@ -255,6 +283,7 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
+		[Ignore]
 		public void TestMore_306_math()
 		{
 			TapRunner.Run(@"TestMore\306-math.t");
@@ -262,6 +291,7 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
+		[Ignore]
 		public void TestMore_307_bit()
 		{
 			TapRunner.Run(@"TestMore\307-bit.t");
@@ -269,6 +299,7 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
+		[Ignore]
 		public void TestMore_308_io()
 		{
 			TapRunner.Run(@"TestMore\308-io.t");
@@ -276,6 +307,7 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
+		[Ignore]
 		public void TestMore_309_os()
 		{
 			TapRunner.Run(@"TestMore\309-os.t");
@@ -283,6 +315,7 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
+		[Ignore]
 		public void TestMore_310_debug()
 		{
 			TapRunner.Run(@"TestMore\310-debug.t");
@@ -290,6 +323,7 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
+		[Ignore]
 		public void TestMore_314_regex()
 		{
 			TapRunner.Run(@"TestMore\314-regex.t");
@@ -297,6 +331,7 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
+		[Ignore]
 		public void TestMore_320_stdin()
 		{
 			TapRunner.Run(@"TestMore\320-stdin.t");

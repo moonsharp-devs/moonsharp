@@ -415,6 +415,7 @@ namespace MoonSharp.Interpreter.Execution
 				throw new ScriptRuntimeException(null, "Assigning on r-value");
 
 			this.Boolean = value.Boolean;
+			this.Callback = value.Callback;
 			this.Function = value.Function;
 			this.Number = value.Number;
 			this.ReadOnly = false;

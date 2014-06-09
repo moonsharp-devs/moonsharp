@@ -124,7 +124,7 @@ local v = a[5]()
 if v == 5 then
     print("ok 36 - for & upval")
 else
-    print("not ok 36 - for & upval")
+    print("not ok 36 - for & upval #", v)
     print("#", v)
 end
 

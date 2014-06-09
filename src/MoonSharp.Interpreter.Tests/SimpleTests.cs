@@ -34,6 +34,25 @@ namespace MoonSharp.Interpreter.Tests
 			Assert.AreEqual("world", args[1].String);
 		}
 
+		[Test]
+		public void CSharpStaticFunctionCallRedef()
+		{
+			IList<RValue> args = null;
+
+			string script = "local print = print; print(\"hello\", \"world\");";
+
+			var globalCtx = new Table();
+			globalCtx[new RValue("print")] = new RValue(new CallbackFunction(a => { args = a.ToArray(); return new RValue(1234.0); }));
+
+			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(globalCtx);
+
+			Assert.AreEqual(2, args.Count);
+			Assert.AreEqual(DataType.String, args[0].Type);
+			Assert.AreEqual("hello", args[0].String);
+			Assert.AreEqual(DataType.String, args[1].Type);
+			Assert.AreEqual("world", args[1].String);
+			Assert.AreEqual(DataType.Nil, res.Type);
+		}
 
 		[Test]
 		public void CSharpStaticFunctionCall()
