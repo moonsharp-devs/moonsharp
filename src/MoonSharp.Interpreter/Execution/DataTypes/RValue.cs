@@ -11,7 +11,7 @@ namespace MoonSharp.Interpreter.Execution
 	public sealed class RValue
 	{
 		static int s_RefIDCounter = 0;
-		private int m_RefID = Interlocked.Increment(ref s_RefIDCounter);
+		private int m_RefID = ++s_RefIDCounter;
 
 		public int ReferenceID { get { return m_RefID; } }
 

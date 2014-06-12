@@ -16,5 +16,10 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		{
 			Label = context.label().NAME().GetText();
 		}
+
+		public override void Compile(Execution.VM.Chunk bc)
+		{
+			throw new NotImplementedException();
+		}
 	}
 }

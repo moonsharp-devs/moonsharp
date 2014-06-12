@@ -24,7 +24,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		public override void Compile(Execution.VM.Chunk bc)
 		{
 			m_Expression.Compile(bc);
-			bc.Exit();
+			//bc.Exit();
 			bc.Ret(1);
 		}
 	}

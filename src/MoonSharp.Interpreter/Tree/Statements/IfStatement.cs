@@ -15,12 +15,12 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		{
 			public Expression Exp;
 			public Statement Block;
-			public RuntimeScopeFrame StackFrame;
+			public RuntimeScopeBlock StackFrame;
 		}
 
 		List<IfBlock> m_Ifs = new List<IfBlock>();
 		Statement m_Else = null;
-		RuntimeScopeFrame m_ElseStackFrame;
+		RuntimeScopeBlock m_ElseStackFrame;
 
 
 		public IfStatement(LuaParser.Stat_ifblockContext context, ScriptLoadingContext lcontext)
@@ -36,7 +36,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 
 				lcontext.Scope.PushBlock();
 				var ifblock = new IfBlock() { Exp = NodeFactory.CreateExpression(exp, lcontext), Block = NodeFactory.CreateStatement(blk, lcontext) };
-				ifblock.StackFrame = lcontext.Scope.Pop();
+				ifblock.StackFrame = lcontext.Scope.PopBlock();
 
 				m_Ifs.Add(ifblock);
 			}
@@ -45,7 +45,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			{
 				lcontext.Scope.PushBlock();
 				m_Else = NodeFactory.CreateStatement(context.block()[bcount - 1], lcontext);
-				m_ElseStackFrame = lcontext.Scope.Pop();
+				m_ElseStackFrame = lcontext.Scope.PopBlock();
 			}
 		}
 

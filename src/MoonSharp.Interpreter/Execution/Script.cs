@@ -42,7 +42,7 @@ namespace MoonSharp.Interpreter.Execution
 
 			using (var _ = new CodeChrono("MoonSharpScript.Execute"))
 			{
-				return m_Main.Execute();
+				return m_Main.InvokeRoot();
 			}
 		}
 

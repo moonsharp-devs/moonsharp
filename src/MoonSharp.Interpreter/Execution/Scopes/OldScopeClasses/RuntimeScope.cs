@@ -8,15 +8,15 @@ using MoonSharp.Interpreter.DataStructs;
 
 namespace MoonSharp.Interpreter.Execution
 {
-	public class RuntimeScope
+	public class RuntimeScope_UNUSED
 	{
 		Table m_GlobalTable;
 		FastStack<RValue> m_ScopeStack = new FastStack<RValue>(131072); // start with a 512KB scope stack
 		FastStack<int> m_LocalBaseIndexes = new FastStack<int>(16384);
 		FastStack<ClosureContext> m_ClosureStack = new FastStack<ClosureContext>(4096);
-		FastStack<RuntimeScopeFrame> m_ScopeFrames = new FastStack<RuntimeScopeFrame>(8192);
+		FastStack<RuntimeScopeFrame_UNUSED> m_ScopeFrames = new FastStack<RuntimeScopeFrame_UNUSED>(8192);
 
-		public RuntimeScope()
+		public RuntimeScope_UNUSED()
 		{
 		}
 
@@ -36,7 +36,7 @@ namespace MoonSharp.Interpreter.Execution
 			m_ClosureStack.RemoveLast();
 		}
 
-		public void PushFrame(RuntimeScopeFrame frame)
+		public void PushFrame(RuntimeScopeFrame_UNUSED frame)
 		{
 			int size = frame.Count;
 
@@ -49,16 +49,16 @@ namespace MoonSharp.Interpreter.Execution
 
 		}
 
-		public void PopFrame(RuntimeScopeFrame frame)
+		public void PopFrame(RuntimeScopeFrame_UNUSED frame)
 		{
 			System.Diagnostics.Debug.Assert(frame == m_ScopeFrames.Peek());
 			PopFrame();
 		}
 
 
-		public RuntimeScopeFrame PopFrame()
+		public RuntimeScopeFrame_UNUSED PopFrame()
 		{
-			RuntimeScopeFrame frame = m_ScopeFrames.Pop();
+			RuntimeScopeFrame_UNUSED frame = m_ScopeFrames.Pop();
 
 			int size = frame.Count;
 			if (size > 0)
@@ -78,7 +78,7 @@ namespace MoonSharp.Interpreter.Execution
 			while (!PopFrame().RestartOfBase) ;
 		}
 
-		public void PopFramesToFrame(RuntimeScopeFrame runtimeScopeFrame)
+		public void PopFramesToFrame(RuntimeScopeFrame_UNUSED runtimeScopeFrame)
 		{
 			while (m_ScopeFrames.Peek() != runtimeScopeFrame)
 				PopFrame();

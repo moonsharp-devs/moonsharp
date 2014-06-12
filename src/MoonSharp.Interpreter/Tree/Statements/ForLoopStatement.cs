@@ -12,7 +12,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 	class ForLoopStatement : Statement
 	{
 		//for' NAME '=' exp ',' exp (',' exp)? 'do' block 'end'
-		RuntimeScopeFrame m_StackFrame;
+		RuntimeScopeBlock m_StackFrame;
 		Statement m_InnerBlock;
 		LRef m_VarName;
 		Expression m_Start, m_End, m_Step;
@@ -33,7 +33,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			lcontext.Scope.PushBlock();
 			m_VarName = lcontext.Scope.DefineLocal(context.NAME().GetText());
 			m_InnerBlock = NodeFactory.CreateStatement(context.block(), lcontext);
-			m_StackFrame = lcontext.Scope.Pop();
+			m_StackFrame = lcontext.Scope.PopBlock();
 		}
 
 		public override void Compile(Chunk bc)

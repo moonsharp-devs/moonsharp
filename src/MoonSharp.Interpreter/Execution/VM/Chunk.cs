@@ -132,10 +132,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 		{
 			Emit(new Instruction() { OpCode = OpCode.Debug, Name = str.Substring(0, Math.Min(32, str.Length)) });
 		}
-		public void DebugFn(string fnname)
-		{
-			Emit(new Instruction() { OpCode = OpCode.DebugFn, Name = fnname });
-		}
 
 		//[Conditional("EMIT_DEBUG_OPS")]
 		public void Debug(Antlr4.Runtime.Tree.IParseTree parseTree)
@@ -144,19 +140,19 @@ namespace MoonSharp.Interpreter.Execution.VM
 			Emit(new Instruction() { OpCode = OpCode.Debug, Name = str.Substring(0, Math.Min(32, str.Length)) });
 		}
 
-		public Instruction Enter(RuntimeScopeFrame runtimeScopeFrame)
+		public Instruction Enter(RuntimeScopeBlock runtimeScopeBlock)
 		{
-			return Emit(new Instruction() { OpCode = OpCode.Enter, Frame = runtimeScopeFrame });
+			return Emit(new Instruction() { OpCode = OpCode.Enter, Block = runtimeScopeBlock });
 		}
 
-		public Instruction Leave(RuntimeScopeFrame runtimeScopeFrame)
+		public Instruction Leave(RuntimeScopeBlock runtimeScopeBlock)
 		{
-			return Emit(new Instruction() { OpCode = OpCode.Leave });
+			return Emit(new Instruction() { OpCode = OpCode.Leave, Block = runtimeScopeBlock });
 		}
 
-		public Instruction Exit(RuntimeScopeFrame runtimeScopeFrame = null)
+		public Instruction Exit(RuntimeScopeBlock runtimeScopeBlock = null)
 		{
-			return Emit(new Instruction() { OpCode = OpCode.Exit, Frame = runtimeScopeFrame });
+			return Emit(new Instruction() { OpCode = OpCode.Exit, Block = runtimeScopeBlock });
 		}
 
 		public Instruction Closure(LRef[] symbols, int jmpnum)
@@ -236,6 +232,16 @@ namespace MoonSharp.Interpreter.Execution.VM
 		public Instruction Method()
 		{
 			return Emit(new Instruction() { OpCode = OpCode.Method });
+		}
+
+		public Instruction BeginFn(RuntimeScopeFrame m_StackFrame, string funcName)
+		{
+			return Emit(new Instruction() { OpCode = OpCode.BeginFn, 
+				SymbolList = m_StackFrame.DebugSymbols.ToArray(), 
+				NumVal = m_StackFrame.Count,
+				NumVal2 = m_StackFrame.ToFirstBlock,
+				Name = funcName 
+			});
 		}
 	}
 }

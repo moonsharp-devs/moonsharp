@@ -77,7 +77,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 			m_Statement = NodeFactory.CreateStatement(context.block(), lcontext);
 
-			m_StackFrame = lcontext.Scope.Pop();
+			m_StackFrame = lcontext.Scope.PopFunction();
 
 			lcontext.Scope.LeaveClosure();
 		}
@@ -101,15 +101,12 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 			Instruction I = bc.Jump(OpCode.Jump, -1);
 
-			bc.DebugFn(friendlyName ?? "<anonymous>");
-
-			bc.Enter(m_StackFrame);
+			bc.BeginFn(m_StackFrame, friendlyName ?? "<anonymous>");
 
 			if (m_ParamNames.Length > 0)
 				bc.Args(m_ParamNames);
 
 			m_Statement.Compile(bc);
-			bc.Leave(m_StackFrame);
 
 			bc.ExitClsr();
 

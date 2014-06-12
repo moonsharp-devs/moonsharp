@@ -9,9 +9,9 @@ namespace MoonSharp.Interpreter.Execution.VM
 {
 	sealed partial class Processor
 	{
-		public RValue Execute()
+		private RValue Processing_Loop()
 		{
-			while (m_InstructionPtr < m_CurChunk.Code.Count && !m_Terminate)
+			while (m_InstructionPtr < m_CurChunk.Code.Count && m_InstructionPtr >= 0)
 			{
 				Instruction i = m_CurChunk.Code[m_InstructionPtr];
 
@@ -26,13 +26,12 @@ namespace MoonSharp.Interpreter.Execution.VM
 				{
 					case OpCode.Nop:
 					case OpCode.Debug:
-					case OpCode.DebugFn:
 						break;
 					case OpCode.Pop:
 						m_ValueStack.RemoveLast(i.NumVal);
 						break;
 					case OpCode.Load:
-						m_ValueStack.Push(m_Scope.Get(i.Symbol));
+						m_ValueStack.Push(this.GetGenericSymbol(i.Symbol));
 						break;
 					case OpCode.Literal:
 						m_ValueStack.Push(i.Value);
@@ -102,19 +101,20 @@ namespace MoonSharp.Interpreter.Execution.VM
 						m_ValueStack.Push(RValue.FromPotentiallyNestedTuple(StackTopToArrayReverse(i.NumVal, true)));
 						break;
 					case OpCode.Enter:
-						m_Scope.PushFrame(i.Frame);
+						NilifyBlockData(i.Block);
 						break;
 					case OpCode.Leave:
-						m_Scope.PopFrame();
-						break;
 					case OpCode.Exit:
-						ExecExit(i);
+						ClearBlockData(i.Block, i.OpCode == OpCode.Exit);
 						break;
 					case OpCode.Closure:
-						m_ValueStack.Push(new RValue(new Closure(i.NumVal, i.SymbolList, m_Scope)));
+						m_ValueStack.Push(new RValue(new Closure(i.NumVal, i.SymbolList, m_ExecutionStack.Peek().LocalScope)));
 						break;
 					case OpCode.ExitClsr:
-						m_Scope.LeaveClosure();
+						this.LeaveClosure();
+						break;
+					case OpCode.BeginFn:
+						ExecBeginFn(i);
 						break;
 					case OpCode.Args:
 						ExecArgs(i);
@@ -177,6 +177,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		}
 
+
+
 		private void ExecJNil(Instruction i)
 		{
 			RValue v = m_ValueStack.Pop();
@@ -232,19 +234,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 			m_ValueStack.Push(v);
 		}
 
-		private void ExecExit(Instruction i)
-		{
-			if (i.Frame == null)
-			{
-				m_Scope.PopFramesToFunction();
-				if (m_ExecutionStack.Count > 0)
-					m_Scope.LeaveClosure();
-			}
-			else
-			{
-				m_Scope.PopFramesToFrame(i.Frame);
-			}
-		}
 
 		private void ExecJFor(Instruction i)
 		{
@@ -286,12 +275,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		private void ExecRet(Instruction i)
 		{
-			if (m_ExecutionStack.Count == 0)
-			{
-				m_Terminate = true;
-				return;
-			}
-
 			if (i.NumVal == 0)
 			{
 				int retpoint = PopToBasePointer();
@@ -312,6 +295,21 @@ namespace MoonSharp.Interpreter.Execution.VM
 			else
 			{
 				throw new InternalErrorException("RET supports only 0 and 1 ret val scenarios");
+			}
+		}
+
+		private void ExecBeginFn(Instruction i)
+		{
+			CallStackItem c = m_ExecutionStack.Peek();
+			c.Debug_Symbols = i.SymbolList;
+			c.LocalScope = new RValue[i.NumVal];
+
+			if (i.NumVal2 >= 0 && i.NumVal > 0)
+			{
+				for (int idx = 0; idx < i.NumVal2; idx++)
+				{
+					c.LocalScope[idx] = new RValue();
+				}
 			}
 		}
 
@@ -339,11 +337,11 @@ namespace MoonSharp.Interpreter.Execution.VM
 			{
 				if (i >= numargs)
 				{
-					m_Scope.Assign(I.SymbolList[i], new RValue());
+					this.AssignGenericSymbol(I.SymbolList[i], new RValue());
 				}
 				else
 				{
-					m_Scope.Assign(I.SymbolList[i], m_ValueStack.Peek(numargs - i).CloneAsWritable());
+					this.AssignGenericSymbol(I.SymbolList[i], m_ValueStack.Peek(numargs - i).CloneAsWritable());
 				}
 			}
 		}
@@ -370,7 +368,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 					Debug_EntryPoint = fn.Function.ByteCodeLocation
 				});
 				m_InstructionPtr = fn.Function.ByteCodeLocation;
-				fn.Function.EnterClosureBeforeCall(m_Scope);
+				this.EnterClosure(fn.Function.ClosureContext);
 			}
 			else
 			{
@@ -546,7 +544,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			}
 			else
 			{
-				m_Scope.Assign(l, r.ToSimplestValue());
+				this.AssignGenericSymbol(l, r.ToSimplestValue());
 			}
 		}
 
@@ -608,7 +606,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		private void ExecSymStorN(Instruction i)
 		{
-			m_Scope.Assign(i.Symbol, m_ValueStack.Peek());
+			this.AssignGenericSymbol(i.Symbol, m_ValueStack.Peek());
 		}
 
 

@@ -2,55 +2,85 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using MoonSharp.Interpreter.Execution;
 
-namespace MoonSharp.Interpreter.Execution
+namespace MoonSharp.Interpreter.Execution.Scopes
 {
-	class BuildTimeScopeFrame
+	internal class BuildTimeScopeFrame
 	{
-		Dictionary<string, int> m_IndexList = new Dictionary<string, int>();
-		Dictionary<int, string> m_RevIndexList = new Dictionary<int, string>();
+		BuildTimeScopeBlock m_ScopeTreeRoot;
+		BuildTimeScopeBlock m_ScopeTreeHead;
+		RuntimeScopeFrame m_ScopeFrame = new RuntimeScopeFrame();
 
-		public int BaseIndex { get; private set; }
-		public int StartIndex { get; private set; }
-
-		public int MaxIndex { get; private set; }
-
-		public bool Breaking { get; private set; }
-
-		public BuildTimeScopeFrame(int baseIndex, int startIndex, bool breaking)
+		internal BuildTimeScopeFrame()
 		{
-			BaseIndex = baseIndex;
-			StartIndex = MaxIndex = startIndex;
-			Breaking = breaking;
+			m_ScopeTreeHead = m_ScopeTreeRoot = new BuildTimeScopeBlock(null);
 		}
 
-		public int Find(string name)
+		internal void PushBlock()
 		{
-			if (m_IndexList.ContainsKey(name))
-				return m_IndexList[name];
-
-			return -1;
+			m_ScopeTreeHead = m_ScopeTreeHead.AddChild();
 		}
 
-		public string FindRev(int idx)
+		internal RuntimeScopeBlock PopBlock()
 		{
-			return m_RevIndexList[idx];
+			var tree = m_ScopeTreeHead;
+
+			m_ScopeTreeHead = m_ScopeTreeHead.Parent;
+
+			if (m_ScopeTreeHead == null)
+				throw new InternalErrorException("Can't pop block - stack underflow");
+
+			return tree.ScopeBlock;
 		}
 
-		public int Define(string name)
+		internal RuntimeScopeFrame GetRuntimeFrameData()
 		{
-			if (!m_IndexList.ContainsKey(name))
+			if (m_ScopeTreeHead != m_ScopeTreeRoot)
+				throw new InternalErrorException("Misaligned scope frames/blocks!");
+
+			m_ScopeFrame.ToFirstBlock = m_ScopeTreeRoot.ScopeBlock.To;
+
+			return m_ScopeFrame;
+		}
+
+		internal LRef Find(string name)
+		{
+			for (var tree = m_ScopeTreeHead; tree != null; tree = tree.Parent)
 			{
-				m_IndexList.Add(name, MaxIndex - BaseIndex);
-				m_RevIndexList.Add(MaxIndex - BaseIndex, name);
-				return MaxIndex++;
+				LRef l = tree.Find(name);
+
+				if (l != null)
+					return l;
 			}
-			else
-			{
-				return m_IndexList[name];
-			}
+
+			return null;
 		}
 
+		internal LRef DefineLocal(string name)
+		{
+			return m_ScopeTreeHead.Define(name);
+		}
+
+		internal LRef TryDefineLocal(string name)
+		{
+			return m_ScopeTreeHead.Find(name) ?? m_ScopeTreeHead.Define(name);
+		}
+
+		internal void ResolveLRefs()
+		{
+			m_ScopeTreeRoot.ResolveLRefs(this);
+		}
+
+		internal int AllocVar(LRef var)
+		{
+			var.i_Index = m_ScopeFrame.DebugSymbols.Count;
+			m_ScopeFrame.DebugSymbols.Add(var);
+			return var.i_Index;
+		}
+
+		internal int GetPosForNextVar()
+		{
+			return m_ScopeFrame.DebugSymbols.Count;
+		}
 	}
 }

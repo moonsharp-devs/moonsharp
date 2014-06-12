@@ -14,7 +14,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 		public RValue Value;
 		public int NumVal;
 		public int NumVal2;
-		public RuntimeScopeFrame Frame;
+		public RuntimeScopeBlock Block;
 		public bool Breakpoint;
 
 		public override string ToString()
@@ -31,10 +31,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 					break;
 				case OpCode.Enter:
 				case OpCode.Exit:
-					append = string.Format("{0}{1}", GenSpaces(), FrameToString(Frame));
+					append = string.Format("{0}{1}", GenSpaces(), FrameToString(Block));
 					break;
-				case OpCode.DebugFn:
-					return string.Format("[[ function {0} ]]", Name);
 				case OpCode.Debug:
 					return string.Format("[[ {0} ]]", Name);
 				case OpCode.Load:
@@ -77,12 +75,12 @@ namespace MoonSharp.Interpreter.Execution.VM
 			return this.OpCode.ToString().ToUpperInvariant() + append;
 		}
 
-		private string FrameToString(RuntimeScopeFrame frame)
+		private string FrameToString(RuntimeScopeBlock frame)
 		{
 			if (frame == null)
 				return "<null>";
 			else
-				return string.Format("{0}({1})", frame.RestartOfBase ? "function" : "block", frame.Count);
+				return frame.ToString();
 		}
 
 		private string PurifyFromNewLines(RValue Value)
@@ -94,6 +92,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 		{
 			return new string(' ', 10 - this.OpCode.ToString().Length);
 		}
+
 
 
 	}

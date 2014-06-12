@@ -12,7 +12,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 	{
 		Expression m_Condition;
 		Statement m_Block;
-		RuntimeScopeFrame m_StackFrame;
+		RuntimeScopeBlock m_StackFrame;
 
 		public WhileStatement(LuaParser.Stat_whiledoloopContext context, ScriptLoadingContext lcontext)
 			: base(context, lcontext)
@@ -21,7 +21,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 
 			lcontext.Scope.PushBlock();
 			m_Block = NodeFactory.CreateStatement(context.block(), lcontext);
-			m_StackFrame = lcontext.Scope.Pop();
+			m_StackFrame = lcontext.Scope.PopBlock();
 		}
 
 

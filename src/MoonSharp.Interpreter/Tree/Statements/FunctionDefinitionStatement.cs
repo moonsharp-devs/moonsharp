@@ -72,7 +72,16 @@ namespace MoonSharp.Interpreter.Tree.Statements
 
 		public override void Compile(Execution.VM.Chunk bc)
 		{
-			if (m_Local || m_MethodName == null)
+			if (m_Local)
+			{
+				bc.Symbol(m_FuncName);
+				bc.Literal(RValue.Nil);
+				bc.Store();
+				bc.Symbol(m_FuncName);
+				m_FuncDef.Compile(bc, () => bc.Store(), m_FriendlyName);
+				return;
+			}
+			else if (m_MethodName == null)
 			{
 				bc.Symbol(m_FuncName);
 				m_FuncDef.Compile(bc, () => bc.Store(), m_FriendlyName);

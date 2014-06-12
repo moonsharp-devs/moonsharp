@@ -10,14 +10,14 @@ namespace MoonSharp.Interpreter.Tree.Statements
 	class ScopeBlockStatement : Statement
 	{
 		Statement m_Block;
-		RuntimeScopeFrame m_StackFrame;
+		RuntimeScopeBlock m_StackFrame;
 
 		public ScopeBlockStatement(LuaParser.Stat_doblockContext context, ScriptLoadingContext lcontext)
 			: base(context, lcontext)
 		{
 			lcontext.Scope.PushBlock();
 			m_Block = NodeFactory.CreateStatement(context.block(), lcontext);
-			m_StackFrame = lcontext.Scope.Pop();
+			m_StackFrame = lcontext.Scope.PopBlock();
 		}
 
 		public override void Compile(Execution.VM.Chunk bc)

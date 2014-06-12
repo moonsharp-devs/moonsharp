@@ -16,26 +16,39 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		FastStack<RValue> m_ValueStack = new FastStack<RValue>(131072);
 		FastStack<CallStackItem> m_ExecutionStack = new FastStack<CallStackItem>(131072);
-		RuntimeScope m_Scope;
+		FastStack<ClosureContext> m_ClosureStack = new FastStack<ClosureContext>(131072);
 
 		IDebugger m_DebuggerAttached = null;
 		DebuggerAction.ActionType m_DebuggerCurrentAction = DebuggerAction.ActionType.None;
 		int m_DebuggerCurrentActionTarget = -1;
 
+		Table m_GlobalTable = new Table();
+
 		public Processor(Chunk rootChunk)
 		{
 			m_RootChunk = m_CurChunk = rootChunk;
 			m_InstructionPtr = 0;
-			m_Scope = new RuntimeScope();
 		}
 
 		public void Reset(Table global)
 		{
 			m_CurChunk = m_RootChunk;
 			m_InstructionPtr = 0;
-			m_Scope.GlobalTable = global;
+			m_GlobalTable = global;
 		}
 
+		public RValue InvokeRoot()
+		{
+			m_ValueStack.Push(new RValue(0));  // func val
+			m_ValueStack.Push(new RValue(0));  // func args count
+			m_ExecutionStack.Push(new CallStackItem()
+			{
+				BasePointer = m_ValueStack.Count,
+				Debug_EntryPoint = 0,
+				ReturnAddress = -1,
+			});
 
+			return Processing_Loop();
+		}
 	}
 }

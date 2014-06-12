@@ -97,11 +97,11 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		private WatchItem Debugger_RefreshWatch(string name)
 		{
-			LRef L = m_Scope.FindRefByName(name);
+			LRef L = FindRefByName(name);
 
 			if (L != null)
 			{
-				RValue v = m_Scope.Get(L);
+				RValue v = this.GetGenericSymbol(L);
 
 				return new WatchItem()
 				{
@@ -126,7 +126,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 				var I = m_CurChunk.Code[c.Debug_EntryPoint];
 
-				string callname = I.OpCode == OpCode.DebugFn ? I.Name : null;
+				string callname = I.OpCode == OpCode.BeginFn ? I.Name : null;
 
 
 				wis.Add(new WatchItem()

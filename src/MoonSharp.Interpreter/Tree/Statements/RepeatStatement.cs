@@ -12,7 +12,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 	{
 		Expression m_Condition;
 		Statement m_Block;
-		RuntimeScopeFrame m_StackFrame;
+		RuntimeScopeBlock m_StackFrame;
 
 		public RepeatStatement(LuaParser.Stat_repeatuntilloopContext context, ScriptLoadingContext lcontext)
 			: base(context, lcontext)
@@ -20,7 +20,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			lcontext.Scope.PushBlock();
 			m_Block = NodeFactory.CreateStatement(context.block(), lcontext);
 			m_Condition = NodeFactory.CreateExpression(context.exp(), lcontext);
-			m_StackFrame = lcontext.Scope.Pop();
+			m_StackFrame = lcontext.Scope.PopBlock();
 		}
 
 

@@ -41,10 +41,10 @@ namespace MoonSharp.Interpreter.Tree
 				throw  RuntimeError(format, args);
 		}
 
-		public virtual void Compile(Chunk bc)
-		{
-			bc.Invalid(this.GetType().Name);
-		}
+		public abstract void Compile(Chunk bc);
+
+
+
 
 	}
 }

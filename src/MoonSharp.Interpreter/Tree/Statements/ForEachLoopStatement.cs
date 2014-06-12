@@ -10,7 +10,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 {
 	class ForEachLoopStatement : Statement
 	{
-		RuntimeScopeFrame m_StackFrame;
+		RuntimeScopeBlock m_StackFrame;
 		LRef[] m_Names;
 		Expression m_RValues;
 		Statement m_Block;
@@ -34,7 +34,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			
 			m_Block = NodeFactory.CreateStatement(context.block(), lcontext);
 
-			m_StackFrame = lcontext.Scope.Pop();
+			m_StackFrame = lcontext.Scope.PopBlock();
 		}
 
 		public override void Compile(Chunk bc)

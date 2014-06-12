@@ -234,13 +234,13 @@ namespace MoonSharp.Debugger
 			{
 				lvCallStack.Add(
 					item.Address.ToString("X8"),
-					item.Name ?? "(???)",
+					item.Name ?? ((item.RetAddress < 0) ? "<chunk-root>": "<??unknown??>"),
 					item.RetAddress.ToString("X8"),
 					item.BasePtr.ToString("X8")
 					).Tag = item.Address;
 			}
 
-			lvCallStack.Add("---", "(main)", "---", "---");
+			lvCallStack.Add("---", "<CLR>", "---", "---");
 
 			lvCallStack.EndUpdate();
 		}

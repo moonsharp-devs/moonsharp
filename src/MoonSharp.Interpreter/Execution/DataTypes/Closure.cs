@@ -14,20 +14,14 @@ namespace MoonSharp.Interpreter.Execution
 		private static ClosureContext emptyClosure = new ClosureContext();
 
 
-		internal Closure(int idx, LRef[] symbols, RuntimeScope scope)
+		internal Closure(int idx, LRef[] symbols, RValue[] localscope)
 		{
 			ByteCodeLocation = idx;
 
 			if (symbols.Length > 0)
-				ClosureContext = new ClosureContext(symbols, symbols.Select(s => scope.Get(s)));
+				ClosureContext = new ClosureContext(symbols, symbols.Select(s => localscope[s.i_Index]));
 			else
 				ClosureContext = emptyClosure;
 		}
-
-		internal void EnterClosureBeforeCall(RuntimeScope scope)
-		{
-			scope.EnterClosure(ClosureContext);
-		}
-
 	}
 }

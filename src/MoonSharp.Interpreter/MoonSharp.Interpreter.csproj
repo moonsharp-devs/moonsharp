@@ -75,6 +75,7 @@
   <ItemGroup>
     <Compile Include="CoreLib\BasicMethods.cs" />
     <Compile Include="CoreLib\MetaTableMethods.cs" />
+    <Compile Include="DataStructs\Extension_Methods.cs" />
     <Compile Include="DataStructs\FastStackDynamic.cs" />
     <Compile Include="DataStructs\Slice.cs" />
     <Compile Include="Debugging\DebuggerAction.cs" />
@@ -92,13 +93,18 @@
     <Compile Include="Execution\DataTypes\CallbackFunction.cs" />
     <Compile Include="Execution\Scopes\ClosureContext.cs" />
     <Compile Include="Execution\Scopes\LoopTracker.cs" />
-    <Compile Include="Execution\Scopes\BuildTimeScope.cs" />
-    <Compile Include="Execution\Scopes\BuildTimeScopeFrame.cs" />
+    <Compile Include="Execution\Scopes\OldScopeClasses\BuildTimeScope.cs" />
+    <Compile Include="Execution\Scopes\OldScopeClasses\BuildTimeScopeFrame.cs" />
     <Compile Include="Execution\Scopes\IClosureBuilder.cs" />
     <Compile Include="Execution\DataTypes\LRefType.cs" />
-    <Compile Include="Execution\Scopes\RuntimeScope.cs" />
-    <Compile Include="Execution\Scopes\RuntimeScopeFrame.cs" />
+    <Compile Include="Execution\Scopes\OldScopeClasses\RuntimeScope.cs" />
+    <Compile Include="Execution\Scopes\OldScopeClasses\RuntimeScopeFrame.cs" />
     <Compile Include="Execution\DataTypes\LRef.cs" />
+    <Compile Include="Execution\Scopes\BuildTimeScope.cs" />
+    <Compile Include="Execution\Scopes\BuildTimeScopeBlock.cs" />
+    <Compile Include="Execution\Scopes\BuildTimeScopeFrame.cs" />
+    <Compile Include="Execution\Scopes\RuntimeScopeBlock.cs" />
+    <Compile Include="Execution\Scopes\RuntimeScopeFrame.cs" />
     <Compile Include="Execution\ScriptLoadingContext.cs" />
     <Compile Include="Execution\DataTypes\DataType.cs" />
     <Compile Include="Execution\DataTypes\RValue.cs" />
@@ -115,6 +121,7 @@
     </Compile>
     <Compile Include="Execution\VM\Processor\Processor_Debugger.cs" />
     <Compile Include="Execution\VM\Processor\Processor_InstructionLoop.cs" />
+    <Compile Include="Execution\VM\Processor\Processor_Scope.cs" />
     <Compile Include="Execution\VM\Processor\Processor_UtilityFunctions.cs" />
     <Compile Include="Grammar\Lua.g4.lexer.cs">
       <DependentUpon>Lua.g4</DependentUpon>

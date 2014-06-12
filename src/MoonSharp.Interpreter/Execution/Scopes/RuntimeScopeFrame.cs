@@ -5,26 +5,20 @@ using System.Text;
 
 namespace MoonSharp.Interpreter.Execution
 {
-	public class RuntimeScopeFrame
+	public class RuntimeScopeFrame 
 	{
-		public List<LRef> m_DebugSymbols { get; private set;}
-		public int Count { get; private set;}
-		public bool RestartOfBase { get; private set; }
+		public List<LRef> DebugSymbols { get; private set; }
+		public int Count { get { return DebugSymbols.Count; } }
+		public int ToFirstBlock { get; internal set; }
 
-
-		public RuntimeScopeFrame(IEnumerable<LRef> symbols, int count, bool restartOfBase)
+		public RuntimeScopeFrame()
 		{
-			m_DebugSymbols = symbols.ToList();
-			Count = count;
-			RestartOfBase = restartOfBase;
-
-			if (Count != m_DebugSymbols.Count)
-				throw new Exception("WTF");
+			DebugSymbols = new List<LRef>();
 		}
 
 		public override string ToString()
 		{
-			return string.Format("{0} frame : #{1}", RestartOfBase ? "Function" : "Block", Count);
+			return string.Format("ScopeFrame : #{0}", Count);
 		}
 	}
 }

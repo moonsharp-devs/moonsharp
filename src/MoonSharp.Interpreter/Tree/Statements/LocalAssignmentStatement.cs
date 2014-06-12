@@ -31,7 +31,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 
 			m_Names = context.namelist().NAME()
 				.Select(n => n.GetText())
-				.Select(n => lcontext.Scope.DefineLocal(n))
+				.Select(n => lcontext.Scope.TryDefineLocal(n))
 				.ToArray();
 		}
 

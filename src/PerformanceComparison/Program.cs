@@ -1,4 +1,6 @@
-﻿using System;
+﻿#define PROFILER
+
+using System;
 using System.Collections.Generic;
 using MoonSharp.Interpreter.Diagnostics;
 using System.IO;
@@ -13,13 +15,17 @@ namespace PerformanceComparison
 {
 	class Program
 	{
+#if PROFILER
+		const int ITERATIONS = 10;
+#else
 		const int ITERATIONS = 1;
+#endif
 
 		static  string scriptText = @"
 			function move(n, src, dst, via)
 				if n > 0 then
 					move(n - 1, src, via, dst)
-					print(src, 'to', dst)
+					--print(src, 'to', dst)
 					move(n - 1, via, dst, src)
 				end
 			end
@@ -154,6 +160,7 @@ end
 
 			File.WriteAllText(@"c:\temp\hanoi.lua", scriptText);
 
+#if !PROFILER
 
 			var fn = lua.LoadFile(@"c:\temp\hanoi.lua");
 
@@ -163,6 +170,8 @@ end
 				fn.Call();
 			}
 			sw.Stop();
+
+#endif
 
 			Console.WriteLine("NLua  : {0} ms", sw.ElapsedMilliseconds);
 

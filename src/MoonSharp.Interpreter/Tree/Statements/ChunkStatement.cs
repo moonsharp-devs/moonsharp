@@ -17,14 +17,15 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		{
 			lcontext.Scope.PushFunction();
 			m_Block = NodeFactory.CreateStatement(context.block(), lcontext);
-			m_StackFrame = lcontext.Scope.Pop();
+			m_StackFrame = lcontext.Scope.PopFunction();
 		}
 
 		public override void Compile(Execution.VM.Chunk bc)
 		{
-			bc.Enter(m_StackFrame);
+			bc.BeginFn(m_StackFrame, "<chunk-root>");
 			m_Block.Compile(bc);
-			bc.Leave(m_StackFrame);
+			bc.Ret(0);
+			//bc.Leave(m_StackFrame);
 		}
 
 	}
