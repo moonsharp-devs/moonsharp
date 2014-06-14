@@ -108,8 +108,6 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 			m_Statement.Compile(bc);
 
-			bc.ExitClsr();
-
 			bc.Ret(0);
 
 			I.NumVal = bc.GetJumpPointForNextInstruction();

@@ -72,13 +72,13 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
-    <Compile Include="ClosureTests.cs" />
-    <Compile Include="LuaTestSuiteExtract.cs" />
+    <Compile Include="EndToEnd\ClosureTests.cs" />
+    <Compile Include="EndToEnd\LuaTestSuiteExtract.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SimpleTests.cs" />
-    <Compile Include="TableTests.cs" />
-    <Compile Include="TapRunner.cs" />
-    <Compile Include="TestMoreTests.cs" />
+    <Compile Include="EndToEnd\SimpleTests.cs" />
+    <Compile Include="EndToEnd\TableTests.cs" />
+    <Compile Include="TestMore\TapRunner.cs" />
+    <Compile Include="TestMore\TestMoreTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MoonSharp.Interpreter\MoonSharp.Interpreter.csproj">
@@ -217,6 +217,9 @@
     <Content Include="TestMore\rx_metachars">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Units\" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

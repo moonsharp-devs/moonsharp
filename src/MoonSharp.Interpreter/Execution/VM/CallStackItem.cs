@@ -13,6 +13,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 		public int BasePointer;
 		public int ReturnAddress;
 		public RValue[] LocalScope;
+		public ClosureContext ClosureScope;
 	}
 
 }

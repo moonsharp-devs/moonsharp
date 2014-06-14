@@ -74,9 +74,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CoreLib\BasicMethods.cs" />
+    <Compile Include="CoreLib\CoreLibModule.cs" />
     <Compile Include="CoreLib\MetaTableMethods.cs" />
     <Compile Include="DataStructs\Extension_Methods.cs" />
     <Compile Include="DataStructs\FastStackDynamic.cs" />
+    <Compile Include="DataStructs\LinkedListIndex.cs" />
     <Compile Include="DataStructs\Slice.cs" />
     <Compile Include="Debugging\DebuggerAction.cs" />
     <Compile Include="Debugging\IDebugger.cs" />
@@ -91,14 +93,11 @@
     <Compile Include="Errors\SyntaxErrorException.cs" />
     <Compile Include="Execution\DataTypes\Closure.cs" />
     <Compile Include="Execution\DataTypes\CallbackFunction.cs" />
+    <Compile Include="Execution\DataTypes\TablePair.cs" />
     <Compile Include="Execution\Scopes\ClosureContext.cs" />
     <Compile Include="Execution\Scopes\LoopTracker.cs" />
-    <Compile Include="Execution\Scopes\OldScopeClasses\BuildTimeScope.cs" />
-    <Compile Include="Execution\Scopes\OldScopeClasses\BuildTimeScopeFrame.cs" />
     <Compile Include="Execution\Scopes\IClosureBuilder.cs" />
     <Compile Include="Execution\DataTypes\LRefType.cs" />
-    <Compile Include="Execution\Scopes\OldScopeClasses\RuntimeScope.cs" />
-    <Compile Include="Execution\Scopes\OldScopeClasses\RuntimeScopeFrame.cs" />
     <Compile Include="Execution\DataTypes\LRef.cs" />
     <Compile Include="Execution\Scopes\BuildTimeScope.cs" />
     <Compile Include="Execution\Scopes\BuildTimeScopeBlock.cs" />

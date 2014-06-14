@@ -1,4 +1,4 @@
-﻿#define PROFILER
+﻿//#define PROFILER
 
 using System;
 using System.Collections.Generic;
@@ -16,12 +16,12 @@ namespace PerformanceComparison
 	class Program
 	{
 #if PROFILER
-		const int ITERATIONS = 10;
+		const int ITERATIONS = 1000;
 #else
 		const int ITERATIONS = 1;
 #endif
 
-		static  string scriptText = @"
+		static  string scriptText2 = @"
 			function move(n, src, dst, via)
 				if n > 0 then
 					move(n - 1, src, via, dst)
@@ -34,7 +34,7 @@ namespace PerformanceComparison
 				move(4, 1, 2, 3)
 			end
 			";
-		static  string scriptText2 = @"
+		static  string scriptText = @"
 N = 8
  
 board = {}

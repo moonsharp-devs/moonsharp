@@ -30,6 +30,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 					append = string.Format("{0}({1})", GenSpaces(), string.Join(",", SymbolList.Select(s => s.ToString()).ToArray()));
 					break;
 				case OpCode.Enter:
+				case OpCode.Leave:
 				case OpCode.Exit:
 					append = string.Format("{0}{1}", GenSpaces(), FrameToString(Block));
 					break;
@@ -53,6 +54,9 @@ namespace MoonSharp.Interpreter.Execution.VM
 				case OpCode.Incr:
 				case OpCode.Pop:
 					append = string.Format("{0}{1}", GenSpaces(), NumVal);
+					break;
+				case OpCode.BeginFn:
+					append = string.Format("{0}{1}:{2},{3}", GenSpaces(), Name, NumVal, NumVal2);
 					break;
 				case OpCode.JtOrPop:
 				case OpCode.JfOrPop:

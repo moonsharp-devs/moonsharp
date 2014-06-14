@@ -704,5 +704,32 @@ namespace MoonSharp.Interpreter.Tests
 
 		}
 
+		[Test]
+		public void ArgsDoNotChange()
+		{
+			string script = @"
+					local a = 1;
+					local b = 2;
+
+					function x(c, d)
+						c = c + 3;
+						d = d + 4;
+						return c + d;
+					end
+
+					return x(a, b+1), a, b;
+								";
+
+			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(null);
+
+			Assert.AreEqual(3, res.Tuple.Length);
+			Assert.AreEqual(DataType.Number, res.Tuple[0].Type);
+			Assert.AreEqual(DataType.Number, res.Tuple[1].Type);
+			Assert.AreEqual(DataType.Number, res.Tuple[2].Type);
+			Assert.AreEqual(11, res.Tuple[0].Number);
+			Assert.AreEqual(1, res.Tuple[1].Number);
+			Assert.AreEqual(2, res.Tuple[2].Number);
+		}
+
 	}
 }

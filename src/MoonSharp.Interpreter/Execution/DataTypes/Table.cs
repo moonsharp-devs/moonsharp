@@ -2,157 +2,197 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MoonSharp.Interpreter.DataStructs;
+using MoonSharp.Interpreter.Execution.DataTypes;
 
 namespace MoonSharp.Interpreter.Execution
 {
 	public class Table
 	{
-		Dictionary<RValue, RValue> m_Symbols = new Dictionary<RValue, RValue>();
-		Dictionary<string, RValue> m_StringSymbols = new Dictionary<string, RValue>();
-		int m_LastConsecutiveInteger = 0;
-		int m_MaxInteger = 0;
+		LinkedList<TablePair> m_Values;
+		LinkedListIndex<RValue, TablePair> m_ValueMap;
+		LinkedListIndex<string, TablePair> m_StringMap;
+		LinkedListIndex<int, TablePair> m_ArrayMap;
 
+		int m_CachedLength = -1;
 
-		private void RebuildArrayIndex()
+		public Table()
 		{
-			var numberKeys = m_Symbols.Keys
-				.Where(t => t.Type == DataType.Number)
-				.Select(t => t.Number)
-				.OrderBy(t => t);
-
-			m_LastConsecutiveInteger = m_MaxInteger = 0;
-
-			foreach (double key in numberKeys)
-			{
-				UpdateIntegersOnAdd(key);
-			}
+			m_Values = new LinkedList<TablePair>();
+			m_StringMap = new LinkedListIndex<string, TablePair>(m_Values);
+			m_ArrayMap = new LinkedListIndex<int, TablePair>(m_Values);
+			m_ValueMap = new LinkedListIndex<RValue, TablePair>(m_Values);
 		}
 
-		private void UpdateIntegersOnAdd(double key)
+		private int GetIntegralKey(double d)
 		{
-			int ikey = (int)key;
+			int v = ((int)d);
 
-			if (ikey != key || ikey <= 0)
-				return;
+			if (d >= 1.0 && d == v)
+				return v;
 
-			if (ikey == m_LastConsecutiveInteger + 1)
-				m_LastConsecutiveInteger = ikey;
-
-			if (m_MaxInteger > ikey)
-
-			m_MaxInteger = Math.Max(m_MaxInteger, ikey);
+			return -1;
 		}
-
 
 		public RValue this[RValue key]
 		{
-			get { return GetSymbol(key); }
+			get 
+			{
+				if (key.Type == DataType.Number)
+				{
+					int idx = GetIntegralKey(key.Number);
+					if (idx > 0)
+					{
+						return GetValueOrNil(m_ArrayMap.Find(idx));
+					}
+				}
+				else if (key.Type == DataType.String)
+				{
+					return GetValueOrNil(m_StringMap.Find(key.String));
+				}
+
+				return GetValueOrNil(m_ValueMap.Find(key));
+			}
 			set 
 			{
+				if (key.Type == DataType.String)
+				{
+					this[key.String] = value;
+					return;
+				}
+
+				if (key.Type == DataType.Number)
+				{
+					int idx = GetIntegralKey(key.Number);
+
+					if (idx > 0)
+					{
+						this[idx] = value;
+						return;
+					}
+				}
+				
 				if (value.Type == DataType.Nil)
 				{
-					Remove(key);
+					m_ValueMap.Remove(key);
+					m_CachedLength = -1;
 				}
 				else
 				{
-					Set(key, value);
+					if (m_ValueMap.Set(key, new TablePair(key, value)))
+						m_CachedLength = -1;
 				}
 			}
 		}
 
-		public IEnumerable<KeyValuePair<RValue, RValue>> DebugPairs()
+		private RValue GetValueOrNil(LinkedListNode<TablePair> linkedListNode)
 		{
-			foreach (var kvp in m_Symbols)
-				yield return kvp;
+			if (linkedListNode != null)
+				return linkedListNode.Value.Value;
 
-			foreach (var kvp in m_StringSymbols)
-				yield return new KeyValuePair<RValue, RValue>(new RValue(kvp.Key), kvp.Value);
+			return RValue.Nil;
 		}
-
-		private void Remove(RValue key)
-		{
-			if (key.Type == DataType.String)
-			{
-				m_StringSymbols.Remove(key.String);
-			}
-			else
-			{
-				m_Symbols.Remove(key);
-
-				if (key.Type == DataType.Number)
-					RebuildArrayIndex(); // TODO: Optimize
-			}
-		}
-
-		public void Set(RValue key, RValue value)
-		{
-			if (key.Type == DataType.String)
-			{
-				m_StringSymbols[key.String] = value.CloneAsWritable();
-			}
-			else
-			{
-				m_Symbols[key.Clone()] = value.CloneAsWritable();
-
-				if (key.Type == DataType.Number)
-					RebuildArrayIndex(); // TODO: Optimize
-			}
-		}
-
-		public bool HasStringSymbol(string symbol)
-		{
-			return m_StringSymbols.ContainsKey(symbol);
-		}
-
 
 		public RValue this[string key]
 		{
-			get 
+			get
 			{
-				RValue v;
-
-				if (m_StringSymbols.TryGetValue(key, out v))
-					return v;
-
-				return RValue.Nil;
+				return GetValueOrNil(m_StringMap.Find(key));
 			}
 			set
 			{
 				if (value.Type == DataType.Nil)
 				{
-					m_StringSymbols.Remove(key);
+					m_StringMap.Remove(key);
 				}
 				else
 				{
-					m_StringSymbols[key] = value;
+					m_StringMap.Set(key, new TablePair(new RValue(key), value));
 				}
 			}
 		}
 
-
-
-
-
-
-		public RValue GetSymbol(RValue key)
+		public RValue this[int key]
 		{
-			if (key.Type == DataType.String)
+			get
 			{
-				if (m_StringSymbols.ContainsKey(key.String))
-					return m_StringSymbols[key.String];
+				return GetValueOrNil(m_ArrayMap.Find(key));
 			}
-			else
+			set
 			{
-				if (m_Symbols.ContainsKey(key))
-					return m_Symbols[key];
+				if (value.Type == DataType.Nil)
+				{
+					m_ArrayMap.Remove(key);
+				}
+				else
+				{
+					m_ArrayMap.Set(key, new TablePair(new RValue(key), value));
+				}
+			}
+		}
+
+		public IEnumerable<TablePair> DebugPairs()
+		{
+			return m_Values;
+		}
+
+		public TablePair NextKey(RValue v)
+		{
+			if (v.Type == DataType.Nil)
+			{
+				LinkedListNode<TablePair> node = m_Values.First;
+
+				if (node == null)
+					return TablePair.Nil;
+				else
+					return node.Value;
 			}
 
-			return RValue.Nil;
+			if (v.Type == DataType.String)
+			{
+				return GetNextOf(m_StringMap.Find(v.String));
+			}
+
+			if (v.Type == DataType.Number)
+			{
+				int idx = GetIntegralKey(v.Number);
+
+				if (idx > 0)
+				{
+					return GetNextOf(m_ArrayMap.Find(idx));
+				}
+			}
+
+			return GetNextOf(m_ValueMap.Find(v));
+		}
+
+		private TablePair GetNextOf(LinkedListNode<TablePair> linkedListNode)
+		{
+			if (linkedListNode == null)
+				return TablePair.Nil;
+
+			return linkedListNode.Next.Value;
+		}
+		
+		public bool HasStringSymbol(string symbol)
+		{
+			return m_StringMap.ContainsKey(symbol);
 		}
 
 		public double Length
 		{
-			get { return m_LastConsecutiveInteger; }
+			get 
+			{
+				if (m_CachedLength < 0)
+				{
+					m_CachedLength = 0;
+
+					for (int i = 1; m_ArrayMap.ContainsKey(i); i++)
+						m_CachedLength = i;
+				}
+
+				return m_CachedLength; 
+			}
 		}
 
 

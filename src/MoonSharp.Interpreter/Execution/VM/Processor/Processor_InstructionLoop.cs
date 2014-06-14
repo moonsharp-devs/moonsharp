@@ -11,7 +11,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 	{
 		private RValue Processing_Loop()
 		{
-			while (m_InstructionPtr < m_CurChunk.Code.Count && m_InstructionPtr >= 0)
+			while (true)
 			{
 				Instruction i = m_CurChunk.Code[m_InstructionPtr];
 
@@ -35,9 +35,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 						break;
 					case OpCode.Literal:
 						m_ValueStack.Push(i.Value);
-						break;
-					case OpCode.Bool:
-						Bool(i);
 						break;
 					case OpCode.Add:
 						ExecAdd(i);
@@ -110,9 +107,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 					case OpCode.Closure:
 						m_ValueStack.Push(new RValue(new Closure(i.NumVal, i.SymbolList, m_ExecutionStack.Peek().LocalScope)));
 						break;
-					case OpCode.ExitClsr:
-						this.LeaveClosure();
-						break;
 					case OpCode.BeginFn:
 						ExecBeginFn(i);
 						break;
@@ -121,6 +115,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 						break;
 					case OpCode.Ret:
 						ExecRet(i);
+						if (m_InstructionPtr < 0)
+							goto return_to_native_code;
 						break;
 					case OpCode.Incr:
 						ExecIncr(i);
@@ -162,11 +158,13 @@ namespace MoonSharp.Interpreter.Execution.VM
 						ExecExpTuple(i);
 						break;
 					case OpCode.Invalid:
-						throw new NotImplementedException(string.Format("Compilation for {0} not implented yet!", i.Name));
+						throw new NotImplementedException(string.Format("Invalid opcode : {0}", i.Name));
 					default:
 						throw new NotImplementedException(string.Format("Execution for {0} not implented yet!", i.OpCode));
 				}
 			}
+
+		return_to_native_code:
 
 			if (m_ValueStack.Count == 1)
 				return m_ValueStack.Pop();
@@ -365,10 +363,10 @@ namespace MoonSharp.Interpreter.Execution.VM
 				{
 					BasePointer = m_ValueStack.Count,
 					ReturnAddress = m_InstructionPtr,
-					Debug_EntryPoint = fn.Function.ByteCodeLocation
+					Debug_EntryPoint = fn.Function.ByteCodeLocation,
+					ClosureScope = fn.Function.ClosureContext
 				});
 				m_InstructionPtr = fn.Function.ByteCodeLocation;
-				this.EnterClosure(fn.Function.ClosureContext);
 			}
 			else
 			{

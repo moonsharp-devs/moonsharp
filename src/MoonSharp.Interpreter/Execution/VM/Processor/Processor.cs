@@ -16,7 +16,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		FastStack<RValue> m_ValueStack = new FastStack<RValue>(131072);
 		FastStack<CallStackItem> m_ExecutionStack = new FastStack<CallStackItem>(131072);
-		FastStack<ClosureContext> m_ClosureStack = new FastStack<ClosureContext>(131072);
 
 		IDebugger m_DebuggerAttached = null;
 		DebuggerAction.ActionType m_DebuggerCurrentAction = DebuggerAction.ActionType.None;

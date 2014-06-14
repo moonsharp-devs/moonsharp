@@ -37,10 +37,6 @@ namespace MoonSharp.Interpreter.Execution.Scopes
 		internal LRef Define(string name)
 		{
 			LRef l = LRef.Local(name, -1);
-			if (m_DefinedNames.ContainsKey(name))
-			{
-				int a = 3;
-			}
 			m_DefinedNames.Add(name, l);
 			return l;
 		}

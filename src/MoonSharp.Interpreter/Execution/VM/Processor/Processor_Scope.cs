@@ -8,17 +8,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 {
 	sealed partial class Processor
 	{
-
-		public void EnterClosure(ClosureContext closureValues)
-		{
-			m_ClosureStack.Push(closureValues);
-		}
-
-		public void LeaveClosure()
-		{
-			m_ClosureStack.RemoveLast();
-		}
-
 		private void NilifyBlockData(RuntimeScopeBlock runtimeScopeBlock)
 		{
 			int from = runtimeScopeBlock.From;
@@ -56,16 +45,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				case LRefType.Local:
 					return m_ExecutionStack.Peek().LocalScope[symref.i_Index];
 				case LRefType.Upvalue:
-					List<RValue> closureValues = m_ClosureStack.Count > 0 ? m_ClosureStack[m_ClosureStack.Count - 1] : null;
-
-					if (closureValues != null)
-					{
-						return closureValues[symref.i_Index];
-					}
-					else
-					{
-						throw new ScriptRuntimeException(null, "Invalid upvalue at resolution: {0}", symref.i_Name);
-					}
+					return m_ExecutionStack.Peek().ClosureScope[symref.i_Index];
 				case LRefType.Index:
 				case LRefType.Invalid:
 				default:
@@ -93,16 +73,13 @@ namespace MoonSharp.Interpreter.Execution.VM
 					break;
 				case LRefType.Upvalue:
 					{
-						List<RValue> closureValues = m_ClosureStack.Count > 0 ? m_ClosureStack[m_ClosureStack.Count - 1] : null;
+						var stackframe = m_ExecutionStack.Peek();
 
-						if (closureValues != null)
-						{
-							closureValues[symref.i_Index].Assign(value);
-						}
-						else
-						{
-							throw new ScriptRuntimeException(null, "Invalid upvalue at resolution: {0}", symref.i_Name);
-						}
+						RValue v = stackframe.ClosureScope[symref.i_Index];
+						if (v == null)
+							stackframe.ClosureScope[symref.i_Index] = v = new RValue();
+
+						v.Assign(value);
 					}
 					break;
 				case LRefType.Index:
@@ -127,16 +104,12 @@ namespace MoonSharp.Interpreter.Execution.VM
 				}
 			}
 
-			if (m_ClosureStack.Count > 0)
-			{
-				var closure = m_ClosureStack.Peek(0);
+			
+			var closure = stackframe.ClosureScope;
 
-				for (int i = 0; i < closure.Symbols.Length; i++)
-					if (closure.Symbols[i] == name)
-					{
-						return LRef.Upvalue(name, i);
-					}
-			}
+			for (int i = 0; i < closure.Symbols.Length; i++)
+				if (closure.Symbols[i] == name)
+					return LRef.Upvalue(name, i);
 
 			if (m_GlobalTable.HasStringSymbol(name))
 				return LRef.Global(name);

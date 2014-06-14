@@ -27,7 +27,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 		Enter,		// Enters a new stack frame
 		Leave,		// Leaves a stack frame
 		Exit,		// Leaves every stack frame up and including the topmost function frame, plus it exits the topmost closure
-		ExitClsr,	// Exits a closure at runtime
 		BeginFn,	// Adjusts for start of function, taking in parameters and allocating locals
 		Args,		// Takes the arguments passed to a function and sets the appropriate symbols in the local scope
 		Call,		// Calls the function specified on the specified element from the top of the v-stack. If the function is a Moon# function, it pushes its numeric value on the v-stack, then pushes the current PC onto the x-stack, enters the function closure and jumps to the function first instruction. If the function is a CLR function, it pops the function value from the v-stack, then invokes the function synchronously and finally pushes the result on the v-stack.
@@ -58,7 +57,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		// Type conversions and manipulations
 		MkTuple,	// Creates a tuple from the topmost n values
-		Bool,		// Converts the top of the v-stack to a boolean
 		Incr,		// Performs an add operation, without extracting the operands from the v-stack and assuming the operands are numbers.
 		ToNum,		// Converts the top of the stack to a number
 		ExpTuple,	// Expands a tuple on the stack
@@ -71,7 +69,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 		NewTable,	// Creates a new table on the stack
 
 		// Iterators
-		IterPrep,   // Prepares an interator for execution 
+		IterPrep,   // Prepares an iterator for execution 
 		IterUpd,	// Updates the var part of an iterator
 	}
 }

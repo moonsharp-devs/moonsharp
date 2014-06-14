@@ -21,16 +21,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		public int ReferenceID { get { return m_RefID; } }
 
-		private void TrackLoopStart()
-		{
-
-		}
-
-		private void TrackLoopEnd()
-		{
-
-		}
-
 
 		public void Dump(string file)
 		{
@@ -122,10 +112,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 			return Emit(new Instruction() { OpCode = opcode });
 		}
 
-		public Instruction Bool()
-		{
-			return Emit(new Instruction() { OpCode = OpCode.Bool });
-		}
 
 		//[Conditional("EMIT_DEBUG_OPS")]
 		public void Debug(string str)
@@ -150,7 +136,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			return Emit(new Instruction() { OpCode = OpCode.Leave, Block = runtimeScopeBlock });
 		}
 
-		public Instruction Exit(RuntimeScopeBlock runtimeScopeBlock = null)
+		public Instruction Exit(RuntimeScopeBlock runtimeScopeBlock)
 		{
 			return Emit(new Instruction() { OpCode = OpCode.Exit, Block = runtimeScopeBlock });
 		}
@@ -163,11 +149,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 		public Instruction Args(LRef[] symbols)
 		{
 			return Emit(new Instruction() { OpCode = OpCode.Args, SymbolList = symbols });
-		}
-
-		public Instruction ExitClsr()
-		{
-			return Emit(new Instruction() { OpCode = OpCode.ExitClsr });
 		}
 
 		public Instruction Ret(int retvals)
@@ -199,6 +180,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 		{
 			return Emit(new Instruction() { OpCode = OpCode.IndexRef });
 		}
+
 		public Instruction IndexRefN()
 		{
 			return Emit(new Instruction() { OpCode = OpCode.IndexRefN });
@@ -207,11 +189,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 		public Instruction NewTable()
 		{
 			return Emit(new Instruction() { OpCode = OpCode.NewTable });
-		}
-
-		public Instruction TempOp(OpCode opCode, int regNum)
-		{
-			return Emit(new Instruction() { OpCode = opCode, NumVal = regNum });
 		}
 
 		public Instruction IterPrep()
