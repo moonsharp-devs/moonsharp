@@ -31,6 +31,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 		Args,		// Takes the arguments passed to a function and sets the appropriate symbols in the local scope
 		Call,		// Calls the function specified on the specified element from the top of the v-stack. If the function is a Moon# function, it pushes its numeric value on the v-stack, then pushes the current PC onto the x-stack, enters the function closure and jumps to the function first instruction. If the function is a CLR function, it pops the function value from the v-stack, then invokes the function synchronously and finally pushes the result on the v-stack.
 		Ret,		// Pops the top n values of the v-stack. Then pops an X value from the v-stack. Then pops X values from the v-stack. Afterwards, it pushes the top n values popped in the first step, pops the top of the x-stack and jumps to that location.
+		TailChk,	// Checks if the return value from a Ret or Clr call is a tail call request, in case it repeats the call 
 
 		// Jumps
 		Jump,		// Jumps to the specified PC

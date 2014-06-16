@@ -7,16 +7,16 @@ namespace MoonSharp.Interpreter.Execution
 {
 	public sealed class CallbackFunction
 	{
-		Func<IList<RValue>, RValue> m_CallBack;
+		Func<IExecutionContext, CallbackArguments, RValue> m_CallBack;
 
-		public CallbackFunction(Func<IList<RValue>, RValue> callBack)
+		public CallbackFunction(Func<IExecutionContext, CallbackArguments, RValue> callBack)
 		{
 			m_CallBack = callBack;
 		}
 
-		public RValue Invoke(IList<RValue> args)
+		public RValue Invoke(IExecutionContext executionContext, IList<RValue> args)
 		{
-			return m_CallBack(args);
+			return m_CallBack(executionContext, new  CallbackArguments(args));
 		}
 
 	}

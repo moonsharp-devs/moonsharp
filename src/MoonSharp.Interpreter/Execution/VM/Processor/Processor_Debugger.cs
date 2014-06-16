@@ -17,7 +17,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			m_DebuggerAttached = debugger;
 		}
 
-		private void ListenDebugger(Instruction instr)
+		private void ListenDebugger(Instruction instr, int instructionPtr)
 		{
 			if (instr.Breakpoint)
 			{
@@ -28,14 +28,14 @@ namespace MoonSharp.Interpreter.Execution.VM
 			if (m_DebuggerCurrentAction == DebuggerAction.ActionType.Run)
 				return;
 
-			if (m_DebuggerCurrentAction == DebuggerAction.ActionType.StepOver && m_DebuggerCurrentActionTarget != m_InstructionPtr)
+			if (m_DebuggerCurrentAction == DebuggerAction.ActionType.StepOver && m_DebuggerCurrentActionTarget != instructionPtr)
 				return;
 
 			RefreshDebugger();
 
 			while (true)
 			{
-				var action = m_DebuggerAttached.GetAction(m_InstructionPtr);
+				var action = m_DebuggerAttached.GetAction(instructionPtr);
 
 				switch (action.Action)
 				{
@@ -45,7 +45,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 						return;
 					case DebuggerAction.ActionType.StepOver:
 						m_DebuggerCurrentAction = DebuggerAction.ActionType.StepOver;
-						m_DebuggerCurrentActionTarget = m_InstructionPtr + 1;
+						m_DebuggerCurrentActionTarget = instructionPtr + 1;
 						return;
 					case DebuggerAction.ActionType.Run:
 						m_DebuggerCurrentAction = DebuggerAction.ActionType.Run;

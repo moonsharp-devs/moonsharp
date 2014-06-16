@@ -8,6 +8,7 @@ namespace MoonSharp.Interpreter.Execution
 {
 	public enum DataType
 	{
+		// standard Lua types
 		Nil,
 		Boolean,
 		Number,
@@ -15,12 +16,12 @@ namespace MoonSharp.Interpreter.Execution
 		Function,
 		Table,
 		Tuple,
+		UserData,
+		Thread,
 
 		Symbol,
 		ClrFunction,
-
-		UNSUPPORTED_UserData,
-		UNSUPPORTED_Thread,
+		TailCallRequest,
 	}
 
 	public static class LuaTypeExtensions
@@ -43,11 +44,13 @@ namespace MoonSharp.Interpreter.Execution
 					return "function";
 				case DataType.Table:
 					return "table";
-				case DataType.UNSUPPORTED_UserData:
+				case DataType.UserData:
 					return "userdata";
-				case DataType.UNSUPPORTED_Thread:
+				case DataType.Thread:
 					return "thread";
 				case DataType.Tuple:
+				case DataType.TailCallRequest:
+				case DataType.Symbol:
 				default:
 					throw new ScriptRuntimeException(null, "Unexpected LuaType {0}", type);
 			}

@@ -48,14 +48,14 @@ namespace MoonSharp.Debugger
 		Script m_Script;
 		SynchronizationContext m_Ctx;
 
-		RValue Print(IList<RValue> values)
+		RValue Print(IExecutionContext executionContext, CallbackArguments values)
 		{
-			string prn = string.Join(" ", values.Select(v => v.AsString()).ToArray());
+			string prn = string.Join(" ", values.List.Select(v => v.AsString()).ToArray());
 			Console_WriteLine("{0}", prn);
 			return RValue.Nil;
 		}
 
-		RValue Assert(IList<RValue> values)
+		RValue Assert(IExecutionContext executionContext, CallbackArguments values)
 		{
 			if (!values[0].TestAsBoolean())
 				Console_WriteLine("ASSERT FAILED!");
@@ -63,7 +63,7 @@ namespace MoonSharp.Debugger
 			return RValue.Nil;
 		}
 
-		RValue XAssert(IList<RValue> values)
+		RValue XAssert(IExecutionContext executionContext, CallbackArguments values)
 		{
 			if (!values[1].TestAsBoolean())
 				Console_WriteLine("ASSERT FAILED! : {0}", values[0].ToString());

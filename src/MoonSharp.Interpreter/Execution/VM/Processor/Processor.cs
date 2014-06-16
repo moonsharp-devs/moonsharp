@@ -11,8 +11,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 	{
 		Chunk m_RootChunk;
 		Chunk m_CurChunk;
-		int m_InstructionPtr;
-		bool m_Terminate = false;
 
 		FastStack<RValue> m_ValueStack = new FastStack<RValue>(131072);
 		FastStack<CallStackItem> m_ExecutionStack = new FastStack<CallStackItem>(131072);
@@ -26,13 +24,11 @@ namespace MoonSharp.Interpreter.Execution.VM
 		public Processor(Chunk rootChunk)
 		{
 			m_RootChunk = m_CurChunk = rootChunk;
-			m_InstructionPtr = 0;
 		}
 
 		public void Reset(Table global)
 		{
 			m_CurChunk = m_RootChunk;
-			m_InstructionPtr = 0;
 			m_GlobalTable = global;
 		}
 
@@ -47,7 +43,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				ReturnAddress = -1,
 			});
 
-			return Processing_Loop();
+			return Processing_Loop(0);
 		}
 	}
 }

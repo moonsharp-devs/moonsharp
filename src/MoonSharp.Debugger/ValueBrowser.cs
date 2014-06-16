@@ -99,11 +99,11 @@ namespace MoonSharp.Debugger
 					txtString.Visible = true;
 					txtString.Text = "Value is a CLR function.";
 					break;
-				case DataType.UNSUPPORTED_UserData:
+				case DataType.UserData:
 					txtString.Visible = true;
 					txtString.Text = "Value is a CLR object (userdata).";
 					break;
-				case DataType.UNSUPPORTED_Thread:
+				case DataType.Thread:
 					txtString.Visible = true;
 					txtString.Text = "Value is a coroutine.";
 					break;

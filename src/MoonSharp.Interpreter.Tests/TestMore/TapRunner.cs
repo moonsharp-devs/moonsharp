@@ -12,9 +12,9 @@ namespace MoonSharp.Interpreter.Tests
 	{
 		string m_File;
 
-		public RValue Print(IList<RValue> values)
+		public RValue Print(IExecutionContext exctx, CallbackArguments values)
 		{
-			string str = string.Join(" ", values.Select(s => s.AsString()).ToArray());
+			string str = string.Join(" ", values.List.Select(s => s.AsString()).ToArray());
 			Assert.IsFalse(str.Trim().StartsWith("not ok"), string.Format("TAP fail ({0}) : {1}", m_File, str));
 			return RValue.Nil;
 		}

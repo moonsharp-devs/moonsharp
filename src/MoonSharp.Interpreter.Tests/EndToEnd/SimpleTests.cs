@@ -18,7 +18,7 @@ namespace MoonSharp.Interpreter.Tests
 			string script = "print(\"hello\", \"world\");";
 
 			var globalCtx = new Table();
-			globalCtx[new RValue("print")] = new RValue(new CallbackFunction(a => 
+			globalCtx[new RValue("print")] = new RValue(new CallbackFunction((x, a) => 
 			{
 				args = a.ToArray(); 
 				return new RValue(1234.0); 
@@ -42,7 +42,7 @@ namespace MoonSharp.Interpreter.Tests
 			string script = "local print = print; print(\"hello\", \"world\");";
 
 			var globalCtx = new Table();
-			globalCtx[new RValue("print")] = new RValue(new CallbackFunction(a => { args = a.ToArray(); return new RValue(1234.0); }));
+			globalCtx[new RValue("print")] = new RValue(new CallbackFunction((_x, a) => { args = a.ToArray(); return new RValue(1234.0); }));
 
 			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(globalCtx);
 
@@ -62,7 +62,7 @@ namespace MoonSharp.Interpreter.Tests
 			string script = "return print(\"hello\", \"world\");";
 
 			var globalCtx = new Table();
-			globalCtx[new RValue("print")] = new RValue(new CallbackFunction(a => { args = a.ToArray(); return new RValue(1234.0); }));
+			globalCtx[new RValue("print")] = new RValue(new CallbackFunction((_x, a) => { args = a.ToArray(); return new RValue(1234.0); }));
 
 			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(globalCtx);
 
@@ -121,7 +121,7 @@ namespace MoonSharp.Interpreter.Tests
 			";
 
 			var globalCtx = new Table();
-			globalCtx[new RValue("crash")] = new RValue(new CallbackFunction(a =>
+			globalCtx[new RValue("crash")] = new RValue(new CallbackFunction((_x, a) =>
 			{
 				throw new Exception("FAIL!");
 			}));

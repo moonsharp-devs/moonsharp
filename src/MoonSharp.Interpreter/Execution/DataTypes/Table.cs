@@ -72,16 +72,8 @@ namespace MoonSharp.Interpreter.Execution
 					}
 				}
 				
-				if (value.Type == DataType.Nil)
-				{
-					m_ValueMap.Remove(key);
-					m_CachedLength = -1;
-				}
-				else
-				{
-					if (m_ValueMap.Set(key, new TablePair(key, value)))
-						m_CachedLength = -1;
-				}
+				if (m_ValueMap.Set(key, new TablePair(key, value)))
+					CollectDeadKeys();
 			}
 		}
 
@@ -101,15 +93,20 @@ namespace MoonSharp.Interpreter.Execution
 			}
 			set
 			{
-				if (value.Type == DataType.Nil)
-				{
-					m_StringMap.Remove(key);
-				}
-				else
-				{
-					m_StringMap.Set(key, new TablePair(new RValue(key), value));
-				}
+				if (m_StringMap.Set(key, new TablePair(new RValue(key), value)))
+					CollectDeadKeys();
 			}
+		}
+
+
+		public RValue RawGet(string key)
+		{
+			var linkedListNode = m_StringMap.Find(key);
+
+			if (linkedListNode != null)
+				return linkedListNode.Value.Value;
+
+			return null;
 		}
 
 		public RValue this[int key]
@@ -120,13 +117,38 @@ namespace MoonSharp.Interpreter.Execution
 			}
 			set
 			{
-				if (value.Type == DataType.Nil)
+				if (m_ArrayMap.Set(key, new TablePair(new RValue(key), value)))
 				{
-					m_ArrayMap.Remove(key);
+					CollectDeadKeys();
+					m_CachedLength = -1;
 				}
-				else
+			}
+		}
+
+		private void CollectDeadKeys()
+		{
+			for (LinkedListNode<TablePair> node = m_Values.First; node != null; node = node.Next)
+			{
+				if (node.Value.Value.Type == DataType.Nil)
 				{
-					m_ArrayMap.Set(key, new TablePair(new RValue(key), value));
+					if (node.Value.Key.Type == DataType.Number)
+					{
+						int idx = GetIntegralKey(node.Value.Key.Number);
+						if (idx > 0)
+						{
+							m_ArrayMap.Remove(idx);
+							continue;
+						}
+					}
+
+					if (node.Value.Key.Type == DataType.String)
+					{
+						m_StringMap.Remove(node.Value.Key.String);
+					}
+					else
+					{
+						m_ValueMap.Remove(node.Value.Key);
+					}
 				}
 			}
 		}
@@ -168,7 +190,7 @@ namespace MoonSharp.Interpreter.Execution
 
 		private TablePair GetNextOf(LinkedListNode<TablePair> linkedListNode)
 		{
-			if (linkedListNode == null)
+			if (linkedListNode == null || linkedListNode.Next == null)
 				return TablePair.Nil;
 
 			return linkedListNode.Next.Value;
@@ -194,6 +216,7 @@ namespace MoonSharp.Interpreter.Execution
 				return m_CachedLength; 
 			}
 		}
+
 
 
 	}

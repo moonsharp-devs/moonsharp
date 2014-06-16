@@ -9,18 +9,18 @@ namespace MoonSharp.Interpreter.Execution.VM
 {
 	sealed partial class Processor
 	{
-		private RValue Processing_Loop()
+		private RValue Processing_Loop(int instructionPtr)
 		{
 			while (true)
 			{
-				Instruction i = m_CurChunk.Code[m_InstructionPtr];
+				Instruction i = m_CurChunk.Code[instructionPtr];
 
 				if (m_DebuggerAttached != null)
 				{
-					ListenDebugger(i);
+					ListenDebugger(i, instructionPtr);
 				}
 
-				++m_InstructionPtr;
+				++instructionPtr;
 
 				switch (i.OpCode)
 				{
@@ -67,20 +67,28 @@ namespace MoonSharp.Interpreter.Execution.VM
 						ExecLess(i);
 						break;
 					case OpCode.Call:
-						ExecCall(i);
+						instructionPtr = Internal_ExecCall(i.NumVal, instructionPtr);
 						break;
-					case OpCode.Jf:
-						JumpBool(i, false);
+					case OpCode.TailChk:
+						instructionPtr = ExecTailChk(i, instructionPtr);
 						break;
 					case OpCode.Not:
 						ExecNot(i);
 						break;
 					case OpCode.JfOrPop:
 					case OpCode.JtOrPop:
-						ExecShortCircuitingOperator(i);
+						instructionPtr = ExecShortCircuitingOperator(i, instructionPtr);
 						break;
 					case OpCode.JNil:
-						ExecJNil(i);
+						{
+							RValue v = m_ValueStack.Pop();
+
+							if (v.Type == DataType.Nil)
+								instructionPtr = i.NumVal;
+						}
+						break;
+					case OpCode.Jf:
+						instructionPtr = JumpBool(i, false, instructionPtr);
 						break;
 					case OpCode.Store:
 						ExecStore(i);
@@ -92,7 +100,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 						ExecAssign(i);
 						break;
 					case OpCode.Jump:
-						m_InstructionPtr = i.NumVal;
+						instructionPtr = i.NumVal;
 						break;
 					case OpCode.MkTuple:
 						m_ValueStack.Push(RValue.FromPotentiallyNestedTuple(StackTopToArrayReverse(i.NumVal, true)));
@@ -114,8 +122,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 						ExecArgs(i);
 						break;
 					case OpCode.Ret:
-						ExecRet(i);
-						if (m_InstructionPtr < 0)
+						instructionPtr = ExecRet(i);
+						if (instructionPtr < 0)
 							goto return_to_native_code;
 						break;
 					case OpCode.Incr:
@@ -128,7 +136,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 						ExecSymStorN(i);
 						break;
 					case OpCode.JFor:
-						ExecJFor(i);
+						instructionPtr = ExecJFor(i, instructionPtr);
 						break;
 					case OpCode.Index:
 						ExecIndexGet(i, false);
@@ -177,13 +185,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 
 
-		private void ExecJNil(Instruction i)
-		{
-			RValue v = m_ValueStack.Pop();
 
-			if (v.Type == DataType.Nil)
-				m_InstructionPtr = i.NumVal;
-		}
 
 		private void ExecIterUpd(Instruction i)
 		{
@@ -233,7 +235,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 		}
 
 
-		private void ExecJFor(Instruction i)
+		private int ExecJFor(Instruction i, int instructionPtr)
 		{
 			double val = m_ValueStack.Peek(0).Number;
 			double step = m_ValueStack.Peek(1).Number;
@@ -242,7 +244,9 @@ namespace MoonSharp.Interpreter.Execution.VM
 			bool whileCond = (step > 0) ? val <= stop : val >= stop;
 
 			if (!whileCond)
-				m_InstructionPtr = i.NumVal;
+				return i.NumVal;
+			else
+				return instructionPtr;
 		}
 
 
@@ -259,7 +263,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				m_ValueStack.Push(top);
 			}
 
-			top.Assign(top.Number + btm.Number);
+			top.AssignNumber(top.Number + btm.Number);
 		}
 
 
@@ -271,7 +275,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 		}
 
 
-		private void ExecRet(Instruction i)
+		private int ExecRet(Instruction i)
 		{
 			if (i.NumVal == 0)
 			{
@@ -279,7 +283,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				var argscnt = (int)(m_ValueStack.Pop().Number);
 				m_ValueStack.RemoveLast(argscnt + 1);
 				m_ValueStack.Push(RValue.Nil);
-				m_InstructionPtr = retpoint;
+				return retpoint;
 			}
 			else if (i.NumVal == 1)
 			{
@@ -288,7 +292,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				var argscnt = (int)(m_ValueStack.Pop().Number);
 				m_ValueStack.RemoveLast(argscnt + 1);
 				m_ValueStack.Push(retval);
-				m_InstructionPtr = retpoint;
+				return retpoint;
 			}
 			else
 			{
@@ -344,29 +348,29 @@ namespace MoonSharp.Interpreter.Execution.VM
 			}
 		}
 
-		private void ExecCall(Instruction i)
+		private int Internal_ExecCall(int argsCount, int instructionPtr)
 		{
-			RValue fn = m_ValueStack.Peek(i.NumVal);
+			RValue fn = m_ValueStack.Peek(argsCount);
 
 			if (fn.Type == DataType.ClrFunction)
 			{
-				IList<RValue> args = new Slice<RValue>(m_ValueStack, m_ValueStack.Count - i.NumVal, i.NumVal, false);
-				//m_ValueStack.Pop();
-				var ret = fn.Callback.Invoke(args);
-				m_ValueStack.RemoveLast(i.NumVal + 1);
+				IList<RValue> args = new Slice<RValue>(m_ValueStack, m_ValueStack.Count - argsCount, argsCount, false);
+				var ret = fn.Callback.Invoke(this, args);
+				m_ValueStack.RemoveLast(argsCount + 1);
 				m_ValueStack.Push(ret);
+				return instructionPtr;
 			}
 			else if (fn.Type == DataType.Function)
 			{
-				m_ValueStack.Push(new RValue(i.NumVal));
+				m_ValueStack.Push(new RValue(argsCount));
 				m_ExecutionStack.Push(new CallStackItem()
 				{
 					BasePointer = m_ValueStack.Count,
-					ReturnAddress = m_InstructionPtr,
+					ReturnAddress = instructionPtr,
 					Debug_EntryPoint = fn.Function.ByteCodeLocation,
 					ClosureScope = fn.Function.ClosureContext
 				});
-				m_InstructionPtr = fn.Function.ByteCodeLocation;
+				return fn.Function.ByteCodeLocation;
 			}
 			else
 			{
@@ -376,25 +380,54 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 
 
+		private int ExecTailChk(Instruction i, int instructionPtr)
+		{
+			RValue tail = m_ValueStack.Peek(0);
 
-		private void JumpBool(Instruction i, bool expectedValueForJump)
+			if (tail.Type == DataType.TailCallRequest)
+			{
+				m_ValueStack.Pop(); // discard tail call request
+
+				m_ValueStack.Push(tail.Meta);
+
+				for (int ii = 0; ii < tail.Tuple.Length; ii++ )
+					m_ValueStack.Push(tail.Tuple[ii]);
+
+				instructionPtr -= 1;
+				return Internal_ExecCall(tail.Tuple.Length, instructionPtr);
+			}
+
+
+			return instructionPtr;
+		}
+
+
+
+		private int JumpBool(Instruction i, bool expectedValueForJump, int instructionPtr)
 		{
 			RValue op = m_ValueStack.Pop();
 
 			if (op.TestAsBoolean() == expectedValueForJump)
-				m_InstructionPtr = i.NumVal;
+				return i.NumVal;
+
+			return instructionPtr;
 		}
 
-		private void ExecShortCircuitingOperator(Instruction i)
+		private int ExecShortCircuitingOperator(Instruction i, int instructionPtr)
 		{
 			bool expectedValToShortCircuit = i.OpCode == OpCode.JtOrPop;
 
 			RValue op = m_ValueStack.Peek();
 
 			if (op.TestAsBoolean() == expectedValToShortCircuit)
-				m_InstructionPtr = i.NumVal;
+			{
+				return i.NumVal;
+			}
 			else
+			{
 				m_ValueStack.Pop();
+				return instructionPtr;
+			}
 		}
 
 		private void Bool(Instruction i)

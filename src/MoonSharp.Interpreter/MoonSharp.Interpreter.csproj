@@ -76,6 +76,7 @@
     <Compile Include="CoreLib\BasicMethods.cs" />
     <Compile Include="CoreLib\CoreLibModule.cs" />
     <Compile Include="CoreLib\MetaTableMethods.cs" />
+    <Compile Include="CoreLib\TableIterators.cs" />
     <Compile Include="DataStructs\Extension_Methods.cs" />
     <Compile Include="DataStructs\FastStackDynamic.cs" />
     <Compile Include="DataStructs\LinkedListIndex.cs" />
@@ -91,9 +92,11 @@
     <Compile Include="Diagnostics\CodeChrono.cs" />
     <Compile Include="Errors\ScriptRuntimeException.cs" />
     <Compile Include="Errors\SyntaxErrorException.cs" />
+    <Compile Include="Execution\DataTypes\CallbackArguments.cs" />
     <Compile Include="Execution\DataTypes\Closure.cs" />
     <Compile Include="Execution\DataTypes\CallbackFunction.cs" />
     <Compile Include="Execution\DataTypes\TablePair.cs" />
+    <Compile Include="Execution\IExecutionContext.cs" />
     <Compile Include="Execution\Scopes\ClosureContext.cs" />
     <Compile Include="Execution\Scopes\LoopTracker.cs" />
     <Compile Include="Execution\Scopes\IClosureBuilder.cs" />
@@ -119,6 +122,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Execution\VM\Processor\Processor_Debugger.cs" />
+    <Compile Include="Execution\VM\Processor\Processor_IExecutionContext.cs" />
     <Compile Include="Execution\VM\Processor\Processor_InstructionLoop.cs" />
     <Compile Include="Execution\VM\Processor\Processor_Scope.cs" />
     <Compile Include="Execution\VM\Processor\Processor_UtilityFunctions.cs" />
@@ -127,6 +131,13 @@
     </Compile>
     <Compile Include="Grammar\Lua.g4.parser.cs">
       <DependentUpon>Lua.g4</DependentUpon>
+    </Compile>
+    <Compile Include="Modules\ModuleRegister.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Modules\MoonSharpMethodAttribute.cs" />
+    <Compile Include="Modules\MoonSharpModuleAttribute.cs">
+      <SubType>Code</SubType>
     </Compile>
     <Compile Include="Tree\IVariable.cs" />
     <Compile Include="MoonSharpInterpreter.cs" />

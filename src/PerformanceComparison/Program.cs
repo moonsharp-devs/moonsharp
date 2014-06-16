@@ -21,7 +21,7 @@ namespace PerformanceComparison
 		const int ITERATIONS = 1;
 #endif
 
-		static  string scriptText2 = @"
+		static  string scriptText = @"
 			function move(n, src, dst, via)
 				if n > 0 then
 					move(n - 1, src, via, dst)
@@ -34,7 +34,7 @@ namespace PerformanceComparison
 				move(4, 1, 2, 3)
 			end
 			";
-		static  string scriptText = @"
+		static  string scriptText2 = @"
 N = 8
  
 board = {}
@@ -86,9 +86,9 @@ end
 		static StringBuilder g_MoonSharpStr = new StringBuilder();
 		static StringBuilder g_NLuaStr = new StringBuilder();
 
-		public static RValue Print(IList<RValue> values)
+		public static RValue Print(IExecutionContext executionContext, CallbackArguments values)
 		{
-			foreach (var val in values)
+			foreach (var val in values.List)
 			{
 				g_MoonSharpStr.Append(val.AsString());
 			}

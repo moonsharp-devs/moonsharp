@@ -23,119 +23,77 @@ namespace MoonSharp.Interpreter.Execution
 		public bool Boolean { get; private set; }
 		public string String { get; private set; }
 		public bool ReadOnly { get; internal set; }
-
 		public LRef Symbol { get; private set; }
-
-
+		public CallbackFunction Callback { get; set; }
+		public RValue Meta { get; private set; }
 
 		private int m_HashCode = -1;
 
 		public RValue()
 		{
-			AssignNil();
+			Type = DataType.Nil;
 		}
+
 		public RValue(bool v)
 		{
-			Assign(v);
+			Boolean = v;
+			Type = DataType.Boolean;
 		}
 		public RValue(double num)
 		{
-			Assign(num);
+			Number = num;
+			Type = DataType.Number;
+			m_HashCode = -1;
 		}
+
 		public RValue(LRef symbol)
 		{
 			this.Symbol = symbol;
 			this.Type = DataType.Symbol;
 		}
 
-
 		public RValue(string str)
 		{
-			Assign(str);
-		}
-
-
-		public RValue(Closure function)
-		{
-			Assign(function);
-		}
-
-		public RValue(CallbackFunction function)
-		{
-			Assign(function);
-		}
-
-		public RValue(Table table)
-		{
-			Assign(table);
-		}
-
-		public RValue(RValue[] tuple)
-		{
-			Assign(tuple);
-		}
-
-		private void AssignNil()
-		{
-			if (this.ReadOnly) throw new ScriptRuntimeException(null, "Writing on r-value");
-			Type = DataType.Nil;
-			m_HashCode = -1;
-		}
-		private void Assign(bool v)
-		{
-			if (this.ReadOnly) throw new ScriptRuntimeException(null, "Writing on r-value");
-			Boolean = v;
-			Type = DataType.Boolean;
-			m_HashCode = -1;
-		}
-		public void Assign(double num)
-		{
-			if (this.ReadOnly) throw new ScriptRuntimeException(null, "Writing on r-value");
-			Number = num;
-			Type = DataType.Number;
-			m_HashCode = -1;
-		}
-
-		private void Assign(string str)
-		{
-			if (this.ReadOnly) throw new ScriptRuntimeException(null, "Writing on r-value");
 			String = str;
 			Type = DataType.String;
 			m_HashCode = -1;
 		}
 
-		private void Assign(Closure function)
+
+		public RValue(Closure function)
 		{
-			if (this.ReadOnly) throw new ScriptRuntimeException(null, "Writing on r-value");
 			Function = function;
 			Type = DataType.Function;
 			m_HashCode = -1;
 		}
 
-		private void Assign(CallbackFunction function)
+		public RValue(CallbackFunction function)
 		{
-			if (this.ReadOnly) throw new ScriptRuntimeException(null, "Writing on r-value");
 			Callback = function;
 			Type = DataType.ClrFunction;
 			m_HashCode = -1;
 		}
 
-		private void Assign(Table table)
+		public RValue(Table table)
 		{
-			if (this.ReadOnly) throw new ScriptRuntimeException(null, "Writing on r-value");
 			Table = table;
 			Type = DataType.Table;
 			m_HashCode = -1;
 		}
 
-		public void Assign(RValue[] tuple)
+		public RValue(RValue tailFn, params RValue[] args)
 		{
-			if (this.ReadOnly) throw new ScriptRuntimeException(null, "Writing on r-value");
+			Meta = tailFn;
+			Tuple = args;
+			Type = DataType.TailCallRequest;
+		}
+
+		public RValue(RValue[] tuple)
+		{
 			Tuple = tuple;
 			Type = DataType.Tuple;
 			m_HashCode = -1;
 		}
-
 
 		public RValue AsReadOnly()
 		{
@@ -164,6 +122,7 @@ namespace MoonSharp.Interpreter.Execution
 			v.Table = this.Table;
 			v.Tuple = this.Tuple;
 			v.Type = this.Type;
+			v.Meta = this.Meta;
 			v.m_HashCode = this.m_HashCode;
 			return v;
 		}
@@ -183,6 +142,7 @@ namespace MoonSharp.Interpreter.Execution
 			v.Table = this.Table;
 			v.Tuple = this.Tuple;
 			v.Type = this.Type;
+			v.Meta = this.Meta;
 			v.m_HashCode = this.m_HashCode;
 			return v;
 		}
@@ -210,9 +170,11 @@ namespace MoonSharp.Interpreter.Execution
 					return string.Join("\t", Tuple.Select(t => t.AsString()).ToArray());
 				case DataType.Symbol:
 					return "(Symbol -- INTERNAL!)";
-				case DataType.UNSUPPORTED_UserData:
+				case DataType.TailCallRequest:
+					return "(TailCallRequest -- INTERNAL!)";
+				case DataType.UserData:
 					return "(UserData)";
-				case DataType.UNSUPPORTED_Thread:
+				case DataType.Thread:
 					return "(Thread)";
 				default:
 					return ToString();
@@ -239,11 +201,13 @@ namespace MoonSharp.Interpreter.Execution
 					return "(Table)";
 				case DataType.Tuple:
 					return string.Join(", ", Tuple.Select(t => t.ToString()).ToArray());
+				case DataType.TailCallRequest:
+					return "Tail:(" + string.Join(", ", Tuple.Select(t => t.ToString()).ToArray()) + ")";
 				case DataType.Symbol:
 					return Symbol.ToString();
-				case DataType.UNSUPPORTED_UserData:
+				case DataType.UserData:
 					return "(UserData)";
-				case DataType.UNSUPPORTED_Thread:
+				case DataType.Thread:
 					return "(Thread)";
 				default:
 					return "(???)";
@@ -281,10 +245,11 @@ namespace MoonSharp.Interpreter.Execution
 					m_HashCode = baseValue ^ Table.GetHashCode();
 					break;
 				case DataType.Tuple:
+				case DataType.TailCallRequest:
 					m_HashCode = baseValue ^ Tuple.GetHashCode();
 					break;
-				case DataType.UNSUPPORTED_UserData:
-				case DataType.UNSUPPORTED_Thread:
+				case DataType.UserData:
+				case DataType.Thread:
 				default:
 					m_HashCode = 999;
 					break;
@@ -317,9 +282,10 @@ namespace MoonSharp.Interpreter.Execution
 				case DataType.Table:
 					return Table == other.Table;
 				case DataType.Tuple:
+				case DataType.TailCallRequest:
 					return Tuple == other.Tuple;
-				case DataType.UNSUPPORTED_UserData:
-				case DataType.UNSUPPORTED_Thread:
+				case DataType.UserData:
+				case DataType.Thread:
 				default:
 					return object.ReferenceEquals(this, other);
 			}
@@ -423,6 +389,7 @@ namespace MoonSharp.Interpreter.Execution
 			this.Table = value.Table;
 			this.Tuple = value.Tuple;
 			this.Type = value.Type;
+			this.Meta = value.Meta;
 			this.m_HashCode = -1;
 		}
 
@@ -440,7 +407,16 @@ namespace MoonSharp.Interpreter.Execution
 
 
 
-		public CallbackFunction Callback { get; set; }
+
+		internal void AssignNumber(double num)
+		{
+			if (this.ReadOnly)
+				throw new InternalErrorException(null, "Writing on r-value");
+
+			if (this.Type != DataType.Number)
+				throw new InternalErrorException("Can't assign number to type {0}", this.Type);
+			this.Number = num;
+		}
 	}
 
 

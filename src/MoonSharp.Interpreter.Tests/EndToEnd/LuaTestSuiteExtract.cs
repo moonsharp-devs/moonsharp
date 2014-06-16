@@ -21,7 +21,7 @@ namespace MoonSharp.Interpreter.Tests
 
 			var globalCtx = new Table();
 			globalCtx[new RValue("xassert")] = new RValue(new CallbackFunction(
-				a =>
+				(x, a) =>
 				{
 					if (!a[1].TestAsBoolean())
 						failedTests.Add(a[0].String);
@@ -29,7 +29,7 @@ namespace MoonSharp.Interpreter.Tests
 					return RValue.Nil;
 				}));
 			globalCtx[new RValue("assert")] = new RValue(new CallbackFunction(
-			 a =>
+			 (x, a) =>
 			 {
 				 ++i;
 
@@ -39,7 +39,7 @@ namespace MoonSharp.Interpreter.Tests
 				 return RValue.Nil;
 			 }));
 
-			globalCtx[new RValue("print")] = new RValue(new CallbackFunction(a =>
+			globalCtx[new RValue("print")] = new RValue(new CallbackFunction((x, a) =>
 				{
 					// Debug.WriteLine(string.Join(" ", a.Select(v => v.AsString()).ToArray()));
 					return RValue.Nil;

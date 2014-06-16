@@ -14,9 +14,6 @@ namespace MoonSharp.Interpreter.CoreLib
 		public static RValue assert(RValue[] values) { return RValue.Nil; }
 		public static RValue collectgarbage(RValue[] values) { return RValue.Nil; }
 		public static RValue error(RValue[] values) { return RValue.Nil; }
-		public static RValue ipairs(RValue[] values) { return RValue.Nil; }
-		public static RValue pairs(RValue[] values) { return RValue.Nil; }
-		public static RValue next(RValue[] values) { return RValue.Nil; }
 		public static RValue pcall(RValue[] values) { return RValue.Nil; }
 		public static RValue xpcall(RValue[] values) { return RValue.Nil; }
 		public static RValue print(RValue[] values) { return RValue.Nil; }
@@ -28,10 +25,19 @@ namespace MoonSharp.Interpreter.CoreLib
 
 
 
+
+
+
+
 		// Unsupported (?) - will raise exceptions:
 		public static RValue load(RValue[] values) { return RValue.Nil; }
 		public static RValue loadfile(RValue[] values) { return RValue.Nil; }
 		public static RValue dofile(RValue[] values) { return RValue.Nil; }
+
+
+
+
+
 
 	}
 }

@@ -67,9 +67,10 @@ namespace MoonSharp.Interpreter.Execution.VM
 			return Emit(new Instruction() { OpCode = OpCode.Pop, NumVal = num });
 		}
 
-		public Instruction Call(int argCount)
+		public void Call(int argCount)
 		{
-			return Emit(new Instruction() { OpCode = OpCode.Call, NumVal = argCount });
+			Emit(new Instruction() { OpCode = OpCode.Call, NumVal = argCount });
+			Emit(new Instruction() { OpCode = OpCode.TailChk });
 		}
 
 		public Instruction Load(LRef symref)
