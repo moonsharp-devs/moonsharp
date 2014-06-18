@@ -127,7 +127,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			return (tree.EnumChilds().Any(t => s_OperatorTypes.Contains(t.GetType())));
 		}
 
-		public override void Compile(Execution.VM.Chunk bc)
+		public override void Compile(Execution.VM.ByteCode bc)
 		{
 			m_Exp1.Compile(bc);
 

@@ -45,7 +45,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			globalCtx.RegisterModuleType<TableIterators>();
 			globalCtx.RegisterModuleType<MetaTableMethods>();
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(globalCtx);
+			DynValue res = (new Script(globalCtx)).DoString(script);
 
 			Assert.AreEqual(DataType.String, res.Type);
 			Assert.AreEqual("321", res.String);
@@ -78,7 +78,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			globalCtx.RegisterModuleType<TableIterators>();
 			globalCtx.RegisterModuleType<MetaTableMethods>();
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(globalCtx);
+			DynValue res = (new Script(globalCtx)).DoString(script);
 
 			Assert.AreEqual(DataType.Number, res.Type);
 			Assert.AreEqual(24, res.Number);
@@ -106,7 +106,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			globalCtx.RegisterModuleType<TableIterators>();
 			globalCtx.RegisterModuleType<MetaTableMethods>();
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(globalCtx);
+			DynValue res = (new Script(globalCtx)).DoString(script);
 
 			Assert.AreEqual(DataType.Tuple, res.Type);
 			Assert.AreEqual(true, res.Tuple[0].Boolean);
@@ -139,7 +139,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			globalCtx.RegisterModuleType<TableIterators>();
 			globalCtx.RegisterModuleType<MetaTableMethods>();
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(globalCtx);
+			DynValue res = (new Script(globalCtx)).DoString(script);
 
 
 			Assert.AreEqual(DataType.Number, res.Type);

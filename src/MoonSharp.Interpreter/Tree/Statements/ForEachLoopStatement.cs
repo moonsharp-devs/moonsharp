@@ -11,7 +11,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 	class ForEachLoopStatement : Statement
 	{
 		RuntimeScopeBlock m_StackFrame;
-		LRef[] m_Names;
+		SymbolRef[] m_Names;
 		Expression m_RValues;
 		Statement m_Block;
 
@@ -37,7 +37,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			m_StackFrame = lcontext.Scope.PopBlock();
 		}
 
-		public override void Compile(Chunk bc)
+		public override void Compile(ByteCode bc)
 		{
 			//for var_1, ···, var_n in explist do block end
 
@@ -58,7 +58,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			bc.Enter(m_StackFrame);
 
 			// push all iterating variables - stack : iterator-tuple, iter-var-symbols
-			foreach (LRef s in m_Names)
+			foreach (SymbolRef s in m_Names)
 				bc.Symbol(s);
 
 			// expand the tuple - stack : iterator-tuple, iter-var-symbols, f, var, s

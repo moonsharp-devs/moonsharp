@@ -50,7 +50,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		}
 
 
-		public override void Compile(Execution.VM.Chunk bc)
+		public override void Compile(Execution.VM.ByteCode bc)
 		{
 			List<Instruction> endJumps = new List<Instruction>();
 

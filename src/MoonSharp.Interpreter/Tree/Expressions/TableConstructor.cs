@@ -35,7 +35,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 					else if (name != null)
 					{
 						m_CtorArgs.Add(new KeyValuePair<Expression, Expression>(
-							new LiteralExpression(field, lcontext, new RValue(name.GetText())),
+							new LiteralExpression(field, lcontext, DynValue.NewString(name.GetText())),
 							NodeFactory.CreateExpression(field.namedexp, lcontext)));
 					}
 					else 
@@ -49,7 +49,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 
 
-		public override void Compile(Execution.VM.Chunk bc)
+		public override void Compile(Execution.VM.ByteCode bc)
 		{
 			bc.NewTable();
 
@@ -63,7 +63,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 			for (int i = 0; i < m_PositionalValues.Count; i++)
 			{
-				bc.Literal(new RValue(i+1));
+				bc.Literal(DynValue.NewNumber(i+1));
 				bc.IndexRefN();
 				m_PositionalValues[i].Compile(bc);
 				bc.Store();

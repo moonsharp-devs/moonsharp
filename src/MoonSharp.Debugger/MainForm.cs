@@ -48,27 +48,27 @@ namespace MoonSharp.Debugger
 		Script m_Script;
 		SynchronizationContext m_Ctx;
 
-		RValue Print(IExecutionContext executionContext, CallbackArguments values)
+		DynValue Print(IExecutionContext executionContext, CallbackArguments values)
 		{
-			string prn = string.Join(" ", values.List.Select(v => v.AsString()).ToArray());
+			string prn = string.Join(" ", values.List.Select(v => v.ToPrintString()).ToArray());
 			Console_WriteLine("{0}", prn);
-			return RValue.Nil;
+			return DynValue.Nil;
 		}
 
-		RValue Assert(IExecutionContext executionContext, CallbackArguments values)
+		DynValue Assert(IExecutionContext executionContext, CallbackArguments values)
 		{
-			if (!values[0].TestAsBoolean())
+			if (!values[0].CastToBool())
 				Console_WriteLine("ASSERT FAILED!");
 
-			return RValue.Nil;
+			return DynValue.Nil;
 		}
 
-		RValue XAssert(IExecutionContext executionContext, CallbackArguments values)
+		DynValue XAssert(IExecutionContext executionContext, CallbackArguments values)
 		{
-			if (!values[1].TestAsBoolean())
+			if (!values[1].CastToBool())
 				Console_WriteLine("ASSERT FAILED! : {0}", values[0].ToString());
 
-			return RValue.Nil;
+			return DynValue.Nil;
 		}
 
 		private void Console_WriteLine(string fmt, params object[] args)
@@ -87,17 +87,24 @@ namespace MoonSharp.Debugger
 
 		private void DebugScript(string filename)
 		{
-			m_Script = MoonSharpInterpreter.LoadFromFile(filename);
+			Table T = new Table();
+			T["print"] = DynValue.NewCallback(Print);
+			T["assert"] = DynValue.NewCallback(Assert);
+			T["xassert"] = DynValue.NewCallback(XAssert);
+
+			m_Script = new Script(T);
+
+			m_Script.LoadFile(filename);
+
 			m_Script.AttachDebugger(this);
 
 			Thread m_Debugger = new Thread(DebugMain);
 			m_Debugger.Name = "Moon# Execution Thread";
 			m_Debugger.IsBackground = true;
 			m_Debugger.Start();
-
 		}
 
-		void IDebugger.SetSourceCode(Chunk byteCode, string[] code)
+		void IDebugger.SetSourceCode(ByteCode byteCode, string[] code)
 		{
 			string[] source = new string[byteCode.Code.Count];
 
@@ -142,14 +149,9 @@ namespace MoonSharp.Debugger
 
 		void DebugMain()
 		{
-			Table T = new Table();
-			T["print"] = new RValue(new CallbackFunction(Print));
-			T["assert"] = new RValue(new CallbackFunction(Assert));
-			T["xassert"] = new RValue(new CallbackFunction(XAssert));
-
 			try
 			{
-				m_Script.Execute(T);
+				m_Script.Call(0, m_Script.GetMainChunk());
 			}
 			catch (Exception ex)
 			{
@@ -309,28 +311,28 @@ namespace MoonSharp.Debugger
 
 		private void btnViewVStk_Click(object sender, EventArgs e)
 		{
-			ValueBrowser.StartBrowse(lvVStack.SelectedItems.OfType<ListViewItem>().Select(lvi => lvi.Tag).Cast<RValue>().FirstOrDefault());
+			ValueBrowser.StartBrowse(lvVStack.SelectedItems.OfType<ListViewItem>().Select(lvi => lvi.Tag).Cast<DynValue>().FirstOrDefault());
 		}
 
 		private void lvVStack_MouseDoubleClick(object sender, MouseEventArgs e)
 		{
-			ValueBrowser.StartBrowse(lvVStack.SelectedItems.OfType<ListViewItem>().Select(lvi => lvi.Tag).Cast<RValue>().FirstOrDefault());
+			ValueBrowser.StartBrowse(lvVStack.SelectedItems.OfType<ListViewItem>().Select(lvi => lvi.Tag).Cast<DynValue>().FirstOrDefault());
 		}
 
 		private void btnViewWatch_Click(object sender, EventArgs e)
 		{
-			ValueBrowser.StartBrowse(lvWatches.SelectedItems.OfType<ListViewItem>().Select(lvi => lvi.Tag).Cast<RValue>().FirstOrDefault());
+			ValueBrowser.StartBrowse(lvWatches.SelectedItems.OfType<ListViewItem>().Select(lvi => lvi.Tag).Cast<DynValue>().FirstOrDefault());
 		}
 
 
 		private void lvWatches_MouseDoubleClick(object sender, MouseEventArgs e)
 		{
-			ValueBrowser.StartBrowse(lvWatches.SelectedItems.OfType<ListViewItem>().Select(lvi => lvi.Tag).Cast<RValue>().FirstOrDefault());
+			ValueBrowser.StartBrowse(lvWatches.SelectedItems.OfType<ListViewItem>().Select(lvi => lvi.Tag).Cast<DynValue>().FirstOrDefault());
 		}
 
 		private void toolGoToCodeVStack_Click(object sender, EventArgs e)
 		{
-			var v = lvVStack.SelectedItems.OfType<ListViewItem>().Select(lvi => lvi.Tag).Cast<RValue>().FirstOrDefault();
+			var v = lvVStack.SelectedItems.OfType<ListViewItem>().Select(lvi => lvi.Tag).Cast<DynValue>().FirstOrDefault();
 
 			if (v != null && v.Type == DataType.Function)
 				GotoBytecode(v.Function.ByteCodeLocation);
@@ -338,7 +340,7 @@ namespace MoonSharp.Debugger
 
 		private void toolGoToCodeWatches_Click(object sender, EventArgs e)
 		{
-			var v = lvWatches.SelectedItems.OfType<ListViewItem>().Select(lvi => lvi.Tag).Cast<RValue>().FirstOrDefault();
+			var v = lvWatches.SelectedItems.OfType<ListViewItem>().Select(lvi => lvi.Tag).Cast<DynValue>().FirstOrDefault();
 
 			if (v != null && v.Type == DataType.Function)
 				GotoBytecode(v.Function.ByteCodeLocation);

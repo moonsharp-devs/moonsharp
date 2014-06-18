@@ -30,8 +30,9 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <NoWarn>3021</NoWarn>
+    <NoWarn>3021, 1591</NoWarn>
     <Prefer32Bit>false</Prefer32Bit>
+    <DocumentationFile>bin\Debug\MoonSharp.Interpreter.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -74,7 +75,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CoreLib\BasicMethods.cs" />
-    <Compile Include="CoreLib\CoreLibModule.cs" />
+    <Compile Include="CoreLib\ErrorHandling.cs" />
+    <Compile Include="CoreLib\LoadMethods.cs" />
     <Compile Include="CoreLib\MetaTableMethods.cs" />
     <Compile Include="CoreLib\TableIterators.cs" />
     <Compile Include="DataStructs\Extension_Methods.cs" />
@@ -96,12 +98,15 @@
     <Compile Include="Execution\DataTypes\Closure.cs" />
     <Compile Include="Execution\DataTypes\CallbackFunction.cs" />
     <Compile Include="Execution\DataTypes\TablePair.cs" />
-    <Compile Include="Execution\IExecutionContext.cs" />
+    <Compile Include="Execution\FileLoadRequestedEventArgs.cs" />
+    <Compile Include="Execution\IExecutionContext.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Execution\Scopes\ClosureContext.cs" />
     <Compile Include="Execution\Scopes\LoopTracker.cs" />
     <Compile Include="Execution\Scopes\IClosureBuilder.cs" />
-    <Compile Include="Execution\DataTypes\LRefType.cs" />
-    <Compile Include="Execution\DataTypes\LRef.cs" />
+    <Compile Include="Execution\DataTypes\SymbolRefType.cs" />
+    <Compile Include="Execution\DataTypes\SymbolRef.cs" />
     <Compile Include="Execution\Scopes\BuildTimeScope.cs" />
     <Compile Include="Execution\Scopes\BuildTimeScopeBlock.cs" />
     <Compile Include="Execution\Scopes\BuildTimeScopeFrame.cs" />
@@ -109,10 +114,10 @@
     <Compile Include="Execution\Scopes\RuntimeScopeFrame.cs" />
     <Compile Include="Execution\ScriptLoadingContext.cs" />
     <Compile Include="Execution\DataTypes\DataType.cs" />
-    <Compile Include="Execution\DataTypes\RValue.cs" />
+    <Compile Include="Execution\DataTypes\DynValue.cs" />
     <Compile Include="Execution\Script.cs" />
     <Compile Include="Execution\DataTypes\Table.cs" />
-    <Compile Include="Execution\VM\Chunk.cs" />
+    <Compile Include="Execution\VM\ByteCode.cs" />
     <Compile Include="DataStructs\FastStack.cs" />
     <Compile Include="Execution\VM\LoopTracker.cs" />
     <Compile Include="Execution\VM\Instruction.cs" />
@@ -132,6 +137,7 @@
     <Compile Include="Grammar\Lua.g4.parser.cs">
       <DependentUpon>Lua.g4</DependentUpon>
     </Compile>
+    <Compile Include="Modules\CoreModules.cs" />
     <Compile Include="Modules\ModuleRegister.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -139,6 +145,7 @@
     <Compile Include="Modules\MoonSharpModuleAttribute.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Tree\Expressions\AdjustmentExpression.cs" />
     <Compile Include="Tree\IVariable.cs" />
     <Compile Include="MoonSharpInterpreter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -155,7 +162,9 @@
     <Compile Include="Tree\NodeBase.cs" />
     <Compile Include="Tree\NodeFactory.cs" />
     <Compile Include="Tree\Statements\AssignmentStatement.cs" />
-    <Compile Include="Tree\Statements\ChunkStatement.cs" />
+    <Compile Include="Tree\Statements\ChunkStatement.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Tree\Statements\CompositeStatement.cs" />
     <Compile Include="Tree\Statements\BreakStatement.cs" />
     <Compile Include="Tree\Statements\ForEachLoopStatement.cs" />

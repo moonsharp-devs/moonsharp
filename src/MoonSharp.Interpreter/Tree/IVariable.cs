@@ -8,6 +8,6 @@ namespace MoonSharp.Interpreter.Tree
 {
 	interface IVariable
 	{
-		void CompileAssignment(Execution.VM.Chunk bc);
+		void CompileAssignment(Execution.VM.ByteCode bc);
 	}
 }

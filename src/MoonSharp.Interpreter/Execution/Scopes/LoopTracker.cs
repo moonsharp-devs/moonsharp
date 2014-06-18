@@ -9,7 +9,7 @@ namespace MoonSharp.Interpreter.Execution
 {
 	interface ILoop
 	{
-		void CompileBreak(Chunk bc);
+		void CompileBreak(ByteCode bc);
 	}
 
 

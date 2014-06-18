@@ -26,7 +26,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			return expressions;
 		}
 
-		public override void Compile(Execution.VM.Chunk bc)
+		public override void Compile(Execution.VM.ByteCode bc)
 		{
 			foreach (var exp in expressions)
 				exp.Compile(bc);

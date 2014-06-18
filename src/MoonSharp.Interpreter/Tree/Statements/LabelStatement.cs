@@ -17,7 +17,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			Label = context.label().NAME().GetText();
 		}
 
-		public override void Compile(Execution.VM.Chunk bc)
+		public override void Compile(Execution.VM.ByteCode bc)
 		{
 			throw new NotImplementedException();
 		}

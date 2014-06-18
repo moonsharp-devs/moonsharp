@@ -11,9 +11,9 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 {
 	class LiteralExpression : Expression
 	{
-		RValue m_Value;
+		DynValue m_Value;
 
-		public LiteralExpression(IParseTree context, ScriptLoadingContext lcontext, RValue rvalue)
+		public LiteralExpression(IParseTree context, ScriptLoadingContext lcontext, DynValue rvalue)
 			: base(context, lcontext)
 		{
 			m_Value = rvalue.AsReadOnly();
@@ -37,11 +37,11 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			ITerminalNode normStr = context.NORMALSTRING();
 
 			if (charStr != null)
-				m_Value = new RValue(NormalizeCharStr(charStr.GetText())).AsReadOnly();
+				m_Value = DynValue.NewString(NormalizeCharStr(charStr.GetText())).AsReadOnly();
 			else if (longStr != null)
-				m_Value = new RValue(NormalizeLongStr(longStr.GetText())).AsReadOnly();
+				m_Value = DynValue.NewString(NormalizeLongStr(longStr.GetText())).AsReadOnly();
 			else if (normStr != null)
-				m_Value = new RValue(NormalizeNormStr(normStr.GetText())).AsReadOnly();
+				m_Value = DynValue.NewString(NormalizeNormStr(normStr.GetText())).AsReadOnly();
 		}
 
 		private string NormalizeNormStr(string str)
@@ -83,10 +83,10 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 			string txt = terminalNode.GetText();
 			double val = parser(txt);
-			m_Value = new RValue(val).AsReadOnly();
+			m_Value = DynValue.NewNumber(val).AsReadOnly();
 		}
 
-		public override void Compile(Execution.VM.Chunk bc)
+		public override void Compile(Execution.VM.ByteCode bc)
 		{
 			bc.Literal(m_Value);
 		}

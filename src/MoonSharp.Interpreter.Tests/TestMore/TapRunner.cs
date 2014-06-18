@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using MoonSharp.Interpreter.CoreLib;
 using MoonSharp.Interpreter.Execution;
 using NUnit.Framework;
 
@@ -12,11 +13,11 @@ namespace MoonSharp.Interpreter.Tests
 	{
 		string m_File;
 
-		public RValue Print(IExecutionContext exctx, CallbackArguments values)
+		public DynValue Print(IExecutionContext exctx, CallbackArguments values)
 		{
-			string str = string.Join(" ", values.List.Select(s => s.AsString()).ToArray());
+			string str = string.Join(" ", values.List.Select(s => s.ToPrintString()).ToArray());
 			Assert.IsFalse(str.Trim().StartsWith("not ok"), string.Format("TAP fail ({0}) : {1}", m_File, str));
-			return RValue.Nil;
+			return DynValue.Nil;
 		}
 
 		public TapRunner(string filename)
@@ -28,9 +29,11 @@ namespace MoonSharp.Interpreter.Tests
 		{
 			string script = File.ReadAllText(m_File);
 			var globalCtx = new Table();
-			globalCtx[new RValue("print")] = new RValue(new CallbackFunction(Print));
-			globalCtx[new RValue("arg")] = new RValue(new Table());
-			MoonSharpInterpreter.LoadFromString(script).Execute(globalCtx);
+			globalCtx["print"] = DynValue.NewCallback(Print);
+			globalCtx["arg"] = DynValue.NewTable();
+			globalCtx.RegisterModuleType<TableIterators>();
+			globalCtx.RegisterModuleType<MetaTableMethods>();
+			(new Script(globalCtx)).DoString(script);
 		}
 
 		public static void Run(string filename)

@@ -40,7 +40,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 		{ }
 
 
-		public override void Compile(Execution.VM.Chunk bc)
+		public override void Compile(Execution.VM.ByteCode bc)
 		{
 			m_StartingExpression.Compile(bc);
 

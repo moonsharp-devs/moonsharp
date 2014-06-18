@@ -10,7 +10,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 {
 	class SymbolRefExpression : Expression, IVariable
 	{
-		LRef m_Ref;
+		SymbolRef m_Ref;
 
 		public SymbolRefExpression(ITerminalNode terminalNode, ScriptLoadingContext lcontext)
 			: base(terminalNode, lcontext)
@@ -20,12 +20,12 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 		}
 
 
-		public override void Compile(Execution.VM.Chunk bc)
+		public override void Compile(Execution.VM.ByteCode bc)
 		{
 			bc.Load(m_Ref);
 		}
 
-		public void CompileAssignment(Execution.VM.Chunk bc)
+		public void CompileAssignment(Execution.VM.ByteCode bc)
 		{
 			bc.Symbol(m_Ref);
 		}

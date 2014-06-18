@@ -10,7 +10,7 @@ using System.Threading;
 
 namespace MoonSharp.Interpreter.Execution.VM
 {
-	public class Chunk
+	public class ByteCode
 	{
 		public List<Instruction> Code = new List<Instruction>();
 		internal LoopTracker LoopTracker = new LoopTracker();
@@ -73,12 +73,12 @@ namespace MoonSharp.Interpreter.Execution.VM
 			Emit(new Instruction() { OpCode = OpCode.TailChk });
 		}
 
-		public Instruction Load(LRef symref)
+		public Instruction Load(SymbolRef symref)
 		{
 			return Emit(new Instruction() { OpCode = OpCode.Load, Symbol = symref });
 		}
 
-		public Instruction Literal(RValue value)
+		public Instruction Literal(DynValue value)
 		{
 			return Emit(new Instruction() { OpCode = OpCode.Literal, Value = value });
 		}
@@ -93,7 +93,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			return Emit(new Instruction() { OpCode = OpCode.Store });
 		}
 
-		public Instruction Symbol(LRef symref)
+		public Instruction Symbol(SymbolRef symref)
 		{
 			return Emit(new Instruction() { OpCode = OpCode.Symbol, Symbol = symref });
 		}
@@ -147,12 +147,12 @@ namespace MoonSharp.Interpreter.Execution.VM
 			return Emit(new Instruction() { OpCode = OpCode.Exit, Block = runtimeScopeBlock });
 		}
 
-		public Instruction Closure(LRef[] symbols, int jmpnum)
+		public Instruction Closure(SymbolRef[] symbols, int jmpnum)
 		{
 			return Emit(new Instruction() { OpCode = OpCode.Closure, SymbolList = symbols, NumVal = jmpnum });
 		}
 
-		public Instruction Args(LRef[] symbols)
+		public Instruction Args(SymbolRef[] symbols)
 		{
 			return Emit(new Instruction() { OpCode = OpCode.Args, SymbolList = symbols });
 		}
@@ -167,7 +167,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			return Emit(new Instruction() { OpCode = OpCode.ToNum });
 		}
 
-		public Instruction SymStorN(LRef symb)
+		public Instruction SymStorN(SymbolRef symb)
 		{
 			return Emit(new Instruction() { OpCode = OpCode.SymStorN, Symbol = symb });
 		}
@@ -225,6 +225,11 @@ namespace MoonSharp.Interpreter.Execution.VM
 				NumVal2 = m_StackFrame.ToFirstBlock,
 				Name = funcName 
 			});
+		}
+
+		public Instruction Scalar()
+		{
+			return Emit(new Instruction() { OpCode = OpCode.Scalar });
 		}
 	}
 }

@@ -21,7 +21,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 
 
 
-		public override void Compile(Execution.VM.Chunk bc)
+		public override void Compile(Execution.VM.ByteCode bc)
 		{
 			m_Expression.Compile(bc);
 			//bc.Exit();

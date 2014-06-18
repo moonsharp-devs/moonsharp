@@ -29,7 +29,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		}
 
 
-		public override void Compile(Execution.VM.Chunk bc)
+		public override void Compile(Execution.VM.ByteCode bc)
 		{
 			if (m_LValues.Length == 1 && m_RValues.Length == 1)
 			{

@@ -14,7 +14,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		//for' NAME '=' exp ',' exp (',' exp)? 'do' block 'end'
 		RuntimeScopeBlock m_StackFrame;
 		Statement m_InnerBlock;
-		LRef m_VarName;
+		SymbolRef m_VarName;
 		Expression m_Start, m_End, m_Step;
 
 		public ForLoopStatement(LuaParser.Stat_forloopContext context, ScriptLoadingContext lcontext)
@@ -28,7 +28,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			if (exps.Length > 2)
 				m_Step = NodeFactory.CreateExpression(exps[2], lcontext);
 			else
-				m_Step = new LiteralExpression(context, lcontext, new RValue(1));
+				m_Step = new LiteralExpression(context, lcontext, DynValue.NewNumber(1));
 
 			lcontext.Scope.PushBlock();
 			m_VarName = lcontext.Scope.DefineLocal(context.NAME().GetText());
@@ -36,7 +36,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			m_StackFrame = lcontext.Scope.PopBlock();
 		}
 
-		public override void Compile(Chunk bc)
+		public override void Compile(ByteCode bc)
 		{
 			Loop L = new Loop()
 			{

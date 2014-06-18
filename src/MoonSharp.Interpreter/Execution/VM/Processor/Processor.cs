@@ -9,41 +9,44 @@ namespace MoonSharp.Interpreter.Execution.VM
 {
 	sealed partial class Processor
 	{
-		Chunk m_RootChunk;
-		Chunk m_CurChunk;
+		ByteCode m_RootChunk;
 
-		FastStack<RValue> m_ValueStack = new FastStack<RValue>(131072);
+		FastStack<DynValue> m_ValueStack = new FastStack<DynValue>(131072);
 		FastStack<CallStackItem> m_ExecutionStack = new FastStack<CallStackItem>(131072);
+		Table m_GlobalTable;
 
 		IDebugger m_DebuggerAttached = null;
 		DebuggerAction.ActionType m_DebuggerCurrentAction = DebuggerAction.ActionType.None;
 		int m_DebuggerCurrentActionTarget = -1;
+		Script m_Script;
 
-		Table m_GlobalTable = new Table();
-
-		public Processor(Chunk rootChunk)
+		public Processor(Script script, Table globalContext, ByteCode byteCode)
 		{
-			m_RootChunk = m_CurChunk = rootChunk;
+			m_RootChunk = byteCode;
+			m_GlobalTable = globalContext;
+			m_Script = script;
 		}
 
-		public void Reset(Table global)
-		{
-			m_CurChunk = m_RootChunk;
-			m_GlobalTable = global;
-		}
 
-		public RValue InvokeRoot()
+		public DynValue Call(DynValue function, DynValue[] args)
 		{
-			m_ValueStack.Push(new RValue(0));  // func val
-			m_ValueStack.Push(new RValue(0));  // func args count
+			m_ValueStack.Push(function);  // func val
+
+			args = Internal_AdjustTuple(args);
+
+			for (int i = 0; i < args.Length; i++)
+				m_ValueStack.Push(args[i]);
+			
+			m_ValueStack.Push(DynValue.NewNumber(args.Length));  // func args count
+
 			m_ExecutionStack.Push(new CallStackItem()
 			{
 				BasePointer = m_ValueStack.Count,
-				Debug_EntryPoint = 0,
+				Debug_EntryPoint = function.Function.ByteCodeLocation,
 				ReturnAddress = -1,
 			});
 
-			return Processing_Loop(0);
+			return Processing_Loop(function.Function.ByteCodeLocation);
 		}
 	}
 }

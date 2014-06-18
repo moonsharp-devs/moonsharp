@@ -11,17 +11,17 @@ namespace MoonSharp
 {
 	class Program
 	{
-		static RValue Print(IExecutionContext executionContext, CallbackArguments values)
+		static DynValue Print(IExecutionContext executionContext, CallbackArguments values)
 		{
-			string prn = string.Join(" ", values.List.Select(v => v.AsString()).ToArray());
+			string prn = string.Join(" ", values.List.Select(v => v.ToPrintString()).ToArray());
 			Console.WriteLine("{0}", prn);
-			return RValue.Nil;
+			return DynValue.Nil;
 		}
 
-		static RValue Read(IExecutionContext executionContext, CallbackArguments values)
+		static DynValue Read(IExecutionContext executionContext, CallbackArguments values)
 		{
 			double d = double.Parse(Console.ReadLine());
-			return new RValue(d);
+			return DynValue.NewNumber(d);
 		}
 
 		static StringBuilder g_TreeDump = new StringBuilder();
@@ -32,18 +32,17 @@ namespace MoonSharp
 			Console.WriteLine("Moon# {0}\nCopyright (C) 2014 Marco Mastropaolo\nhttp://www.moonsharp.org",
 				Assembly.GetExecutingAssembly().GetName().Version);
 
-			Console.WriteLine("Based on Lua 5.2, Copyright (C) 1994-2013 Lua.org");
+			Console.WriteLine("Based on Lua 5.1 - 5.3, Copyright (C) 1994-2014 Lua.org");
 
 			Console.WriteLine();
 
 			if (args.Length == 1)
 			{
-				Table globalTable = new Table();
-				globalTable[new RValue("print")] = new RValue(new CallbackFunction(Print));
+				Script script = new Script();
 
-				var script = MoonSharpInterpreter.LoadFromFile(args[0]);
+				script.Globals["print"] = DynValue.NewCallback(new CallbackFunction(Print));
 
-				script.Execute(globalTable);
+				script.DoFile(args[0]);
 
 				Console.WriteLine("Done.");
 				

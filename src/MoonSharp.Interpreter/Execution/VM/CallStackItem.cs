@@ -8,11 +8,11 @@ namespace MoonSharp.Interpreter.Execution.VM
 	public class CallStackItem
 	{
 		public int Debug_EntryPoint;
-		public LRef[] Debug_Symbols;
+		public SymbolRef[] Debug_Symbols;
 
 		public int BasePointer;
 		public int ReturnAddress;
-		public RValue[] LocalScope;
+		public DynValue[] LocalScope;
 		public ClosureContext ClosureScope;
 	}
 

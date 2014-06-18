@@ -7,9 +7,9 @@ namespace MoonSharp.Interpreter.Execution
 {
 	public class CallbackArguments
 	{
-		IList<RValue> m_Args;
+		IList<DynValue> m_Args;
 
-		public CallbackArguments(IList<RValue> args)
+		public CallbackArguments(IList<DynValue> args)
 		{
 			m_Args = args;
 		}
@@ -19,20 +19,20 @@ namespace MoonSharp.Interpreter.Execution
 			get { return m_Args.Count; }
 		}
 
-		public RValue this[int index]
+		public DynValue this[int index]
 		{
 			get 
 			{
 				if (index < m_Args.Count)
 					return m_Args[index];
 
-				return RValue.Nil;
+				return DynValue.Nil;
 			}
 		}
 
-		public IList<RValue> List { get { return m_Args; } }
+		public IList<DynValue> List { get { return m_Args; } }
 
-		public RValue[] ToArray()
+		public DynValue[] ToArray()
 		{
 			return List.ToArray();
 		}
@@ -44,7 +44,7 @@ namespace MoonSharp.Interpreter.Execution
 				argNum + 1, funcName, expected, got);
 		}
 
-		public RValue AsType(int argNum, string funcName, DataType type, bool allowNil = false)
+		public DynValue AsType(int argNum, string funcName, DataType type, bool allowNil = false)
 		{
 			if (allowNil && this[argNum].Type == DataType.Nil)
 				return this[argNum];

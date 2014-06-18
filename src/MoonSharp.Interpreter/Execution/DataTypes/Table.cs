@@ -10,7 +10,7 @@ namespace MoonSharp.Interpreter.Execution
 	public class Table
 	{
 		LinkedList<TablePair> m_Values;
-		LinkedListIndex<RValue, TablePair> m_ValueMap;
+		LinkedListIndex<DynValue, TablePair> m_ValueMap;
 		LinkedListIndex<string, TablePair> m_StringMap;
 		LinkedListIndex<int, TablePair> m_ArrayMap;
 
@@ -21,7 +21,7 @@ namespace MoonSharp.Interpreter.Execution
 			m_Values = new LinkedList<TablePair>();
 			m_StringMap = new LinkedListIndex<string, TablePair>(m_Values);
 			m_ArrayMap = new LinkedListIndex<int, TablePair>(m_Values);
-			m_ValueMap = new LinkedListIndex<RValue, TablePair>(m_Values);
+			m_ValueMap = new LinkedListIndex<DynValue, TablePair>(m_Values);
 		}
 
 		private int GetIntegralKey(double d)
@@ -34,7 +34,7 @@ namespace MoonSharp.Interpreter.Execution
 			return -1;
 		}
 
-		public RValue this[RValue key]
+		public DynValue this[DynValue key]
 		{
 			get 
 			{
@@ -85,15 +85,15 @@ namespace MoonSharp.Interpreter.Execution
 			}
 		}
 
-		private RValue GetValueOrNil(LinkedListNode<TablePair> linkedListNode)
+		private DynValue GetValueOrNil(LinkedListNode<TablePair> linkedListNode)
 		{
 			if (linkedListNode != null)
 				return linkedListNode.Value.Value;
 
-			return RValue.Nil;
+			return DynValue.Nil;
 		}
 
-		public RValue this[string key]
+		public DynValue this[string key]
 		{
 			get
 			{
@@ -101,13 +101,13 @@ namespace MoonSharp.Interpreter.Execution
 			}
 			set
 			{
-				if (m_StringMap.Set(key, new TablePair(new RValue(key), value)))
+				if (m_StringMap.Set(key, new TablePair(DynValue.NewString(key), value)))
 					CollectDeadKeys();
 			}
 		}
 
 
-		public RValue RawGet(string key)
+		public DynValue RawGet(string key)
 		{
 			var linkedListNode = m_StringMap.Find(key);
 
@@ -117,7 +117,7 @@ namespace MoonSharp.Interpreter.Execution
 			return null;
 		}
 
-		public RValue this[int key]
+		public DynValue this[int key]
 		{
 			get
 			{
@@ -125,7 +125,7 @@ namespace MoonSharp.Interpreter.Execution
 			}
 			set
 			{
-				if (m_ArrayMap.Set(key, new TablePair(new RValue(key), value)))
+				if (m_ArrayMap.Set(key, new TablePair(DynValue.NewNumber(key), value)))
 				{
 					CollectDeadKeys();
 					m_CachedLength = -1;
@@ -166,7 +166,7 @@ namespace MoonSharp.Interpreter.Execution
 			return m_Values;
 		}
 
-		public TablePair NextKey(RValue v)
+		public TablePair NextKey(DynValue v)
 		{
 			if (v.Type == DataType.Nil)
 			{

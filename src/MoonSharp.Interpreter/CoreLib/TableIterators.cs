@@ -17,13 +17,13 @@ namespace MoonSharp.Interpreter.CoreLib
 		//	  for i,v in ipairs(t) do body end
 		// will iterate over the pairs (1,t[1]), (2,t[2]), ..., up to the first integer key absent from the table. 
 		[MoonSharpMethod]
-		static RValue ipairs(IExecutionContext executionContext, CallbackArguments args) 
+		static DynValue ipairs(IExecutionContext executionContext, CallbackArguments args) 
 		{
-			RValue table = args[0];
+			DynValue table = args[0];
 
-			RValue meta = executionContext.GetMetamethodTailCall(table, "__ipairs", args.ToArray());
+			DynValue meta = executionContext.GetMetamethodTailCall(table, "__ipairs", args.ToArray());
 
-			return meta ?? new RValue(new RValue[] { new RValue(new CallbackFunction(__next_i)), table, new RValue(0) });
+			return meta ?? DynValue.NewTuple(DynValue.NewCallback(__next_i), table, DynValue.NewNumber(0));
 		}
 
 		// pairs (t)
@@ -34,13 +34,13 @@ namespace MoonSharp.Interpreter.CoreLib
 		// will iterate over all key–value pairs of table t.
 		// See function next for the caveats of modifying the table during its traversal. 
 		[MoonSharpMethod]
-		static RValue pairs(IExecutionContext executionContext, CallbackArguments args) 
+		static DynValue pairs(IExecutionContext executionContext, CallbackArguments args) 
 		{
-			RValue table = args[0];
+			DynValue table = args[0];
 
-			RValue meta = executionContext.GetMetamethodTailCall(table, "__pairs", args.ToArray());
+			DynValue meta = executionContext.GetMetamethodTailCall(table, "__pairs", args.ToArray());
 
-			return meta ?? new RValue(new RValue[] { new RValue(new CallbackFunction(next)), table });
+			return meta ?? DynValue.NewTuple(DynValue.NewCallback(next), table);
 		}
 
 		// next (table [, index])
@@ -55,34 +55,34 @@ namespace MoonSharp.Interpreter.CoreLib
 		// The behavior of next is undefined if, during the traversal, you assign any value to a non-existent field in the table. 
 		// You may however modify existing fields. In particular, you may clear existing fields. 
 		[MoonSharpMethod]
-		static RValue next(IExecutionContext executionContext, CallbackArguments args) 
+		static DynValue next(IExecutionContext executionContext, CallbackArguments args) 
 		{
-			RValue table = args.AsType(0, "next", DataType.Table);
-			RValue index = args[1];
+			DynValue table = args.AsType(0, "next", DataType.Table);
+			DynValue index = args[1];
 
 			TablePair pair = table.Table.NextKey(index);
 
-			return new RValue(new RValue[] { pair.Key, pair.Value });
+			return DynValue.NewTuple(pair.Key, pair.Value);
 		}
 
 		// __next_i (table [, index])
 		// -------------------------------------------------------------------------------------------------------------------
 		// Allows a program to traverse all fields of an array. index is an integer number
-		static RValue __next_i(IExecutionContext executionContext, CallbackArguments args) 
+		static DynValue __next_i(IExecutionContext executionContext, CallbackArguments args) 
 		{
-			RValue table = args.AsType(0, "!!next_i!!", DataType.Table);
-			RValue index = args.AsType(1, "!!next_i!!", DataType.Number);
+			DynValue table = args.AsType(0, "!!next_i!!", DataType.Table);
+			DynValue index = args.AsType(1, "!!next_i!!", DataType.Number);
 
 			int idx = ((int)index.Number) + 1;
-			RValue val = table.Table[idx];
+			DynValue val = table.Table[idx];
 			
 			if (val.Type != DataType.Nil)
 			{
-				return new RValue(new RValue[] { new RValue(idx), val });
+				return DynValue.NewTuple(DynValue.NewNumber(idx), val);
 			}
 			else
 			{
-				return RValue.Nil;
+				return DynValue.Nil;
 			}
 		}
 	}

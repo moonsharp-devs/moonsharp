@@ -10,7 +10,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 {
 	class FunctionDefinitionStatement : Statement
 	{
-		LRef m_FuncName;
+		SymbolRef m_FuncName;
 		List<string> m_TableAccessors;
 		string m_MethodName;
 		string m_FriendlyName;
@@ -53,7 +53,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			}
 			else
 			{
-				m_FuncName = LRef.Global(fnname.Text);
+				m_FuncName = SymbolRef.Global(fnname.Text);
 				m_FriendlyName = fnname.Text;
 			}
 
@@ -70,12 +70,12 @@ namespace MoonSharp.Interpreter.Tree.Statements
 
 
 
-		public override void Compile(Execution.VM.Chunk bc)
+		public override void Compile(Execution.VM.ByteCode bc)
 		{
 			if (m_Local)
 			{
 				bc.Symbol(m_FuncName);
-				bc.Literal(RValue.Nil);
+				bc.Literal(DynValue.Nil);
 				bc.Store();
 				bc.Symbol(m_FuncName);
 				m_FuncDef.Compile(bc, () => bc.Store(), m_FriendlyName);
@@ -93,11 +93,11 @@ namespace MoonSharp.Interpreter.Tree.Statements
 
 				foreach (string str in m_TableAccessors)
 				{
-					bc.Literal(new RValue(str));
+					bc.Literal(DynValue.NewString(str));
 					bc.Index();
 				}
 
-				bc.Literal(new RValue(m_MethodName));
+				bc.Literal(DynValue.NewString(m_MethodName));
 
 				bc.IndexRef();
 

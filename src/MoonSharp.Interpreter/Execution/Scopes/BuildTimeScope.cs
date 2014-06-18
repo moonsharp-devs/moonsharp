@@ -41,9 +41,9 @@ namespace MoonSharp.Interpreter.Execution
 		}
 
 
-		public LRef Find(string name)
+		public SymbolRef Find(string name)
 		{
-			LRef local = m_Frames.Last().Find(name);
+			SymbolRef local = m_Frames.Last().Find(name);
 
 			if (local != null)
 				return local;
@@ -58,22 +58,22 @@ namespace MoonSharp.Interpreter.Execution
 				{
 					for (int i = closureLocalBlockIdx; i >= 0; i--)
 					{
-						LRef symb = m_Frames[i].Find(name);
+						SymbolRef symb = m_Frames[i].Find(name);
 						if (symb != null)
 							return closure.CreateUpvalue(this, symb);
 					}
 				}
 			}
 
-			return LRef.Global(name);
+			return SymbolRef.Global(name);
 		}
 
-		public LRef DefineLocal(string name)
+		public SymbolRef DefineLocal(string name)
 		{
 			return m_Frames.Last().DefineLocal(name);
 		}
 
-		public LRef TryDefineLocal(string name)
+		public SymbolRef TryDefineLocal(string name)
 		{
 			return m_Frames.Last().TryDefineLocal(name);
 		}

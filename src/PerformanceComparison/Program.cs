@@ -86,25 +86,25 @@ end
 		static StringBuilder g_MoonSharpStr = new StringBuilder();
 		static StringBuilder g_NLuaStr = new StringBuilder();
 
-		public static RValue Print(IExecutionContext executionContext, CallbackArguments values)
+		public static DynValue Print(IExecutionContext executionContext, CallbackArguments values)
 		{
 			foreach (var val in values.List)
 			{
-				g_MoonSharpStr.Append(val.AsString());
+				g_MoonSharpStr.Append(val.ToPrintString());
 			}
 
 			g_MoonSharpStr.AppendLine();
-			return RValue.Nil;
+			return DynValue.Nil;
 		}
 
 		private static void Example()
 		{
 			Table t = new Table();
-			t[new RValue("print")] = new RValue(new CallbackFunction(Print));
+			t["print"] = DynValue.NewCallback(Print);
 
-			Script script = MoonSharpInterpreter.LoadFromFile(@"c:\temp\test.lua");
+			Script script = new Script(t);
 
-			RValue retVal = script.Execute(t);
+			DynValue retVal = script.DoFile("test.lua");
 		}
 
 		public static void NPrint(params object[] values)
@@ -126,9 +126,9 @@ end
 			sw = Stopwatch.StartNew();
 
 			Table t = new Table();
-			t[new RValue("print")] = new RValue(new CallbackFunction(Print));
+			t["print"] = DynValue.NewCallback(new CallbackFunction(Print));
 
-			MoonSharpInterpreter.LoadFromString(scriptText);
+			Script.RunString(scriptText);
 
 			sw.Stop();
 
@@ -137,9 +137,10 @@ end
 			sw = Stopwatch.StartNew();
 
 			t = new Table();
-			t[new RValue("print")] = new RValue(new CallbackFunction(Print));
+			t["print"] = DynValue.NewCallback(new CallbackFunction(Print));
 
-			var script = MoonSharpInterpreter.LoadFromString(scriptText);
+			var script = new Script(t);
+			DynValue func = script.LoadString(scriptText);
 
 			sw.Stop();
 
@@ -149,7 +150,7 @@ end
 			sw = Stopwatch.StartNew();
 			for (int i = 0; i < ITERATIONS; i++)
 			{
-				script.Execute(t);
+				script.Call(0, func);
 			}
 			sw.Stop();
 

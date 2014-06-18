@@ -12,8 +12,8 @@ namespace MoonSharp.Debugger
 {
 	public partial class ValueBrowser : Form
 	{
-		Stack<RValue> m_ValueStack = new Stack<RValue>();
-		public static void StartBrowse(RValue v)
+		Stack<DynValue> m_ValueStack = new Stack<DynValue>();
+		public static void StartBrowse(DynValue v)
 		{
 			if (v == null)
 				return;
@@ -35,7 +35,7 @@ namespace MoonSharp.Debugger
 
 		private void InvalidateData()
 		{
-			RValue V = m_ValueStack.Peek();
+			DynValue V = m_ValueStack.Peek();
 			toolBack.Enabled = (m_ValueStack.Count > 1);
 
 			lvMetaTable.BeginUpdate();
@@ -124,14 +124,14 @@ namespace MoonSharp.Debugger
 		{
 			foreach (ListViewItem lvi in lv.Items)
 			{
-				if (lvi.Tag is RValue)
+				if (lvi.Tag is DynValue)
 				{
 					lvi.ForeColor = Color.Blue;
 				}
 			}
 		}
 
-		private void BuildSymbolTable(RValue V)
+		private void BuildSymbolTable(DynValue V)
 		{
 			var S = V.Symbol;
 			lvTableData.Add("Type", S.Type);
@@ -141,7 +141,7 @@ namespace MoonSharp.Debugger
 			lvTableData.Add("Table Ref Object", S.TableRefObject).Tag = S.TableRefObject;
 		}
 
-		private void BuildFunctionTable(RValue V)
+		private void BuildFunctionTable(DynValue V)
 		{
 			var F = V.Function;
 			var C = F.ClosureContext;
@@ -153,7 +153,7 @@ namespace MoonSharp.Debugger
 			}
 		}
 
-		private void BuildTupleTable(RValue V)
+		private void BuildTupleTable(DynValue V)
 		{
 			var T = V.Tuple;
 
@@ -163,7 +163,7 @@ namespace MoonSharp.Debugger
 			}
 		}
 
-		private void BuildTableTable(ListView listView, RValue V)
+		private void BuildTableTable(ListView listView, DynValue V)
 		{
 			var T = V.Table;
 
@@ -207,7 +207,7 @@ namespace MoonSharp.Debugger
 			ListViewItem lvi = listView.SelectedItems.OfType<ListViewItem>().FirstOrDefault();
 			if (lvi == null) return;
 
-			RValue v = lvi.Tag as RValue;
+			DynValue v = lvi.Tag as DynValue;
 
 			if (v != null)
 			{

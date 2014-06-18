@@ -8,7 +8,7 @@ namespace MoonSharp.Interpreter.Execution
 	public interface IClosureBuilder
 	{
 		object UpvalueCreationTag { get; set; }
-		LRef CreateUpvalue(BuildTimeScope scope, LRef symbol);
+		SymbolRef CreateUpvalue(BuildTimeScope scope, SymbolRef symbol);
 
 	}
 }

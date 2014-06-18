@@ -22,16 +22,16 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 
 			var globalCtx = new Table();
-			globalCtx[new RValue("clrtail")] = new RValue(new CallbackFunction((xc, a) =>
+			globalCtx["clrtail"] = DynValue.NewCallback((xc, a) =>
 			{
-				LRef lref = LRef.Global("getResult");
-				RValue fn = xc.GetVar(lref);
-				RValue k3 = new RValue(a[0].Number / 3);
+				SymbolRef lref = SymbolRef.Global("getResult");
+				DynValue fn = xc.GetVar(lref);
+				DynValue k3 = DynValue.NewNumber(a[0].Number / 3);
 
-				return new RValue(fn, k3);
-			}));
+				return DynValue.NewTailCallReq(fn, k3);
+			});
 
-			var res = MoonSharpInterpreter.LoadFromString(script).Execute(globalCtx);
+			var res = (new Script(globalCtx)).DoString(script);
 
 			Assert.AreEqual(DataType.Number, res.Type);
 			Assert.AreEqual(468, res.Number);

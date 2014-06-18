@@ -9,13 +9,53 @@ namespace MoonSharp.Interpreter.Execution.VM
 {
 	sealed partial class Processor
 	{
-		private int Internal_InvokeUnaryMetaMethod(RValue op1, string eventName, int instructionPtr)
+		private DynValue[] Internal_AdjustTuple(IList<DynValue> values)
 		{
-			RValue m = null;
+			if (values == null || values.Count == 0)
+				return new DynValue[0];
+
+			if (values[values.Count - 1].Type == DataType.Tuple)
+			{
+				int baseLen = values.Count - 1 + values[values.Count - 1].Tuple.Length;
+				DynValue[] result = new DynValue[baseLen];
+
+				for (int i = 0; i < values.Count - 1; i++)
+				{
+					result[i] = values[i].ToScalar();
+				}
+
+				for (int i = 0; i < values[values.Count - 1].Tuple.Length; i++)
+				{
+					result[values.Count + i - 1] = values[values.Count - 1].Tuple[i];
+				}
+
+				if (result[result.Length - 1].Type == DataType.Tuple)
+					return Internal_AdjustTuple(result);
+				else
+					return result;
+			}
+			else
+			{
+				DynValue[] result = new DynValue[values.Count];
+
+				for (int i = 0; i < values.Count; i++)
+				{
+					result[i] = values[i].ToScalar();
+				}
+
+				return result;
+			}
+		}
+
+
+
+		private int Internal_InvokeUnaryMetaMethod(DynValue op1, string eventName, int instructionPtr)
+		{
+			DynValue m = null;
 
 			if (op1.Meta != null)
 			{
-				RValue meta1 = op1.Meta.Table.RawGet(eventName);
+				DynValue meta1 = op1.Meta.Table.RawGet(eventName);
 				if (meta1 != null && meta1.Type != DataType.Nil)
 					m = meta1;
 			}
@@ -31,7 +71,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				return -1;
 			}
 		}
-		private int Internal_InvokeBinaryMetaMethod(RValue l, RValue r, string eventName, int instructionPtr)
+		private int Internal_InvokeBinaryMetaMethod(DynValue l, DynValue r, string eventName, int instructionPtr)
 		{
 			var m = Internal_GetBinHandler(l, r, eventName);
 
@@ -48,17 +88,17 @@ namespace MoonSharp.Interpreter.Execution.VM
 			}
 		}
 
-		private RValue Internal_GetBinHandler(RValue op1, RValue op2, string eventName)
+		private DynValue Internal_GetBinHandler(DynValue op1, DynValue op2, string eventName)
 		{
 			if (op1.Meta != null)
 			{
-				RValue meta1 = op1.Meta.Table.RawGet(eventName);
+				DynValue meta1 = op1.Meta.Table.RawGet(eventName);
 				if (meta1 != null && meta1.Type != DataType.Nil)
 					return meta1;
 			}
 			if (op2.Meta != null)
 			{
-				RValue meta2 = op2.Meta.Table.RawGet(eventName);
+				DynValue meta2 = op2.Meta.Table.RawGet(eventName);
 				if (meta2 != null && meta2.Type != DataType.Nil)
 					return meta2;
 			}
@@ -66,9 +106,9 @@ namespace MoonSharp.Interpreter.Execution.VM
 		}
 
 
-		private RValue[] StackTopToArray(int items, bool pop)
+		private DynValue[] StackTopToArray(int items, bool pop)
 		{
-			RValue[] values = new RValue[items];
+			DynValue[] values = new DynValue[items];
 
 			if (pop)
 			{
@@ -88,9 +128,9 @@ namespace MoonSharp.Interpreter.Execution.VM
 			return values;
 		}
 
-		private RValue[] StackTopToArrayReverse(int items, bool pop)
+		private DynValue[] StackTopToArrayReverse(int items, bool pop)
 		{
-			RValue[] values = new RValue[items];
+			DynValue[] values = new DynValue[items];
 
 			if (pop)
 			{

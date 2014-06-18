@@ -16,12 +16,12 @@ namespace MoonSharp.Interpreter.CoreLib
 		// If the original metatable has a "__metatable" field, raises an error ("cannot change a protected metatable").
 		// This function returns table. 
 		[MoonSharpMethod]
-		public static RValue setmetatable(IExecutionContext executionContext, CallbackArguments args)  
+		public static DynValue setmetatable(IExecutionContext executionContext, CallbackArguments args)  
 		{
-			RValue table = args.AsType(0, "setmetatable", DataType.Table);
-			RValue metatable = args.AsType(1, "setmetatable", DataType.Table, true);
+			DynValue table = args.AsType(0, "setmetatable", DataType.Table);
+			DynValue metatable = args.AsType(1, "setmetatable", DataType.Table, true);
 
-			RValue curmeta = executionContext.GetMetamethod(table, "__metatable");
+			DynValue curmeta = executionContext.GetMetamethod(table, "__metatable");
 
 			if (curmeta != null)
 			{
@@ -37,31 +37,31 @@ namespace MoonSharp.Interpreter.CoreLib
 		// If object does not have a metatable, returns nil. Otherwise, if the object's metatable 
 		// has a "__metatable" field, returns the associated value. Otherwise, returns the metatable of the given object. 
 		[MoonSharpMethod]
-		public static RValue getmetatable(IExecutionContext executionContext, CallbackArguments args)  
+		public static DynValue getmetatable(IExecutionContext executionContext, CallbackArguments args)  
 		{
-			RValue obj = args[0];
+			DynValue obj = args[0];
 
 			if (obj.Type == DataType.Nil)
-				return RValue.Nil;
+				return DynValue.Nil;
 
-			RValue curmeta = executionContext.GetMetamethod(obj, "__metatable");
+			DynValue curmeta = executionContext.GetMetamethod(obj, "__metatable");
 
 			if (curmeta != null)
 			{
 				return curmeta;
 			}
 
-			return obj.Meta ?? RValue.Nil;
+			return obj.Meta ?? DynValue.Nil;
 		}
 
 		// rawget (table, index)
 		// -------------------------------------------------------------------------------------------------------------------
 		// Gets the real value of table[index], without invoking any metamethod. table must be a table; index may be any value.
 		[MoonSharpMethod]
-		public static RValue rawget(IExecutionContext executionContext, CallbackArguments args)  
+		public static DynValue rawget(IExecutionContext executionContext, CallbackArguments args)  
 		{
-			RValue table = args.AsType(0, "rawget", DataType.Table);
-			RValue index = args[1];
+			DynValue table = args.AsType(0, "rawget", DataType.Table);
+			DynValue index = args[1];
 
 			return table.Table[index];
 		}
@@ -72,10 +72,10 @@ namespace MoonSharp.Interpreter.CoreLib
 		// index any value different from nil and NaN, and value any Lua value.
 		// This function returns table. 
 		[MoonSharpMethod]
-		public static RValue rawset(IExecutionContext executionContext, CallbackArguments args)  
+		public static DynValue rawset(IExecutionContext executionContext, CallbackArguments args)  
 		{
-			RValue table = args.AsType(0, "rawset", DataType.Table);
-			RValue index = args[1];
+			DynValue table = args.AsType(0, "rawset", DataType.Table);
+			DynValue index = args[1];
 
 			table.Table[index] = args[2];
 
@@ -86,21 +86,21 @@ namespace MoonSharp.Interpreter.CoreLib
 		// -------------------------------------------------------------------------------------------------------------------
 		// Checks whether v1 is equal to v2, without invoking any metamethod. Returns a boolean. 
 		[MoonSharpMethod]
-		public static RValue rawequal(IExecutionContext executionContext, CallbackArguments args)  
+		public static DynValue rawequal(IExecutionContext executionContext, CallbackArguments args)  
 		{
-			RValue v1 = args[0];
-			RValue v2 = args[1];
+			DynValue v1 = args[0];
+			DynValue v2 = args[1];
 
-			return new RValue(v1.Equals(v2)); 
+			return DynValue.NewBoolean(v1.Equals(v2)); 
 		}
 
 		//rawlen (v)
 		// -------------------------------------------------------------------------------------------------------------------
 		//Returns the length of the object v, which must be a table or a string, without invoking any metamethod. Returns an integer number.	
 		[MoonSharpMethod]
-		public static RValue rawlen(IExecutionContext executionContext, CallbackArguments args) 
+		public static DynValue rawlen(IExecutionContext executionContext, CallbackArguments args) 
 		{
-			return new RValue(args[0].GetLength());
+			return args[0].GetLength();
 		}
 
 

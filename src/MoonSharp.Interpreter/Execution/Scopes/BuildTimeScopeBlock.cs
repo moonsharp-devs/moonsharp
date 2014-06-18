@@ -12,7 +12,7 @@ namespace MoonSharp.Interpreter.Execution.Scopes
 
 		internal RuntimeScopeBlock ScopeBlock { get; private set; }
 
-		Dictionary<string, LRef> m_DefinedNames = new Dictionary<string, LRef>();
+		Dictionary<string, SymbolRef> m_DefinedNames = new Dictionary<string, SymbolRef>();
 
 		internal BuildTimeScopeBlock(BuildTimeScopeBlock parent)
 		{
@@ -29,14 +29,14 @@ namespace MoonSharp.Interpreter.Execution.Scopes
 			return block;
 		}
 
-		internal LRef Find(string name)
+		internal SymbolRef Find(string name)
 		{
 			return m_DefinedNames.GetOrDefault(name);
 		}
 
-		internal LRef Define(string name)
+		internal SymbolRef Define(string name)
 		{
-			LRef l = LRef.Local(name, -1);
+			SymbolRef l = SymbolRef.Local(name, -1);
 			m_DefinedNames.Add(name, l);
 			return l;
 		}
@@ -46,7 +46,7 @@ namespace MoonSharp.Interpreter.Execution.Scopes
 			int firstVal = -1;
 			int lastVal = -1;
 
-			foreach (LRef lref in m_DefinedNames.Values)
+			foreach (SymbolRef lref in m_DefinedNames.Values)
 			{
 				int pos = buildTimeScopeFrame.AllocVar(lref);
 

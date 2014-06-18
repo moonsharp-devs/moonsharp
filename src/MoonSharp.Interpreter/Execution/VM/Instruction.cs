@@ -8,10 +8,10 @@ namespace MoonSharp.Interpreter.Execution.VM
 	public class Instruction
 	{
 		public OpCode OpCode;
-		public LRef Symbol;
-		public LRef[] SymbolList;
+		public SymbolRef Symbol;
+		public SymbolRef[] SymbolList;
 		public string Name;
-		public RValue Value;
+		public DynValue Value;
 		public int NumVal;
 		public int NumVal2;
 		public RuntimeScopeBlock Block;
@@ -87,7 +87,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				return frame.ToString();
 		}
 
-		private string PurifyFromNewLines(RValue Value)
+		private string PurifyFromNewLines(DynValue Value)
 		{
 			return Value.ToString().Replace('\n', ' ').Replace('\r', ' ');
 		}

@@ -52,7 +52,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 						m_DebuggerCurrentActionTarget = -1;
 						return;
 					case DebuggerAction.ActionType.ToggleBreakpoint:
-						m_CurChunk.Code[action.InstructionPtr].Breakpoint = !m_CurChunk.Code[action.InstructionPtr].Breakpoint;
+						m_RootChunk.Code[action.InstructionPtr].Breakpoint = !m_RootChunk.Code[action.InstructionPtr].Breakpoint;
 						break;
 					case DebuggerAction.ActionType.Refresh:
 						RefreshDebugger();
@@ -97,11 +97,11 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		private WatchItem Debugger_RefreshWatch(string name)
 		{
-			LRef L = FindRefByName(name);
+			SymbolRef L = FindRefByName(name);
 
 			if (L != null)
 			{
-				RValue v = this.GetGenericSymbol(L);
+				DynValue v = this.GetGenericSymbol(L);
 
 				return new WatchItem()
 				{
@@ -124,7 +124,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			{
 				var c = m_ExecutionStack.Peek(i);
 
-				var I = m_CurChunk.Code[c.Debug_EntryPoint];
+				var I = m_RootChunk.Code[c.Debug_EntryPoint];
 
 				string callname = I.OpCode == OpCode.BeginFn ? I.Name : null;
 

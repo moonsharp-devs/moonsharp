@@ -11,7 +11,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 {
 	class LocalAssignmentStatement : Statement
 	{
-		LRef[] m_Names;
+		SymbolRef[] m_Names;
 		Expression[] m_RValues;
 
 		public LocalAssignmentStatement(LuaParser.Stat_localassignmentContext context, ScriptLoadingContext lcontext)
@@ -36,7 +36,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		}
 
 
-		public override void Compile(Execution.VM.Chunk bc)
+		public override void Compile(Execution.VM.ByteCode bc)
 		{
 			if (m_Names.Length == 1 && m_RValues.Length == 1)
 			{

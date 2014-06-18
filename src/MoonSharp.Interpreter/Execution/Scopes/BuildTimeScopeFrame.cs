@@ -43,11 +43,11 @@ namespace MoonSharp.Interpreter.Execution.Scopes
 			return m_ScopeFrame;
 		}
 
-		internal LRef Find(string name)
+		internal SymbolRef Find(string name)
 		{
 			for (var tree = m_ScopeTreeHead; tree != null; tree = tree.Parent)
 			{
-				LRef l = tree.Find(name);
+				SymbolRef l = tree.Find(name);
 
 				if (l != null)
 					return l;
@@ -56,12 +56,12 @@ namespace MoonSharp.Interpreter.Execution.Scopes
 			return null;
 		}
 
-		internal LRef DefineLocal(string name)
+		internal SymbolRef DefineLocal(string name)
 		{
 			return m_ScopeTreeHead.Define(name);
 		}
 
-		internal LRef TryDefineLocal(string name)
+		internal SymbolRef TryDefineLocal(string name)
 		{
 			return m_ScopeTreeHead.Find(name) ?? m_ScopeTreeHead.Define(name);
 		}
@@ -71,7 +71,7 @@ namespace MoonSharp.Interpreter.Execution.Scopes
 			m_ScopeTreeRoot.ResolveLRefs(this);
 		}
 
-		internal int AllocVar(LRef var)
+		internal int AllocVar(SymbolRef var)
 		{
 			var.i_Index = m_ScopeFrame.DebugSymbols.Count;
 			m_ScopeFrame.DebugSymbols.Add(var);

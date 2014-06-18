@@ -11,10 +11,12 @@ namespace MoonSharp.Interpreter.Execution
 
 		public ClosureContext ClosureContext { get; private set; }
 
+		public Table GlobalEnv { get; set; }
+
 		private static ClosureContext emptyClosure = new ClosureContext();
 
 
-		internal Closure(int idx, LRef[] symbols, RValue[] localscope)
+		internal Closure(int idx, SymbolRef[] symbols, DynValue[] localscope)
 		{
 			ByteCodeLocation = idx;
 

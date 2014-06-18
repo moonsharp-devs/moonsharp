@@ -23,7 +23,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 
 
-		public override void Compile(Chunk bc)
+		public override void Compile(ByteCode bc)
 		{
 			m_BaseExp.Compile(bc);
 			m_IndexExp.Compile(bc);
@@ -31,7 +31,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 		}
 
 
-		public void CompileAssignment(Chunk bc)
+		public void CompileAssignment(ByteCode bc)
 		{
 			m_BaseExp.Compile(bc);
 			m_IndexExp.Compile(bc);

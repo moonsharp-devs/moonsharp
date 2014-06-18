@@ -13,18 +13,18 @@ namespace MoonSharp.Interpreter.Tests
 		[Test]
 		public void CSharpStaticFunctionCallStatement()
 		{
-			IList<RValue> args = null;
+			IList<DynValue> args = null;
 
 			string script = "print(\"hello\", \"world\");";
 
 			var globalCtx = new Table();
-			globalCtx[new RValue("print")] = new RValue(new CallbackFunction((x, a) => 
+			globalCtx["print"] = DynValue.NewCallback(new CallbackFunction((x, a) => 
 			{
-				args = a.ToArray(); 
-				return new RValue(1234.0); 
+				args = a.ToArray();
+				return DynValue.NewNumber(1234.0); 
 			}));
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(globalCtx);
+			DynValue res = (new Script(globalCtx)).DoString(script);
 
 			Assert.AreEqual(DataType.Nil, res.Type);
 			Assert.AreEqual(2, args.Count);
@@ -37,14 +37,14 @@ namespace MoonSharp.Interpreter.Tests
 		[Test]
 		public void CSharpStaticFunctionCallRedef()
 		{
-			IList<RValue> args = null;
+			IList<DynValue> args = null;
 
 			string script = "local print = print; print(\"hello\", \"world\");";
 
 			var globalCtx = new Table();
-			globalCtx[new RValue("print")] = new RValue(new CallbackFunction((_x, a) => { args = a.ToArray(); return new RValue(1234.0); }));
+			globalCtx["print"] = DynValue.NewCallback(new CallbackFunction((_x, a) => { args = a.ToArray(); return DynValue.NewNumber(1234.0); }));
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(globalCtx);
+			DynValue res = (new Script(globalCtx)).DoString(script);
 
 			Assert.AreEqual(2, args.Count);
 			Assert.AreEqual(DataType.String, args[0].Type);
@@ -57,14 +57,14 @@ namespace MoonSharp.Interpreter.Tests
 		[Test]
 		public void CSharpStaticFunctionCall()
 		{
-			IList<RValue> args = null;
+			IList<DynValue> args = null;
 
 			string script = "return print(\"hello\", \"world\");";
 
 			var globalCtx = new Table();
-			globalCtx[new RValue("print")] = new RValue(new CallbackFunction((_x, a) => { args = a.ToArray(); return new RValue(1234.0); }));
+			globalCtx["print"] = DynValue.NewCallback(new CallbackFunction((_x, a) => { args = a.ToArray(); return DynValue.NewNumber(1234.0); }));
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(globalCtx);
+			DynValue res = (new Script(globalCtx)).DoString(script);
 
 			Assert.AreEqual(2, args.Count);
 			Assert.AreEqual(DataType.String, args[0].Type);
@@ -89,7 +89,7 @@ namespace MoonSharp.Interpreter.Tests
 
 				return x,y,z";
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(null);
+			DynValue res = Script.RunString(script);
 
 			Assert.AreEqual(3, res.Tuple.Length);
 			Assert.AreEqual(DataType.String, res.Tuple[0].Type);
@@ -105,7 +105,7 @@ namespace MoonSharp.Interpreter.Tests
 		{
 			string script = @"return 6*7";
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(null);
+			DynValue res = Script.RunString(script);
 
 			Assert.AreEqual(DataType.Number, res.Type);
 			Assert.AreEqual(42, res.Number);
@@ -121,12 +121,12 @@ namespace MoonSharp.Interpreter.Tests
 			";
 
 			var globalCtx = new Table();
-			globalCtx[new RValue("crash")] = new RValue(new CallbackFunction((_x, a) =>
+			globalCtx["crash"] = DynValue.NewCallback(new CallbackFunction((_x, a) =>
 			{
 				throw new Exception("FAIL!");
 			}));
 
-			MoonSharpInterpreter.LoadFromString(script).Execute(globalCtx);
+			(new Script(globalCtx)).DoString(script);
 		}
 
 
@@ -146,7 +146,7 @@ namespace MoonSharp.Interpreter.Tests
 
 				return false or f(), true or f(), false and f(), true and f(), i";
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(null);
+			DynValue res = Script.RunString(script);
 
 			Assert.AreEqual(5, res.Tuple.Length);
 			Assert.AreEqual(DataType.String, res.Tuple[0].Type);
@@ -174,7 +174,7 @@ namespace MoonSharp.Interpreter.Tests
 			move(4, 1, 2, 3)
 			";
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(null);
+			DynValue res = Script.RunString(script);
 		}
 
 		[Test]
@@ -192,7 +192,7 @@ namespace MoonSharp.Interpreter.Tests
     
 				return fact(5)";
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(null);
+			DynValue res = Script.RunString(script);
 
 			Assert.AreEqual(DataType.Number, res.Type);
 			Assert.AreEqual(120.0, res.Number);
@@ -211,7 +211,7 @@ namespace MoonSharp.Interpreter.Tests
     
 				return i, x";
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(null);
+			DynValue res = Script.RunString(script);
 
 			Assert.AreEqual(DataType.Tuple, res.Type);
 			Assert.AreEqual(2, res.Tuple.Length);
@@ -232,7 +232,7 @@ namespace MoonSharp.Interpreter.Tests
 		
 				return i, x";
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(null);
+			DynValue res = Script.RunString(script);
 
 			Assert.AreEqual(DataType.Tuple, res.Type);
 			Assert.AreEqual(2, res.Tuple.Length);
@@ -254,7 +254,7 @@ namespace MoonSharp.Interpreter.Tests
     
 				return x";
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(null);
+			DynValue res = Script.RunString(script);
 
 			Assert.AreEqual(DataType.Number, res.Type);
 			Assert.AreEqual(1, res.Number);
@@ -293,7 +293,7 @@ namespace MoonSharp.Interpreter.Tests
     
 				return x, y";
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(null);
+			DynValue res = Script.RunString(script);
 
 			Assert.AreEqual(DataType.Tuple, res.Type);
 			Assert.AreEqual(2, res.Tuple.Length);
@@ -332,7 +332,7 @@ namespace MoonSharp.Interpreter.Tests
     
 				return x, y";
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(null);
+			DynValue res = Script.RunString(script);
 
 			Assert.AreEqual(DataType.Tuple, res.Type);
 			Assert.AreEqual(2, res.Tuple.Length);
@@ -351,7 +351,7 @@ namespace MoonSharp.Interpreter.Tests
    
 				return #x, #y";
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(null);
+			DynValue res = Script.RunString(script);
 
 			Assert.AreEqual(DataType.Tuple, res.Type);
 			Assert.AreEqual(2, res.Tuple.Length);
@@ -378,7 +378,7 @@ namespace MoonSharp.Interpreter.Tests
     
 				return i, x";
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(null);
+			DynValue res = Script.RunString(script);
 
 			Assert.AreEqual(DataType.Tuple, res.Type);
 			Assert.AreEqual(2, res.Tuple.Length);
@@ -401,7 +401,7 @@ namespace MoonSharp.Interpreter.Tests
     
 				return fact(5)";
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(null);
+			DynValue res = Script.RunString(script);
 
 			Assert.AreEqual(DataType.Number, res.Type);
 			Assert.AreEqual(120.0, res.Number);
@@ -412,7 +412,7 @@ namespace MoonSharp.Interpreter.Tests
 		{
 			string script = @"return 5+3*7-2*5+2^3^2";
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(null);
+			DynValue res = Script.RunString(script);
 
 			Assert.AreEqual(DataType.Number, res.Type);
 			Assert.AreEqual(528, res.Number);
@@ -423,7 +423,7 @@ namespace MoonSharp.Interpreter.Tests
 		{
 			string script = @"return (5+3)*7-2*5+(2^3)^2";
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(null);
+			DynValue res = Script.RunString(script);
 
 			Assert.AreEqual(DataType.Number, res.Type);
 			Assert.AreEqual(110, res.Number);
@@ -434,7 +434,7 @@ namespace MoonSharp.Interpreter.Tests
 		{
 			string script = @"x = 1; return x;";    
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(null);
+			DynValue res = Script.RunString(script);
 
 			Assert.AreEqual(DataType.Number, res.Type);
 			Assert.AreEqual(1, res.Number);
@@ -455,7 +455,7 @@ namespace MoonSharp.Interpreter.Tests
     
 				return w+x+y+z";
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(null);
+			DynValue res = Script.RunString(script);
 
 			Assert.AreEqual(DataType.Number, res.Type);
 			Assert.AreEqual(6, res.Number);
@@ -476,7 +476,7 @@ namespace MoonSharp.Interpreter.Tests
     
 				return fact(5)";
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(null);
+			DynValue res = Script.RunString(script);
 
 			Assert.AreEqual(DataType.Number, res.Type);
 			Assert.AreEqual(120.0, res.Number);
@@ -500,7 +500,7 @@ namespace MoonSharp.Interpreter.Tests
     
 				return fact(5)";
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(null);
+			DynValue res = Script.RunString(script);
 
 			Assert.AreEqual(DataType.Number, res.Type);
 			Assert.AreEqual(120.0, res.Number);
@@ -519,7 +519,7 @@ namespace MoonSharp.Interpreter.Tests
 					return x;
 			";
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(null);
+			DynValue res = Script.RunString(script);
 
 			Assert.AreEqual(DataType.Number, res.Type);
 			Assert.AreEqual(6.0, res.Number);
@@ -535,7 +535,7 @@ namespace MoonSharp.Interpreter.Tests
     
 				return fact(3)";
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(null);
+			DynValue res = Script.RunString(script);
 
 			Assert.AreEqual(DataType.Number, res.Type);
 			Assert.AreEqual(3, res.Number);
@@ -557,7 +557,7 @@ namespace MoonSharp.Interpreter.Tests
     
 				return fact(5)";
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(null);
+			DynValue res = Script.RunString(script);
 
 			Assert.AreEqual(DataType.Number, res.Type);
 			Assert.AreEqual(120.0, res.Number);
@@ -575,7 +575,7 @@ namespace MoonSharp.Interpreter.Tests
 				return fact();
 				";
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(null);
+			DynValue res = Script.RunString(script);
 
 			Assert.AreEqual(DataType.Function, res.Type);
 		}
@@ -596,7 +596,7 @@ namespace MoonSharp.Interpreter.Tests
 				";
 
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(null);
+			DynValue res = Script.RunString(script);
 
 			Assert.AreEqual(DataType.String, res.Type);
 			Assert.AreEqual("ciao", res.String);
@@ -619,7 +619,7 @@ namespace MoonSharp.Interpreter.Tests
 				";
 
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(null);
+			DynValue res = Script.RunString(script);
 
 			Assert.AreEqual(DataType.Table, res.Type);
 
@@ -640,7 +640,7 @@ namespace MoonSharp.Interpreter.Tests
 				";
 
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(null);
+			DynValue res = Script.RunString(script);
 
 			Assert.AreEqual(DataType.Tuple, res.Type);
 			Assert.AreEqual(DataType.Number, res.Tuple[0].Type);
@@ -662,7 +662,7 @@ namespace MoonSharp.Interpreter.Tests
 						Allowed();
 								";
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(null);
+			DynValue res = Script.RunString(script);
 
 		}
 		[Test]
@@ -679,7 +679,7 @@ namespace MoonSharp.Interpreter.Tests
 						Allowed();
 								";
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(null);
+			DynValue res = Script.RunString(script);
 
 		}
 
@@ -700,7 +700,7 @@ namespace MoonSharp.Interpreter.Tests
 						Allowed();
 								";
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(null);
+			DynValue res = Script.RunString(script);
 
 		}
 
@@ -716,9 +716,9 @@ namespace MoonSharp.Interpreter.Tests
 					do return x(); end
 								";
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(null);
+			DynValue res = Script.RunString(script);
 
-			Assert.AreEqual(DataType.Number, res);
+			Assert.AreEqual(DataType.Number, res.Type);
 			Assert.AreEqual(1, res.Number);
 		}
 
@@ -733,9 +733,9 @@ namespace MoonSharp.Interpreter.Tests
 					return 1,x(),x()
 								";
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(null);
+			DynValue res = Script.RunString(script);
 
-			Assert.AreEqual(DataType.Tuple, res);
+			Assert.AreEqual(DataType.Tuple, res.Type);
 			Assert.AreEqual(4, res.Tuple.Length);
 		}
 
@@ -756,7 +756,7 @@ namespace MoonSharp.Interpreter.Tests
 					return x(a, b+1), a, b;
 								";
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(null);
+			DynValue res = Script.RunString(script);
 
 			Assert.AreEqual(3, res.Tuple.Length);
 			Assert.AreEqual(DataType.Number, res.Tuple[0].Type);

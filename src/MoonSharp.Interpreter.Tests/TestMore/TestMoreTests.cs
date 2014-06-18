@@ -51,7 +51,7 @@ namespace MoonSharp.Interpreter.Tests
 		}
 
 
-		[Test] [Ignore]
+		[Test] 
 		public void TestMore_015_forlist()
 		{
 			TapRunner.Run(@"TestMore\015-forlist.t");

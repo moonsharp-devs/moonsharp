@@ -5,7 +5,7 @@ using System.Text;
 
 namespace MoonSharp.Interpreter.Execution
 {
-	public enum LRefType
+	public enum SymbolRefType
 	{
 		Invalid,
 		Global,

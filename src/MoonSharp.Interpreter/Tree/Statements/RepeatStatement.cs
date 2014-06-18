@@ -24,7 +24,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		}
 
 
-		public override void Compile(Chunk bc)
+		public override void Compile(ByteCode bc)
 		{
 			Loop L = new Loop()
 			{

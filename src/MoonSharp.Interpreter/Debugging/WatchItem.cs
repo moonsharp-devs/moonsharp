@@ -12,7 +12,7 @@ namespace MoonSharp.Interpreter.Debugging
 		public int BasePtr { get; set; }
 		public int RetAddress { get; set; }
 		public string Name { get; set; }
-		public RValue Value { get; set; }
-		public LRef LValue { get; set; }
+		public DynValue Value { get; set; }
+		public SymbolRef LValue { get; set; }
 	}
 }

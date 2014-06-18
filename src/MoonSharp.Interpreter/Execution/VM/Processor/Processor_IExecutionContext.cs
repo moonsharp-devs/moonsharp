@@ -7,22 +7,22 @@ namespace MoonSharp.Interpreter.Execution.VM
 {
 	sealed partial class Processor : IExecutionContext
 	{
-		RValue IExecutionContext.GetVar(LRef symref)
+		DynValue IExecutionContext.GetVar(SymbolRef symref)
 		{
 			return this.GetGenericSymbol(symref);
 		}
 
-		void IExecutionContext.SetVar(LRef symref, RValue value)
+		void IExecutionContext.SetVar(SymbolRef symref, DynValue value)
 		{
 			AssignGenericSymbol(symref, value);
 		}
 
-		LRef IExecutionContext.FindVar(string name)
+		SymbolRef IExecutionContext.FindVar(string name)
 		{
 			return FindRefByName(name);
 		}
 
-		RValue IExecutionContext.GetMetamethod(RValue value, string metamethod)
+		DynValue IExecutionContext.GetMetamethod(DynValue value, string metamethod)
 		{
 			if (value.Meta == null || value.Type == DataType.Nil)
 				return null;
@@ -38,13 +38,19 @@ namespace MoonSharp.Interpreter.Execution.VM
 			return metameth;
 		}
 
-		RValue IExecutionContext.GetMetamethodTailCall(RValue value, string metamethod, params RValue[] args)
+		DynValue IExecutionContext.GetMetamethodTailCall(DynValue value, string metamethod, params DynValue[] args)
 		{
-			RValue meta = ((IExecutionContext)this).GetMetamethod(value, metamethod);
+			DynValue meta = ((IExecutionContext)this).GetMetamethod(value, metamethod);
 
 			if (meta == null) return null;
 
-			return new RValue(meta, args);
+			return DynValue.NewTailCallReq(meta, args);
+		}
+
+
+		Script IExecutionContext.GetOwnerScript()
+		{
+			return m_Script;
 		}
 	}
 }

@@ -3,12 +3,37 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using MoonSharp.Interpreter.CoreLib;
 using MoonSharp.Interpreter.Execution;
 
 namespace MoonSharp.Interpreter
 {
 	public static class ModuleRegister
 	{
+		public static Table RegisterCoreModules(this Table table, CoreModules modules)
+		{
+			if (modules.Has(CoreModules.GlobalConsts)) RegisterConstants(table);
+			if (modules.Has(CoreModules.TableIterators)) RegisterModuleType<TableIterators>(table);
+			if (modules.Has(CoreModules.Metatables)) RegisterModuleType<MetaTableMethods>(table);
+
+			return table;
+		}
+
+
+
+		public static Table RegisterConstants(this Table table)
+		{
+			table["_G"] = DynValue.NewTable(table);
+			table["_VERSION"] = DynValue.NewString(string.Format("Moon# {0}", 
+				Assembly.GetExecutingAssembly().GetName().Version.Major,
+				Assembly.GetExecutingAssembly().GetName().Version.Minor));
+			table["_MOONSHARP"] = DynValue.NewString(Assembly.GetExecutingAssembly().GetName().Version.ToString());
+
+			return table;
+		}
+
+
+
 		public static Table RegisterModuleType(this Table table, Type t)
 		{
 			foreach (MethodInfo mi in t.GetMethods(BindingFlags.Static | BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.NonPublic).Where(_mi => _mi.GetCustomAttributes(typeof(MoonSharpMethodAttribute), false).Length > 0))
@@ -18,16 +43,16 @@ namespace MoonSharp.Interpreter
 				ParameterInfo[] pi = mi.GetParameters();
 
 				if (pi.Length != 2 || pi[0].ParameterType != typeof(IExecutionContext)
-					|| pi[1].ParameterType != typeof(CallbackArguments) || mi.ReturnType != typeof(RValue))
+					|| pi[1].ParameterType != typeof(CallbackArguments) || mi.ReturnType != typeof(DynValue))
 				{
 					throw new ArgumentException(string.Format("Method {0} does not have the right signature.", mi.Name));
 				}
 
-				Func<IExecutionContext, CallbackArguments, RValue> func = (Func<IExecutionContext, CallbackArguments, RValue>)Delegate.CreateDelegate(typeof(Func<IExecutionContext, CallbackArguments, RValue>), mi);
+				Func<IExecutionContext, CallbackArguments, DynValue> func = (Func<IExecutionContext, CallbackArguments, DynValue>)Delegate.CreateDelegate(typeof(Func<IExecutionContext, CallbackArguments, DynValue>), mi);
 
 				string name = (!string.IsNullOrEmpty(attr.Name)) ? attr.Name : mi.Name;
 
-				table[name] = new RValue(new CallbackFunction(func));
+				table[name] = DynValue.NewCallback(func);
 			}
 
 			return table;
@@ -49,17 +74,17 @@ namespace MoonSharp.Interpreter
 				ParameterInfo[] pi = mi.GetParameters();
 
 				if (pi.Length != 2 || pi[0].ParameterType != typeof(IExecutionContext)
-					|| pi[1].ParameterType != typeof(CallbackArguments) || mi.ReturnType != typeof(RValue))
+					|| pi[1].ParameterType != typeof(CallbackArguments) || mi.ReturnType != typeof(DynValue))
 				{
 					throw new ArgumentException(string.Format("Method {0} does not have the right signature.", mi.Name));
 				}
 
-				Func<IExecutionContext, CallbackArguments, RValue> func = (Func<IExecutionContext, CallbackArguments, RValue>)
-					Delegate.CreateDelegate(typeof(Func<IExecutionContext, CallbackArguments, RValue>), o, mi);
+				Func<IExecutionContext, CallbackArguments, DynValue> func = (Func<IExecutionContext, CallbackArguments, DynValue>)
+					Delegate.CreateDelegate(typeof(Func<IExecutionContext, CallbackArguments, DynValue>), o, mi);
 
 				string name = (!string.IsNullOrEmpty(attr.Name)) ? attr.Name : mi.Name;
 
-				table[name] = new RValue(new CallbackFunction(func));
+				table[name] = DynValue.NewCallback(func);
 			}
 
 			return table;

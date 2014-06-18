@@ -10,10 +10,10 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 {
 	class FunctionDefinitionExpression : Expression, IClosureBuilder
 	{
-		LRef[] m_ParamNames;
+		SymbolRef[] m_ParamNames;
 		Statement m_Statement;
 		RuntimeScopeFrame m_StackFrame;
-		List<LRef> m_Closure = new List<LRef>();
+		List<SymbolRef> m_Closure = new List<SymbolRef>();
 		public object UpvalueCreationTag { get; set; }
 
 		public FunctionDefinitionExpression(LuaParser.AnonfunctiondefContext context, ScriptLoadingContext lcontext, bool pushSelfParam = false)
@@ -21,18 +21,18 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 		{
 		}
 
-		public LRef CreateUpvalue(BuildTimeScope scope, LRef symbol)
+		public SymbolRef CreateUpvalue(BuildTimeScope scope, SymbolRef symbol)
 		{
 			for (int i = 0; i < m_Closure.Count; i++)
 			{
 				if (m_Closure[i].i_Name == symbol.i_Name)
 				{
-					return LRef.Upvalue(symbol.i_Name, i);
+					return SymbolRef.Upvalue(symbol.i_Name, i);
 				}
 			}
 
 			m_Closure.Add(symbol);
-			return LRef.Upvalue(symbol.i_Name, m_Closure.Count - 1);
+			return SymbolRef.Upvalue(symbol.i_Name, m_Closure.Count - 1);
 		}
 
 		public FunctionDefinitionExpression(LuaParser.FuncbodyContext context, ScriptLoadingContext lcontext, bool pushSelfParam = false)
@@ -82,9 +82,9 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			lcontext.Scope.LeaveClosure();
 		}
 
-		private LRef[] DefineArguments(string[] paramnames, ScriptLoadingContext lcontext)
+		private SymbolRef[] DefineArguments(string[] paramnames, ScriptLoadingContext lcontext)
 		{
-			LRef[] ret = new LRef[paramnames.Length];
+			SymbolRef[] ret = new SymbolRef[paramnames.Length];
 
 			for (int i = 0; i < paramnames.Length; i++)
 				ret[i] = lcontext.Scope.DefineLocal(paramnames[i]);
@@ -94,7 +94,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 
 
-		public void Compile(Chunk bc, Action afterDecl, string friendlyName)
+		public void Compile(ByteCode bc, Action afterDecl, string friendlyName)
 		{
 			bc.Closure(m_Closure.ToArray(), bc.GetJumpPointForNextInstruction() + 3);
 			afterDecl();
@@ -114,7 +114,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 		}
 
 
-		public override void Compile(Chunk bc)
+		public override void Compile(ByteCode bc)
 		{
 			Compile(bc, () => bc.Nop(null), null);
 		}

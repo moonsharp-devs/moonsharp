@@ -20,32 +20,34 @@ namespace MoonSharp.Interpreter.Tests
 			int i = 0;
 
 			var globalCtx = new Table();
-			globalCtx[new RValue("xassert")] = new RValue(new CallbackFunction(
+			globalCtx[DynValue.NewString("xassert")] =  DynValue.NewCallback(new CallbackFunction(
 				(x, a) =>
 				{
-					if (!a[1].TestAsBoolean())
+					if (!a[1].CastToBool())
 						failedTests.Add(a[0].String);
 
-					return RValue.Nil;
+					return DynValue.Nil;
 				}));
-			globalCtx[new RValue("assert")] = new RValue(new CallbackFunction(
+			globalCtx[DynValue.NewString("assert")] =  DynValue.NewCallback(new CallbackFunction(
 			 (x, a) =>
 			 {
 				 ++i;
 
-				 if (!a[0].TestAsBoolean())
+				 if (!a[0].CastToBool())
 					 failedTests.Add(string.Format("assert #{0}", i));
 
-				 return RValue.Nil;
+				 return DynValue.Nil;
 			 }));
 
-			globalCtx[new RValue("print")] = new RValue(new CallbackFunction((x, a) =>
+			globalCtx[DynValue.NewString("print")] =  DynValue.NewCallback(new CallbackFunction((x, a) =>
 				{
 					// Debug.WriteLine(string.Join(" ", a.Select(v => v.AsString()).ToArray()));
-					return RValue.Nil;
+					return DynValue.Nil;
 				}));
 
-			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(globalCtx);
+			Script S = new Script(globalCtx);
+
+			DynValue res = S.DoString(script);
 
 			Assert.IsFalse(failedTests.Any(), string.Format("Failed asserts {0}",
 				string.Join(", ", failedTests.Select(xi => xi.ToString()).ToArray())));

@@ -12,7 +12,7 @@ namespace MoonSharp.Interpreter.Tree
 		public RuntimeScopeBlock Scope;
 		public List<Instruction> BreakJumps = new List<Instruction>();
 
-		public void CompileBreak(Chunk bc)
+		public void CompileBreak(ByteCode bc)
 		{
 			bc.Exit(Scope);
 			BreakJumps.Add(bc.Jump(OpCode.Jump, -1));

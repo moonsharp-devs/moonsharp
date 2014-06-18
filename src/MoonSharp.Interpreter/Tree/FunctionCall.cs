@@ -23,13 +23,13 @@ namespace MoonSharp.Interpreter.Tree
 			m_Arguments = nameAndArgs.args().children.SelectMany(t => NodeFactory.CreateExpressions(t, lcontext)).Where(t => t != null).ToArray();
 		}
 
-		public override void Compile(Execution.VM.Chunk bc)
+		public override void Compile(Execution.VM.ByteCode bc)
 		{
 			int argslen = m_Arguments.Length;
 
 			if (!string.IsNullOrEmpty(m_Name))
 			{
-				bc.Literal(new RValue(m_Name));
+				bc.Literal(DynValue.NewString(m_Name));
 				bc.Method();
 				++argslen;
 			}

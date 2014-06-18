@@ -7,24 +7,24 @@ namespace MoonSharp.Interpreter.Execution.DataTypes
 {
 	public struct TablePair
 	{
-		private static TablePair s_NilNode = new TablePair(RValue.Nil, RValue.Nil);
+		private static TablePair s_NilNode = new TablePair(DynValue.Nil, DynValue.Nil);
 
-		private RValue key, value;
+		private DynValue key, value;
 
-		public RValue Key 
+		public DynValue Key 
 		{
 			get { return key; }
 			private set { Key = key; }
 		}
 
-		public RValue Value
+		public DynValue Value
 		{
 			get { return value; }
 			set { if (key.Type != DataType.Nil) Value = value; }
 		}
 
 
-		public TablePair(RValue key, RValue val) 
+		public TablePair(DynValue key, DynValue val) 
 		{
 			this.key = key;
 			this.value = val;

@@ -5,11 +5,11 @@ using System.Text;
 
 namespace MoonSharp.Interpreter.Execution
 {
-	public class ClosureContext : List<RValue>
+	public class ClosureContext : List<DynValue>
 	{
 		public string[] Symbols { get; private set; }
 
-		internal ClosureContext(LRef[] symbols, IEnumerable<RValue> values)
+		internal ClosureContext(SymbolRef[] symbols, IEnumerable<DynValue> values)
 		{
 			Symbols = symbols.Select(s => s.i_Name).ToArray();
 			this.AddRange(values);

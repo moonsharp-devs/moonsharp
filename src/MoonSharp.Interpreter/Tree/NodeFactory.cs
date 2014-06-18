@@ -98,15 +98,29 @@ namespace MoonSharp.Interpreter.Tree
 		public static Expression CreateExpression(IParseTree tree, ScriptLoadingContext lcontext)
 		{
 			if (tree is LuaParser.VarOrExpContext)
+			{
+				// this whole rubbish just to detect adjustments to 1 arg of tuples
+				if ((tree.ChildCount > 0))
+				{
+					Antlr4.Runtime.Tree.TerminalNodeImpl token = tree.GetChild(0) as Antlr4.Runtime.Tree.TerminalNodeImpl;
+
+					if (token != null && token.GetText() == "(")
+					{
+						var subTree = tree.EnumChilds().Single(t => !(t is Antlr4.Runtime.Tree.TerminalNodeImpl));
+						return new AdjustmentExpression(tree, lcontext, subTree);
+					}
+				}
+
 				tree = tree.EnumChilds().Single(t => !(t is Antlr4.Runtime.Tree.TerminalNodeImpl));
+			}
 
 			if (tree is Antlr4.Runtime.Tree.TerminalNodeImpl)
 			{
 				string txt = tree.GetText();
 				if (txt == null) return null;
-				else if (txt == "nil") return new LiteralExpression(tree, lcontext, RValue.Nil);
-				else if (txt == "false") return new LiteralExpression(tree, lcontext, RValue.False);
-				else if (txt == "true") return new LiteralExpression(tree, lcontext, RValue.True);
+				else if (txt == "nil") return new LiteralExpression(tree, lcontext, DynValue.Nil);
+				else if (txt == "false") return new LiteralExpression(tree, lcontext, DynValue.False);
+				else if (txt == "true") return new LiteralExpression(tree, lcontext, DynValue.True);
 				else return null;
 			}
 
@@ -166,7 +180,7 @@ namespace MoonSharp.Interpreter.Tree
 				if (exp != null) 
 					indexExp = CreateExpression(exp, lcontext);
 				else
-					indexExp = new LiteralExpression(suff_NAME, lcontext, new RValue(suff_NAME.GetText()));
+					indexExp = new LiteralExpression(suff_NAME, lcontext, DynValue.NewString(suff_NAME.GetText()));
 
 				if (nameAndArgs != null)
 				{

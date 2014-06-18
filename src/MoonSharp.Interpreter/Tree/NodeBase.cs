@@ -41,7 +41,7 @@ namespace MoonSharp.Interpreter.Tree
 				throw  RuntimeError(format, args);
 		}
 
-		public abstract void Compile(Chunk bc);
+		public abstract void Compile(ByteCode bc);
 
 
 
