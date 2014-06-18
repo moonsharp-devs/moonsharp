@@ -97,6 +97,9 @@
     <Compile Include="Execution\DataTypes\CallbackArguments.cs" />
     <Compile Include="Execution\DataTypes\Closure.cs" />
     <Compile Include="Execution\DataTypes\CallbackFunction.cs" />
+    <Compile Include="Execution\DataTypes\DynValue.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Execution\DataTypes\TablePair.cs" />
     <Compile Include="Execution\FileLoadRequestedEventArgs.cs" />
     <Compile Include="Execution\IExecutionContext.cs">
@@ -114,7 +117,6 @@
     <Compile Include="Execution\Scopes\RuntimeScopeFrame.cs" />
     <Compile Include="Execution\ScriptLoadingContext.cs" />
     <Compile Include="Execution\DataTypes\DataType.cs" />
-    <Compile Include="Execution\DataTypes\DynValue.cs" />
     <Compile Include="Execution\Script.cs" />
     <Compile Include="Execution\DataTypes\Table.cs" />
     <Compile Include="Execution\VM\ByteCode.cs" />
