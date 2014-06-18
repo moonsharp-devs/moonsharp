@@ -10,8 +10,14 @@ namespace MoonSharp.Interpreter.CoreLib
 	[MoonSharpModule]
 	public class TableIterators
 	{
+		// ipairs (t)
+		// -------------------------------------------------------------------------------------------------------------------
+		// If t has a metamethod __ipairs, calls it with t as argument and returns the first three results from the call.
+		// Otherwise, returns three values: an iterator function, the table t, and 0, so that the construction
+		//	  for i,v in ipairs(t) do body end
+		// will iterate over the pairs (1,t[1]), (2,t[2]), ..., up to the first integer key absent from the table. 
 		[MoonSharpMethod]
-		public static RValue ipairs(IExecutionContext executionContext, CallbackArguments args) 
+		static RValue ipairs(IExecutionContext executionContext, CallbackArguments args) 
 		{
 			RValue table = args[0];
 
@@ -28,7 +34,7 @@ namespace MoonSharp.Interpreter.CoreLib
 		// will iterate over all key–value pairs of table t.
 		// See function next for the caveats of modifying the table during its traversal. 
 		[MoonSharpMethod]
-		public static RValue pairs(IExecutionContext executionContext, CallbackArguments args) 
+		static RValue pairs(IExecutionContext executionContext, CallbackArguments args) 
 		{
 			RValue table = args[0];
 
@@ -49,7 +55,7 @@ namespace MoonSharp.Interpreter.CoreLib
 		// The behavior of next is undefined if, during the traversal, you assign any value to a non-existent field in the table. 
 		// You may however modify existing fields. In particular, you may clear existing fields. 
 		[MoonSharpMethod]
-		public static RValue next(IExecutionContext executionContext, CallbackArguments args) 
+		static RValue next(IExecutionContext executionContext, CallbackArguments args) 
 		{
 			RValue table = args.AsType(0, "next", DataType.Table);
 			RValue index = args[1];
@@ -62,10 +68,10 @@ namespace MoonSharp.Interpreter.CoreLib
 		// __next_i (table [, index])
 		// -------------------------------------------------------------------------------------------------------------------
 		// Allows a program to traverse all fields of an array. index is an integer number
-		private static RValue __next_i(IExecutionContext executionContext, CallbackArguments args) 
+		static RValue __next_i(IExecutionContext executionContext, CallbackArguments args) 
 		{
-			RValue table = args.AsType(0, "__next_i", DataType.Table);
-			RValue index = args.AsType(1, "__next_i", DataType.Number);
+			RValue table = args.AsType(0, "!!next_i!!", DataType.Table);
+			RValue index = args.AsType(1, "!!next_i!!", DataType.Number);
 
 			int idx = ((int)index.Number) + 1;
 			RValue val = table.Table[idx];

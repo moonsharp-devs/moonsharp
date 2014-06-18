@@ -44,8 +44,11 @@ namespace MoonSharp.Interpreter.Execution
 				argNum + 1, funcName, expected, got);
 		}
 
-		public RValue AsType(int argNum, string funcName, DataType type)
+		public RValue AsType(int argNum, string funcName, DataType type, bool allowNil = false)
 		{
+			if (allowNil && this[argNum].Type == DataType.Nil)
+				return this[argNum];
+
 			if (this[argNum].Type != type)
 				ThrowBadArgument(argNum, funcName, type, this[argNum].Type);
 

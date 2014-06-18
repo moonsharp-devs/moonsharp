@@ -60,6 +60,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 		MkTuple,	// Creates a tuple from the topmost n values
 		Incr,		// Performs an add operation, without extracting the operands from the v-stack and assuming the operands are numbers.
 		ToNum,		// Converts the top of the stack to a number
+		ToBool,		// Converts the top of the stack to a boolean
 		ExpTuple,	// Expands a tuple on the stack
 
 		// Tables

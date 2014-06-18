@@ -25,7 +25,7 @@ namespace MoonSharp.Interpreter.Execution
 		public bool ReadOnly { get; internal set; }
 		public LRef Symbol { get; private set; }
 		public CallbackFunction Callback { get; set; }
-		public RValue Meta { get; private set; }
+		public RValue Meta { get; set; }
 
 		private int m_HashCode = -1;
 
@@ -158,6 +158,22 @@ namespace MoonSharp.Interpreter.Execution
 			False = new RValue(false).AsReadOnly();
 		}
 
+		public string AsSimpleString()
+		{
+			RValue rv = ToSimplestValue();
+			if (rv.Type == DataType.Number)
+			{
+				return rv.Number.ToString();
+			}
+			else if (rv.Type == DataType.String)
+			{
+				return rv.String;
+			}
+			return null;
+		}
+
+
+
 		public string AsString()
 		{
 			switch (Type)
@@ -265,6 +281,8 @@ namespace MoonSharp.Interpreter.Execution
 			if (other == null) return false;
 			if (other.Type != this.Type) return false;
 
+			if (other.Meta != this.Meta) return false;
+
 			switch (Type)
 			{
 				case DataType.Nil:
@@ -316,20 +334,20 @@ namespace MoonSharp.Interpreter.Execution
 				return new RValue[] { this };
 		}
 
-		public RValue AsNumber()
+		public double? AsNumber()
 		{
 			RValue rv = ToSimplestValue();
 			if (rv.Type == DataType.Number)
 			{
-				return rv;
+				return rv.Number;
 			}
 			else if (rv.Type == DataType.String)
 			{
 				double num;
-				if (double.TryParse(rv.String, out num))
-					return new RValue(num);
+				if (double.TryParse(rv.String, NumberStyles.Any, CultureInfo.InvariantCulture, out num))
+					return num;
 			}
-			return RValue.Nil;
+			return null;
 		}
 
 		public RValue AsBoolean()
@@ -405,8 +423,15 @@ namespace MoonSharp.Interpreter.Execution
 			throw new ScriptRuntimeException(null, "Can't get length of type {0}", this.Type);
 		}
 
+		public bool IsNil()
+		{
+			return this.Type == DataType.Nil;
+		}
 
-
+		public bool IsNilOrNan()
+		{
+			return (this.Type == DataType.Nil) || (this.Type == DataType.Number && double.IsNaN(this.Number));
+		}
 
 		internal void AssignNumber(double num)
 		{

@@ -110,7 +110,12 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		public Instruction Operator(OpCode opcode)
 		{
-			return Emit(new Instruction() { OpCode = opcode });
+			var i = Emit(new Instruction() { OpCode = opcode });
+
+			if (opcode == OpCode.Eq || opcode == OpCode.Less || opcode == OpCode.LessEq)
+				Emit(new Instruction() { OpCode = OpCode.ToBool });
+
+			return i;
 		}
 
 

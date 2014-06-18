@@ -24,13 +24,18 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		RValue IExecutionContext.GetMetamethod(RValue value, string metamethod)
 		{
-			if (value.Meta == null)
+			if (value.Meta == null || value.Type == DataType.Nil)
 				return null;
 
 			if (value.Meta.Type != DataType.Table)
 				throw new InternalErrorException("Metatable is not a table!");
 
-			return value.Meta.Table.RawGet(metamethod);
+			var metameth = value.Meta.Table.RawGet(metamethod);
+			
+			if (metameth == null || metameth.Type == DataType.Nil)
+				return null;
+
+			return metameth;
 		}
 
 		RValue IExecutionContext.GetMetamethodTailCall(RValue value, string metamethod, params RValue[] args)

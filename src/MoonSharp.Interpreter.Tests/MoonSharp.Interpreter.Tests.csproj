@@ -74,6 +74,9 @@
   <ItemGroup>
     <Compile Include="EndToEnd\ClosureTests.cs" />
     <Compile Include="EndToEnd\LuaTestSuiteExtract.cs" />
+    <Compile Include="EndToEnd\MetatableTests.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="EndToEnd\TailCallTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="EndToEnd\SimpleTests.cs" />

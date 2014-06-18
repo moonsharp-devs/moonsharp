@@ -55,6 +55,14 @@ namespace MoonSharp.Interpreter.Execution
 			}
 			set 
 			{
+				if (key.IsNilOrNan())
+				{
+					if (key.IsNil())
+						throw new ScriptRuntimeException(null, "table index is nil");
+					else
+						throw new ScriptRuntimeException(null, "table index is NaN");
+				}
+
 				if (key.Type == DataType.String)
 				{
 					this[key.String] = value;

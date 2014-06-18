@@ -37,34 +37,40 @@ namespace MoonSharp.Interpreter.Execution.VM
 						m_ValueStack.Push(i.Value);
 						break;
 					case OpCode.Add:
-						ExecAdd(i);
+						instructionPtr = ExecAdd(i, instructionPtr);
 						break;
 					case OpCode.Concat:
-						ExecConcat(i);
+						instructionPtr = ExecConcat(i, instructionPtr);
 						break;
 					case OpCode.Neg:
-						ExecNeg(i);
+						instructionPtr = ExecNeg(i, instructionPtr);
 						break;
 					case OpCode.Sub:
-						ExecSub(i);
+						instructionPtr = ExecSub(i, instructionPtr);
 						break;
 					case OpCode.Mul:
-						ExecMul(i);
+						instructionPtr = ExecMul(i, instructionPtr);
 						break;
 					case OpCode.Div:
-						ExecDiv(i);
+						instructionPtr = ExecDiv(i, instructionPtr);
+						break;
+					case OpCode.Mod:
+						instructionPtr = ExecMod(i, instructionPtr);
 						break;
 					case OpCode.Power:
-						ExecPower(i);
+						instructionPtr = ExecPower(i, instructionPtr);
 						break;
 					case OpCode.Eq:
-						ExecEq(i);
+						instructionPtr = ExecEq(i, instructionPtr);
 						break;
 					case OpCode.LessEq:
-						ExecLessEq(i);
+						instructionPtr = ExecLessEq(i, instructionPtr);
 						break;
 					case OpCode.Less:
-						ExecLess(i);
+						instructionPtr = ExecLess(i, instructionPtr);
+						break;
+					case OpCode.Len:
+						instructionPtr = ExecLen(i, instructionPtr);
 						break;
 					case OpCode.Call:
 						instructionPtr = Internal_ExecCall(i.NumVal, instructionPtr);
@@ -103,7 +109,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 						instructionPtr = i.NumVal;
 						break;
 					case OpCode.MkTuple:
-						m_ValueStack.Push(RValue.FromPotentiallyNestedTuple(StackTopToArrayReverse(i.NumVal, true)));
+						ExecMkTuple(i);
 						break;
 					case OpCode.Enter:
 						NilifyBlockData(i.Block);
@@ -118,6 +124,9 @@ namespace MoonSharp.Interpreter.Execution.VM
 					case OpCode.BeginFn:
 						ExecBeginFn(i);
 						break;
+					case OpCode.ToBool:
+						m_ValueStack.Push(m_ValueStack.Pop().AsBoolean());
+						break;
 					case OpCode.Args:
 						ExecArgs(i);
 						break;
@@ -130,7 +139,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 						ExecIncr(i);
 						break;
 					case OpCode.ToNum:
-						m_ValueStack.Push(m_ValueStack.Pop().AsNumber());
+						ExecToNum(i);
 						break;
 					case OpCode.SymStorN:
 						ExecSymStorN(i);
@@ -152,9 +161,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 						break;
 					case OpCode.NewTable:
 						m_ValueStack.Push(new RValue(new Table()));
-						break;
-					case OpCode.Len:
-						ExecLen(i);
 						break;
 					case OpCode.IterPrep:
 						ExecIterPrep(i);
@@ -183,8 +189,35 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		}
 
+		private void ExecMkTuple(Instruction i)
+		{
+			//RValue[] t = new RValue[i.NumVal];
+			//for(int ii = i.NumVal - 1; ii >= 0; ii--)
+			//{
+			//	if (ii == i.NumVal - 1)
+			//	{
+			//		t[ii] = m_ValueStack.Pop();
+			//	}
+			//	else
+			//	{
+			//		t[ii] = m_ValueStack.Pop().ToSimplestValue();
+			//	}
+			//}
 
 
+			var explist = StackTopToArrayReverse(i.NumVal, true);
+			var v = RValue.FromPotentiallyNestedTuple(explist);
+			m_ValueStack.Push(v);
+		}
+
+		private void ExecToNum(Instruction i)
+		{
+			double? v = m_ValueStack.Pop().AsNumber();
+			if (v.HasValue)
+				m_ValueStack.Push(new RValue(v.Value));
+			else
+				throw new ScriptRuntimeException(null, "Can't convert value to number");
+		}
 
 
 		private void ExecIterUpd(Instruction i)
@@ -348,6 +381,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			}
 		}
 
+
 		private int Internal_ExecCall(int argsCount, int instructionPtr)
 		{
 			RValue fn = m_ValueStack.Peek(argsCount);
@@ -374,7 +408,26 @@ namespace MoonSharp.Interpreter.Execution.VM
 			}
 			else
 			{
-				throw new NotImplementedException("Meta");
+				if (fn.Meta != null)
+				{
+					var m = fn.Meta.Table.RawGet("__call");
+
+					if (m != null && m.Type != DataType.Nil)
+					{
+						RValue[] tmp = new RValue[argsCount + 1];
+						for (int i = 0; i < argsCount + 1; i++)
+							tmp[i] = m_ValueStack.Pop();
+
+						m_ValueStack.Push(m);
+
+						for (int i = argsCount; i >= 0; i--)
+							m_ValueStack.Push(tmp[i]);
+
+						return Internal_ExecCall(argsCount + 1, instructionPtr);
+					}
+				}
+
+				throw new NotImplementedException("Can't call non function");
 			}
 		}
 
@@ -439,133 +492,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 				m_ValueStack.Push(v.ToSimplestValue().AsBoolean());
 			}
 		}
-
-
-		private void ExecLen(Instruction i)
-		{
-			RValue r = m_ValueStack.Pop();
-
-			if (r.Type == DataType.Table)
-				m_ValueStack.Push(new RValue(r.Table.Length));
-			else if (r.Type == DataType.String)
-				m_ValueStack.Push(new RValue(r.String.Length));
-			else
-				throw new NotImplementedException("Meta operators");
-		}
-
-		private void ExecAdd(Instruction i)
-		{
-			RValue r = m_ValueStack.Pop();
-			RValue l = m_ValueStack.Pop();
-
-			if (r.Type == DataType.Number && l.Type == DataType.Number)
-				m_ValueStack.Push(new RValue(l.Number + r.Number));
-			else
-				throw new NotImplementedException("Meta operators");
-		}
-
-		private void ExecConcat(Instruction i)
-		{
-			RValue r = m_ValueStack.Pop();
-			RValue l = m_ValueStack.Pop();
-
-			if ((r.Type == DataType.String || r.Type == DataType.Number) && (l.Type == DataType.String || l.Type == DataType.Number))
-				m_ValueStack.Push(new RValue(l.AsString() + r.AsString()));
-			else
-				throw new NotImplementedException("Meta operators");
-		}
-
-		private void ExecSub(Instruction i)
-		{
-			RValue r = m_ValueStack.Pop();
-			RValue l = m_ValueStack.Pop();
-
-			if (r.Type == DataType.Number && l.Type == DataType.Number)
-				m_ValueStack.Push(new RValue(l.Number - r.Number));
-			else
-				throw new NotImplementedException("Meta operators");
-		}
-
-		private void ExecNeg(Instruction i)
-		{
-			RValue r = m_ValueStack.Pop();
-
-			if (r.Type == DataType.Number)
-				m_ValueStack.Push(new RValue(-r.Number));
-			else
-				throw new NotImplementedException("Meta operators");
-		}
-		private void ExecPower(Instruction i)
-		{
-			RValue r = m_ValueStack.Pop();
-			RValue l = m_ValueStack.Pop();
-
-			if (r.Type == DataType.Number && l.Type == DataType.Number)
-				m_ValueStack.Push(new RValue(Math.Pow(l.Number, r.Number)));
-			else
-				throw new NotImplementedException("Meta operators");
-		}
-
-		private void ExecMul(Instruction i)
-		{
-			RValue r = m_ValueStack.Pop();
-			RValue l = m_ValueStack.Pop();
-
-			if (r.Type == DataType.Number && l.Type == DataType.Number)
-				m_ValueStack.Push(new RValue(l.Number * r.Number));
-			else
-				throw new NotImplementedException("Meta operators");
-		}
-
-		private void ExecEq(Instruction i)
-		{
-			RValue r = m_ValueStack.Pop();
-			RValue l = m_ValueStack.Pop();
-
-			m_ValueStack.Push(new RValue(r.Equals(l)));
-		}
-
-		private void ExecLess(Instruction i)
-		{
-			RValue r = m_ValueStack.Pop();
-			RValue l = m_ValueStack.Pop();
-
-			if (r.Type == DataType.Number && r.Type == DataType.Number)
-			{
-				m_ValueStack.Push(new RValue(l.Number < r.Number));
-			}
-			else
-			{
-				throw new NotImplementedException("Comparison between non numbers!");
-			}
-		}
-
-		private void ExecLessEq(Instruction i)
-		{
-			RValue r = m_ValueStack.Pop();
-			RValue l = m_ValueStack.Pop();
-
-			if (r.Type == DataType.Number && r.Type == DataType.Number)
-			{
-				m_ValueStack.Push(new RValue(l.Number <= r.Number));
-			}
-			else
-			{
-				throw new NotImplementedException("Comparison between non numbers!");
-			}
-		}
-
-		private void ExecDiv(Instruction i)
-		{
-			RValue r = m_ValueStack.Pop();
-			RValue l = m_ValueStack.Pop();
-
-			if (r.Type == DataType.Number && l.Type == DataType.Number)
-				m_ValueStack.Push(new RValue(l.Number / r.Number));
-			else
-				throw new NotImplementedException("Meta operators");
-		}
-
 
 		private void Internal_Assign(LRef l, RValue r)
 		{
@@ -674,5 +600,302 @@ namespace MoonSharp.Interpreter.Execution.VM
 				}
 			}
 		}
+
+
+
+
+
+
+
+
+
+
+		private int ExecAdd(Instruction i, int instructionPtr)
+		{
+			RValue r = m_ValueStack.Pop();
+			RValue l = m_ValueStack.Pop();
+
+			double? rn = r.AsNumber();
+			double? ln = l.AsNumber();
+
+			if (ln.HasValue && rn.HasValue)
+			{
+				m_ValueStack.Push(new RValue(ln.Value + rn.Value));
+				return instructionPtr;
+			}
+			else 
+			{
+				int ip = Internal_InvokeBinaryMetaMethod(l, r, "__add", instructionPtr);
+				if (ip >= 0) return ip;
+				else throw new ScriptRuntimeException(null, "Arithmetic on non numbers");
+			}
+		}
+
+		private int ExecSub(Instruction i, int instructionPtr)
+		{
+			RValue r = m_ValueStack.Pop();
+			RValue l = m_ValueStack.Pop();
+
+			double? rn = r.AsNumber();
+			double? ln = l.AsNumber();
+
+			if (ln.HasValue && rn.HasValue)
+			{
+				m_ValueStack.Push(new RValue(ln.Value - rn.Value));
+				return instructionPtr;
+			}
+			else
+			{
+				int ip = Internal_InvokeBinaryMetaMethod(l, r, "__sub", instructionPtr);
+				if (ip >= 0) return ip;
+				else throw new ScriptRuntimeException(null, "Arithmetic on non numbers");
+			}
+		}
+
+
+		private int ExecMul(Instruction i, int instructionPtr)
+		{
+			RValue r = m_ValueStack.Pop();
+			RValue l = m_ValueStack.Pop();
+
+			double? rn = r.AsNumber();
+			double? ln = l.AsNumber();
+
+			if (ln.HasValue && rn.HasValue)
+			{
+				m_ValueStack.Push(new RValue(ln.Value * rn.Value));
+				return instructionPtr;
+			}
+			else
+			{
+				int ip = Internal_InvokeBinaryMetaMethod(l, r, "__mul", instructionPtr);
+				if (ip >= 0) return ip;
+				else throw new ScriptRuntimeException(null, "Arithmetic on non numbers");
+			}
+		}		
+		
+		private int ExecMod(Instruction i, int instructionPtr)
+		{
+			RValue r = m_ValueStack.Pop();
+			RValue l = m_ValueStack.Pop();
+
+			double? rn = r.AsNumber();
+			double? ln = l.AsNumber();
+
+			if (ln.HasValue && rn.HasValue)
+			{
+				m_ValueStack.Push(new RValue(Math.IEEERemainder(ln.Value, rn.Value)));
+				return instructionPtr;
+			}
+			else
+			{
+				int ip = Internal_InvokeBinaryMetaMethod(l, r, "__div", instructionPtr);
+				if (ip >= 0) return ip;
+				else throw new ScriptRuntimeException(null, "Arithmetic on non numbers");
+			}
+		}
+
+		private int ExecDiv(Instruction i, int instructionPtr)
+		{
+			RValue r = m_ValueStack.Pop();
+			RValue l = m_ValueStack.Pop();
+
+			double? rn = r.AsNumber();
+			double? ln = l.AsNumber();
+
+			if (ln.HasValue && rn.HasValue)
+			{
+				m_ValueStack.Push(new RValue(ln.Value / rn.Value));
+				return instructionPtr;
+			}
+			else
+			{
+				int ip = Internal_InvokeBinaryMetaMethod(l, r, "__div", instructionPtr);
+				if (ip >= 0) return ip;
+				else throw new ScriptRuntimeException(null, "Arithmetic on non numbers");
+			}
+		}
+		private int ExecPower(Instruction i, int instructionPtr)
+		{
+			RValue r = m_ValueStack.Pop();
+			RValue l = m_ValueStack.Pop();
+
+			double? rn = r.AsNumber();
+			double? ln = l.AsNumber();
+
+			if (ln.HasValue && rn.HasValue)
+			{
+				m_ValueStack.Push(new RValue(Math.Pow(ln.Value, rn.Value)));
+				return instructionPtr;
+			}
+			else
+			{
+				int ip = Internal_InvokeBinaryMetaMethod(l, r, "__pow", instructionPtr);
+				if (ip >= 0) return ip;
+				else throw new ScriptRuntimeException(null, "Arithmetic on non numbers");
+			}
+
+		}
+
+
+		private int ExecNeg(Instruction i, int instructionPtr)
+		{
+			RValue r = m_ValueStack.Pop();
+			double? rn = r.AsNumber();
+
+			if (rn.HasValue)
+			{
+				m_ValueStack.Push(new RValue(-rn.Value));
+				return instructionPtr;
+			}
+
+			if (r.Type == DataType.Number)
+				m_ValueStack.Push(new RValue(-r.Number));
+			else
+			{
+				int ip = Internal_InvokeUnaryMetaMethod(r, "__unm", instructionPtr);
+				if (ip >= 0) return ip;
+				else throw new ScriptRuntimeException(null, "Arithmetic on non number");
+			}
+
+			return instructionPtr;
+		}
+
+
+		private int ExecEq(Instruction i, int instructionPtr)
+		{
+			RValue r = m_ValueStack.Pop();
+			RValue l = m_ValueStack.Pop();
+
+			if (object.ReferenceEquals(r, l))
+			{
+				m_ValueStack.Push(new RValue(true));
+			}
+			else if (r.Type != l.Type)
+			{
+				m_ValueStack.Push(new RValue(false));
+			}
+			else if ((l.Type == DataType.Table || l.Type == DataType.UserData) && (l.Meta != null) && (l.Meta == r.Meta))
+			{
+				int ip = Internal_InvokeBinaryMetaMethod(l, r, "__eq", instructionPtr);
+				if (ip < 0)
+					m_ValueStack.Push(new RValue(r.Equals(l)));
+				else
+					return ip;
+			}
+			else
+			{
+				m_ValueStack.Push(new RValue(r.Equals(l)));
+			}
+
+			return instructionPtr;
+		}
+
+		private int ExecLess(Instruction i, int instructionPtr)
+		{
+			RValue r = m_ValueStack.Pop();
+			RValue l = m_ValueStack.Pop();
+
+			if (l.Type == DataType.Number && r.Type == DataType.Number)
+			{
+				m_ValueStack.Push(new RValue(l.Number < r.Number));
+			}
+			else if (l.Type == DataType.String && r.Type == DataType.String)
+			{
+				m_ValueStack.Push(new RValue(l.String.CompareTo(r.String) < 0));
+			}
+			else
+			{
+				int ip = Internal_InvokeBinaryMetaMethod(l, r, "__lt", instructionPtr);
+				if (ip < 0)
+					throw new ScriptRuntimeException(null, "Can't compare on non number non string");
+				else
+					return ip;
+			}
+
+			return instructionPtr;
+		}
+
+		private int ExecLessEq(Instruction i, int instructionPtr)
+		{
+			RValue r = m_ValueStack.Pop();
+			RValue l = m_ValueStack.Pop();
+
+			if (l.Type == DataType.Number && r.Type == DataType.Number)
+			{
+				m_ValueStack.Push(new RValue(l.Number <= r.Number));
+			}
+			else if (l.Type == DataType.String && r.Type == DataType.String)
+			{
+				m_ValueStack.Push(new RValue(l.String.CompareTo(r.String) <= 0));
+			}
+			else
+			{
+				int ip = Internal_InvokeBinaryMetaMethod(l, r, "__le", instructionPtr);
+				if (ip < 0)
+				{
+					ip = Internal_InvokeBinaryMetaMethod(r, l, "__lt", instructionPtr);
+
+					if (ip < 0)
+						throw new ScriptRuntimeException(null, "Can't compare on non number non string");
+					else
+						return ip;
+				}
+				else
+					return ip;
+			}
+
+			return instructionPtr;
+		}
+
+		private int ExecLen(Instruction i, int instructionPtr)
+		{
+			RValue r = m_ValueStack.Pop();
+
+			if (r.Type == DataType.String)
+				m_ValueStack.Push(new RValue(r.String.Length));
+			else
+			{
+				int ip = Internal_InvokeUnaryMetaMethod(r, "__len", instructionPtr);
+				if (ip >= 0) 
+					return ip;
+				else if (r.Type == DataType.Table)
+					m_ValueStack.Push(new RValue(r.Table.Length));
+				else 
+					throw new ScriptRuntimeException(null, "Arithmetic on non number");
+			}
+
+			return instructionPtr;
+		}
+
+		private int ExecConcat(Instruction i, int instructionPtr)
+		{
+			RValue r = m_ValueStack.Pop();
+			RValue l = m_ValueStack.Pop();
+
+			string rs = r.AsSimpleString();
+			string ls = l.AsSimpleString();
+
+			if (rs != null && ls != null)
+			{
+				m_ValueStack.Push(new RValue(ls + rs));
+				return instructionPtr;
+			}
+			else
+			{
+				int ip = Internal_InvokeBinaryMetaMethod(l, r, "__concat", instructionPtr);
+				if (ip >= 0) return ip;
+				else throw new ScriptRuntimeException(null, "Concatenation on non strings");
+			}
+
+		}
+
+
+
+
+
+
+
+
 	}
 }

@@ -11,7 +11,7 @@ namespace MoonSharp.Interpreter
 	{
 		public static Table RegisterModuleType(this Table table, Type t)
 		{
-			foreach (MethodInfo mi in t.GetMethods(BindingFlags.Static | BindingFlags.InvokeMethod | BindingFlags.Public).Where(_mi => _mi.GetCustomAttributes(typeof(MoonSharpMethodAttribute), false).Length > 0))
+			foreach (MethodInfo mi in t.GetMethods(BindingFlags.Static | BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.NonPublic).Where(_mi => _mi.GetCustomAttributes(typeof(MoonSharpMethodAttribute), false).Length > 0))
 			{
 				MoonSharpMethodAttribute attr = (MoonSharpMethodAttribute)mi.GetCustomAttributes(typeof(MoonSharpMethodAttribute), false).First();
 
@@ -42,7 +42,7 @@ namespace MoonSharp.Interpreter
 		{
 			Type t = o.GetType();
 
-			foreach (MethodInfo mi in t.GetMethods(BindingFlags.InvokeMethod | BindingFlags.Public).Where(_mi => _mi.GetCustomAttributes(typeof(MoonSharpMethodAttribute), false).Length > 0))
+			foreach (MethodInfo mi in t.GetMethods(BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.NonPublic).Where(_mi => _mi.GetCustomAttributes(typeof(MoonSharpMethodAttribute), false).Length > 0))
 			{
 				MoonSharpMethodAttribute attr = (MoonSharpMethodAttribute)mi.GetCustomAttributes(typeof(MoonSharpMethodAttribute), false).First();
 

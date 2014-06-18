@@ -705,6 +705,42 @@ namespace MoonSharp.Interpreter.Tests
 		}
 
 		[Test]
+		public void ExpressionReducesTuples()
+		{
+			string script = @"
+					function x()
+						return 1,2
+					end
+
+					do return (x()); end
+					do return x(); end
+								";
+
+			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(null);
+
+			Assert.AreEqual(DataType.Number, res);
+			Assert.AreEqual(1, res.Number);
+		}
+
+		[Test]
+		public void ExpressionReducesTuples2()
+		{
+			string script = @"
+					function x()
+						return 3,4
+					end
+
+					return 1,x(),x()
+								";
+
+			RValue res = MoonSharpInterpreter.LoadFromString(script).Execute(null);
+
+			Assert.AreEqual(DataType.Tuple, res);
+			Assert.AreEqual(4, res.Tuple.Length);
+		}
+
+
+		[Test]
 		public void ArgsDoNotChange()
 		{
 			string script = @"
