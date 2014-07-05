@@ -3,8 +3,8 @@ Moon#
 http://www.moonsharp.org
 
 
-An interpreter for a very close cousin of the Lua language, written entirely in C# for the .NET, Mono, Xamarin and Unity3D platforms.
-It targets Lua 5.1, with some features of Lua 5.2 backported.
+A Lua interpreter written entirely in C# for the .NET, Mono, Xamarin and Unity3D platforms.
+It aims at language compatibility with Lua 5.1, with some features of Lua 5.2 backported and, in the long run, some nifty additions.
 
 
 **Project Status**
