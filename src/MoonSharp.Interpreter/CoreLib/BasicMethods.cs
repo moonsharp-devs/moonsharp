@@ -14,7 +14,7 @@ namespace MoonSharp.Interpreter.CoreLib
 		//Issues an error when the value of its argument v is false (i.e., nil or false); 
 		//otherwise, returns all its arguments. message is an error message; when absent, it defaults to "assertion failed!" 
 		[MoonSharpMethod]
-		public static DynValue assert(IExecutionContext executionContext, CallbackArguments args)
+		public static DynValue assert(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			DynValue v = args[0];
 			DynValue message = args[1];
@@ -34,7 +34,7 @@ namespace MoonSharp.Interpreter.CoreLib
 		// ----------------------------------------------------------------------------------------------------------------
 		// This function is mostly a stub towards the CLR GC. If mode is nil, "collect" or "restart", a GC is forced.
 		[MoonSharpMethod]
-		public static DynValue collectgarbage(IExecutionContext executionContext, CallbackArguments args)
+		public static DynValue collectgarbage(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			DynValue opt = args[0];
 
@@ -55,7 +55,7 @@ namespace MoonSharp.Interpreter.CoreLib
 		// Level 2 points the error to where the function that called error was called; and so on. 
 		// Passing a level 0 avoids the addition of error position information to the message. 
 		[MoonSharpMethod]
-		public static DynValue error(IExecutionContext executionContext, CallbackArguments args)
+		public static DynValue error(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			DynValue message = args.AsType(0, "dofile", DataType.String, false);
 			throw new ScriptRuntimeException(null, message.String);

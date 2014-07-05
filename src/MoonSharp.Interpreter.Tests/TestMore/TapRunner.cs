@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using MoonSharp.Interpreter.CoreLib;
 using MoonSharp.Interpreter.Execution;
+using MoonSharp.Interpreter.Loaders;
 using NUnit.Framework;
 
 namespace MoonSharp.Interpreter.Tests
@@ -13,7 +14,7 @@ namespace MoonSharp.Interpreter.Tests
 	{
 		string m_File;
 
-		public DynValue Print(IExecutionContext exctx, CallbackArguments values)
+		public DynValue Print(ScriptExecutionContext exctx, CallbackArguments values)
 		{
 			string str = string.Join(" ", values.List.Select(s => s.ToPrintString()).ToArray());
 			Assert.IsFalse(str.Trim().StartsWith("not ok"), string.Format("TAP fail ({0}) : {1}", m_File, str));
@@ -27,13 +28,18 @@ namespace MoonSharp.Interpreter.Tests
 
 		public void Run()
 		{
-			string script = File.ReadAllText(m_File);
 			var globalCtx = new Table();
 			globalCtx["print"] = DynValue.NewCallback(Print);
 			globalCtx["arg"] = DynValue.NewTable();
 			globalCtx.RegisterModuleType<TableIterators>();
+			globalCtx.RegisterModuleType<LoadMethods>();
 			globalCtx.RegisterModuleType<MetaTableMethods>();
-			(new Script(globalCtx)).DoString(script);
+			globalCtx.RegisterModuleType<StringModule>();
+			var S = new Script(globalCtx);
+			var L = new ClassicLuaScriptLoader();
+			L.ModulePaths = L.UnpackStringPaths("TestMore/Modules/?;TestMore/Modules/?.lua");
+			S.ScriptLoader = L;
+			S.DoFile(m_File);
 		}
 
 		public static void Run(string filename)

@@ -86,7 +86,7 @@ end
 		static StringBuilder g_MoonSharpStr = new StringBuilder();
 		static StringBuilder g_NLuaStr = new StringBuilder();
 
-		public static DynValue Print(IExecutionContext executionContext, CallbackArguments values)
+		public static DynValue Print(ScriptExecutionContext executionContext, CallbackArguments values)
 		{
 			foreach (var val in values.List)
 			{

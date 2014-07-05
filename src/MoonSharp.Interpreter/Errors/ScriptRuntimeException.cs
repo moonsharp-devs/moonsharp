@@ -10,6 +10,12 @@ namespace MoonSharp.Interpreter
 	[Serializable]
 	public class ScriptRuntimeException : Exception
 	{
+		internal ScriptRuntimeException(string format, params object[] args)
+			: base(string.Format(format, args))
+		{
+
+		}
+
 		internal ScriptRuntimeException(IParseTree tree, string format, params object[] args)
 			: base(string.Format(format, args) + FormatTree(tree))
 		{

@@ -11,9 +11,10 @@ namespace MoonSharp.Interpreter
 		GlobalConsts = 0x1,
 		TableIterators = 0x2,
 		Metatables = 0x4,
+		String = 0x8,
 
 
-		Preset_HardSandbox = GlobalConsts | TableIterators,
+		Preset_HardSandbox = GlobalConsts | TableIterators | String,
 		Preset_SoftSandbox = Preset_HardSandbox | Metatables,
 		Preset_Default = Preset_SoftSandbox,
 	}

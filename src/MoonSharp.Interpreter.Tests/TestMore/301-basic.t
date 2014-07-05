@@ -19,9 +19,10 @@
 =head2 Description
 
 Tests Lua Basic Library
+(implemented in F<languages/lua/lib/luabasic.pir>).
 
-See "Lua 5.2 Reference Manual", section 6.1 "Basic Functions",
-L<http://www.lua.org/manual/5.2/manual.html#6.1>.
+See "Lua 5.1 Reference Manual", section 5.1 "Basic Functions",
+L<http://www.lua.org/manual/5.1/manual.html#5.1>.
 
 =cut
 
@@ -29,13 +30,9 @@ L<http://www.lua.org/manual/5.2/manual.html#6.1>.
 
 require 'Test.More'
 
-plan(168)
+plan(155)
 
-if arg[-1] == 'luajit' then
-    like(_VERSION, '^Lua 5%.1', "variable _VERSION")
-else
-    like(_VERSION, '^Lua 5%.2', "variable _VERSION")
-end
+like(_VERSION, '^Lua 5%.1', "variable _VERSION")
 
 v, msg = assert('text', "assert string")
 is(v, 'text', "function assert")
@@ -56,31 +53,9 @@ error_like(function () assert(false, nil) end,
            "function assert(false, nil)")
 
 is(collectgarbage('stop'), 0, "function collectgarbage 'stop/restart/collect'")
-if arg[-1] == 'luajit' then
-    skip("LuaJIT. gc isrunning", 1)
-else
-    is(collectgarbage('isrunning'), false)
-end
-is(collectgarbage('step'), false)
 is(collectgarbage('restart'), 0)
-if arg[-1] == 'luajit' then
-    skip("LuaJIT. gc isrunning", 1)
-else
-    is(collectgarbage('isrunning'), true)
-end
-is(collectgarbage('step'), false)
 is(collectgarbage('collect'), 0)
-is(collectgarbage('setpause', 10), 200)
-is(collectgarbage('setstepmul', 200), 200)
 is(collectgarbage(), 0)
-if arg[-1] == 'luajit' then
-    skip("LuaJIT. gc mode gen/inc", 4)
-else
-    is(collectgarbage('generational'), 0)
-    is(collectgarbage('step'), false)
-    is(collectgarbage('incremental'), 0)
-    is(collectgarbage('setmajorinc'), 200)
-end
 
 type_ok(collectgarbage('count'), 'number', "function collectgarbage 'count'")
 
@@ -106,7 +81,7 @@ like(twice(n), '^7%.088', "function dofile")
 os.remove('lib1.lua') -- clean up
 
 error_like(function () dofile('no_file.lua') end,
-           "cannot open no_file.lua: No such file or directory",
+           "cannot open no_file.lua: ",
            "function dofile (no file)")
 
 f = io.open('foo.lua', 'w')
@@ -116,6 +91,24 @@ error_like(function () dofile('foo.lua') end,
            "^foo%.lua:%d+:",
            "function dofile (syntax error)")
 os.remove('foo.lua') -- clean up
+
+type_ok(getfenv(0), 'table', "function getfenv")
+is(getfenv(0), _G)
+is(getfenv(1), _G)
+is(getfenv(), _G)
+local function f () end
+type_ok(getfenv(f), 'table')
+is(getfenv(f), _G)
+type_ok(getfenv(print), 'table')
+is(getfenv(print), _G)
+
+error_like(function () getfenv(-3) end,
+           "^[^:]+:%d+: bad argument #1 to 'getfenv' %(.-level.-%)",
+           "function getfenv (negative)")
+
+error_like(function () getfenv(12) end,
+           "^[^:]+:%d+: bad argument #1 to 'getfenv' %(invalid level%)",
+           "function getfenv (too depth)")
 
 a = {'a','b','c'}
 local f, v, s = ipairs(a)
@@ -135,91 +128,7 @@ s, v = f(a, s)
 is(s, nil)
 is(v, nil)
 
-t = { [[
-function bar (x)
-    return x
-end
-]] }
-i = 0
-function reader ()
-    i = i + 1
-    return t[i]
-end
-f, msg = load(reader)
-if msg then
-    diag(msg)
-end
-type_ok(f, 'function', "function load(reader)")
-is(bar, nil)
-f()
-is(bar('ok'), 'ok')
-bar = nil
-
-t = { [[
-function baz (x)
-    return x
-end
-]] }
-i = -1
-function reader ()
-    i = i + 1
-    return t[i]
-end
-f, msg = load(reader)
-if msg then
-    diag(msg)
-end
-type_ok(f, 'function', "function load(pathological reader)")
-f()
-is(baz, nil)
-
-t = { [[?syntax error?]] }
-i = 0
-f, msg = load(reader, "errorchunk")
-is(f, nil, "function load(syntax error)")
-like(msg, "^%[string \"errorchunk\"%]:%d+:")
-
-f = load(function () return nil end)
-type_ok(f, 'function', "when reader returns nothing")
-
-f, msg = load(function () return {} end)
-is(f, nil, "reader function must return a string")
-like(msg, "reader function must return a string")
-
-f = load([[
-function bar (x)
-    return x
-end
-]])
-is(bar, nil, "function load(str)")
-f()
-is(bar('ok'), 'ok')
-bar = nil
-
-env = {}
-f = load([[
-function bar (x)
-    return x
-end
-]], "from string", 't', env)
-is(env.bar, nil, "function load(str)")
-f()
-is(env.bar('ok'), 'ok')
-
-f, msg = load([[?syntax error?]], "errorchunk")
-is(f, nil, "function load(syntax error)")
-like(msg, "^%[string \"errorchunk\"%]:%d+:")
-
-f, msg = load([[print 'ok']], "chunk txt", 'b')
-like(msg, "attempt to load")
-is(f, nil, "mode")
-
-f, msg = load("\x1bLua", "chunk bin", 't')
-like(msg, "attempt to load")
-is(f, nil, "mode")
-
 f = io.open('foo.lua', 'w')
-f:write'\xEF\xBB\xBF' -- BOM
 f:write[[
 function foo (x)
     return x
@@ -231,21 +140,11 @@ is(foo, nil, "function loadfile")
 f()
 is(foo('ok'), 'ok')
 
-f, msg = loadfile('foo.lua', 'b')
-like(msg, "attempt to load")
-is(f, nil, "mode")
-
-env = {}
-f = loadfile('foo.lua', 't', env)
-is(env.foo, nil, "function loadfile")
-f()
-is(env.foo('ok'), 'ok')
-
 os.remove('foo.lua') -- clean up
 
 f, msg = loadfile('no_file.lua')
 is(f, nil, "function loadfile (no file)")
-is(msg, "cannot open no_file.lua: No such file or directory")
+like(msg, "^cannot open no_file.lua: ")
 
 f = io.open('foo.lua', 'w')
 f:write[[?syntax error?]]
@@ -254,14 +153,6 @@ f, msg = loadfile('foo.lua')
 is(f, nil, "function loadfile (syntax error)")
 like(msg, '^foo%.lua:%d+:')
 os.remove('foo.lua') -- clean up
-
-if (platform and platform.compat)
-or (arg[-1] == 'luajit') then
-    ok(loadstring[[i = i + 1]], "function loadstring")
-else
-    is(loadstring, nil, "function loadstring (removed)")
-    loadstring = load
-end
 
 f = loadstring([[i = i + 1]])
 i = 0
@@ -307,10 +198,6 @@ is(a, 2)
 a = next(t, 3)
 is(a, nil)
 
-t = {}
-a = next(t, nil)
-is(a, nil, "function next (empty table)")
-
 a = {'a','b','c'}
 local f, v, s = pairs(a)
 type_ok(f, 'function', "function pairs")
@@ -333,6 +220,9 @@ is(msg, 'catched')
 r = pcall(assert)
 is(r, false)
 
+r, msg = pcall(assert)
+like(msg, "^bad argument #1 to '[^']+' %(value expected%)", "function pcall (incomplete)")
+
 t = {}
 a = t
 is(rawequal(nil, nil), true, "function rawequal -> true")
@@ -354,12 +244,6 @@ is(rawequal(t, 2), false)
 is(rawequal(print, format), false)
 is(rawequal(print, 2), false)
 
-is(rawlen("text"), 4, "function rawlen (string)")
-is(rawlen({ 'a', 'b', 'c'}), 3, "function rawlen (table)")
-error_like(function () a = rawlen(true) end,
-           "^[^:]+:%d+: bad argument #1 to 'rawlen' %(table ",
-           "function rawlen (bad arg)")
-
 t = {a = 'letter a', b = 'letter b'}
 is(rawget(t, 'a'), 'letter a', "function rawget")
 
@@ -367,26 +251,74 @@ t = {}
 is(rawset(t, 'a', 'letter a'), t, "function rawset")
 is(t.a, 'letter a')
 
-error_like(function () t = {}; rawset(t, nil, 42) end,
-           "^table index is nil",
-           "function rawset (table index is nil)")
-
 is(select('#'), 0, "function select")
 is(select('#','a','b','c'), 3)
 eq_array({select(1,'a','b','c')}, {'a','b','c'})
 eq_array({select(3,'a','b','c')}, {'c'})
 eq_array({select(5,'a','b','c')}, {})
-eq_array({select(-1,'a','b','c')}, {'c'})
-eq_array({select(-2,'a','b','c')}, {'b', 'c'})
-eq_array({select(-3,'a','b','c')}, {'a', 'b', 'c'})
 
 error_like(function () select(0,'a','b','c') end,
            "^[^:]+:%d+: bad argument #1 to 'select' %(index out of range%)",
            "function select (out of range)")
 
-error_like(function () select(-4,'a','b','c') end,
-           "^[^:]+:%d+: bad argument #1 to 'select' %(index out of range%)",
-           "function select (out of range)")
+t = {}
+function f () end
+is(setfenv(f, t), f, "function setfenv")
+type_ok(getfenv(f), 'table')
+is(getfenv(f), t)
+
+save = getfenv(1)
+a = 1
+setfenv(1, {g = _G})
+g.is(a, nil, "function setfenv")
+g.is(g.a, 1)
+g.setfenv(1, g.save) -- restore
+
+save = getfenv(1)
+a = 1
+local newgt = {}        -- create new environment
+setmetatable(newgt, {__index = _G})
+setfenv(1, newgt)       -- set it
+is(a, 1, "function setfenv")
+a = 10
+is(a, 10)
+is(_G.a, 1)
+_G.a = 20
+is(_G.a, 20)
+setfenv(1, save) -- restore
+
+save = getfenv(1)
+function factory ()
+    return function ()
+               return a    -- "global" a
+           end
+end
+a = 3
+f1 = factory()
+f2 = factory()
+is(f1(), 3, "function setfenv")
+is(f2(), 3)
+setfenv(f1, {a = 10})
+is(f1(), 10)
+is(f2(), 3)
+setfenv(1, save) -- restore
+
+error_like(function () setfenv(-3, {}) end,
+           "^[^:]+:%d+: bad argument #1 to 'setfenv' %(.-level.-%)",
+           "function setfenv (negative)")
+
+error_like(function () setfenv(12, {}) end,
+           "^[^:]+:%d+: bad argument #1 to 'setfenv' %(invalid level%)",
+           "function setfenv (too depth)")
+
+t = {}
+error_like(function () setfenv(t, {}) end,
+           "^[^:]+:%d+: bad argument #1 to 'setfenv' %(number expected, got table%)",
+           "function setfenv (bad arg)")
+
+error_like(function () setfenv(print, {}) end,
+           "^[^:]+:%d+: 'setfenv' cannot change environment of given object",
+           "function setfenv (forbidden)")
 
 is(type("Hello world"), 'string', "function type")
 is(type(10.4*3), 'number')
@@ -442,26 +374,20 @@ error_like(function () tostring() end,
            "^[^:]+:%d+: bad argument #1 to 'tostring' %(value expected%)",
            "function tostring (no arg)")
 
-if (platform and platform.compat)
-or (arg[-1] == 'luajit') then
-    type_ok(unpack, 'function', "function unpack")
-else
-    is(unpack, nil, "function unpack (removed)")
-end
+eq_array({unpack({})}, {}, "function unpack")
+eq_array({unpack({'a'})}, {'a'})
+eq_array({unpack({'a','b','c'})}, {'a','b','c'})
+eq_array({(unpack({'a','b','c'}))}, {'a'})
+eq_array({unpack({'a','b','c','d','e'},2,4)}, {'b','c','d'})
+eq_array({unpack({'a','b','c'},2,4)}, {'b','c'})
 
-if arg[-1] == 'luajit' then
+if jit then
     error_like(function () xpcall(assert, nil) end,
                "bad argument #2 to 'xpcall' %(function expected, got nil%)",
                "function xpcall")
-    error_like(function () xpcall(assert) end,
-               "bad argument #2 to 'xpcall' %(function expected, got no value%)",
-               "function xpcall")
-    diag("LuaJIT intentional. xpcall")
+    diag("LuaJIT intentional.")
 else
     is(xpcall(assert, nil), false, "function xpcall")
-    error_like(function () xpcall(assert) end,
-               "^[^:]+:%d+: bad argument #2 to 'xpcall' %(value expected%)",
-               "function xpcall (no arg)")
 end
 
 function backtrace ()
@@ -470,9 +396,6 @@ end
 r, msg = xpcall(assert, backtrace)
 is(r, false, "function xpcall (backtrace)")
 is(msg, 'not a back trace')
-
-r = xpcall(assert, backtrace, true)
-is(r, true, "function xpcall")
 
 -- Local Variables:
 --   mode: lua

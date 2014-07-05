@@ -80,6 +80,16 @@
     <Compile Include="CoreLib\ErrorHandling.cs" />
     <Compile Include="CoreLib\LoadMethods.cs" />
     <Compile Include="CoreLib\MetaTableMethods.cs" />
+    <Compile Include="CoreLib\Patterns\CaptureInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CoreLib\Patterns\MatchState.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CoreLib\Patterns\PatternMatching.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CoreLib\StringModule.cs" />
     <Compile Include="CoreLib\TableIterators.cs" />
     <Compile Include="DataStructs\Extension_Methods.cs" />
     <Compile Include="DataStructs\FastStackDynamic.cs" />
@@ -88,6 +98,7 @@
     <Compile Include="Debugging\DebuggerAction.cs" />
     <Compile Include="Debugging\IDebugger.cs" />
     <Compile Include="Debugging\SourceCodeType.cs" />
+    <Compile Include="Debugging\SourceRef.cs" />
     <Compile Include="Debugging\WatchItem.cs" />
     <Compile Include="Debugging\WatchType.cs" />
     <Compile Include="Diagnostics\Debug.cs" />
@@ -96,31 +107,35 @@
     <Compile Include="Diagnostics\CodeChrono.cs" />
     <Compile Include="Errors\ScriptRuntimeException.cs" />
     <Compile Include="Errors\SyntaxErrorException.cs" />
-    <Compile Include="Execution\DataTypes\CallbackArguments.cs" />
-    <Compile Include="Execution\DataTypes\Closure.cs" />
-    <Compile Include="Execution\DataTypes\CallbackFunction.cs" />
-    <Compile Include="Execution\DataTypes\DynValue.cs">
+    <Compile Include="DataTypes\CallbackArguments.cs" />
+    <Compile Include="DataTypes\Closure.cs" />
+    <Compile Include="DataTypes\CallbackFunction.cs" />
+    <Compile Include="DataTypes\DynValue.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Execution\DataTypes\TablePair.cs" />
+    <Compile Include="DataTypes\TablePair.cs" />
     <Compile Include="Execution\FileLoadRequestedEventArgs.cs" />
-    <Compile Include="Execution\IExecutionContext.cs">
+    <Compile Include="Execution\ExecutionContext.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Debugging\SourceCode.cs" />
+    <Compile Include="Interface\IteratorHelper.cs" />
+    <Compile Include="Loaders\ClassicLuaScriptLoader.cs" />
+    <Compile Include="Loaders\IScriptLoader.cs" />
     <Compile Include="Execution\Scopes\ClosureContext.cs" />
     <Compile Include="Execution\Scopes\LoopTracker.cs" />
     <Compile Include="Execution\Scopes\IClosureBuilder.cs" />
-    <Compile Include="Execution\DataTypes\SymbolRefType.cs" />
-    <Compile Include="Execution\DataTypes\SymbolRef.cs" />
+    <Compile Include="DataTypes\SymbolRefType.cs" />
+    <Compile Include="DataTypes\SymbolRef.cs" />
     <Compile Include="Execution\Scopes\BuildTimeScope.cs" />
     <Compile Include="Execution\Scopes\BuildTimeScopeBlock.cs" />
     <Compile Include="Execution\Scopes\BuildTimeScopeFrame.cs" />
     <Compile Include="Execution\Scopes\RuntimeScopeBlock.cs" />
     <Compile Include="Execution\Scopes\RuntimeScopeFrame.cs" />
     <Compile Include="Execution\ScriptLoadingContext.cs" />
-    <Compile Include="Execution\DataTypes\DataType.cs" />
-    <Compile Include="Execution\Script.cs" />
-    <Compile Include="Execution\DataTypes\Table.cs" />
+    <Compile Include="DataTypes\DataType.cs" />
+    <Compile Include="Script.cs" />
+    <Compile Include="DataTypes\Table.cs" />
     <Compile Include="Execution\VM\ByteCode.cs" />
     <Compile Include="DataStructs\FastStack.cs" />
     <Compile Include="Execution\VM\LoopTracker.cs" />
@@ -162,6 +177,7 @@
     <Compile Include="Tree\Expression.cs" />
     <Compile Include="Tree\Expressions\OperatorExpression.cs" />
     <Compile Include="Tree\Expressions\SymbolRefExpression.cs" />
+    <Compile Include="Tree\Loader.cs" />
     <Compile Include="Tree\Loop.cs" />
     <Compile Include="Tree\NodeBase.cs" />
     <Compile Include="Tree\NodeFactory.cs" />

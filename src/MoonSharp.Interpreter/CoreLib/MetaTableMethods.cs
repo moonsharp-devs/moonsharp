@@ -16,7 +16,7 @@ namespace MoonSharp.Interpreter.CoreLib
 		// If the original metatable has a "__metatable" field, raises an error ("cannot change a protected metatable").
 		// This function returns table. 
 		[MoonSharpMethod]
-		public static DynValue setmetatable(IExecutionContext executionContext, CallbackArguments args)  
+		public static DynValue setmetatable(ScriptExecutionContext executionContext, CallbackArguments args)  
 		{
 			DynValue table = args.AsType(0, "setmetatable", DataType.Table);
 			DynValue metatable = args.AsType(1, "setmetatable", DataType.Table, true);
@@ -37,7 +37,7 @@ namespace MoonSharp.Interpreter.CoreLib
 		// If object does not have a metatable, returns nil. Otherwise, if the object's metatable 
 		// has a "__metatable" field, returns the associated value. Otherwise, returns the metatable of the given object. 
 		[MoonSharpMethod]
-		public static DynValue getmetatable(IExecutionContext executionContext, CallbackArguments args)  
+		public static DynValue getmetatable(ScriptExecutionContext executionContext, CallbackArguments args)  
 		{
 			DynValue obj = args[0];
 
@@ -58,7 +58,7 @@ namespace MoonSharp.Interpreter.CoreLib
 		// -------------------------------------------------------------------------------------------------------------------
 		// Gets the real value of table[index], without invoking any metamethod. table must be a table; index may be any value.
 		[MoonSharpMethod]
-		public static DynValue rawget(IExecutionContext executionContext, CallbackArguments args)  
+		public static DynValue rawget(ScriptExecutionContext executionContext, CallbackArguments args)  
 		{
 			DynValue table = args.AsType(0, "rawget", DataType.Table);
 			DynValue index = args[1];
@@ -72,7 +72,7 @@ namespace MoonSharp.Interpreter.CoreLib
 		// index any value different from nil and NaN, and value any Lua value.
 		// This function returns table. 
 		[MoonSharpMethod]
-		public static DynValue rawset(IExecutionContext executionContext, CallbackArguments args)  
+		public static DynValue rawset(ScriptExecutionContext executionContext, CallbackArguments args)  
 		{
 			DynValue table = args.AsType(0, "rawset", DataType.Table);
 			DynValue index = args[1];
@@ -86,7 +86,7 @@ namespace MoonSharp.Interpreter.CoreLib
 		// -------------------------------------------------------------------------------------------------------------------
 		// Checks whether v1 is equal to v2, without invoking any metamethod. Returns a boolean. 
 		[MoonSharpMethod]
-		public static DynValue rawequal(IExecutionContext executionContext, CallbackArguments args)  
+		public static DynValue rawequal(ScriptExecutionContext executionContext, CallbackArguments args)  
 		{
 			DynValue v1 = args[0];
 			DynValue v2 = args[1];
@@ -98,7 +98,7 @@ namespace MoonSharp.Interpreter.CoreLib
 		// -------------------------------------------------------------------------------------------------------------------
 		//Returns the length of the object v, which must be a table or a string, without invoking any metamethod. Returns an integer number.	
 		[MoonSharpMethod]
-		public static DynValue rawlen(IExecutionContext executionContext, CallbackArguments args) 
+		public static DynValue rawlen(ScriptExecutionContext executionContext, CallbackArguments args) 
 		{
 			return args[0].GetLength();
 		}

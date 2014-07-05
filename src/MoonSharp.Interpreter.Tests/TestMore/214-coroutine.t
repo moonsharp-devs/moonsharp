@@ -2,7 +2,7 @@
 --
 -- lua-TestMore : <http://fperrad.github.com/lua-TestMore/>
 --
--- Copyright (C) 2009-2011, Perrad Francois
+-- Copyright (C) 2009, Perrad Francois
 --
 -- This code is licensed under the terms of the MIT/X11 license,
 -- like Lua itself.
@@ -18,8 +18,8 @@
 
 =head2 Description
 
-See "Lua 5.2 Reference Manual", section 2.6 "Coroutines",
-L<http://www.lua.org/manual/5.2/manual.html#2.6>.
+See "Lua 5.1 Reference Manual", section 2.11 "Coroutines",
+L<http://www.lua.org/manual/5.1/manual.html#2.11>.
 
 See "Programming in Lua", section 9 "Coroutines".
 
@@ -29,22 +29,22 @@ See "Programming in Lua", section 9 "Coroutines".
 
 require 'Test.More'
 
-plan(30)
+plan(14)
 
---[[ ]]
+-- [=[ foo1 ]]
 output = {}
 
 function foo1 (a)
-    output[#output+1] = "foo " .. a
+    table.insert(output, "foo " .. a)
     return coroutine.yield(2*a)
 end
 
 co = coroutine.create(function (a,b)
-        output[#output+1] = "co-body " .. a .." " .. b
+        table.insert(output, "co-body " .. a .." " .. b)
         local r = foo1(a+1)
-        output[#output+1] = "co-body " .. r
+        table.insert(output, "co-body " .. r)
         local r, s = coroutine.yield(a+b, a-b)
-        output[#output+1] = "co-body " .. r .. " " .. s
+        table.insert(output, "co-body " .. r .. " " .. s)
         return b, 'end'
     end)
 
@@ -71,28 +71,16 @@ coroutine.resume(co)
 is(output, 'hi')
 is(coroutine.status(co), 'dead')
 
-error_like(function () coroutine.create(true) end,
-           "^[^:]+:%d+: bad argument #1 to 'create' %(function expected, got boolean%)")
-
-error_like(function () coroutine.resume(true) end,
-           "^[^:]+:%d+: bad argument #1 to 'resume' %(coroutine expected%)")
-
-error_like(function () coroutine.status(true) end,
-           "^[^:]+:%d+: bad argument #1 to 'status' %(coroutine expected%)")
-
 --[[ ]]
 output = {}
 co = coroutine.create(function ()
         for i=1,10 do
-            output[#output+1] = i
+            table.insert(output, i)
             coroutine.yield()
         end
     end)
 
 coroutine.resume(co)
-thr, ismain = coroutine.running(co)
-type_ok(thr, 'thread', "running")
-is(ismain, true, "running")
 is(coroutine.status(co), 'suspended', "basics")
 coroutine.resume(co)
 coroutine.resume(co)
@@ -120,68 +108,6 @@ co = coroutine.create(function ()
     end)
 
 eq_array({coroutine.resume(co)}, {true, 6, 7}, "basics")
-
---[[ ]]
-co = coroutine.wrap(function(...)
-  return pcall(function(...)
-    return coroutine.yield(...)
-  end, ...)
-end)
-eq_array({co("Hello")}, {"Hello"})
-eq_array({co("World")}, {true, "World"})
-
-co = coroutine.wrap(function(...)
-  function backtrace ()
-    return 'not a back trace'
-  end
-  return xpcall(function(...)
-    return coroutine.yield(...)
-  end, backtrace, ...)
-end)
-eq_array({co("Hello")}, {"Hello"})
-eq_array({co("World")}, {true, "World"})
-
---[[ ]]
-local output = {}
-co = coroutine.wrap(function()
-  while true do
-    local t = setmetatable({}, {
-      __eq = function(...)
-        return coroutine.yield(...)
-      end}
-    )
-    local t2 = setmetatable({}, getmetatable(t))
-    output[#output+1] = t == t2
-  end
-end)
-co()
-co(true)
-co(false)
-eq_array(output, {true, false})
-
---[[ ]]
-co = coroutine.wrap(print)
-type_ok(co, 'function')
-
-error_like(function () coroutine.wrap(true) end,
-           "^[^:]+:%d+: bad argument #1 to 'wrap' %(function expected, got boolean%)")
-
-co = coroutine.wrap(function () error"in coro" end)
-error_like(function () co() end,
-           "^[^:]+:%d+: [^:]+:%d+: in coro$")
-
---[[ ]]
-co = coroutine.create(function ()
-        error "in coro"
-    end)
-r, msg = coroutine.resume(co)
-is(r, false)
-like(msg, "^[^:]+:%d+: in coro$")
-
---[[ ]]
-error_like(function () coroutine.yield() end,
-           "attempt to yield")
-
 
 -- Local Variables:
 --   mode: lua

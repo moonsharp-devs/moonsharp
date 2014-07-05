@@ -51,7 +51,7 @@ namespace MoonSharp.Interpreter.Tests
 		}
 
 
-		[Test] 
+		[Test]
 		public void TestMore_015_forlist()
 		{
 			TapRunner.Run(@"TestMore\015-forlist.t");
@@ -59,7 +59,7 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
-		[Ignore]
+		//[Ignore]
 		public void TestMore_101_boolean()
 		{
 			TapRunner.Run(@"TestMore\101-boolean.t");
@@ -156,14 +156,6 @@ namespace MoonSharp.Interpreter.Tests
 
 		[Test]
 		[Ignore]
-		public void TestMore_204_grammar()
-		{
-			TapRunner.Run(@"TestMore\204-grammar.t");
-		}
-
-
-		[Test]
-		[Ignore]
 		public void TestMore_211_scope()
 		{
 			TapRunner.Run(@"TestMore\211-scope.t");
@@ -244,14 +236,6 @@ namespace MoonSharp.Interpreter.Tests
 
 		[Test]
 		[Ignore]
-		public void TestMore_242_luac()
-		{
-			TapRunner.Run(@"TestMore\242-luac.t");
-		}
-
-
-		[Test]
-		[Ignore]
 		public void TestMore_301_basic()
 		{
 			TapRunner.Run(@"TestMore\301-basic.t");
@@ -292,33 +276,25 @@ namespace MoonSharp.Interpreter.Tests
 
 		[Test]
 		[Ignore]
-		public void TestMore_307_bit()
+		public void TestMore_307_io()
 		{
-			TapRunner.Run(@"TestMore\307-bit.t");
+			TapRunner.Run(@"TestMore\307-io.t");
 		}
 
 
 		[Test]
 		[Ignore]
-		public void TestMore_308_io()
+		public void TestMore_308_os()
 		{
-			TapRunner.Run(@"TestMore\308-io.t");
+			TapRunner.Run(@"TestMore\308-os.t");
 		}
 
 
 		[Test]
 		[Ignore]
-		public void TestMore_309_os()
+		public void TestMore_310_stdin()
 		{
-			TapRunner.Run(@"TestMore\309-os.t");
-		}
-
-
-		[Test]
-		[Ignore]
-		public void TestMore_310_debug()
-		{
-			TapRunner.Run(@"TestMore\310-debug.t");
+			TapRunner.Run(@"TestMore\310-stdin.t");
 		}
 
 
@@ -327,14 +303,6 @@ namespace MoonSharp.Interpreter.Tests
 		public void TestMore_314_regex()
 		{
 			TapRunner.Run(@"TestMore\314-regex.t");
-		}
-
-
-		[Test]
-		[Ignore]
-		public void TestMore_320_stdin()
-		{
-			TapRunner.Run(@"TestMore\320-stdin.t");
 		}
 	}
 }

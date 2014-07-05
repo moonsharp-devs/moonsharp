@@ -7,6 +7,8 @@ namespace MoonSharp.Interpreter.Execution
 {
 	class ScriptLoadingContext
 	{
-		public BuildTimeScope Scope;
+		public BuildTimeScope Scope { get; set; }
+		public string SourceName { get; set; }
+		public int SourceIdx { get; set; }
 	}
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MoonSharp.Interpreter.Debugging;
 
 namespace MoonSharp.Interpreter.Execution.VM
 {
@@ -16,6 +17,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 		public int NumVal2;
 		public RuntimeScopeBlock Block;
 		public bool Breakpoint;
+		public SourceRef SourceCodeRef;
 
 		public override string ToString()
 		{
@@ -97,7 +99,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			return new string(' ', 10 - this.OpCode.ToString().Length);
 		}
 
-
+		
 
 	}
 }

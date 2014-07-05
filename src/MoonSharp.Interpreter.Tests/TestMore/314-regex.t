@@ -2,7 +2,7 @@
 --
 -- lua-TestMore : <http://fperrad.github.com/lua-TestMore/>
 --
--- Copyright (C) 2009-2011, Perrad Francois
+-- Copyright (C) 2009, Perrad Francois
 --
 -- This code is licensed under the terms of the MIT/X11 license,
 -- like Lua itself.
@@ -51,7 +51,7 @@ Description of the test.
 
 require 'Test.More'
 
-plan(162)
+plan(150)
 
 local test_files = {
     'rx_captures',
@@ -61,13 +61,6 @@ local test_files = {
 
 local todo_info = {
 }
-
-if arg[-1] == 'luajit' then
-    todo_info[147] = "LuaJIT TODO. \\0"
-    todo_info[149] = "LuaJIT TODO. \\0"
-    todo_info[151] = "LuaJIT TODO. [^\\0]"
-    todo_info[153] = "LuaJIT TODO. [^\\0]"
-end
 
 local function split (line)
     local pattern, target, result, desc = '', '', '', ''
@@ -182,7 +175,7 @@ for _, filename in ipairs(test_files) do
                         return table.concat(t, "\t")
                     end
             ]]
-            local compiled, msg = load(code)
+            local compiled, msg = loadstring(code)
             if not compiled then
                 error("can't compile : " .. code .. "\n" .. msg)
             end
@@ -190,9 +183,7 @@ for _, filename in ipairs(test_files) do
                 local pattern = result:sub(2, result:len() - 1)
                 error_like(compiled, pattern, desc)
             else
-                local out
-                pcall(function () out = compiled() end)
-                is(out, result, desc)
+                is(compiled(), result, desc)
             end
         end
         f:close()

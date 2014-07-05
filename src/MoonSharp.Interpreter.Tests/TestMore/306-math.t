@@ -2,7 +2,7 @@
 --
 -- lua-TestMore : <http://fperrad.github.com/lua-TestMore/>
 --
--- Copyright (C) 2009-2012, Perrad Francois
+-- Copyright (C) 2009, Perrad Francois
 --
 -- This code is licensed under the terms of the MIT/X11 license,
 -- like Lua itself.
@@ -20,8 +20,8 @@
 
 Tests Lua Mathematic Library
 
-See "Lua 5.2 Reference Manual", section 6.6 "Mathematical Functions",
-L<http://www.lua.org/manual/5.2/manual.html#6.6>.
+See "Lua 5.1 Reference Manual", section 5.6 "Mathematical Functions",
+L<http://www.lua.org/manual/5.1/manual.html#5.6>.
 
 See "Programming in Lua", section 18 "The Mathematical Library".
 
@@ -31,7 +31,7 @@ See "Programming in Lua", section 18 "The Mathematical Library".
 
 require 'Test.More'
 
-plan(47)
+plan(43)
 
 like(tostring(math.pi), '^3%.14', "variable pi")
 
@@ -70,15 +70,8 @@ eq_array({math.frexp(1.5)}, {0.75, 1}, "function frexp")
 is(math.ldexp(1.2, 3), 9.6, "function ldexp")
 
 like(math.log(47), '^3%.85', "function log")
-like(math.log(47, 2), '^5%.554', "function log (base 2)")
-like(math.log(47, 10), '^1%.672', "function log (base 10)")
 
-if (platform and platform.compat)
-or (arg[-1] == 'luajit') then
-    like(math.log10(47), '^1%.672', "function log10")
-else
-    is(math.log10, nil, "function log10 (removed)")
-end
+like(math.log10(47), '^1%.672', "function log10")
 
 error_like(function () math.max() end,
            "^[^:]+:%d+: bad argument #1 to 'max' %(number expected, got no value%)",
@@ -108,18 +101,7 @@ like(math.random(9), '^%d$', "function random 1 arg")
 
 like(math.random(10, 19), '^1%d$', "function random 2 arg")
 
-if arg[-1] == 'luajit' then
-    todo("LuaJIT intentional. Don't check empty interval.", 2)
-end
-error_like(function () math.random(0) end,
-           "^[^:]+:%d+: bad argument #1 to 'random' %(interval is empty%)",
-           "function random empty interval")
-
-error_like(function () math.random(19, 10) end,
-           "^[^:]+:%d+: bad argument #2 to 'random' %(interval is empty%)",
-           "function random empty interval")
-
-if arg[-1] == 'luajit' then
+if jit then
     todo("LuaJIT intentional. Don't care about extra arguments.")
 end
 error_like(function () math.random(1, 2, 3) end,

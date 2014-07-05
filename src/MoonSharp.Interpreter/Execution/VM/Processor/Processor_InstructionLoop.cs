@@ -380,7 +380,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			if (fn.Type == DataType.ClrFunction)
 			{
 				IList<DynValue> args = new Slice<DynValue>(m_ValueStack, m_ValueStack.Count - argsCount, argsCount, false);
-				var ret = fn.Callback.Invoke(this, args);
+				var ret = fn.Callback.Invoke(new ScriptExecutionContext(this, fn.Callback), args);
 				m_ValueStack.RemoveLast(argsCount + 1);
 				m_ValueStack.Push(ret);
 				return instructionPtr;

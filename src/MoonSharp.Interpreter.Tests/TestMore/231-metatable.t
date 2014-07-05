@@ -2,7 +2,7 @@
 --
 -- lua-TestMore : <http://fperrad.github.com/lua-TestMore/>
 --
--- Copyright (C) 2009-2012, Perrad Francois
+-- Copyright (C) 2009, Perrad Francois
 --
 -- This code is licensed under the terms of the MIT/X11 license,
 -- like Lua itself.
@@ -18,8 +18,8 @@
 
 =head2 Description
 
-See "Lua 5.2 Reference Manual", section 2.4 "Metatables and Metamethods",
-L<http://www.lua.org/manual/5.2/manual.html#2.4>.
+See "Lua 5.1 Reference Manual", section 2.8 "Metatables",
+L<http://www.lua.org/manual/5.1/manual.html#2.8>.
 
 See "Programming in Lua", section 13 "Metatables and Metamethods".
 
@@ -29,16 +29,13 @@ See "Programming in Lua", section 13 "Metatables and Metamethods".
 
 require 'Test.More'
 
-plan(96)
+plan(84)
 
 t = {}
 is(getmetatable(t), nil, "metatable")
 t1 = {}
 is(setmetatable(t, t1), t)
 is(getmetatable(t), t1)
-is(setmetatable(t, nil), t)
-error_like(function () setmetatable(t, true) end,
-           "^[^:]+:%d+: bad argument #2 to 'setmetatable' %(nil or table expected%)")
 
 mt = {}
 mt.__metatable = "not your business"
@@ -65,8 +62,6 @@ function mt.__tostring () a = "return nothing" end
 setmetatable(t, mt)
 is(tostring(t), nil, "__tostring no-output")
 is(a, "return nothing")
-error_like(function () print(t) end,
-           "^[^:]+:%d+: 'tostring' must return a string to 'print'")
 
 mt.__tostring = function () return '__FIRST__', 2 end
 setmetatable(t, mt)
@@ -79,32 +74,6 @@ t.mt.__tostring = "not a function"
 error_like(function () tostring(t) end,
            "attempt to call",
            "__tostring invalid")
-
-t = {}
-mt = { __len=function () return 42 end }
-setmetatable(t, mt)
-is(#t, 42, "__len")
-
-t = {}
-mt = { __len=function () return nil end }
-setmetatable(t, mt)
-if arg[-1] == 'luajit' then
-    todo("LuaJIT TODO. __len.", 1)
-end
-error_like(function () print(table.concat(t)) end,
-           "object length is not a number",
-           "__len invalid")
-
-t = {}
-mt = {
-  __tostring=function () return 't' end,
-  __concat=function (op1, op2)
-        return tostring(op1) .. '|' .. tostring(op2)
-  end,
-}
-setmetatable(t, mt)
-is(t .. t .. t .. 4 ..'end', "t|t|t|4end", "__concat")
-
 
 --[[ Cplx ]]
 Cplx = {}
@@ -215,13 +184,6 @@ end
 c1 = Cplx.new(1, 3)
 is(tostring(- c1), '(-1,-3)', "cplx __unm")
 
-function Cplx.mt.__len (a)
-    return math.sqrt(a.re*a.re + a.im*a.im)
-end
-
-c1 = Cplx.new(3, 4)
-is( #c1, 5, "cplx __len")
-
 function Cplx.mt.__eq (a, b)
     if type(a) ~= 'table' then
         a = Cplx.new(a, 0)
@@ -256,8 +218,6 @@ end
 is(c1 < c2, true, "cplx __lt")
 is(c1 < c3, false)
 is(c1 <= c3, true)
-is(c1 < 1, false)
-is(c1 < 4, true)
 
 function Cplx.mt.__le (a, b)
     if type(a) ~= 'table' then
@@ -297,45 +257,6 @@ is(c1('a'), true)
 is(a, "Cplx.__call (2,0), a")
 is(c1('a', 'b', 'c'), true)
 is(a, "Cplx.__call (2,0), a, b, c")
-
---[[ delegate ]]
-
-local t = {
-    _VALUES = {
-        a = 1,
-        b = 'text',
-        c = true,
-    }
-}
-local mt = {
-    __pairs = function (op)
-        return next, op._VALUES
-    end
-}
-setmetatable(t, mt)
-
-r = {}
-for k in pairs(t) do
-    r[#r+1] = k
-end
-table.sort(r)
-is( table.concat(r, ','), 'a,b,c', "__pairs" )
-
-local t = {
-    _VALUES = { 'a', 'b', 'c' }
-}
-local mt = {
-    __ipairs = function (op)
-        return ipairs(op._VALUES)
-    end
-}
-setmetatable(t, mt)
-
-r = ''
-for i, v in ipairs(t) do
-    r = r .. v
-end
-is( r, 'abc', "__ipairs" )
 
 --[[ Window ]]
 
@@ -513,17 +434,6 @@ error_like(function () new_a = 1 end,
 declare 'new_a'
 new_a = 1
 is(new_a, 1)
-
---[[ ]]
-local newindex = {}
--- create metatable
-local mt = {
-    __newindex = newindex
-}
-local t = setmetatable({}, mt)
-t[1] = 42
-is(newindex[1], 42, "__newindex")
-
 
 -- Local Variables:
 --   mode: lua

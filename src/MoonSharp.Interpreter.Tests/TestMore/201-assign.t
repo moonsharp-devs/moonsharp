@@ -2,7 +2,7 @@
 --
 -- lua-TestMore : <http://fperrad.github.com/lua-TestMore/>
 --
--- Copyright (C) 2009-2010, Perrad Francois
+-- Copyright (C) 2009, Perrad Francois
 --
 -- This code is licensed under the terms of the MIT/X11 license,
 -- like Lua itself.
@@ -18,8 +18,8 @@
 
 =head2 Description
 
-See "Lua 5.2 Reference Manual", section 3.3.3 "Assignment",
-L<http://www.lua.org/manual/5.2/manual.html#3.3.3>.
+See "Lua 5.1 Reference Manual", section 2.4.3 "Assignment",
+L<http://www.lua.org/manual/5.1/manual.html#2.4.3>.
 
 See "Programming in Lua", section 4.1 "Assignment".
 
@@ -29,19 +29,11 @@ See "Programming in Lua", section 4.1 "Assignment".
 
 require 'Test.More'
 
-plan(38)
+plan(35)
 
 is(b, nil, "global variable")
 b = 10
 is(b, 10)
-if arg[-1] == 'luajit' then
-    skip("LuaJIT intentional. _ENV.", 3)
-else
-    is(_ENV.b, 10, "_ENV")
-    is(_G, _ENV, "_G")
-    error_like([[ _ENV = nil; b = 20 ]],
-               "^[^:]+:%d+: attempt to index upvalue '_ENV' %(a nil value%)")
-end
 b = nil
 is(b, nil)
 

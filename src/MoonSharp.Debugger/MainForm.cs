@@ -10,9 +10,11 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using MoonSharp.Interpreter;
+using MoonSharp.Interpreter.CoreLib;
 using MoonSharp.Interpreter.Debugging;
 using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Execution.VM;
+using MoonSharp.Interpreter.Loaders;
 
 namespace MoonSharp.Debugger
 {
@@ -48,14 +50,14 @@ namespace MoonSharp.Debugger
 		Script m_Script;
 		SynchronizationContext m_Ctx;
 
-		DynValue Print(IExecutionContext executionContext, CallbackArguments values)
+		DynValue Print(ScriptExecutionContext executionContext, CallbackArguments values)
 		{
 			string prn = string.Join(" ", values.List.Select(v => v.ToPrintString()).ToArray());
 			Console_WriteLine("{0}", prn);
 			return DynValue.Nil;
 		}
 
-		DynValue Assert(IExecutionContext executionContext, CallbackArguments values)
+		DynValue Assert(ScriptExecutionContext executionContext, CallbackArguments values)
 		{
 			if (!values[0].CastToBool())
 				Console_WriteLine("ASSERT FAILED!");
@@ -63,7 +65,7 @@ namespace MoonSharp.Debugger
 			return DynValue.Nil;
 		}
 
-		DynValue XAssert(IExecutionContext executionContext, CallbackArguments values)
+		DynValue XAssert(ScriptExecutionContext executionContext, CallbackArguments values)
 		{
 			if (!values[1].CastToBool())
 				Console_WriteLine("ASSERT FAILED! : {0}", values[0].ToString());
@@ -92,7 +94,16 @@ namespace MoonSharp.Debugger
 			T["assert"] = DynValue.NewCallback(Assert);
 			T["xassert"] = DynValue.NewCallback(XAssert);
 
+			T.RegisterModuleType<TableIterators>();
+			T.RegisterModuleType<LoadMethods>();
+			T.RegisterModuleType<MetaTableMethods>();
+			T.RegisterModuleType<StringModule>();
+
 			m_Script = new Script(T);
+
+			var L = new ClassicLuaScriptLoader();
+			L.ModulePaths = L.UnpackStringPaths("Modules/?;Modules/?.lua");
+			m_Script.ScriptLoader = L;
 
 			m_Script.LoadFile(filename);
 
@@ -113,7 +124,10 @@ namespace MoonSharp.Debugger
 				source[i] = string.Format("{0:X8}  {1}", i, byteCode.Code[i]);
 			}
 
-			codeView.SourceCode = source;
+			m_Ctx.Send(o =>
+				{
+					codeView.SourceCode = source;
+				}, null);
 		}
 
 		DebuggerAction m_NextAction;
@@ -236,7 +250,7 @@ namespace MoonSharp.Debugger
 			{
 				lvCallStack.Add(
 					item.Address.ToString("X8"),
-					item.Name ?? ((item.RetAddress < 0) ? "<chunk-root>": "<??unknown??>"),
+					item.Name ?? ((item.RetAddress < 0) ? "<chunk-root>" : "<??unknown??>"),
 					item.RetAddress.ToString("X8"),
 					item.BasePtr.ToString("X8")
 					).Tag = item.Address;

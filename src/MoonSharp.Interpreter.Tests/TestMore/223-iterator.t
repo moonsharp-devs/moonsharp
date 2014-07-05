@@ -2,7 +2,7 @@
 --
 -- lua-TestMore : <http://fperrad.github.com/lua-TestMore/>
 --
--- Copyright (C) 2009-2010, Perrad Francois
+-- Copyright (C) 2009, Perrad Francois
 --
 -- This code is licensed under the terms of the MIT/X11 license,
 -- like Lua itself.
@@ -46,7 +46,7 @@ end
 t = {10, 20, 30}
 output = {}
 for element in list_iter(t) do
-    output[#output+1] = element
+    table.insert(output, element)
 end
 eq_array(output, t, "list_iter")
 
@@ -62,7 +62,7 @@ end
 t = {10, 20, 30}
 output = {}
 for element in values(t) do
-    output[#output+1] = element
+    table.insert(output, element)
 end
 eq_array(output, t, "values")
 
@@ -82,8 +82,8 @@ end
 a = {'one', 'two', 'three'}
 output = {}
 for i, v in my_ipairs(a) do
-    output[#output+1] = i
-    output[#output+1] = v
+    table.insert(output, i)
+    table.insert(output, v)
 end
 eq_array(output, {1, 'one', 2, 'two', 3, 'three'}, "emul ipairs")
 
@@ -95,8 +95,8 @@ end
 a = {'one', 'two', 'three'}
 output = {}
 for k, v in my_pairs(a) do
-    output[#output+1] = k
-    output[#output+1] = v
+    table.insert(output, k)
+    table.insert(output, v)
 end
 eq_array(output, {1, 'one', 2, 'two', 3, 'three'}, "emul ipairs")
 
@@ -104,8 +104,8 @@ eq_array(output, {1, 'one', 2, 'two', 3, 'three'}, "emul ipairs")
 t = {'one', 'two', 'three'}
 output = {}
 for k, v in next, t do
-    output[#output+1] = k
-    output[#output+1] = v
+    table.insert(output, k)
+    table.insert(output, v)
 end
 eq_array(output, {1, 'one', 2, 'two', 3, 'three'}, "with next")
 
@@ -136,7 +136,7 @@ end
 
 output = {}
 for p in permutations{'a', 'b', 'c'} do
-    output[#output+1] = table.concat(p, ' ')
+    table.insert(output, table.concat(p, ' '))
 end
 eq_array(output, {'b c a','c b a','c a b','a c b','b a c','a b c'}, "permutations")
 
@@ -164,7 +164,7 @@ end
 
 output = {}
 for p in permutations{'a', 'b', 'c'} do
-    output[#output+1] = table.concat(p, ' ')
+    table.insert(output, table.concat(p, ' '))
 end
 eq_array(output, {'b c a','c b a','c a b','a c b','b a c','a b c'}, "permutations with wrap")
 
@@ -183,7 +183,7 @@ end
 
 output = {}
 for n in fibo() do
-    output[#output+1] = n
+    table.insert(output, n)
     if n > 30 then break end
 end
 eq_array(output, {0, 1, 1, 2, 3, 5, 8, 13, 21, 34}, "fibo")

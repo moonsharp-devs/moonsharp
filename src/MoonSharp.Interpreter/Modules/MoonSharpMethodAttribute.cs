@@ -5,7 +5,7 @@ using System.Text;
 
 namespace MoonSharp.Interpreter
 {
-	[AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
+	[AttributeUsage(AttributeTargets.Method | AttributeTargets.Field, Inherited = false, AllowMultiple = false)]
 	public sealed class MoonSharpMethodAttribute : Attribute
 	{
 		public string Name { get; set; }

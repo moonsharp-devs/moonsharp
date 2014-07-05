@@ -15,6 +15,7 @@ namespace MoonSharp.Interpreter
 			if (modules.Has(CoreModules.GlobalConsts)) RegisterConstants(table);
 			if (modules.Has(CoreModules.TableIterators)) RegisterModuleType<TableIterators>(table);
 			if (modules.Has(CoreModules.Metatables)) RegisterModuleType<MetaTableMethods>(table);
+			if (modules.Has(CoreModules.String)) RegisterModuleType<StringModule>(table);
 
 			return table;
 		}
@@ -34,28 +35,63 @@ namespace MoonSharp.Interpreter
 
 
 
-		public static Table RegisterModuleType(this Table table, Type t)
+		public static Table RegisterModuleType(this Table gtable, Type t)
 		{
+			Table table = CreateModuleNamespace(gtable, t);
+
 			foreach (MethodInfo mi in t.GetMethods(BindingFlags.Static | BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.NonPublic).Where(_mi => _mi.GetCustomAttributes(typeof(MoonSharpMethodAttribute), false).Length > 0))
 			{
 				MoonSharpMethodAttribute attr = (MoonSharpMethodAttribute)mi.GetCustomAttributes(typeof(MoonSharpMethodAttribute), false).First();
 
 				ParameterInfo[] pi = mi.GetParameters();
 
-				if (pi.Length != 2 || pi[0].ParameterType != typeof(IExecutionContext)
+				if (pi.Length != 2 || pi[0].ParameterType != typeof(ScriptExecutionContext)
 					|| pi[1].ParameterType != typeof(CallbackArguments) || mi.ReturnType != typeof(DynValue))
 				{
 					throw new ArgumentException(string.Format("Method {0} does not have the right signature.", mi.Name));
 				}
 
-				Func<IExecutionContext, CallbackArguments, DynValue> func = (Func<IExecutionContext, CallbackArguments, DynValue>)Delegate.CreateDelegate(typeof(Func<IExecutionContext, CallbackArguments, DynValue>), mi);
+				Func<ScriptExecutionContext, CallbackArguments, DynValue> func = (Func<ScriptExecutionContext, CallbackArguments, DynValue>)Delegate.CreateDelegate(typeof(Func<ScriptExecutionContext, CallbackArguments, DynValue>), mi);
 
 				string name = (!string.IsNullOrEmpty(attr.Name)) ? attr.Name : mi.Name;
 
 				table[name] = DynValue.NewCallback(func);
 			}
 
-			return table;
+			RegisterLuaScripts(table, t);
+
+			return gtable;
+		}
+
+		private static void RegisterLuaScripts(Table table, Type t)
+		{
+			//throw new NotImplementedException();
+		}
+
+		private static Table CreateModuleNamespace(Table gtable, Type t)
+		{
+			MoonSharpModuleAttribute attr = (MoonSharpModuleAttribute)t.GetCustomAttributes(typeof(MoonSharpModuleAttribute), false).First();
+
+			if (string.IsNullOrEmpty(attr.Namespace))
+			{
+				return gtable;
+			}
+			else
+			{
+				Table table = new Table();
+				gtable[attr.Namespace] = DynValue.NewTable(table);
+
+				DynValue loaded = gtable.RawGet("_LOADED");
+
+				if (loaded == null || loaded.Type != DataType.Table)
+				{
+					gtable["_LOADED"] = loaded = DynValue.NewTable();
+				}
+
+				loaded.Table[attr.Namespace] = DynValue.NewTable(table);
+
+				return table;
+			}
 		}
 
 		public static Table RegisterModuleType<T>(this Table table)
@@ -63,9 +99,10 @@ namespace MoonSharp.Interpreter
 			return RegisterModuleType(table, typeof(T));
 		}
 
-		public static Table RegisterModuleObject(this Table table, object o)
+		public static Table RegisterModuleObject(this Table gtable, object o)
 		{
 			Type t = o.GetType();
+			Table table = CreateModuleNamespace(gtable, t);
 
 			foreach (MethodInfo mi in t.GetMethods(BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.NonPublic).Where(_mi => _mi.GetCustomAttributes(typeof(MoonSharpMethodAttribute), false).Length > 0))
 			{
@@ -73,21 +110,23 @@ namespace MoonSharp.Interpreter
 
 				ParameterInfo[] pi = mi.GetParameters();
 
-				if (pi.Length != 2 || pi[0].ParameterType != typeof(IExecutionContext)
+				if (pi.Length != 2 || pi[0].ParameterType != typeof(ScriptExecutionContext)
 					|| pi[1].ParameterType != typeof(CallbackArguments) || mi.ReturnType != typeof(DynValue))
 				{
 					throw new ArgumentException(string.Format("Method {0} does not have the right signature.", mi.Name));
 				}
 
-				Func<IExecutionContext, CallbackArguments, DynValue> func = (Func<IExecutionContext, CallbackArguments, DynValue>)
-					Delegate.CreateDelegate(typeof(Func<IExecutionContext, CallbackArguments, DynValue>), o, mi);
+				Func<ScriptExecutionContext, CallbackArguments, DynValue> func = (Func<ScriptExecutionContext, CallbackArguments, DynValue>)
+					Delegate.CreateDelegate(typeof(Func<ScriptExecutionContext, CallbackArguments, DynValue>), o, mi);
 
 				string name = (!string.IsNullOrEmpty(attr.Name)) ? attr.Name : mi.Name;
 
 				table[name] = DynValue.NewCallback(func);
 			}
 
-			return table;
+			RegisterLuaScripts(table, t);
+
+			return gtable;
 		}
 
 

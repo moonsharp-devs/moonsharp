@@ -11,14 +11,14 @@ namespace MoonSharp
 {
 	class Program
 	{
-		static DynValue Print(IExecutionContext executionContext, CallbackArguments values)
+		static DynValue Print(ScriptExecutionContext executionContext, CallbackArguments values)
 		{
 			string prn = string.Join(" ", values.List.Select(v => v.ToPrintString()).ToArray());
 			Console.WriteLine("{0}", prn);
 			return DynValue.Nil;
 		}
 
-		static DynValue Read(IExecutionContext executionContext, CallbackArguments values)
+		static DynValue Read(ScriptExecutionContext executionContext, CallbackArguments values)
 		{
 			double d = double.Parse(Console.ReadLine());
 			return DynValue.NewNumber(d);

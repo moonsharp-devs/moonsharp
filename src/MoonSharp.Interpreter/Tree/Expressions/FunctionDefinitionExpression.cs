@@ -92,13 +92,8 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			return ret;
 		}
 
-
-
-		public void Compile(ByteCode bc, Action afterDecl, string friendlyName)
+		public int CompileBody(ByteCode bc, string friendlyName)
 		{
-			bc.Closure(m_Closure.ToArray(), bc.GetJumpPointForNextInstruction() + 3);
-			afterDecl();
-
 			Instruction I = bc.Jump(OpCode.Jump, -1);
 
 			bc.BeginFn(m_StackFrame, friendlyName ?? "<anonymous>");
@@ -111,6 +106,15 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			bc.Ret(0);
 
 			I.NumVal = bc.GetJumpPointForNextInstruction();
+
+			return I.NumVal;
+		}
+
+		public int Compile(ByteCode bc, Action afterDecl, string friendlyName)
+		{
+			bc.Closure(m_Closure.ToArray(), bc.GetJumpPointForNextInstruction() + 3);
+			afterDecl();
+			return CompileBody(bc, friendlyName);
 		}
 
 

@@ -2,7 +2,7 @@
 --
 -- lua-TestMore : <http://fperrad.github.com/lua-TestMore/>
 --
--- Copyright (C) 2009-2010, Perrad Francois
+-- Copyright (C) 2009, Perrad Francois
 --
 -- This code is licensed under the terms of the MIT/X11 license,
 -- like Lua itself.
@@ -18,8 +18,8 @@
 
 =head2 Description
 
-See "Lua 5.2 Reference Manual", section 3.3.5 "For Statement",
-L<http://www.lua.org/manual/5.2/manual.html#3.3.5>.
+See "Lua 5.1 Reference Manual", section 2.4.5 "For Statement",
+L<http://www.lua.org/manual/5.1/manual.html#2.4.5>.
 
 See "Programming in Lua", section 4.3 "Control Structures".
 
@@ -87,9 +87,9 @@ end
 v = false
 for i = 5, 7, 0 do
     v = true
-    break -- avoid infinite loop with luajit
+    break -- avoid infinite loop with LuaJIT
 end
-if arg[-1] == 'luajit' then
+if jit then
     print("not ok 28 - for 5, 7, 0 # TODO # LuaJIT intentional.")
 elseif v then
     print("not ok 28 - for 5, 7, 0")
@@ -124,7 +124,7 @@ local v = a[5]()
 if v == 5 then
     print("ok 36 - for & upval")
 else
-    print("not ok 36 - for & upval #", v)
+    print("not ok 36 - for & upval")
     print("#", v)
 end
 

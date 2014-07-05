@@ -15,7 +15,7 @@ namespace MoonSharp.Interpreter.CoreLib
 		//dofile executes the contents of the standard input (stdin). Returns all values returned by the chunk. 
 		//In case of errors, dofile propagates the error to its caller (that is, dofile does not run in protected mode). 
 		[MoonSharpMethod]
-		public static DynValue dofile(IExecutionContext executionContext, CallbackArguments args)
+		public static DynValue dofile(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			Script S = executionContext.GetOwnerScript();
 			DynValue v = args.AsType(0, "dofile", DataType.String, false);
@@ -47,15 +47,32 @@ namespace MoonSharp.Interpreter.CoreLib
 		//If there is any error loading or running the module, or if it cannot find any loader for the module, then require 
 		//signals an error. 
 		[MoonSharpMethod]
-		public static DynValue require(IExecutionContext executionContext, CallbackArguments args)
+		public static DynValue __require_internal(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			Script S = executionContext.GetOwnerScript();
-			DynValue v = args.AsType(0, "dofile", DataType.String, false);
+			DynValue v = args.AsType(0, "require", DataType.String, false);
 
-			DynValue fn = S.LoadFile(v.String);
+			DynValue fn = S.RequireModule(v.String);
 
 			return DynValue.NewTailCallReq(fn); // tail call to dofile
 		}
+
+
+		[MoonSharpMethod]
+		public static string require = @"
+			function(arg)
+				local func, res = __require_internal(arg);
+
+				if (res == nil) then
+					res = func();
+					_LOADED[arg] = res;
+				end
+
+				return res;
+			end
+		";
+
+
 
 	}
 }
