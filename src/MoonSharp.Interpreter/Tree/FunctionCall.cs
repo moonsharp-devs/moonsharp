@@ -29,15 +29,15 @@ namespace MoonSharp.Interpreter.Tree
 
 			if (!string.IsNullOrEmpty(m_Name))
 			{
-				bc.Literal(DynValue.NewString(m_Name));
-				bc.Method();
+				bc.Emit_Literal(DynValue.NewString(m_Name));
+				bc.Emit_Method();
 				++argslen;
 			}
 
 			for (int i = 0; i < m_Arguments.Length; i++)
 				m_Arguments[i].Compile(bc);
 
-			bc.Call(argslen);
+			bc.Emit_Call(argslen);
 		}
 	}
 }

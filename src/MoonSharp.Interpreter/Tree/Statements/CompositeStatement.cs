@@ -45,7 +45,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 				{
 					if (!(s is NullStatement))
 					{
-						bc.Debug(s.TreeNode);
+						bc.Emit_Debug(s.TreeNode.GetText());
 						s.Compile(bc);
 					}
 				}

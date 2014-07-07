@@ -27,7 +27,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 		{
 			m_BaseExp.Compile(bc);
 			m_IndexExp.Compile(bc);
-			bc.Index();
+			bc.Emit_Index();
 		}
 
 
@@ -35,7 +35,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 		{
 			m_BaseExp.Compile(bc);
 			m_IndexExp.Compile(bc);
-			bc.IndexRef();
+			bc.Emit_IndexRef();
 		}
 	}
 }

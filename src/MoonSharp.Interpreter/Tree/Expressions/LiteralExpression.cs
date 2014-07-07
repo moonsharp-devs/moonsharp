@@ -88,7 +88,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 		public override void Compile(Execution.VM.ByteCode bc)
 		{
-			bc.Literal(m_Value);
+			bc.Emit_Literal(m_Value);
 		}
 	}
 }

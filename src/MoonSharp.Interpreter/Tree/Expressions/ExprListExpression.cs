@@ -32,7 +32,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 				exp.Compile(bc);
 
 			if (expressions.Length > 1)
-				bc.MkTuple(expressions.Length);
+				bc.Emit_MkTuple(expressions.Length);
 		}
 	}
 }

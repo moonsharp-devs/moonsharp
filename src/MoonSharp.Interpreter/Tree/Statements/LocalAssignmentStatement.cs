@@ -40,19 +40,19 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		{
 			if (m_Names.Length == 1 && m_RValues.Length == 1)
 			{
-				bc.Symbol(m_Names[0]);
+				bc.Emit_Symbol(m_Names[0]);
 				m_RValues[0].Compile(bc);
-				bc.Store();
+				bc.Emit_Store();
 			}
 			else
 			{
 				foreach (var var in m_Names)
-					bc.Symbol(var);
+					bc.Emit_Symbol(var);
 
 				foreach (var exp in m_RValues)
 					exp.Compile(bc);
 
-				bc.Assign(m_Names.Length, m_RValues.Length);
+				bc.Emit_Assign(m_Names.Length, m_RValues.Length);
 			}
 		}
 	}

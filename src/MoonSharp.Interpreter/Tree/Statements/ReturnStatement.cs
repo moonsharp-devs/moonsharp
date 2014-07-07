@@ -28,11 +28,11 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			if (m_Expression != null)
 			{
 				m_Expression.Compile(bc);
-				bc.Ret(1);
+				bc.Emit_Ret(1);
 			}
 			else
 			{
-				bc.Ret(0);
+				bc.Emit_Ret(0);
 			}
 		}
 	}

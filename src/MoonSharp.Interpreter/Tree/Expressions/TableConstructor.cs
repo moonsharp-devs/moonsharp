@@ -51,22 +51,22 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 		public override void Compile(Execution.VM.ByteCode bc)
 		{
-			bc.NewTable();
+			bc.Emit_NewTable();
 
 			foreach (var kvp in m_CtorArgs)
 			{
 				kvp.Key.Compile(bc);
-				bc.IndexRefN();
+				bc.Emit_IndexRefN();
 				kvp.Value.Compile(bc);
-				bc.Store();
+				bc.Emit_Store();
 			}
 
 			for (int i = 0; i < m_PositionalValues.Count; i++)
 			{
-				bc.Literal(DynValue.NewNumber(i+1));
-				bc.IndexRefN();
+				bc.Emit_Literal(DynValue.NewNumber(i+1));
+				bc.Emit_IndexRefN();
 				m_PositionalValues[i].Compile(bc);
-				bc.Store();
+				bc.Emit_Store();
 			}
 		}
 

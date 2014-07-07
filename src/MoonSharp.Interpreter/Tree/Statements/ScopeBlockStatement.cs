@@ -22,9 +22,9 @@ namespace MoonSharp.Interpreter.Tree.Statements
 
 		public override void Compile(Execution.VM.ByteCode bc)
 		{
-			bc.Enter(m_StackFrame);
+			bc.Emit_Enter(m_StackFrame);
 			m_Block.Compile(bc);
-			bc.Leave(m_StackFrame);
+			bc.Emit_Leave(m_StackFrame);
 		}
 
 	}

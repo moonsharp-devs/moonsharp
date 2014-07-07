@@ -62,20 +62,20 @@ namespace MoonSharp.Interpreter.Tree.Statements
 					lastIfJmp.NumVal = bc.GetJumpPointForNextInstruction();
 
 				ifblock.Exp.Compile(bc);
-				lastIfJmp = bc.Jump(OpCode.Jf, -1);
-				bc.Enter(ifblock.StackFrame);
+				lastIfJmp = bc.Emit_Jump(OpCode.Jf, -1);
+				bc.Emit_Enter(ifblock.StackFrame);
 				ifblock.Block.Compile(bc);
-				bc.Leave(ifblock.StackFrame);
-				endJumps.Add(bc.Jump(OpCode.Jump, -1));
+				bc.Emit_Leave(ifblock.StackFrame);
+				endJumps.Add(bc.Emit_Jump(OpCode.Jump, -1));
 			}
 
 			lastIfJmp.NumVal = bc.GetJumpPointForNextInstruction();
 
 			if (m_Else != null)
 			{
-				bc.Enter(m_ElseStackFrame);
+				bc.Emit_Enter(m_ElseStackFrame);
 				m_Else.Compile(bc);
-				bc.Leave(m_ElseStackFrame);
+				bc.Emit_Leave(m_ElseStackFrame);
 			}
 
 			foreach(var endjmp in endJumps)

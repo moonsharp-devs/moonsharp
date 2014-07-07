@@ -46,21 +46,21 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			bc.LoopTracker.Loops.Push(L);
 
 			m_End.Compile(bc);
-			bc.ToNum();
+			bc.Emit_ToNum();
 			m_Step.Compile(bc);
-			bc.ToNum();
+			bc.Emit_ToNum();
 			m_Start.Compile(bc);
-			bc.ToNum();
+			bc.Emit_ToNum();
 
 			int start = bc.GetJumpPointForNextInstruction();
-			var jumpend = bc.Jump(OpCode.JFor, -1);
-			bc.Enter(m_StackFrame);
-			bc.SymStorN(m_VarName);
+			var jumpend = bc.Emit_Jump(OpCode.JFor, -1);
+			bc.Emit_Enter(m_StackFrame);
+			bc.Emit_SymStorN(m_VarName);
 			m_InnerBlock.Compile(bc);
-			bc.Debug("..end");
-			bc.Leave(m_StackFrame);
-			bc.Incr(1);
-			bc.Jump(OpCode.Jump, start);
+			bc.Emit_Debug("..end");
+			bc.Emit_Leave(m_StackFrame);
+			bc.Emit_Incr(1);
+			bc.Emit_Jump(OpCode.Jump, start);
 
 			int exitpoint = bc.GetJumpPointForNextInstruction();
 
@@ -68,7 +68,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 				i.NumVal = exitpoint;
 
 			jumpend.NumVal = exitpoint;
-			bc.Pop(3);
+			bc.Emit_Pop(3);
 		}
 
 	}

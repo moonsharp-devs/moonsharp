@@ -7,20 +7,22 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using MoonSharp.Interpreter.DataStructs;
 
 namespace MoonSharp.Interpreter.Execution.VM
 {
-	public class ByteCode
+	public class ByteCode : ITrackableReference
 	{
 		public List<Instruction> Code = new List<Instruction>();
 		internal LoopTracker LoopTracker = new LoopTracker();
 
+		#region ITrackableReference
+
 		static int s_RefIDCounter = 0;
 		private int m_RefID = Interlocked.Increment(ref s_RefIDCounter);
-
-
 		public int ReferenceID { get { return m_RefID; } }
 
+		#endregion
 
 		public void Dump(string file)
 		{
@@ -46,180 +48,173 @@ namespace MoonSharp.Interpreter.Execution.VM
 			return Code.Count - 1;
 		}
 
-		private Instruction Emit(Instruction c)
+		private Instruction AppendInstruction(Instruction c)
 		{
 			Code.Add(c);
 			return c;
 		}
 
-		public Instruction Nop(string comment)
+		public Instruction Emit_Nop(string comment)
 		{
-			return Emit(new Instruction() { OpCode = OpCode.Nop, Name = comment });
+			return AppendInstruction(new Instruction() { OpCode = OpCode.Nop, Name = comment });
 		}
 
-		public Instruction Invalid(string type)
+		public Instruction Emit_Invalid(string type)
 		{
-			return Emit(new Instruction() { OpCode = OpCode.Invalid, Name = type });
+			return AppendInstruction(new Instruction() { OpCode = OpCode.Invalid, Name = type });
 		}
 
-		public Instruction Pop(int num = 1)
+		public Instruction Emit_Pop(int num = 1)
 		{
-			return Emit(new Instruction() { OpCode = OpCode.Pop, NumVal = num });
+			return AppendInstruction(new Instruction() { OpCode = OpCode.Pop, NumVal = num });
 		}
 
-		public void Call(int argCount)
+		public void Emit_Call(int argCount)
 		{
-			Emit(new Instruction() { OpCode = OpCode.Call, NumVal = argCount });
-			Emit(new Instruction() { OpCode = OpCode.TailChk });
+			AppendInstruction(new Instruction() { OpCode = OpCode.Call, NumVal = argCount });
+			AppendInstruction(new Instruction() { OpCode = OpCode.TailChk });
 		}
 
-		public Instruction Load(SymbolRef symref)
+		public Instruction Emit_Load(SymbolRef symref)
 		{
-			return Emit(new Instruction() { OpCode = OpCode.Load, Symbol = symref });
+			return AppendInstruction(new Instruction() { OpCode = OpCode.Load, Symbol = symref });
 		}
 
-		public Instruction Literal(DynValue value)
+		public Instruction Emit_Literal(DynValue value)
 		{
-			return Emit(new Instruction() { OpCode = OpCode.Literal, Value = value });
+			return AppendInstruction(new Instruction() { OpCode = OpCode.Literal, Value = value });
 		}
 
-		public Instruction Assign(int cntL, int cntR)
+		public Instruction Emit_Assign(int cntL, int cntR)
 		{
-			return Emit(new Instruction() { OpCode = OpCode.Assign, NumVal = cntL, NumVal2 = cntR });
+			return AppendInstruction(new Instruction() { OpCode = OpCode.Assign, NumVal = cntL, NumVal2 = cntR });
 		}
 
-		public Instruction Store()
+		public Instruction Emit_Store()
 		{
-			return Emit(new Instruction() { OpCode = OpCode.Store });
+			return AppendInstruction(new Instruction() { OpCode = OpCode.Store });
 		}
 
-		public Instruction Symbol(SymbolRef symref)
+		public Instruction Emit_Symbol(SymbolRef symref)
 		{
-			return Emit(new Instruction() { OpCode = OpCode.Symbol, Symbol = symref });
+			return AppendInstruction(new Instruction() { OpCode = OpCode.Symbol, Symbol = symref });
 		}
 
-		public Instruction Jump(OpCode jumpOpCode, int idx, int optPar = 0)
+		public Instruction Emit_Jump(OpCode jumpOpCode, int idx, int optPar = 0)
 		{
-			return Emit(new Instruction() { OpCode = jumpOpCode, NumVal = idx, NumVal2 = optPar });
+			return AppendInstruction(new Instruction() { OpCode = jumpOpCode, NumVal = idx, NumVal2 = optPar });
 		}
 
-		public Instruction MkTuple(int cnt)
+		public Instruction Emit_MkTuple(int cnt)
 		{
-			return Emit(new Instruction() { OpCode = OpCode.MkTuple, NumVal = cnt });
+			return AppendInstruction(new Instruction() { OpCode = OpCode.MkTuple, NumVal = cnt });
 		}
 
-		public Instruction Operator(OpCode opcode)
+		public Instruction Emit_Operator(OpCode opcode)
 		{
-			var i = Emit(new Instruction() { OpCode = opcode });
+			var i = AppendInstruction(new Instruction() { OpCode = opcode });
 
 			if (opcode == OpCode.Eq || opcode == OpCode.Less || opcode == OpCode.LessEq)
-				Emit(new Instruction() { OpCode = OpCode.ToBool });
+				AppendInstruction(new Instruction() { OpCode = OpCode.ToBool });
 
 			return i;
 		}
 
 
 		//[Conditional("EMIT_DEBUG_OPS")]
-		public void Debug(string str)
+		public void Emit_Debug(string str)
 		{
-			Emit(new Instruction() { OpCode = OpCode.Debug, Name = str.Substring(0, Math.Min(32, str.Length)) });
+			AppendInstruction(new Instruction() { OpCode = OpCode.Debug, Name = str.Substring(0, Math.Min(32, str.Length)) });
 		}
 
-		//[Conditional("EMIT_DEBUG_OPS")]
-		public void Debug(Antlr4.Runtime.Tree.IParseTree parseTree)
+		public Instruction Emit_Enter(RuntimeScopeBlock runtimeScopeBlock)
 		{
-			string str = parseTree.GetText();
-			Emit(new Instruction() { OpCode = OpCode.Debug, Name = str.Substring(0, Math.Min(32, str.Length)) });
+			return AppendInstruction(new Instruction() { OpCode = OpCode.Enter, Block = runtimeScopeBlock });
 		}
 
-		public Instruction Enter(RuntimeScopeBlock runtimeScopeBlock)
+		public Instruction Emit_Leave(RuntimeScopeBlock runtimeScopeBlock)
 		{
-			return Emit(new Instruction() { OpCode = OpCode.Enter, Block = runtimeScopeBlock });
+			return AppendInstruction(new Instruction() { OpCode = OpCode.Leave, Block = runtimeScopeBlock });
 		}
 
-		public Instruction Leave(RuntimeScopeBlock runtimeScopeBlock)
+		public Instruction Emit_Exit(RuntimeScopeBlock runtimeScopeBlock)
 		{
-			return Emit(new Instruction() { OpCode = OpCode.Leave, Block = runtimeScopeBlock });
+			return AppendInstruction(new Instruction() { OpCode = OpCode.Exit, Block = runtimeScopeBlock });
 		}
 
-		public Instruction Exit(RuntimeScopeBlock runtimeScopeBlock)
+		public Instruction Emit_Closure(SymbolRef[] symbols, int jmpnum)
 		{
-			return Emit(new Instruction() { OpCode = OpCode.Exit, Block = runtimeScopeBlock });
+			return AppendInstruction(new Instruction() { OpCode = OpCode.Closure, SymbolList = symbols, NumVal = jmpnum });
 		}
 
-		public Instruction Closure(SymbolRef[] symbols, int jmpnum)
+		public Instruction Emit_Args(SymbolRef[] symbols)
 		{
-			return Emit(new Instruction() { OpCode = OpCode.Closure, SymbolList = symbols, NumVal = jmpnum });
+			return AppendInstruction(new Instruction() { OpCode = OpCode.Args, SymbolList = symbols });
 		}
 
-		public Instruction Args(SymbolRef[] symbols)
+		public Instruction Emit_Ret(int retvals)
 		{
-			return Emit(new Instruction() { OpCode = OpCode.Args, SymbolList = symbols });
+			return AppendInstruction(new Instruction() { OpCode = OpCode.Ret, NumVal = retvals });
 		}
 
-		public Instruction Ret(int retvals)
+		public Instruction Emit_ToNum()
 		{
-			return Emit(new Instruction() { OpCode = OpCode.Ret, NumVal = retvals });
+			return AppendInstruction(new Instruction() { OpCode = OpCode.ToNum });
 		}
 
-		public Instruction ToNum()
+		public Instruction Emit_SymStorN(SymbolRef symb)
 		{
-			return Emit(new Instruction() { OpCode = OpCode.ToNum });
+			return AppendInstruction(new Instruction() { OpCode = OpCode.SymStorN, Symbol = symb });
 		}
 
-		public Instruction SymStorN(SymbolRef symb)
+		public Instruction Emit_Incr(int i)
 		{
-			return Emit(new Instruction() { OpCode = OpCode.SymStorN, Symbol = symb });
+			return AppendInstruction(new Instruction() { OpCode = OpCode.Incr, NumVal = i });
 		}
 
-		public Instruction Incr(int i)
+		public Instruction Emit_Index()
 		{
-			return Emit(new Instruction() { OpCode = OpCode.Incr, NumVal = i });
+			return AppendInstruction(new Instruction() { OpCode = OpCode.Index });
 		}
 
-		public Instruction Index()
+		public Instruction Emit_IndexRef()
 		{
-			return Emit(new Instruction() { OpCode = OpCode.Index });
+			return AppendInstruction(new Instruction() { OpCode = OpCode.IndexRef });
 		}
 
-		public Instruction IndexRef()
+		public Instruction Emit_IndexRefN()
 		{
-			return Emit(new Instruction() { OpCode = OpCode.IndexRef });
+			return AppendInstruction(new Instruction() { OpCode = OpCode.IndexRefN });
 		}
 
-		public Instruction IndexRefN()
+		public Instruction Emit_NewTable()
 		{
-			return Emit(new Instruction() { OpCode = OpCode.IndexRefN });
+			return AppendInstruction(new Instruction() { OpCode = OpCode.NewTable });
 		}
 
-		public Instruction NewTable()
+		public Instruction Emit_IterPrep()
 		{
-			return Emit(new Instruction() { OpCode = OpCode.NewTable });
+			return AppendInstruction(new Instruction() { OpCode = OpCode.IterPrep });
 		}
 
-		public Instruction IterPrep()
+		public Instruction Emit_ExpTuple(int stackOffset)
 		{
-			return Emit(new Instruction() { OpCode = OpCode.IterPrep });
+			return AppendInstruction(new Instruction() { OpCode = OpCode.ExpTuple, NumVal = stackOffset });
 		}
 
-		public Instruction ExpTuple(int stackOffset)
+		public Instruction Emit_IterUpd()
 		{
-			return Emit(new Instruction() { OpCode = OpCode.ExpTuple, NumVal = stackOffset });
+			return AppendInstruction(new Instruction() { OpCode = OpCode.IterUpd });
 		}
 
-		public Instruction IterUpd()
+		public Instruction Emit_Method()
 		{
-			return Emit(new Instruction() { OpCode = OpCode.IterUpd });
+			return AppendInstruction(new Instruction() { OpCode = OpCode.Method });
 		}
 
-		public Instruction Method()
+		public Instruction Emit_BeginFn(RuntimeScopeFrame m_StackFrame, string funcName)
 		{
-			return Emit(new Instruction() { OpCode = OpCode.Method });
-		}
-
-		public Instruction BeginFn(RuntimeScopeFrame m_StackFrame, string funcName)
-		{
-			return Emit(new Instruction() { OpCode = OpCode.BeginFn, 
+			return AppendInstruction(new Instruction() { OpCode = OpCode.BeginFn, 
 				SymbolList = m_StackFrame.DebugSymbols.ToArray(), 
 				NumVal = m_StackFrame.Count,
 				NumVal2 = m_StackFrame.ToFirstBlock,
@@ -227,9 +222,9 @@ namespace MoonSharp.Interpreter.Execution.VM
 			});
 		}
 
-		public Instruction Scalar()
+		public Instruction Emit_Scalar()
 		{
-			return Emit(new Instruction() { OpCode = OpCode.Scalar });
+			return AppendInstruction(new Instruction() { OpCode = OpCode.Scalar });
 		}
 	}
 }

@@ -24,7 +24,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		public override void Compile(ByteCode bc)
 		{
 			m_FunctionCallChain.Compile(bc);
-			bc.Pop();
+			bc.Emit_Pop();
 		}
 	}
 }

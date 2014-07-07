@@ -35,13 +35,13 @@ namespace MoonSharp.Interpreter.Tree.Statements
 
 			int start = bc.GetJumpPointForNextInstruction();
 
-			bc.Enter(m_StackFrame);
+			bc.Emit_Enter(m_StackFrame);
 			m_Block.Compile(bc);
-			bc.Debug("..end");
+			bc.Emit_Debug("..end");
 
 			m_Condition.Compile(bc);
-			bc.Leave(m_StackFrame);
-			bc.Jump(OpCode.Jf, start);
+			bc.Emit_Leave(m_StackFrame);
+			bc.Emit_Jump(OpCode.Jf, start);
 
 			int exitpoint = bc.GetJumpPointForNextInstruction();
 

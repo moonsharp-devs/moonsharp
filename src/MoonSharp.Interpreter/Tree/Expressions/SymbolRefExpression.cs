@@ -22,12 +22,12 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 		public override void Compile(Execution.VM.ByteCode bc)
 		{
-			bc.Load(m_Ref);
+			bc.Emit_Load(m_Ref);
 		}
 
 		public void CompileAssignment(Execution.VM.ByteCode bc)
 		{
-			bc.Symbol(m_Ref);
+			bc.Emit_Symbol(m_Ref);
 		}
 	}
 }

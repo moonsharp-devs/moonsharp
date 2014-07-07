@@ -27,9 +27,9 @@ namespace MoonSharp.Interpreter.Tree.Statements
 
 		public override void Compile(Execution.VM.ByteCode bc)
 		{
-			bc.BeginFn(m_StackFrame, "<chunk-root>");
+			bc.Emit_BeginFn(m_StackFrame, "<chunk-root>");
 			m_Block.Compile(bc);
-			bc.Ret(0);
+			bc.Emit_Ret(0);
 			//bc.Leave(m_StackFrame);
 		}
 	}

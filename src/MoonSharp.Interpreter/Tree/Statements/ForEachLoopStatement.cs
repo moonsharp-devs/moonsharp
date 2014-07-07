@@ -51,47 +51,47 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			m_RValues.Compile(bc);
 
 			// prepares iterator tuple - stack : iterator-tuple
-			bc.IterPrep();
+			bc.Emit_IterPrep();
 
 			// loop start - stack : iterator-tuple
 			int start = bc.GetJumpPointForNextInstruction();
-			bc.Enter(m_StackFrame);
+			bc.Emit_Enter(m_StackFrame);
 
 			// push all iterating variables - stack : iterator-tuple, iter-var-symbols
 			foreach (SymbolRef s in m_Names)
-				bc.Symbol(s);
+				bc.Emit_Symbol(s);
 
 			// expand the tuple - stack : iterator-tuple, iter-var-symbols, f, var, s
-			bc.ExpTuple(m_Names.Length);  
+			bc.Emit_ExpTuple(m_Names.Length);  
 
 			// calls f(s, var) - stack : iterator-tuple, iter-var-symbols, iteration result
-			bc.Call(2);
+			bc.Emit_Call(2);
 
 			// assigns to iter-var-symbols - stack : iterator-tuple
-			bc.Assign(m_Names.Length, 1);
+			bc.Emit_Assign(m_Names.Length, 1);
 
 			// repushes the main iterator var - stack : iterator-tuple, main-iterator-var
-			bc.Load(m_Names[0]);
+			bc.Emit_Load(m_Names[0]);
 
 			// updates the iterator tuple - stack : iterator-tuple, main-iterator-var
-			bc.IterUpd();
+			bc.Emit_IterUpd();
 
 			// checks head, jumps if nil - stack : iterator-tuple, main-iterator-var
-			var endjump = bc.Jump(OpCode.JNil, -1);
+			var endjump = bc.Emit_Jump(OpCode.JNil, -1);
 
 			// executes the stuff - stack : iterator-tuple
 			m_Block.Compile(bc);
 
 			// loop back again - stack : iterator-tuple
-			bc.Leave(m_StackFrame);
-			bc.Jump(OpCode.Jump, start);
+			bc.Emit_Leave(m_StackFrame);
+			bc.Emit_Jump(OpCode.Jump, start);
 
 			int exitpointLoopExit = bc.GetJumpPointForNextInstruction();
-			bc.Leave(m_StackFrame);
+			bc.Emit_Leave(m_StackFrame);
 
 			int exitpointBreaks = bc.GetJumpPointForNextInstruction();
 
-			bc.Pop();
+			bc.Emit_Pop();
 
 			foreach (Instruction i in L.BreakJumps)
 				i.NumVal = exitpointBreaks;

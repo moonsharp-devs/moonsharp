@@ -133,7 +133,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 			if (m_Operator == Operator.Or)
 			{
-				Instruction i = bc.Jump(OpCode.JtOrPop, -1);
+				Instruction i = bc.Emit_Jump(OpCode.JtOrPop, -1);
 				m_Exp2.Compile(bc);
 				i.NumVal = bc.GetJumpPointForNextInstruction();
 				return;
@@ -141,7 +141,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 			if (m_Operator == Operator.And)
 			{
-				Instruction i = bc.Jump(OpCode.JfOrPop, -1);
+				Instruction i = bc.Emit_Jump(OpCode.JfOrPop, -1);
 				m_Exp2.Compile(bc);
 				i.NumVal = bc.GetJumpPointForNextInstruction();
 				return;
@@ -153,10 +153,10 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 				m_Exp2.Compile(bc);
 			}
 
-			bc.Operator(OperatorToOpCode(m_Operator));
+			bc.Emit_Operator(OperatorToOpCode(m_Operator));
 
 			if (ShouldInvertBoolean(m_Operator))
-				bc.Operator(OpCode.Not);
+				bc.Emit_Operator(OpCode.Not);
 		}
 
 		private bool ShouldInvertBoolean(Operator op)

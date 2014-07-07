@@ -35,7 +35,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			{
 				m_LValues[0].CompileAssignment(bc);
 				m_RValues[0].Compile(bc);
-				bc.Store();
+				bc.Emit_Store();
 			}
 			else
 			{
@@ -45,7 +45,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 				foreach (var exp in m_RValues)
 					exp.Compile(bc);
 
-				bc.Assign(m_LValues.Length, m_RValues.Length);
+				bc.Emit_Assign(m_LValues.Length, m_RValues.Length);
 			}
 		}
 

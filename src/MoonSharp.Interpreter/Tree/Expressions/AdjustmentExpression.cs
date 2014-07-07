@@ -21,7 +21,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 		public override void Compile(Execution.VM.ByteCode bc)
 		{
 			expression.Compile(bc);
-			bc.Scalar();
+			bc.Emit_Scalar();
 		}
 
 

@@ -14,8 +14,8 @@ namespace MoonSharp.Interpreter.Tree
 
 		public void CompileBreak(ByteCode bc)
 		{
-			bc.Exit(Scope);
-			BreakJumps.Add(bc.Jump(OpCode.Jump, -1));
+			bc.Emit_Exit(Scope);
+			BreakJumps.Add(bc.Emit_Jump(OpCode.Jump, -1));
 		}
 	}
 

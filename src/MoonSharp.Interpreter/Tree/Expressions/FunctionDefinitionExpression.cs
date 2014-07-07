@@ -94,16 +94,16 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 		public int CompileBody(ByteCode bc, string friendlyName)
 		{
-			Instruction I = bc.Jump(OpCode.Jump, -1);
+			Instruction I = bc.Emit_Jump(OpCode.Jump, -1);
 
-			bc.BeginFn(m_StackFrame, friendlyName ?? "<anonymous>");
+			bc.Emit_BeginFn(m_StackFrame, friendlyName ?? "<anonymous>");
 
 			if (m_ParamNames.Length > 0)
-				bc.Args(m_ParamNames);
+				bc.Emit_Args(m_ParamNames);
 
 			m_Statement.Compile(bc);
 
-			bc.Ret(0);
+			bc.Emit_Ret(0);
 
 			I.NumVal = bc.GetJumpPointForNextInstruction();
 
@@ -112,7 +112,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 		public int Compile(ByteCode bc, Action afterDecl, string friendlyName)
 		{
-			bc.Closure(m_Closure.ToArray(), bc.GetJumpPointForNextInstruction() + 3);
+			bc.Emit_Closure(m_Closure.ToArray(), bc.GetJumpPointForNextInstruction() + 3);
 			afterDecl();
 			return CompileBody(bc, friendlyName);
 		}
@@ -120,7 +120,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 		public override void Compile(ByteCode bc)
 		{
-			Compile(bc, () => bc.Nop(null), null);
+			Compile(bc, () => bc.Emit_Nop(null), null);
 		}
 
 	}

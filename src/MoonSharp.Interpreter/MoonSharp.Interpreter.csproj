@@ -93,6 +93,7 @@
     <Compile Include="CoreLib\TableIterators.cs" />
     <Compile Include="DataStructs\Extension_Methods.cs" />
     <Compile Include="DataStructs\FastStackDynamic.cs" />
+    <Compile Include="DataStructs\ITrackableReference.cs" />
     <Compile Include="DataStructs\LinkedListIndex.cs" />
     <Compile Include="DataStructs\Slice.cs" />
     <Compile Include="Debugging\DebuggerAction.cs" />
@@ -119,6 +120,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Debugging\SourceCode.cs" />
+    <Compile Include="Execution\VM\Chunk.cs" />
     <Compile Include="Interface\IteratorHelper.cs" />
     <Compile Include="Loaders\ClassicLuaScriptLoader.cs" />
     <Compile Include="Loaders\IScriptLoader.cs" />

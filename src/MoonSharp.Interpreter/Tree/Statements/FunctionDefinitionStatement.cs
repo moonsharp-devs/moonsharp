@@ -74,36 +74,36 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		{
 			if (m_Local)
 			{
-				bc.Symbol(m_FuncName);
-				bc.Literal(DynValue.Nil);
-				bc.Store();
-				bc.Symbol(m_FuncName);
-				m_FuncDef.Compile(bc, () => bc.Store(), m_FriendlyName);
+				bc.Emit_Symbol(m_FuncName);
+				bc.Emit_Literal(DynValue.Nil);
+				bc.Emit_Store();
+				bc.Emit_Symbol(m_FuncName);
+				m_FuncDef.Compile(bc, () => bc.Emit_Store(), m_FriendlyName);
 				return;
 			}
 			else if (m_MethodName == null)
 			{
-				bc.Symbol(m_FuncName);
-				m_FuncDef.Compile(bc, () => bc.Store(), m_FriendlyName);
+				bc.Emit_Symbol(m_FuncName);
+				m_FuncDef.Compile(bc, () => bc.Emit_Store(), m_FriendlyName);
 				return;
 			}
 			else
 			{
-				bc.Load(m_FuncName);
+				bc.Emit_Load(m_FuncName);
 
 				foreach (string str in m_TableAccessors)
 				{
-					bc.Literal(DynValue.NewString(str));
-					bc.Index();
+					bc.Emit_Literal(DynValue.NewString(str));
+					bc.Emit_Index();
 				}
 
-				bc.Literal(DynValue.NewString(m_MethodName));
+				bc.Emit_Literal(DynValue.NewString(m_MethodName));
 
-				bc.IndexRef();
+				bc.Emit_IndexRef();
 
-				m_FuncDef.Compile(bc, () => bc.Nop(null), m_FriendlyName);
+				m_FuncDef.Compile(bc, () => bc.Emit_Nop(null), m_FriendlyName);
 
-				bc.Store();
+				bc.Emit_Store();
 			}
 		}
 
