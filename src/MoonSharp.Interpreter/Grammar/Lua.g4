@@ -101,7 +101,7 @@ explist
 
 exp
     : 'nil' | 'false' | 'true' | number | string		
-	| '...'											
+	| vararg
 	| anonfunctiondef								
     | prefixexp										
 	| tableconstructor								
@@ -156,7 +156,7 @@ funcbody
 
 // The list of params in a function def
 parlist
-    : namelist (',' '...')? | '...'
+    : namelist (',' vararg)? | vararg
     ;
 
 
@@ -214,6 +214,10 @@ number
 string
     : NORMALSTRING | CHARSTRING | LONGSTRING
     ;
+
+vararg
+	: '...'
+	;
 
 // LEXER
 

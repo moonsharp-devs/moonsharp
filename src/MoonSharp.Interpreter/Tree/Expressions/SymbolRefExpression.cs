@@ -12,6 +12,14 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 	{
 		SymbolRef m_Ref;
 
+
+		public SymbolRefExpression(LuaParser.VarargContext context, ScriptLoadingContext lcontext)
+			: base(context, lcontext)
+		{
+			m_Ref = lcontext.Scope.TryDefineLocal("...");
+		}
+
+
 		public SymbolRefExpression(ITerminalNode terminalNode, ScriptLoadingContext lcontext)
 			: base(terminalNode, lcontext)
 		{

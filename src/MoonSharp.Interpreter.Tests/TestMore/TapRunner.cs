@@ -28,14 +28,11 @@ namespace MoonSharp.Interpreter.Tests
 
 		public void Run()
 		{
-			var globalCtx = new Table();
-			globalCtx["print"] = DynValue.NewCallback(Print);
-			globalCtx["arg"] = DynValue.NewTable();
-			globalCtx.RegisterModuleType<TableIterators>();
-			globalCtx.RegisterModuleType<LoadMethods>();
-			globalCtx.RegisterModuleType<MetaTableMethods>();
-			globalCtx.RegisterModuleType<StringModule>();
-			var S = new Script(globalCtx);
+			Script S = new Script();
+
+			S.Globals["print"] = DynValue.NewCallback(Print);
+			S.Globals["arg"] = DynValue.NewTable(S);
+
 			var L = new ClassicLuaScriptLoader();
 			L.ModulePaths = L.UnpackStringPaths("TestMore/Modules/?;TestMore/Modules/?.lua");
 			S.ScriptLoader = L;

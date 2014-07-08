@@ -12,11 +12,16 @@ namespace MoonSharp.Interpreter
 		TableIterators = 0x2,
 		Metatables = 0x4,
 		String = 0x8,
+		LoadMethods = 0x10,
+		Table = 0x20,
 
 
-		Preset_HardSandbox = GlobalConsts | TableIterators | String,
+
+		Preset_HardSandbox = GlobalConsts | TableIterators | String | Table,
 		Preset_SoftSandbox = Preset_HardSandbox | Metatables,
-		Preset_Default = Preset_SoftSandbox,
+		Preset_Default = Preset_SoftSandbox | LoadMethods,
+		Preset_Complete = Preset_Default,
+
 	}
 
 	public static class CoreModules_ExtensionMethods

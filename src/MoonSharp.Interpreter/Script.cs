@@ -38,7 +38,7 @@ namespace MoonSharp.Interpreter
 		/// Initializes a new instance of the <see cref="Script"/> class.
 		/// </summary>
 		public Script()
-			: this(ModuleRegister.RegisterCoreModules(new Table(), CoreModules.Preset_Default))
+			: this(CoreModules.Preset_Default)
 		{
 		}
 
@@ -47,20 +47,12 @@ namespace MoonSharp.Interpreter
 		/// </summary>
 		/// <param name="coreModules">The core modules to be pre-registered in the default global table.</param>
 		public Script(CoreModules coreModules)
-			: this(ModuleRegister.RegisterCoreModules(new Table(), coreModules))
-		{
-		}
-
-		/// <summary>
-		/// Initializes a new instance of the <see cref="Script"/> class.
-		/// </summary>
-		/// <param name="globalTable">The default global table.</param>
-		public Script(Table globalTable)
 		{
 			m_ByteCode = new ByteCode();
-			m_GlobalTable = globalTable;
+			m_GlobalTable = new Table(this).RegisterCoreModules(coreModules);
 			m_Coroutines.Add(new Processor(this, m_GlobalTable, m_ByteCode));
 		}
+
 
 		/// <summary>
 		/// Gets or sets the script loader to use. A script loader wraps all code loading from files, so that access
@@ -232,7 +224,7 @@ namespace MoonSharp.Interpreter
 		/// <returns></returns>
 		private DynValue MakeClosure(int address, Table globalContext)
 		{
-			Closure c = new Closure(address, new SymbolRef[0], new DynValue[0]);
+			Closure c = new Closure(this, address, new SymbolRef[0], new DynValue[0]);
 			c.GlobalEnv = globalContext;
 			return DynValue.NewClosure(c);
 		}
@@ -298,38 +290,16 @@ namespace MoonSharp.Interpreter
 		/// </summary>
 		/// <param name="modname">The module name</param>
 		/// <returns></returns>
-		public DynValue RequireModule(string modname, Table globalContext = null, int coroutine = -1)
+		public DynValue RequireModule(string modname, Table globalContext = null)
 		{
 			Table globals = globalContext ?? m_GlobalTable;
-
-			DynValue loaded = globals.RawGet("_LOADED");
-
-			if (loaded == null || loaded.Type != DataType.Table)
-			{
-				globals["_LOADED"] = loaded = DynValue.NewTable();
-			}
-
-			DynValue m = loaded.Table.RawGet(modname);
-
-			if (m != null && !m.IsNil())
-				return m;
-
 			string filename = m_ScriptLoader.ResolveModuleName(modname, globals);
 
 			if (filename == null)
 				throw new ScriptRuntimeException(null, "module '{0}' not found", modname);
 
-			coroutine = FixCoroutineIndex(coroutine);
-
 			DynValue func = LoadResolvedFile(filename, globalContext);
-			m = Call(coroutine, func);
-
-			if (m.IsNilOrNan())
-				m = DynValue.True;
-
-			loaded.Table[modname] = m;
-
-			return m;
+			return func;
 		}
 
 	}

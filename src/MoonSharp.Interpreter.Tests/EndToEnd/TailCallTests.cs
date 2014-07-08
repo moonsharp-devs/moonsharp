@@ -21,8 +21,9 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 				return clrtail(9)";
 
 
-			var globalCtx = new Table();
-			globalCtx["clrtail"] = DynValue.NewCallback((xc, a) =>
+			Script S = new Script();
+
+			S.Globals["clrtail"] = DynValue.NewCallback((xc, a) =>
 			{
 				SymbolRef lref = SymbolRef.Global("getResult");
 				DynValue fn = xc.GetVar(lref);
@@ -31,7 +32,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 				return DynValue.NewTailCallReq(fn, k3);
 			});
 
-			var res = (new Script(globalCtx)).DoString(script);
+			var res = S.DoString(script);
 
 			Assert.AreEqual(DataType.Number, res.Type);
 			Assert.AreEqual(468, res.Number);

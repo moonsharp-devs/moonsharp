@@ -47,26 +47,34 @@ namespace MoonSharp.Interpreter.CoreLib
 		//If there is any error loading or running the module, or if it cannot find any loader for the module, then require 
 		//signals an error. 
 		[MoonSharpMethod]
-		public static DynValue __require_internal(ScriptExecutionContext executionContext, CallbackArguments args)
+		public static DynValue __require_clr_impl(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			Script S = executionContext.GetOwnerScript();
-			DynValue v = args.AsType(0, "require", DataType.String, false);
+			DynValue v = args.AsType(0, "__require_clr_impl", DataType.String, false);
 
 			DynValue fn = S.RequireModule(v.String);
 
-			return DynValue.NewTailCallReq(fn); // tail call to dofile
+			return fn; // tail call to dofile
 		}
 
 
 		[MoonSharpMethod]
-		public static string require = @"
-			function(arg)
-				local func, res = __require_internal(arg);
+		public const string require = @"
+			function(modulename)
+				if (package == nil) then package = { }; end
+				if (package.loaded == nil) then package.loaded = { }; end
 
-				if (res == nil) then
-					res = func();
-					_LOADED[arg] = res;
+				local m = package.loaded[modulename];
+
+				if (m ~= nil) then
+					return m;
 				end
+
+				local func = __require_clr_impl(modulename);
+
+				local res = func();
+
+				package.loaded[modulename] = res;
 
 				return res;
 			end

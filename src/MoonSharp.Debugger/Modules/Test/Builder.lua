@@ -3,9 +3,9 @@
 -- lua-TestMore : <http://fperrad.github.com/lua-TestMore/>
 --
 
-local debug = require 'debug'
-local io = require 'io'
-local os = require 'os'
+local debug = nil; -- require 'debug'
+local io = nil; -- require 'io'
+local os = nil; -- require 'os'
 local error = error
 local gsub = require 'string'.gsub
 local match = require 'string'.match
@@ -240,7 +240,7 @@ function m:skip_all (reason)
     if self.parent then
         error("skip_all in child", 0)
     end
-    os.exit(0)
+    -- os.exit(0)
 end
 
 local function _check_is_passing_plan (self)

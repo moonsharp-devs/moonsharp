@@ -10,10 +10,11 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 {
 	class FunctionDefinitionExpression : Expression, IClosureBuilder
 	{
-		SymbolRef[] m_ParamNames;
+		SymbolRef[] m_ParamNames = null;
 		Statement m_Statement;
 		RuntimeScopeFrame m_StackFrame;
 		List<SymbolRef> m_Closure = new List<SymbolRef>();
+		bool m_HasVarArgs = false;
 		public object UpvalueCreationTag { get; set; }
 
 		public FunctionDefinitionExpression(LuaParser.AnonfunctiondefContext context, ScriptLoadingContext lcontext, bool pushSelfParam = false)
@@ -39,35 +40,29 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			: base(context, lcontext)
 		{
 			var parlist = context.parlist();
-			string[] paramnames;
+			List<string> paramnames = new List<string>();
 
-			if (!pushSelfParam)
+			if (pushSelfParam)
 			{
-				if (parlist != null)
+				paramnames.Add("self");
+			}
+
+
+			if (parlist != null)
+			{
+				var namelist = parlist.namelist();
+
+				if (namelist != null)
 				{
-					paramnames = parlist.namelist().NAME()
-						.Select(t => t.GetText())
-						.ToArray();
-				}
-				else
-				{
-					paramnames = new string[0];
+					paramnames.AddRange(namelist.NAME()
+						.Select(t => t.GetText()));
 				}
 			}
-			else
-			{
-				if (parlist != null)
-				{
-					paramnames = new string[] { "self" }.Union(
-						parlist.namelist().NAME()
-						.Select(t => t.GetText()))
-						.ToArray();
-				}
-				else
-				{
-					paramnames = new string[] { "self" };
-				}
-			}
+
+			m_HasVarArgs = (parlist != null && parlist.vararg() != null);
+
+			if (m_HasVarArgs)
+				paramnames.Add("...");
 
 			lcontext.Scope.EnterClosure(this);
 
@@ -82,11 +77,11 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			lcontext.Scope.LeaveClosure();
 		}
 
-		private SymbolRef[] DefineArguments(string[] paramnames, ScriptLoadingContext lcontext)
+		private SymbolRef[] DefineArguments(List<string> paramnames, ScriptLoadingContext lcontext)
 		{
-			SymbolRef[] ret = new SymbolRef[paramnames.Length];
+			SymbolRef[] ret = new SymbolRef[paramnames.Count];
 
-			for (int i = 0; i < paramnames.Length; i++)
+			for (int i = 0; i < paramnames.Count; i++)
 				ret[i] = lcontext.Scope.DefineLocal(paramnames[i]);
 
 			return ret;
@@ -98,6 +93,8 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 			bc.Emit_BeginFn(m_StackFrame, friendlyName ?? "<anonymous>");
 
+			int entryPoint = bc.GetJumpPointForLastInstruction();
+
 			if (m_ParamNames.Length > 0)
 				bc.Emit_Args(m_ParamNames);
 
@@ -107,7 +104,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 			I.NumVal = bc.GetJumpPointForNextInstruction();
 
-			return I.NumVal;
+			return entryPoint;
 		}
 
 		public int Compile(ByteCode bc, Action afterDecl, string friendlyName)

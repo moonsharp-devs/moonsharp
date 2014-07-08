@@ -509,11 +509,11 @@ namespace MoonSharp.Interpreter.CoreLib.Patterns
 			return DynValue.Nil;
 		}
 
-		public static DynValue GMatch(string src, string pattern)
+		public static DynValue GMatch(Script script, string src, string pattern)
 		{
 			DynValue aux = DynValue.NewCallback(GmatchAux);
 
-			aux.Callback.Closure = new Table();
+			aux.Callback.Closure = new Table(script);
 			aux.Callback.Closure["idx"] = DynValue.NewNumber(0);
 			aux.Callback.Closure["src"] = DynValue.NewString(src);
 			aux.Callback.Closure["pattern"] = DynValue.NewString(pattern);

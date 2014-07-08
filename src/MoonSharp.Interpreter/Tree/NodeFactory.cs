@@ -154,6 +154,9 @@ namespace MoonSharp.Interpreter.Tree
 			if (tree is LuaParser.TableconstructorContext)
 				return new TableConstructor((LuaParser.TableconstructorContext)tree, lcontext);
 
+			if (tree is LuaParser.VarargContext)
+				return new SymbolRefExpression((LuaParser.VarargContext)tree, lcontext);
+
 			throw new SyntaxErrorException(tree, "Unexpected expression type: {0}", tree.GetType());
 		}
 

@@ -16,6 +16,9 @@ namespace MoonSharp.Interpreter
 			if (modules.Has(CoreModules.TableIterators)) RegisterModuleType<TableIterators>(table);
 			if (modules.Has(CoreModules.Metatables)) RegisterModuleType<MetaTableMethods>(table);
 			if (modules.Has(CoreModules.String)) RegisterModuleType<StringModule>(table);
+			if (modules.Has(CoreModules.LoadMethods)) RegisterModuleType<LoadMethods>(table);
+			if (modules.Has(CoreModules.Table)) RegisterModuleType<TableModule>(table);
+			if (modules.Has(CoreModules.Table)) RegisterModuleType<TableModule_Globals>(table);
 
 			return table;
 		}
@@ -58,15 +61,32 @@ namespace MoonSharp.Interpreter
 				table[name] = DynValue.NewCallback(func);
 			}
 
-			RegisterLuaScripts(table, t);
+			foreach (FieldInfo fi in t.GetFields(BindingFlags.Static | BindingFlags.GetField | BindingFlags.Public | BindingFlags.NonPublic).Where(_mi => _mi.GetCustomAttributes(typeof(MoonSharpMethodAttribute), false).Length > 0))
+			{
+				MoonSharpMethodAttribute attr = (MoonSharpMethodAttribute)fi.GetCustomAttributes(typeof(MoonSharpMethodAttribute), false).First();
+				string name = (!string.IsNullOrEmpty(attr.Name)) ? attr.Name : fi.Name;
+
+				RegisterScriptField(fi, null, table, t, name);
+			}
 
 			return gtable;
 		}
 
-		private static void RegisterLuaScripts(Table table, Type t)
+
+		private static void RegisterScriptField(FieldInfo fi, object o, Table table, Type t, string name)
 		{
-			//throw new NotImplementedException();
+			if (fi.FieldType != typeof(string))
+			{
+				throw new ArgumentException(string.Format("Field {0} does not have the right type - it must be string.", name));
+			}
+
+			string val = fi.GetValue(o) as string;
+
+			DynValue fn = table.OwnerScript.LoadFunction(val, null, name);
+
+			table[name] = fn;
 		}
+
 
 		private static Table CreateModuleNamespace(Table gtable, Type t)
 		{
@@ -78,14 +98,22 @@ namespace MoonSharp.Interpreter
 			}
 			else
 			{
-				Table table = new Table();
+				Table table = new Table(gtable.OwnerScript);
 				gtable[attr.Namespace] = DynValue.NewTable(table);
 
-				DynValue loaded = gtable.RawGet("_LOADED");
+				DynValue package = gtable.RawGet("package");
+
+				if (package == null || package.Type != DataType.Table)
+				{
+					gtable["package"] = package = DynValue.NewTable(gtable.OwnerScript);
+				}
+
+
+				DynValue loaded = package.Table.RawGet("loaded");
 
 				if (loaded == null || loaded.Type != DataType.Table)
 				{
-					gtable["_LOADED"] = loaded = DynValue.NewTable();
+					package.Table["loaded"] = loaded = DynValue.NewTable(gtable.OwnerScript);
 				}
 
 				loaded.Table[attr.Namespace] = DynValue.NewTable(table);
@@ -124,7 +152,13 @@ namespace MoonSharp.Interpreter
 				table[name] = DynValue.NewCallback(func);
 			}
 
-			RegisterLuaScripts(table, t);
+			foreach (FieldInfo fi in t.GetFields(BindingFlags.GetField | BindingFlags.Public | BindingFlags.NonPublic).Where(_mi => _mi.GetCustomAttributes(typeof(MoonSharpMethodAttribute), false).Length > 0))
+			{
+				MoonSharpMethodAttribute attr = (MoonSharpMethodAttribute)fi.GetCustomAttributes(typeof(MoonSharpMethodAttribute), false).First();
+				string name = (!string.IsNullOrEmpty(attr.Name)) ? attr.Name : fi.Name;
+
+				RegisterScriptField(fi, o, table, t, name);
+			}
 
 			return gtable;
 		}

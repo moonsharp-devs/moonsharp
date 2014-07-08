@@ -19,7 +19,9 @@ namespace MoonSharp.Interpreter.Tests
 			HashSet<string> failedTests = new HashSet<string>();
 			int i = 0;
 
-			var globalCtx = new Table();
+			Script S = new Script();
+
+			var globalCtx = S.Globals;
 			globalCtx[DynValue.NewString("xassert")] =  DynValue.NewCallback(new CallbackFunction(
 				(x, a) =>
 				{
@@ -45,7 +47,6 @@ namespace MoonSharp.Interpreter.Tests
 					return DynValue.Nil;
 				}));
 
-			Script S = new Script(globalCtx);
 
 			DynValue res = S.DoString(script);
 

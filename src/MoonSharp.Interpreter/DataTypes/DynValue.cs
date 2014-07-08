@@ -173,13 +173,21 @@ namespace MoonSharp.Interpreter
 		/// <summary>
 		/// Creates a new writable value initialized to the specified table.
 		/// </summary>
-		public static DynValue NewTable(Table table = null)
+		public static DynValue NewTable(Table table)
 		{
 			return new DynValue()
 			{
-				Table = table ?? new Table(),
+				Table = table,
 				Type = DataType.Table,
 			};
+		}
+
+		/// <summary>
+		/// Creates a new writable value initialized to an empty table.
+		/// </summary>
+		public static DynValue NewTable(Script script)
+		{
+			return NewTable(new Table(script));
 		}
 
 		/// <summary>
@@ -656,6 +664,7 @@ namespace MoonSharp.Interpreter
 
 			this.Number = num;
 		}
+
 	}
 
 

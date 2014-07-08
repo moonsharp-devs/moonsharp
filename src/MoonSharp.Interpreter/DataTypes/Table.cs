@@ -3,24 +3,31 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using MoonSharp.Interpreter.DataStructs;
+using MoonSharp.Interpreter.DataTypes;
 
 namespace MoonSharp.Interpreter
 {
-	public class Table
+	public class Table : IScriptPrivateResource
 	{
 		LinkedList<TablePair> m_Values;
 		LinkedListIndex<DynValue, TablePair> m_ValueMap;
 		LinkedListIndex<string, TablePair> m_StringMap;
 		LinkedListIndex<int, TablePair> m_ArrayMap;
+		Script m_Owner;
 
 		int m_CachedLength = -1;
 
-		public Table()
+		public Table(Script owner)
 		{
 			m_Values = new LinkedList<TablePair>();
 			m_StringMap = new LinkedListIndex<string, TablePair>(m_Values);
 			m_ArrayMap = new LinkedListIndex<int, TablePair>(m_Values);
 			m_ValueMap = new LinkedListIndex<DynValue, TablePair>(m_Values);
+			m_Owner = owner;
+		}
+		public Script OwnerScript
+		{
+			get { return m_Owner; }
 		}
 
 		private int GetIntegralKey(double d)
@@ -78,7 +85,9 @@ namespace MoonSharp.Interpreter
 						return;
 					}
 				}
-				
+
+				CheckValueOwner(value);
+
 				if (m_ValueMap.Set(key, new TablePair(key, value)))
 					CollectDeadKeys();
 			}
@@ -100,6 +109,8 @@ namespace MoonSharp.Interpreter
 			}
 			set
 			{
+				CheckValueOwner(value);
+
 				if (m_StringMap.Set(key, new TablePair(DynValue.NewString(key), value)))
 					CollectDeadKeys();
 			}
@@ -124,12 +135,19 @@ namespace MoonSharp.Interpreter
 			}
 			set
 			{
+				CheckValueOwner(value);
+
 				if (m_ArrayMap.Set(key, new TablePair(DynValue.NewNumber(key), value)))
 				{
 					CollectDeadKeys();
 					m_CachedLength = -1;
 				}
 			}
+		}
+
+		private void CheckValueOwner(DynValue value)
+		{
+			// +++ value.AssertOwner(m_Owner);
 		}
 
 		private void CollectDeadKeys()
@@ -223,8 +241,5 @@ namespace MoonSharp.Interpreter
 				return m_CachedLength; 
 			}
 		}
-
-
-
 	}
 }

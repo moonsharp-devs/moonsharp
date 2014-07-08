@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Antlr4.Runtime;
+using Antlr4.Runtime.Tree;
 using MoonSharp.Interpreter.Diagnostics;
 using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Execution.VM;
@@ -19,7 +20,7 @@ namespace MoonSharp.Interpreter.Tree
 	{
 		internal static int LoadChunkFromICharStream(ICharStream charStream, ByteCode bytecode, string sourceName, int sourceIdx)
 		{
-			LuaParser parser = CreateParser(charStream, sourceIdx);
+			LuaParser parser = CreateParser(charStream, sourceIdx, p => p.chunk());
 
 			ScriptLoadingContext lcontext = CreateLoadingContext(sourceName, sourceIdx);
 			ChunkStatement stat = new ChunkStatement(parser.chunk(), lcontext);
@@ -41,7 +42,7 @@ namespace MoonSharp.Interpreter.Tree
 
 		internal static int LoadFunctionFromICharStream(ICharStream charStream, ByteCode bytecode, string sourceName, int sourceIdx)
 		{
-			LuaParser parser = CreateParser(charStream, sourceIdx);
+			LuaParser parser = CreateParser(charStream, sourceIdx, p => p.anonfunctiondef());
 
 			ScriptLoadingContext lcontext = CreateLoadingContext(sourceName, sourceIdx);
 			FunctionDefinitionExpression fndef = new FunctionDefinitionExpression(parser.anonfunctiondef(), lcontext);
@@ -68,10 +69,10 @@ namespace MoonSharp.Interpreter.Tree
 		}
 
 		[Conditional("DEBUG_COMPILER")]
-		private static void Debug_DumpAst(LuaParser parser, int sourceIdx)
+		private static void Debug_DumpAst(LuaParser parser, int sourceIdx, Func<LuaParser, IParseTree> dumper)
 		{
 			AstDump astDump = new AstDump();
-			astDump.DumpTree(parser.chunk(), string.Format(@"c:\temp\treedump_{0:000}.txt", sourceIdx));
+			astDump.DumpTree(dumper(parser), string.Format(@"c:\temp\treedump_{0:000}.txt", sourceIdx));
 			parser.Reset();
 		}
 
@@ -86,7 +87,7 @@ namespace MoonSharp.Interpreter.Tree
 			};
 		}
 
-		private static LuaParser CreateParser(ICharStream charStream, int sourceIdx)
+		private static LuaParser CreateParser(ICharStream charStream, int sourceIdx, Func<LuaParser, IParseTree> dumper)
 		{
 			LuaLexer lexer;
 			LuaParser parser;
@@ -97,7 +98,7 @@ namespace MoonSharp.Interpreter.Tree
 				parser = new LuaParser(new CommonTokenStream(lexer));
 			}
 
-			Debug_DumpAst(parser, sourceIdx);
+			Debug_DumpAst(parser, sourceIdx, dumper);
 
 			return parser;
 		}

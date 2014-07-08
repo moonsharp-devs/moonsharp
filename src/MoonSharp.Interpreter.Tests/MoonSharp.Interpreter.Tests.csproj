@@ -212,18 +212,6 @@
     <None Include="TestMore\Modules\Test\Builder.lua">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="TestMore\Modules\Test\Builder\NoOutput.lua">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="TestMore\Modules\Test\Builder\SocketOutput.lua">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="TestMore\Modules\Test\Builder\Tester.lua">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="TestMore\Modules\Test\Builder\Tester\File.lua">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="TestMore\Modules\Test\More.lua">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

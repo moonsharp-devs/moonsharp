@@ -125,18 +125,6 @@
     <None Include="Modules\Test\Builder.lua">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Modules\Test\Builder\NoOutput.lua">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Modules\Test\Builder\SocketOutput.lua">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Modules\Test\Builder\Tester.lua">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Modules\Test\Builder\Tester\File.lua">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="Modules\Test\More.lua">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

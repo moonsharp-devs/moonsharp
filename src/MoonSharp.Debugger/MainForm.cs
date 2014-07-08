@@ -89,17 +89,11 @@ namespace MoonSharp.Debugger
 
 		private void DebugScript(string filename)
 		{
-			Table T = new Table();
-			T["print"] = DynValue.NewCallback(Print);
-			T["assert"] = DynValue.NewCallback(Assert);
-			T["xassert"] = DynValue.NewCallback(XAssert);
+			m_Script = new Script(CoreModules.Preset_Complete);
 
-			T.RegisterModuleType<TableIterators>();
-			T.RegisterModuleType<LoadMethods>();
-			T.RegisterModuleType<MetaTableMethods>();
-			T.RegisterModuleType<StringModule>();
-
-			m_Script = new Script(T);
+			m_Script.Globals["print"] = DynValue.NewCallback(Print);
+			m_Script.Globals["assert"] = DynValue.NewCallback(Assert);
+			m_Script.Globals["xassert"] = DynValue.NewCallback(XAssert);
 
 			var L = new ClassicLuaScriptLoader();
 			L.ModulePaths = L.UnpackStringPaths("Modules/?;Modules/?.lua");

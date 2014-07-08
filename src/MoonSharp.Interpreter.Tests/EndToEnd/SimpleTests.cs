@@ -17,14 +17,15 @@ namespace MoonSharp.Interpreter.Tests
 
 			string script = "print(\"hello\", \"world\");";
 
-			var globalCtx = new Table();
-			globalCtx["print"] = DynValue.NewCallback(new CallbackFunction((x, a) => 
+			Script S = new Script();
+
+			S.Globals["print"] = DynValue.NewCallback(new CallbackFunction((x, a) => 
 			{
 				args = a.ToArray();
 				return DynValue.NewNumber(1234.0); 
 			}));
 
-			DynValue res = (new Script(globalCtx)).DoString(script);
+			DynValue res = S.DoString(script);
 
 			Assert.AreEqual(DataType.Nil, res.Type);
 			Assert.AreEqual(2, args.Count);
@@ -41,10 +42,10 @@ namespace MoonSharp.Interpreter.Tests
 
 			string script = "local print = print; print(\"hello\", \"world\");";
 
-			var globalCtx = new Table();
-			globalCtx["print"] = DynValue.NewCallback(new CallbackFunction((_x, a) => { args = a.ToArray(); return DynValue.NewNumber(1234.0); }));
+			var S = new Script();
+			S.Globals["print"] = DynValue.NewCallback(new CallbackFunction((_x, a) => { args = a.ToArray(); return DynValue.NewNumber(1234.0); }));
 
-			DynValue res = (new Script(globalCtx)).DoString(script);
+			DynValue res = S.DoString(script);
 
 			Assert.AreEqual(2, args.Count);
 			Assert.AreEqual(DataType.String, args[0].Type);
@@ -61,10 +62,10 @@ namespace MoonSharp.Interpreter.Tests
 
 			string script = "return print(\"hello\", \"world\");";
 
-			var globalCtx = new Table();
-			globalCtx["print"] = DynValue.NewCallback(new CallbackFunction((_x, a) => { args = a.ToArray(); return DynValue.NewNumber(1234.0); }));
+			var S = new Script();
+			S.Globals["print"] = DynValue.NewCallback(new CallbackFunction((_x, a) => { args = a.ToArray(); return DynValue.NewNumber(1234.0); }));
 
-			DynValue res = (new Script(globalCtx)).DoString(script);
+			DynValue res = S.DoString(script);
 
 			Assert.AreEqual(2, args.Count);
 			Assert.AreEqual(DataType.String, args[0].Type);
@@ -120,13 +121,13 @@ namespace MoonSharp.Interpreter.Tests
 				y = false and crash();
 			";
 
-			var globalCtx = new Table();
-			globalCtx["crash"] = DynValue.NewCallback(new CallbackFunction((_x, a) =>
+			Script S = new Script();
+			S.Globals["crash"] = DynValue.NewCallback(new CallbackFunction((_x, a) =>
 			{
 				throw new Exception("FAIL!");
 			}));
 
-			(new Script(globalCtx)).DoString(script);
+			S.DoString(script);
 		}
 
 
@@ -766,6 +767,54 @@ namespace MoonSharp.Interpreter.Tests
 			Assert.AreEqual(1, res.Tuple[1].Number);
 			Assert.AreEqual(2, res.Tuple[2].Number);
 		}
+
+
+		[Test]
+		public void VarArgsNoError()
+		{
+			string script = @"
+					function x(...)
+
+					end
+
+					function y(a, ...)
+
+					end
+
+					return 1;
+								";
+
+			DynValue res = Script.RunString(script);
+
+			Assert.AreEqual(DataType.Number, res.Type);
+			Assert.AreEqual(1, res.Number);
+		}
+
+		[Test]
+		public void VarArgsSum()
+		{
+			string script = @"
+					function x(...)
+						local t = pack(...);
+						local sum = 0;
+
+						for i = 1, #t do
+							sum = sum + t[i];
+						end
+	
+						return sum;
+					end
+
+					return x(1,2,3,4);
+								";
+
+			DynValue res = Script.RunString(script);
+
+			Assert.AreEqual(DataType.Number, res.Type);
+			Assert.AreEqual(10, res.Number);
+		}
+
+
 
 	}
 }

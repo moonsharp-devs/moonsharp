@@ -193,5 +193,35 @@ namespace MoonSharp.Interpreter.Tests
 			Assert.AreEqual(2000001, res.Tuple[4].Number);
 		}
 
+
+		[Test]
+		public void NestedUpvaluesNotQuiteWorking()
+		{
+			string script = @"
+	local y = y;
+
+	local x = x;
+	local m = { };
+
+	function m:a()
+		self.t = {
+			dojob = function() 
+				if (x == nil) then return 1; else return 0; end
+			end,
+		};
+	end
+
+	m:a();
+
+	return 10 * m.t.dojob();
+								";
+
+			DynValue res = Script.RunString(script);
+
+			Assert.AreEqual(DataType.Number, res.Type);
+			Assert.AreEqual(10, res.Number);
+		}
+
+
 	}
 }

@@ -122,7 +122,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 						ClearBlockData(i.Block, i.OpCode == OpCode.Exit);
 						break;
 					case OpCode.Closure:
-						m_ValueStack.Push(DynValue.NewClosure(new Closure(i.NumVal, i.SymbolList, m_ExecutionStack.Peek().LocalScope)));
+						m_ValueStack.Push(DynValue.NewClosure(new Closure(this.m_Script, i.NumVal, i.SymbolList, m_ExecutionStack.Peek().LocalScope)));
 						break;
 					case OpCode.BeginFn:
 						ExecBeginFn(i);
@@ -163,7 +163,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 						ExecIndexRef(i, true);
 						break;
 					case OpCode.NewTable:
-						m_ValueStack.Push(DynValue.NewTable(new Table()));
+						m_ValueStack.Push(DynValue.NewTable(this.m_Script));
 						break;
 					case OpCode.IterPrep:
 						ExecIterPrep(i);
@@ -365,6 +365,18 @@ namespace MoonSharp.Interpreter.Execution.VM
 				{
 					this.AssignGenericSymbol(I.SymbolList[i], DynValue.NewNil());
 				}
+				else if ((i == I.SymbolList.Length - 1) && (I.SymbolList[i].i_Name == "..."))
+				{
+					int len = numargs - i;
+					DynValue[] varargs = new DynValue[len];
+
+					for (int ii = 0; ii < len; ii++)
+					{
+						varargs[ii] = m_ValueStack.Peek(numargs - i - ii).CloneAsWritable();
+					}
+
+					this.AssignGenericSymbol(I.SymbolList[i], DynValue.NewTuple(varargs));
+				}
 				else
 				{
 					this.AssignGenericSymbol(I.SymbolList[i], m_ValueStack.Peek(numargs - i).CloneAsWritable());
@@ -418,7 +430,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 					}
 				}
 
-				throw new NotImplementedException("Can't call non function");
+				throw new NotImplementedException("Can't call non function - " + fn.ToString());
 			}
 		}
 

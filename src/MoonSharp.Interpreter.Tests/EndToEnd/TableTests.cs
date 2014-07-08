@@ -247,11 +247,7 @@ namespace MoonSharp.Interpreter.Tests
 
 				return s;";
 
-			Table globalCtx = new Table();
-
-			globalCtx.RegisterModuleType<TableIterators>();
-
-			DynValue res = (new Script(globalCtx)).DoString(script);
+			DynValue res = Script.RunString(script);
 
 			Assert.AreEqual(DataType.String, res.Type);
 			Assert.AreEqual("1|2|3|4|5", res.String);
@@ -281,11 +277,7 @@ namespace MoonSharp.Interpreter.Tests
 
 				return K, V;";
 
-			Table globalCtx = new Table();
-
-			globalCtx.RegisterModuleType<TableIterators>();
-
-			DynValue res = (new Script(globalCtx)).DoString(script);
+			DynValue res = Script.RunString(script);
 
 			Assert.AreEqual(DataType.Tuple, res.Type);
 			Assert.AreEqual(DataType.String, res.Tuple[0].Type);
@@ -314,11 +306,7 @@ namespace MoonSharp.Interpreter.Tests
     
 				return x, y";
 
-			Table globalCtx = new Table();
-
-			globalCtx.RegisterModuleType<TableIterators>();
-
-			DynValue res = (new Script(globalCtx)).DoString(script);
+			DynValue res = Script.RunString(script);
 
 			Assert.AreEqual(DataType.Tuple, res.Type);
 			Assert.AreEqual(2, res.Tuple.Length);

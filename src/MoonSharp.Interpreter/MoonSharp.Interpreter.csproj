@@ -91,11 +91,13 @@
     </Compile>
     <Compile Include="CoreLib\StringModule.cs" />
     <Compile Include="CoreLib\TableIterators.cs" />
+    <Compile Include="CoreLib\TableModule.cs" />
     <Compile Include="DataStructs\Extension_Methods.cs" />
     <Compile Include="DataStructs\FastStackDynamic.cs" />
     <Compile Include="DataStructs\ITrackableReference.cs" />
     <Compile Include="DataStructs\LinkedListIndex.cs" />
     <Compile Include="DataStructs\Slice.cs" />
+    <Compile Include="DataTypes\IScriptPrivateResource.cs" />
     <Compile Include="Debugging\DebuggerAction.cs" />
     <Compile Include="Debugging\IDebugger.cs" />
     <Compile Include="Debugging\SourceCodeType.cs" />
