@@ -21,14 +21,14 @@ namespace MoonSharp.Interpreter
 		private static ClosureContext emptyClosure = new ClosureContext();
 
 
-		internal Closure(Script script, int idx, SymbolRef[] symbols, DynValue[] localscope)
+		internal Closure(Script script, int idx, SymbolRef[] symbols, IEnumerable<DynValue> resolvedLocals)
 		{
 			OwnerScript = script;
 
 			ByteCodeLocation = idx;
 
 			if (symbols.Length > 0)
-				ClosureContext = new ClosureContext(symbols, symbols.Select(s => localscope[s.i_Index]));
+				ClosureContext = new ClosureContext(symbols, resolvedLocals);
 			else
 				ClosureContext = emptyClosure;
 		}

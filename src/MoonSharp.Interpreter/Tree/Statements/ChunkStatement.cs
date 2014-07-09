@@ -12,7 +12,7 @@ using MoonSharp.Interpreter.Tree.Statements;
 
 namespace MoonSharp.Interpreter.Tree.Statements
 {
-	class ChunkStatement : Statement
+	class ChunkStatement : Statement, IClosureBuilder
 	{
 		Statement m_Block;
 		RuntimeScopeFrame m_StackFrame;
@@ -20,7 +20,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		public ChunkStatement(LuaParser.ChunkContext context, ScriptLoadingContext lcontext)
 			: base(context, lcontext)
 		{
-			lcontext.Scope.PushFunction();
+			lcontext.Scope.PushFunction(this);
 			m_Block = NodeFactory.CreateStatement(context.block(), lcontext);
 			m_StackFrame = lcontext.Scope.PopFunction();
 		}
@@ -31,6 +31,16 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			m_Block.Compile(bc);
 			bc.Emit_Ret(0);
 			//bc.Leave(m_StackFrame);
+		}
+
+		public object UpvalueCreationTag
+		{
+			get; set;
+		}
+
+		public SymbolRef CreateUpvalue(BuildTimeScope scope, SymbolRef symbol)
+		{
+			return null;
 		}
 	}
 }

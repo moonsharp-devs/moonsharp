@@ -122,7 +122,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 						ClearBlockData(i.Block, i.OpCode == OpCode.Exit);
 						break;
 					case OpCode.Closure:
-						m_ValueStack.Push(DynValue.NewClosure(new Closure(this.m_Script, i.NumVal, i.SymbolList, m_ExecutionStack.Peek().LocalScope)));
+						ExecClosure(i);
 						break;
 					case OpCode.BeginFn:
 						ExecBeginFn(i);
@@ -190,6 +190,24 @@ namespace MoonSharp.Interpreter.Execution.VM
 			else
 				throw new InternalErrorException("Unexpected value stack count at program end : {0}", m_ValueStack.Count);
 
+		}
+
+		private void ExecClosure(Instruction i)
+		{
+			Closure c = new Closure(this.m_Script, i.NumVal, i.SymbolList,
+				i.SymbolList.Select(s => this.GetUpvalueSymbol(s)).ToList());
+
+			m_ValueStack.Push(DynValue.NewClosure(c));
+		}
+
+		private DynValue GetUpvalueSymbol(SymbolRef s)
+		{
+			if (s.Type == SymbolRefType.Local)
+				return m_ExecutionStack.Peek().LocalScope[s.i_Index];
+			else if (s.Type == SymbolRefType.Upvalue)
+				return m_ExecutionStack.Peek().ClosureScope[s.i_Index];
+			else
+				throw new Exception("unsupported symbol type");
 		}
 
 		private void ExecMkTuple(Instruction i)

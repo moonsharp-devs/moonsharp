@@ -158,6 +158,8 @@ namespace MoonSharp.Interpreter.Tests
 				function container()
 					local x = 20
 
+					local ztmp = { }
+
 					for i=1,5 do
 						local y = 0
 		
@@ -195,18 +197,18 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
-		public void NestedUpvaluesNotQuiteWorking()
+		public void NestedUpvalues()
 		{
 			string script = @"
 	local y = y;
 
-	local x = x;
+	local x = 0;
 	local m = { };
 
 	function m:a()
 		self.t = {
 			dojob = function() 
-				if (x == nil) then return 1; else return 0; end
+				if (x == 0) then return 1; else return 0; end
 			end,
 		};
 	end
@@ -222,6 +224,40 @@ namespace MoonSharp.Interpreter.Tests
 			Assert.AreEqual(10, res.Number);
 		}
 
+		[Test]
+		public void NestedOutOfScopeUpvalues()
+		{
+			string script = @"
+
+	function X()
+		local y = y;
+
+		local x = 0;
+		local m = { };
+
+		function m:a()
+			self.t = {
+				dojob = function() 
+					if (x == 0) then return 1; else return 0; end
+				end,
+			};
+		end
+
+		return m;
+	end
+
+	Q = X();
+
+	Q:a();
+
+	return 10 * Q.t.dojob();
+								";
+
+			DynValue res = new Script(CoreModules.Preset_HardSandbox).DoString(script);
+
+			Assert.AreEqual(DataType.Number, res.Type);
+			Assert.AreEqual(10, res.Number);
+		}
 
 	}
 }

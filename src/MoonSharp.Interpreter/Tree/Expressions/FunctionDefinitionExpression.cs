@@ -15,6 +15,8 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 		RuntimeScopeFrame m_StackFrame;
 		List<SymbolRef> m_Closure = new List<SymbolRef>();
 		bool m_HasVarArgs = false;
+		Instruction m_ClosureInstruction = null;
+
 		public object UpvalueCreationTag { get; set; }
 
 		public FunctionDefinitionExpression(LuaParser.AnonfunctiondefContext context, ScriptLoadingContext lcontext, bool pushSelfParam = false)
@@ -33,6 +35,12 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			}
 
 			m_Closure.Add(symbol);
+
+			if (m_ClosureInstruction != null)
+			{
+				m_ClosureInstruction.SymbolList = m_Closure.ToArray();
+			}
+
 			return SymbolRef.Upvalue(symbol.i_Name, m_Closure.Count - 1);
 		}
 
@@ -64,9 +72,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			if (m_HasVarArgs)
 				paramnames.Add("...");
 
-			lcontext.Scope.EnterClosure(this);
-
-			lcontext.Scope.PushFunction();
+			lcontext.Scope.PushFunction(this);
 
 			m_ParamNames = DefineArguments(paramnames, lcontext);
 
@@ -74,7 +80,6 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 			m_StackFrame = lcontext.Scope.PopFunction();
 
-			lcontext.Scope.LeaveClosure();
 		}
 
 		private SymbolRef[] DefineArguments(List<string> paramnames, ScriptLoadingContext lcontext)
@@ -109,7 +114,11 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 		public int Compile(ByteCode bc, Action afterDecl, string friendlyName)
 		{
-			bc.Emit_Closure(m_Closure.ToArray(), bc.GetJumpPointForNextInstruction() + 3);
+			SymbolRef[] symbs = m_Closure
+				//.Select((s, idx) => s.CloneLocalAndSetFrame(m_ClosureFrames[idx]))
+				.ToArray();
+
+			m_ClosureInstruction = bc.Emit_Closure(symbs, bc.GetJumpPointForNextInstruction() + 3);
 			afterDecl();
 			return CompileBody(bc, friendlyName);
 		}

@@ -22,7 +22,7 @@ namespace MoonSharp.Interpreter
 		public int Index { get { return i_Index; } }
 		public string Name { get { return i_Name; } }
 		public DynValue TableRefObject { get { return i_TableRefObject; } }
-		public DynValue TableRefIndex { get { return i_TableRefIndex; } } 
+		public DynValue TableRefIndex { get { return i_TableRefIndex; } }
 
 
 
@@ -40,34 +40,28 @@ namespace MoonSharp.Interpreter
 		{
 			return new SymbolRef() { i_Index = index, i_Type = SymbolRefType.Upvalue, i_Name = name };
 		}
-		public static SymbolRef Argument(string name, int index)
-		{
-			return new SymbolRef() { i_Index = index, i_Type = SymbolRefType.Argument, i_Name = name };
-		}
-
-		public static SymbolRef Invalid()
-		{
-			return new SymbolRef() { i_Index = -1, i_Type = SymbolRefType.Invalid, i_Name = "!INV!" };
-		}
 
 		public static SymbolRef ObjIndex(DynValue baseObject, DynValue indexObject)
 		{
 			return new SymbolRef() { i_TableRefObject = baseObject, i_TableRefIndex = indexObject, i_Type = SymbolRefType.Index };
 		}
 
-		public bool IsValid()
-		{
-			return i_Type !=  SymbolRefType.Invalid;
-		}
-
-
 		public override string ToString()
 		{
 			return string.Format("{0}[{1}] : {2}", i_Type, i_Index, i_Name);
 		}
 
-
-
+		public SymbolRef Clone()
+		{
+			return new SymbolRef()
+			{
+				i_Index = this.i_Index,
+				i_Name = this.i_Name,
+				i_TableRefIndex = this.i_TableRefIndex,
+				i_TableRefObject = this.i_TableRefObject,
+				i_Type = this.i_Type,
+			};
+		}
 
 	}
 }

@@ -11,13 +11,14 @@ namespace MoonSharp.Interpreter.Execution
 		List<BuildTimeScopeFrame> m_Frames = new List<BuildTimeScopeFrame>();
 		List<IClosureBuilder> m_ClosureBuilders = new List<IClosureBuilder>();
 
-		public BuildTimeScope()
-		{
-			//PushFunction();
-		}
 
-		public void PushFunction()
+		public void PushFunction(IClosureBuilder closureBuilder)
 		{
+			m_ClosureBuilders.Add(closureBuilder);
+
+			if (closureBuilder != null)
+				closureBuilder.UpvalueCreationTag = (m_Frames.Count - 1);
+
 			m_Frames.Add(new BuildTimeScopeFrame());
 		}
 
@@ -36,7 +37,9 @@ namespace MoonSharp.Interpreter.Execution
 			var last = m_Frames.Last();
 			last.ResolveLRefs();
 			m_Frames.RemoveAt(m_Frames.Count - 1);
-			
+
+			m_ClosureBuilders.RemoveAt(m_ClosureBuilders.Count - 1);
+
 			return last.GetRuntimeFrameData();
 		}
 
@@ -48,24 +51,31 @@ namespace MoonSharp.Interpreter.Execution
 			if (local != null)
 				return local;
 
-			IClosureBuilder closure = m_ClosureBuilders.LastOrDefault();
-
-			if (closure != null)
+			for (int i = m_Frames.Count - 2; i >= 0; i--)
 			{
-				int closureLocalBlockIdx = (int)closure.UpvalueCreationTag;
+				SymbolRef symb = m_Frames[i].Find(name);
 
-				if (closureLocalBlockIdx >= 0)
+				if (symb != null)
 				{
-					for (int i = closureLocalBlockIdx; i >= 0; i--)
-					{
-						SymbolRef symb = m_Frames[i].Find(name);
-						if (symb != null)
-							return closure.CreateUpvalue(this, symb);
-					}
+					symb = CreateUpValue(this, symb, i, m_Frames.Count - 2);
+						
+					if (symb != null)
+						return symb;
 				}
 			}
 
 			return SymbolRef.Global(name);
+		}
+
+		private SymbolRef CreateUpValue(BuildTimeScope buildTimeScope, SymbolRef symb, int closuredFrame, int currentFrame)
+		{
+			// it's a 0-level upvalue. Just create it and we're done.
+			if (closuredFrame == currentFrame)
+				return m_ClosureBuilders[currentFrame + 1].CreateUpvalue(this, symb);
+
+			SymbolRef upvalue = CreateUpValue(buildTimeScope, symb, closuredFrame, currentFrame - 1);
+
+			return m_ClosureBuilders[currentFrame + 1].CreateUpvalue(this, upvalue);
 		}
 
 		public SymbolRef DefineLocal(string name)
@@ -78,17 +88,6 @@ namespace MoonSharp.Interpreter.Execution
 			return m_Frames.Last().TryDefineLocal(name);
 		}
 
-
-		public void EnterClosure(IClosureBuilder closureBuilder)
-		{
-			m_ClosureBuilders.Add(closureBuilder);
-			closureBuilder.UpvalueCreationTag = (m_Frames.Count - 1);
-		}
-
-		public void LeaveClosure()
-		{
-			m_ClosureBuilders.RemoveAt(m_ClosureBuilders.Count - 1);
-		}
 
 
 	}
