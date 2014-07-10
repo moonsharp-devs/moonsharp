@@ -112,21 +112,24 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			return entryPoint;
 		}
 
-		public int Compile(ByteCode bc, Action afterDecl, string friendlyName)
+		public int Compile(ByteCode bc, Func<int> afterDecl, string friendlyName)
 		{
 			SymbolRef[] symbs = m_Closure
 				//.Select((s, idx) => s.CloneLocalAndSetFrame(m_ClosureFrames[idx]))
 				.ToArray();
 
-			m_ClosureInstruction = bc.Emit_Closure(symbs, bc.GetJumpPointForNextInstruction() + 3);
-			afterDecl();
+			m_ClosureInstruction = bc.Emit_Closure(symbs, bc.GetJumpPointForNextInstruction());
+			int ops = afterDecl();
+
+			m_ClosureInstruction.NumVal += 2 + ops;
+
 			return CompileBody(bc, friendlyName);
 		}
 
 
 		public override void Compile(ByteCode bc)
 		{
-			Compile(bc, () => bc.Emit_Nop(null), null);
+			Compile(bc, () => 0, null);
 		}
 
 	}

@@ -99,10 +99,10 @@ end
 
 		private static void Example()
 		{
-			Table t = new Table();
+			Script script = new Script();
+			Table t = script.Globals;
 			t["print"] = DynValue.NewCallback(Print);
 
-			Script script = new Script(t);
 
 			DynValue retVal = script.DoFile("test.lua");
 		}
@@ -125,10 +125,7 @@ end
 
 			sw = Stopwatch.StartNew();
 
-			Table t = new Table();
-			t["print"] = DynValue.NewCallback(new CallbackFunction(Print));
-
-			Script.RunString(scriptText);
+			Script.RunString("return 0;");
 
 			sw.Stop();
 
@@ -136,10 +133,9 @@ end
 
 			sw = Stopwatch.StartNew();
 
-			t = new Table();
-			t["print"] = DynValue.NewCallback(new CallbackFunction(Print));
+			var script = new Script();
+			script.Globals["print"] = DynValue.NewCallback(new CallbackFunction(Print));
 
-			var script = new Script(t);
 			DynValue func = script.LoadString(scriptText);
 
 			sw.Stop();

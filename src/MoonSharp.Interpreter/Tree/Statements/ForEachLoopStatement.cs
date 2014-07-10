@@ -5,6 +5,7 @@ using System.Text;
 using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Execution.VM;
 using MoonSharp.Interpreter.Grammar;
+using MoonSharp.Interpreter.Tree.Expressions;
 
 namespace MoonSharp.Interpreter.Tree.Statements
 {
@@ -12,6 +13,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 	{
 		RuntimeScopeBlock m_StackFrame;
 		SymbolRef[] m_Names;
+		IVariable[] m_NameExps;
 		Expression m_RValues;
 		Statement m_Block;
 
@@ -31,6 +33,12 @@ namespace MoonSharp.Interpreter.Tree.Statements
 				.Select(n => n.GetText())
 				.Select(n => lcontext.Scope.DefineLocal(n))
 				.ToArray();
+
+			m_NameExps = m_Names
+				.Select(s => new SymbolRefExpression(context, lcontext, s))
+				.Cast<IVariable>()
+				.ToArray();
+
 			
 			m_Block = NodeFactory.CreateStatement(context.block(), lcontext);
 
@@ -57,18 +65,18 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			int start = bc.GetJumpPointForNextInstruction();
 			bc.Emit_Enter(m_StackFrame);
 
-			// push all iterating variables - stack : iterator-tuple, iter-var-symbols
-			foreach (SymbolRef s in m_Names)
-				bc.Emit_Symbol(s);
+			// expand the tuple - stack : iterator-tuple, f, var, s
+			bc.Emit_ExpTuple(0);  
 
-			// expand the tuple - stack : iterator-tuple, iter-var-symbols, f, var, s
-			bc.Emit_ExpTuple(m_Names.Length);  
-
-			// calls f(s, var) - stack : iterator-tuple, iter-var-symbols, iteration result
+			// calls f(s, var) - stack : iterator-tuple, iteration result
 			bc.Emit_Call(2);
 
-			// assigns to iter-var-symbols - stack : iterator-tuple
-			bc.Emit_Assign(m_Names.Length, 1);
+			// perform assignment of iteration result- stack : iterator-tuple, iteration result
+			for (int i = 0; i < m_NameExps.Length; i++)
+				m_NameExps[i].CompileAssignment(bc, 0, i);
+
+			// pops  - stack : iterator-tuple
+			bc.Emit_Pop();
 
 			// repushes the main iterator var - stack : iterator-tuple, main-iterator-var
 			bc.Emit_Load(m_Names[0]);

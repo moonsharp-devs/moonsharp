@@ -7,11 +7,8 @@ namespace MoonSharp.Interpreter
 {
 	public enum SymbolRefType
 	{
-		Invalid,
 		Global,
 		Local,
 		Upvalue,
-		Index,
-		Argument
 	}
 }

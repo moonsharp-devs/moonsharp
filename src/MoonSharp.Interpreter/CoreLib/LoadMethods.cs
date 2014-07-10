@@ -58,27 +58,27 @@ namespace MoonSharp.Interpreter.CoreLib
 		}
 
 
-		[MoonSharpMethod]
-		public const string require = @"
-			function(modulename)
-				if (package == nil) then package = { }; end
-				if (package.loaded == nil) then package.loaded = { }; end
-
-				local m = package.loaded[modulename];
-
-				if (m ~= nil) then
-					return m;
-				end
-
-				local func = __require_clr_impl(modulename);
-
-				local res = func();
-
-				package.loaded[modulename] = res;
-
-				return res;
-			end
-		";
+//		[MoonSharpMethod] 
+//		public const string require = @"
+//			function(modulename)
+//				if (package == nil) then package = { }; end
+//				if (package.loaded == nil) then package.loaded = { }; end
+//
+//				local m = package.loaded[modulename];
+//
+//				if (m ~= nil) then
+//					return m;
+//				end
+//
+//				local func = __require_clr_impl(modulename);
+//
+//				local res = func();
+//
+//				package.loaded[modulename] = res;
+//
+//				return res;
+//			end
+//		";
 
 
 

@@ -30,8 +30,11 @@ namespace MoonSharp.Interpreter.Execution.VM
 					case OpCode.Pop:
 						m_ValueStack.RemoveLast(i.NumVal);
 						break;
-					case OpCode.Load:
-						m_ValueStack.Push(this.GetGenericSymbol(i.Symbol));
+					case OpCode.Copy:
+						m_ValueStack.Push(m_ValueStack.Peek(i.NumVal));
+						break;
+					case OpCode.Swap:
+						ExecSwap(i);
 						break;
 					case OpCode.Literal:
 						m_ValueStack.Push(i.Value);
@@ -99,15 +102,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 					case OpCode.Jf:
 						instructionPtr = JumpBool(i, false, instructionPtr);
 						break;
-					case OpCode.Store:
-						ExecStore(i);
-						break;
-					case OpCode.Symbol:
-						m_ValueStack.Push(DynValue.NewReference(i.Symbol));
-						break;
-					case OpCode.Assign:
-						ExecAssign(i);
-						break;
 					case OpCode.Jump:
 						instructionPtr = i.NumVal;
 						break;
@@ -144,23 +138,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 					case OpCode.ToNum:
 						ExecToNum(i);
 						break;
-					case OpCode.SymStorN:
-						ExecSymStorN(i);
-						break;
 					case OpCode.JFor:
 						instructionPtr = ExecJFor(i, instructionPtr);
-						break;
-					case OpCode.Index:
-						ExecIndexGet(i, false);
-						break;
-					case OpCode.Method:
-						ExecIndexGet(i, true);
-						break;
-					case OpCode.IndexRef:
-						ExecIndexRef(i, false);
-						break;
-					case OpCode.IndexRefN:
-						ExecIndexRef(i, true);
 						break;
 					case OpCode.NewTable:
 						m_ValueStack.Push(DynValue.NewTable(this.m_Script));
@@ -173,6 +152,34 @@ namespace MoonSharp.Interpreter.Execution.VM
 						break;
 					case OpCode.ExpTuple:
 						ExecExpTuple(i);
+						break;
+					case OpCode.TMP_Load:
+					case OpCode.LoadLcl:
+					case OpCode.LoadUpv:
+						m_ValueStack.Push(this.GetGenericSymbol(i.Symbol));
+						break;
+					case OpCode.StoreUpv:
+					case OpCode.StoreLcl:
+					case OpCode.TMP_Store:
+						{
+							DynValue v = GetStoreValue(i);
+							AssignGenericSymbol(i.Symbol, v);
+						}
+						break;
+					case OpCode.TblInitN:
+						ExecTblInitN(i);
+						break;
+					case OpCode.TblInitI:
+						ExecTblInitI(i);
+						break;
+					case OpCode.LoadIdx:
+						instructionPtr = ExecLoadIdx(i, instructionPtr);
+						break;
+					case OpCode.Global:
+						m_ValueStack.Push(DynValue.NewTable(m_GlobalTable));
+						break;
+					case OpCode.StoreIdx:
+						instructionPtr = ExecStoreIdx(i, instructionPtr);
 						break;
 					case OpCode.Invalid:
 						throw new NotImplementedException(string.Format("Invalid opcode : {0}", i.Name));
@@ -190,6 +197,33 @@ namespace MoonSharp.Interpreter.Execution.VM
 			else
 				throw new InternalErrorException("Unexpected value stack count at program end : {0}", m_ValueStack.Count);
 
+		}
+
+		private void ExecSwap(Instruction i)
+		{
+			DynValue v1 = m_ValueStack.Peek(i.NumVal);
+			DynValue v2 = m_ValueStack.Peek(i.NumVal2);
+
+			m_ValueStack.Set(i.NumVal, v2);
+			m_ValueStack.Set(i.NumVal2, v1);
+		}
+
+
+		private DynValue GetStoreValue(Instruction i)
+		{
+			int stackofs = i.NumVal;
+			int tupleidx = i.NumVal2;
+
+			DynValue v = m_ValueStack.Peek(stackofs);
+
+			if (v.Type == DataType.Tuple)
+			{
+				return (tupleidx < v.Tuple.Length) ? v.Tuple[tupleidx] : DynValue.NewNil();
+			}
+			else
+			{
+				return (tupleidx == 0) ? v : DynValue.NewNil();
+			}
 		}
 
 		private void ExecClosure(Instruction i)
@@ -215,6 +249,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 			Slice<DynValue> slice = new Slice<DynValue>(m_ValueStack, m_ValueStack.Count - i.NumVal, i.NumVal, false);
 
 			var v = Internal_AdjustTuple(slice);
+
+			m_ValueStack.RemoveLast(i.NumVal);
 
 			m_ValueStack.Push(DynValue.NewTuple(v));
 		}
@@ -464,7 +500,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 				m_ValueStack.Push(tail.Meta);
 
-				for (int ii = 0; ii < tail.Tuple.Length; ii++ )
+				for (int ii = 0; ii < tail.Tuple.Length; ii++)
 					m_ValueStack.Push(tail.Tuple[ii]);
 
 				instructionPtr -= 1;
@@ -504,122 +540,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 			}
 		}
 
-		private void Internal_Assign(SymbolRef l, DynValue r)
-		{
-			if (l.i_Type == SymbolRefType.Index)
-			{
-				l.i_TableRefObject.Table[l.i_TableRefIndex] = r;
-			}
-			else
-			{
-				this.AssignGenericSymbol(l, r.ToScalar());
-			}
-		}
-
-		private void Internal_Assign(DynValue l, DynValue r)
-		{
-			if (l.Type == DataType.Symbol)
-			{
-				Internal_Assign(l.Symbol, r);
-			}
-			else
-			{
-				throw new NotImplementedException("How should we manage this ?");
-			}
-		}
-
-		private void ExecIndexGet(Instruction i, bool methodCall)
-		{
-			DynValue indexValue = m_ValueStack.Pop();
-			DynValue baseValue = m_ValueStack.Pop();
-
-			if (baseValue.Type != DataType.Table)
-			{
-				throw new NotImplementedException("META! : Can't index non-table yet");
-			}
-			else
-			{
-				DynValue v = baseValue.Table[indexValue];
-				m_ValueStack.Push(v.AsReadOnly());
-			}
-
-			if (methodCall)
-				m_ValueStack.Push(baseValue);
-		}
-
-		private void ExecIndexRef(Instruction i, bool keepOnStack)
-		{
-			DynValue indexValue = m_ValueStack.Pop();
-			DynValue baseValue = keepOnStack ? m_ValueStack.Peek() : m_ValueStack.Pop();
-
-			if (baseValue.Type != DataType.Table)
-			{
-				throw new NotImplementedException("META! : Can't index non-table yet");
-			}
-			else
-			{
-				SymbolRef s = SymbolRef.ObjIndex(baseValue, indexValue);
-				m_ValueStack.Push(DynValue.NewReference(s));
-			}
-		}
-
-		private void ExecStore(Instruction i)
-		{
-			DynValue r = m_ValueStack.Pop();
-			DynValue l = m_ValueStack.Pop();
-
-			Internal_Assign(l, r);
-		}
-
-
-		private void ExecSymStorN(Instruction i)
-		{
-			this.AssignGenericSymbol(i.Symbol, m_ValueStack.Peek());
-		}
-
-
-		private void ExecAssign(Instruction i)
-		{
-			Slice<DynValue> rvalues = new Slice<DynValue>(m_ValueStack, m_ValueStack.Count - i.NumVal2, i.NumVal2, false);
-			Slice<DynValue> lvalues = new Slice<DynValue>(m_ValueStack, m_ValueStack.Count - i.NumVal2 - i.NumVal, i.NumVal, false);
-
-			Internal_MultiAssign(lvalues, rvalues);
-
-			m_ValueStack.CropAtCount(m_ValueStack.Count - i.NumVal - i.NumVal2);
-		}
-
-		private void Internal_MultiAssign(Slice<DynValue> lValues, Slice<DynValue> rValues)
-		{
-			int li = 0;
-			int rValues_Count = rValues.Count;
-			int lValues_Count = lValues.Count;
-
-			for (int ri = 0; ri < rValues_Count && li < lValues_Count; ri++, li++)
-			{
-				DynValue vv = rValues[ri];
-
-				if ((ri != rValues_Count - 1) || (vv.Type != DataType.Tuple))
-				{
-					Internal_Assign(lValues[li], vv.ToScalar());
-				}
-				else
-				{
-					for (int rri = 0, len = vv.Tuple.Length; rri < len && li < lValues_Count; rri++, li++)
-					{
-						Internal_Assign(lValues[li], vv.Tuple[rri].ToScalar());
-					}
-				}
-			}
-		}
-
-
-
-
-
-
-
-
-
 
 		private int ExecAdd(Instruction i, int instructionPtr)
 		{
@@ -634,7 +554,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				m_ValueStack.Push(DynValue.NewNumber(ln.Value + rn.Value));
 				return instructionPtr;
 			}
-			else 
+			else
 			{
 				int ip = Internal_InvokeBinaryMetaMethod(l, r, "__add", instructionPtr);
 				if (ip >= 0) return ip;
@@ -683,8 +603,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 				if (ip >= 0) return ip;
 				else throw new ScriptRuntimeException(null, "Arithmetic on non numbers");
 			}
-		}		
-		
+		}
+
 		private int ExecMod(Instruction i, int instructionPtr)
 		{
 			DynValue r = m_ValueStack.Pop();
@@ -863,11 +783,11 @@ namespace MoonSharp.Interpreter.Execution.VM
 			else
 			{
 				int ip = Internal_InvokeUnaryMetaMethod(r, "__len", instructionPtr);
-				if (ip >= 0) 
+				if (ip >= 0)
 					return ip;
 				else if (r.Type == DataType.Table)
 					m_ValueStack.Push(DynValue.NewNumber(r.Table.Length));
-				else 
+				else
 					throw new ScriptRuntimeException(null, "Arithmetic on non number");
 			}
 
@@ -896,8 +816,66 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		}
 
+		private void ExecTblInitI(Instruction i)
+		{
+			// stack: tbl - val
+			DynValue val = m_ValueStack.Pop();
+			DynValue tbl = m_ValueStack.Peek();
 
+			if (tbl.Type != DataType.Table)
+				throw new InternalErrorException("Unexpected type in table ctor : {0}", tbl);
 
+			tbl.Table.InitNextArrayKeys(val);
+		}
+
+		private void ExecTblInitN(Instruction i)
+		{
+			// stack: tbl - key - val
+			DynValue val = m_ValueStack.Pop();
+			DynValue key = m_ValueStack.Pop();
+			DynValue tbl = m_ValueStack.Peek();
+
+			if (tbl.Type != DataType.Table)
+				throw new InternalErrorException("Unexpected type in table ctor : {0}", tbl);
+
+			tbl.Table[key] = val.ToScalar();
+		}
+
+		private int ExecStoreIdx(Instruction i, int instructionPtr)
+		{
+			// stack: vals.. - base - index
+			DynValue idx = m_ValueStack.Pop();
+			DynValue obj = m_ValueStack.Pop();
+			var v = GetStoreValue(i);
+
+			if (obj.Type == DataType.Table)
+			{
+				obj.Table[idx] = v;
+				return instructionPtr;
+			}
+			else
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		private int ExecLoadIdx(Instruction i, int instructionPtr)
+		{
+			// stack: base - index
+			DynValue idx = m_ValueStack.Pop();
+			DynValue obj = m_ValueStack.Pop();
+
+			if (obj.Type == DataType.Table)
+			{
+				var v = obj.Table[idx];
+				m_ValueStack.Push(v);
+				return instructionPtr;
+			}
+			else
+			{
+				throw new NotImplementedException();
+			}
+		}
 
 
 

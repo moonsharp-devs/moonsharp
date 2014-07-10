@@ -15,6 +15,7 @@ namespace MoonSharp.Interpreter
 		LinkedListIndex<int, TablePair> m_ArrayMap;
 		Script m_Owner;
 
+		int m_InitArray = 0;
 		int m_CachedLength = -1;
 
 		public Table(Script owner)
@@ -239,6 +240,19 @@ namespace MoonSharp.Interpreter
 				}
 
 				return m_CachedLength; 
+			}
+		}
+
+		internal void InitNextArrayKeys(DynValue val)
+		{
+			if (val.Type == DataType.Tuple)
+			{
+				foreach (DynValue v in val.Tuple)
+					InitNextArrayKeys(v);
+			}
+			else
+			{
+				this[++m_InitArray] = val;
 			}
 		}
 	}

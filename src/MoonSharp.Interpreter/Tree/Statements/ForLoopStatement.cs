@@ -55,7 +55,10 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			int start = bc.GetJumpPointForNextInstruction();
 			var jumpend = bc.Emit_Jump(OpCode.JFor, -1);
 			bc.Emit_Enter(m_StackFrame);
-			bc.Emit_SymStorN(m_VarName);
+			//bc.Emit_SymStorN(m_VarName);
+
+			bc.Emit_Store(m_VarName, 0, 0);
+
 			m_InnerBlock.Compile(bc);
 			bc.Emit_Debug("..end");
 			bc.Emit_Leave(m_StackFrame);

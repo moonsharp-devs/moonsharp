@@ -56,17 +56,14 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			foreach (var kvp in m_CtorArgs)
 			{
 				kvp.Key.Compile(bc);
-				bc.Emit_IndexRefN();
 				kvp.Value.Compile(bc);
-				bc.Emit_Store();
+				bc.Emit_TblInitN();
 			}
 
-			for (int i = 0; i < m_PositionalValues.Count; i++)
+			foreach (var v in m_PositionalValues)
 			{
-				bc.Emit_Literal(DynValue.NewNumber(i+1));
-				bc.Emit_IndexRefN();
-				m_PositionalValues[i].Compile(bc);
-				bc.Emit_Store();
+				v.Compile(bc);
+				bc.Emit_TblInitI();
 			}
 		}
 

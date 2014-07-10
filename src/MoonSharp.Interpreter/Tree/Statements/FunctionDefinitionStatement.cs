@@ -10,7 +10,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 {
 	class FunctionDefinitionStatement : Statement
 	{
-		SymbolRef m_FuncName;
+		SymbolRef m_FuncSymbol;
 		List<string> m_TableAccessors;
 		string m_MethodName;
 		string m_FriendlyName;
@@ -22,10 +22,10 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			: base(context, lcontext)
 		{
 			m_Local = true;
-			m_FuncName = lcontext.Scope.TryDefineLocal(context.NAME().GetText());
+			m_FuncSymbol = lcontext.Scope.TryDefineLocal(context.NAME().GetText());
 			m_FuncDef = new FunctionDefinitionExpression(context.funcbody(), lcontext);
 
-			m_FriendlyName = string.Format("{0} (local)", m_FuncName.i_Name);
+			m_FriendlyName = string.Format("{0} (local)", m_FuncSymbol.i_Name);
 		}
 
 		public FunctionDefinitionStatement(LuaParser.Stat_funcdefContext context, ScriptLoadingContext lcontext)
@@ -44,7 +44,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 
 			if (nameOfMethodAccessor != null || m_TableAccessors.Count > 0)
 			{
-				m_FuncName = lcontext.Scope.Find(fnname.Text);
+				m_FuncSymbol = lcontext.Scope.Find(fnname.Text);
 
 				m_FriendlyName = fnname.Text + "." + string.Join(".", m_TableAccessors.ToArray());
 
@@ -53,7 +53,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			}
 			else
 			{
-				m_FuncName = SymbolRef.Global(fnname.Text);
+				m_FuncSymbol = SymbolRef.Global(fnname.Text);
 				m_FriendlyName = fnname.Text;
 			}
 
@@ -74,37 +74,46 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		{
 			if (m_Local)
 			{
-				bc.Emit_Symbol(m_FuncName);
 				bc.Emit_Literal(DynValue.Nil);
-				bc.Emit_Store();
-				bc.Emit_Symbol(m_FuncName);
-				m_FuncDef.Compile(bc, () => bc.Emit_Store(), m_FriendlyName);
-				return;
+				bc.Emit_Store(m_FuncSymbol, 0, 0);
+				bc.Emit_Pop();
+				m_FuncDef.Compile(bc, () => SetFunction(bc), m_FriendlyName);
 			}
 			else if (m_MethodName == null)
 			{
-				bc.Emit_Symbol(m_FuncName);
-				m_FuncDef.Compile(bc, () => bc.Emit_Store(), m_FriendlyName);
-				return;
+				m_FuncDef.Compile(bc, () => SetFunction(bc), m_FriendlyName);
 			}
 			else
 			{
-				bc.Emit_Load(m_FuncName);
-
-				foreach (string str in m_TableAccessors)
-				{
-					bc.Emit_Literal(DynValue.NewString(str));
-					bc.Emit_Index();
-				}
-
-				bc.Emit_Literal(DynValue.NewString(m_MethodName));
-
-				bc.Emit_IndexRef();
-
-				m_FuncDef.Compile(bc, () => bc.Emit_Nop(null), m_FriendlyName);
-
-				bc.Emit_Store();
+				m_FuncDef.Compile(bc, () => SetMethod(bc), m_FriendlyName);
 			}
+		}
+
+		private int SetMethod(Execution.VM.ByteCode bc)
+		{
+			int cnt = 0;
+
+			cnt += bc.Emit_Load(m_FuncSymbol);
+
+			foreach (string str in m_TableAccessors)
+			{
+				bc.Emit_Literal(DynValue.NewString(str));
+				bc.Emit_LoadIdx();
+				cnt += 2;
+			}
+
+			bc.Emit_Literal(DynValue.NewString(m_MethodName));
+
+			bc.Emit_StoreIdx(0, 0);
+
+			return 2 + cnt;
+		}
+
+		private int SetFunction(Execution.VM.ByteCode bc)
+		{
+			int num = bc.Emit_Store(m_FuncSymbol, 0, 0);
+			bc.Emit_Pop();
+			return num + 1;
 		}
 
 	}

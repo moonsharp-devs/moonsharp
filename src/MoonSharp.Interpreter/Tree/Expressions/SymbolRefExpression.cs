@@ -12,6 +12,12 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 	{
 		SymbolRef m_Ref;
 
+		public SymbolRefExpression(IParseTree context, ScriptLoadingContext lcontext, SymbolRef refr)
+			: base(context, lcontext)
+		{
+			m_Ref = refr;
+		}
+
 
 		public SymbolRefExpression(LuaParser.VarargContext context, ScriptLoadingContext lcontext)
 			: base(context, lcontext)
@@ -33,9 +39,10 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			bc.Emit_Load(m_Ref);
 		}
 
-		public void CompileAssignment(Execution.VM.ByteCode bc)
+
+		public void CompileAssignment(Execution.VM.ByteCode bc, int stackofs, int tupleidx)
 		{
-			bc.Emit_Symbol(m_Ref);
+			bc.Emit_Store(m_Ref, stackofs, tupleidx);
 		}
 	}
 }

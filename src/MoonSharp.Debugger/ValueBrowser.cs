@@ -137,8 +137,6 @@ namespace MoonSharp.Debugger
 			lvTableData.Add("Type", S.Type);
 			lvTableData.Add("Index", S.Index);
 			lvTableData.Add("Name", S.Name);
-			lvTableData.Add("Table Ref Index", S.TableRefIndex);
-			lvTableData.Add("Table Ref Object", S.TableRefObject).Tag = S.TableRefObject;
 		}
 
 		private void BuildFunctionTable(DynValue V)

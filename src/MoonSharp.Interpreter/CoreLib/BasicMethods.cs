@@ -41,7 +41,7 @@ namespace MoonSharp.Interpreter.CoreLib
 			string mode = opt.CastToString();
 
 			if (mode == null || mode == "collect" || mode == "restart")
-				GC.Collect();
+				GC.Collect(2, GCCollectionMode.Forced);
 
 			return DynValue.Nil;
 		}

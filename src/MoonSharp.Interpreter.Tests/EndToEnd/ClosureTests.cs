@@ -158,8 +158,6 @@ namespace MoonSharp.Interpreter.Tests
 				function container()
 					local x = 20
 
-					local ztmp = { }
-
 					for i=1,5 do
 						local y = 0
 		

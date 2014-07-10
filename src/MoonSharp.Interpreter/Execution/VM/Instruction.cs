@@ -38,11 +38,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 					break;
 				case OpCode.Debug:
 					return string.Format("[[ {0} ]]", Name);
-				case OpCode.Load:
-				case OpCode.Symbol:
-				case OpCode.SymStorN:
-					append = string.Format("{0}{1}", GenSpaces(), Symbol);
-					break;
 				case OpCode.Literal:
 					append = string.Format("{0}{1}", GenSpaces(), PurifyFromNewLines(Value));
 					break;
@@ -60,6 +55,16 @@ namespace MoonSharp.Interpreter.Execution.VM
 				case OpCode.BeginFn:
 					append = string.Format("{0}{1}:{2},{3}", GenSpaces(), Name, NumVal, NumVal2);
 					break;
+				case OpCode.TMP_Load:
+				case OpCode.LoadLcl:
+				case OpCode.LoadUpv:
+					append = string.Format("{0}{1}", GenSpaces(), Symbol);
+					break;
+				case OpCode.StoreUpv:
+				case OpCode.StoreLcl:
+				case OpCode.TMP_Store:
+					append = string.Format("{0}{1} <- {2}:{3}", GenSpaces(), Symbol, NumVal, NumVal2);
+					break;
 				case OpCode.JtOrPop:
 				case OpCode.JfOrPop:
 				case OpCode.Jf:
@@ -70,9 +75,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 					break;
 				case OpCode.Invalid:
 					append = string.Format("{0}{1}", GenSpaces(), Name ?? "(null)");
-					break;
-				case OpCode.Assign:
-					append = string.Format("{0}{1},{2}", GenSpaces(), NumVal, NumVal2);
 					break;
 				default:
 					break;

@@ -49,7 +49,7 @@ namespace MoonSharp.Interpreter.Tree
 				return new LabelStatement((LuaParser.Stat_labelContext)tree, lcontext);
 
 			if (tree is LuaParser.Stat_localassignmentContext)
-				return new LocalAssignmentStatement((LuaParser.Stat_localassignmentContext)tree, lcontext);
+				return new AssignmentStatement((LuaParser.Stat_localassignmentContext)tree, lcontext);
 
 			if (tree is LuaParser.Stat_breakContext)
 				return new BreakStatement((LuaParser.Stat_breakContext)tree, lcontext);

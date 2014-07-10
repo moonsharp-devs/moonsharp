@@ -27,15 +27,14 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 		{
 			m_BaseExp.Compile(bc);
 			m_IndexExp.Compile(bc);
-			bc.Emit_Index();
+			bc.Emit_LoadIdx();
 		}
 
-
-		public void CompileAssignment(ByteCode bc)
+		public void CompileAssignment(ByteCode bc, int stackofs, int tupleidx)
 		{
 			m_BaseExp.Compile(bc);
 			m_IndexExp.Compile(bc);
-			bc.Emit_IndexRef();
+			bc.Emit_StoreIdx(stackofs, tupleidx);
 		}
 	}
 }

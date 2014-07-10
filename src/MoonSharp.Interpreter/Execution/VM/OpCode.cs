@@ -15,13 +15,22 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		// Stack ops and assignment
 		Pop,		// Discards the topmost n elements from the v-stack. 
-		Load,		// Loads a value from the specified symbol, and pushes it on the v-stack.
+		Copy,		// Copies the n-th value of the stack on the top
+		Swap,		// Swaps two entries relative to the v-stack
 		Literal,	// Pushes a literal (constant value) on the stack. 
-		Symbol,		// Loads a symbol on the stack
-		SymStorN,	// Performs a store to a symbol, without needing the symbol on the v-stack and without extracting the operand from the v-stack.
-		Store,		// Performs a single value assignment [including table fields]
-		Assign,		// Performs complex assignment supporting tuples [including table fields]
 		Closure,	// Creates a closure on the top of the v-stack, using the symbols for upvalues and num-val for entry point of the function.
+		NewTable,	// Creates a new empty table on the stack
+		TblInitN,	// Initializes a table named entry
+		TblInitI,	// Initializes a table positional entry
+
+		TMP_Load,
+		TMP_Store,
+
+		Global,
+
+		StoreLcl, LoadLcl,
+		StoreUpv, LoadUpv,
+		StoreIdx, LoadIdx, 
 
 		// Stack-frame ops and calls
 		Enter,		// Enters a new stack frame
@@ -64,12 +73,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 		ToBool,		// Converts the top of the stack to a boolean
 		ExpTuple,	// Expands a tuple on the stack
 
-		// Tables
-		Index,		// Performs an index operation, pushing the indexed value on the stack.
-		IndexRef,	// Performs an index operation, pushing a writable indexded value on the stack.
-		IndexRefN,	// Performs an index operation, pushing a writable indexed value on the stack, does not pop the table.
-		Method,		// Performs an index operation and pushes the table after the indexed value on the stack
-		NewTable,	// Creates a new table on the stack
 
 		// Iterators
 		IterPrep,   // Prepares an iterator for execution 

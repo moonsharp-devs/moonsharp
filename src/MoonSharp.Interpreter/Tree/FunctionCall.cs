@@ -29,8 +29,10 @@ namespace MoonSharp.Interpreter.Tree
 
 			if (!string.IsNullOrEmpty(m_Name))
 			{
+				bc.Emit_Copy(0);
 				bc.Emit_Literal(DynValue.NewString(m_Name));
-				bc.Emit_Method();
+				bc.Emit_LoadIdx();
+				bc.Emit_Swap(0, 1);
 				++argslen;
 			}
 

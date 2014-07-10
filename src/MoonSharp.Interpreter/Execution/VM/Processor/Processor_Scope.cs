@@ -46,8 +46,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 					return m_ExecutionStack.Peek().LocalScope[symref.i_Index];
 				case SymbolRefType.Upvalue:
 					return m_ExecutionStack.Peek().ClosureScope[symref.i_Index];
-				case SymbolRefType.Index:
-				case SymbolRefType.Invalid:
 				default:
 					throw new InternalErrorException("Unexpected {0} LRef at resolution: {1}", symref.i_Type, symref.i_Name);
 			}
@@ -82,8 +80,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 						v.Assign(value);
 					}
 					break;
-				case SymbolRefType.Index:
-				case SymbolRefType.Invalid:
 				default:
 					throw new InternalErrorException("Unexpected {0} LRef at resolution: {1}", symref.i_Type, symref.i_Name);
 			}

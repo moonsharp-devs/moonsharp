@@ -75,29 +75,10 @@ namespace MoonSharp.Interpreter.Execution.VM
 			AppendInstruction(new Instruction() { OpCode = OpCode.TailChk });
 		}
 
-		public Instruction Emit_Load(SymbolRef symref)
-		{
-			return AppendInstruction(new Instruction() { OpCode = OpCode.Load, Symbol = symref });
-		}
 
 		public Instruction Emit_Literal(DynValue value)
 		{
 			return AppendInstruction(new Instruction() { OpCode = OpCode.Literal, Value = value });
-		}
-
-		public Instruction Emit_Assign(int cntL, int cntR)
-		{
-			return AppendInstruction(new Instruction() { OpCode = OpCode.Assign, NumVal = cntL, NumVal2 = cntR });
-		}
-
-		public Instruction Emit_Store()
-		{
-			return AppendInstruction(new Instruction() { OpCode = OpCode.Store });
-		}
-
-		public Instruction Emit_Symbol(SymbolRef symref)
-		{
-			return AppendInstruction(new Instruction() { OpCode = OpCode.Symbol, Symbol = symref });
 		}
 
 		public Instruction Emit_Jump(OpCode jumpOpCode, int idx, int optPar = 0)
@@ -162,29 +143,10 @@ namespace MoonSharp.Interpreter.Execution.VM
 			return AppendInstruction(new Instruction() { OpCode = OpCode.ToNum });
 		}
 
-		public Instruction Emit_SymStorN(SymbolRef symb)
-		{
-			return AppendInstruction(new Instruction() { OpCode = OpCode.SymStorN, Symbol = symb });
-		}
 
 		public Instruction Emit_Incr(int i)
 		{
 			return AppendInstruction(new Instruction() { OpCode = OpCode.Incr, NumVal = i });
-		}
-
-		public Instruction Emit_Index()
-		{
-			return AppendInstruction(new Instruction() { OpCode = OpCode.Index });
-		}
-
-		public Instruction Emit_IndexRef()
-		{
-			return AppendInstruction(new Instruction() { OpCode = OpCode.IndexRef });
-		}
-
-		public Instruction Emit_IndexRefN()
-		{
-			return AppendInstruction(new Instruction() { OpCode = OpCode.IndexRefN });
 		}
 
 		public Instruction Emit_NewTable()
@@ -207,10 +169,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 			return AppendInstruction(new Instruction() { OpCode = OpCode.IterUpd });
 		}
 
-		public Instruction Emit_Method()
-		{
-			return AppendInstruction(new Instruction() { OpCode = OpCode.Method });
-		}
 
 		public Instruction Emit_BeginFn(RuntimeScopeFrame m_StackFrame, string funcName)
 		{
@@ -225,6 +183,76 @@ namespace MoonSharp.Interpreter.Execution.VM
 		public Instruction Emit_Scalar()
 		{
 			return AppendInstruction(new Instruction() { OpCode = OpCode.Scalar });
+		}
+
+		public int Emit_Load(SymbolRef sym)
+		{
+			switch (sym.Type)
+			{
+				case SymbolRefType.Global:
+					AppendInstruction(new Instruction() { OpCode = OpCode.Global });
+					Emit_Literal(DynValue.NewString(sym.i_Name));
+					AppendInstruction(new Instruction() { OpCode = OpCode.LoadIdx });
+					return 3;
+				case SymbolRefType.Local:
+					AppendInstruction(new Instruction() { OpCode = OpCode.LoadLcl, Symbol = sym });
+					return 1;
+				case SymbolRefType.Upvalue:
+					AppendInstruction(new Instruction() { OpCode = OpCode.LoadUpv, Symbol = sym });
+					return 1;
+				default:
+					throw new InternalErrorException("Unexpected symbol type : {0}", sym);
+			}
+		}
+
+		public int Emit_Store(SymbolRef sym, int stackofs, int tupleidx)
+		{
+			switch (sym.Type)
+			{
+				case SymbolRefType.Global:
+					AppendInstruction(new Instruction() { OpCode = OpCode.Global });
+					Emit_Literal(DynValue.NewString(sym.i_Name));
+					AppendInstruction(new Instruction() { OpCode = OpCode.StoreIdx, Symbol = sym, NumVal = stackofs, NumVal2 = tupleidx });
+					return 3;
+				case SymbolRefType.Local:
+					AppendInstruction(new Instruction() { OpCode = OpCode.StoreLcl, Symbol = sym, NumVal = stackofs, NumVal2 = tupleidx });
+					return 1;
+				case SymbolRefType.Upvalue:
+					AppendInstruction(new Instruction() { OpCode = OpCode.StoreUpv, Symbol = sym, NumVal = stackofs, NumVal2 = tupleidx });
+					return 1;
+				default:
+					throw new InternalErrorException("Unexpected symbol type : {0}", sym);
+			}
+		}
+
+		public Instruction Emit_TblInitN()
+		{
+			return AppendInstruction(new Instruction() { OpCode = OpCode.TblInitN });
+		}
+
+		public Instruction Emit_TblInitI()
+		{
+			return AppendInstruction(new Instruction() { OpCode = OpCode.TblInitI });
+		}
+
+		public Instruction Emit_LoadIdx()
+		{
+			return AppendInstruction(new Instruction() { OpCode = OpCode.LoadIdx });
+		}
+
+		public Instruction Emit_StoreIdx(int stackofs, int tupleidx)
+		{
+			return AppendInstruction(new Instruction() { OpCode = OpCode.StoreIdx, NumVal = stackofs, NumVal2 = tupleidx });
+		}
+
+		public Instruction Emit_Copy(int numval)
+		{
+			return AppendInstruction(new Instruction() { OpCode = OpCode.Copy, NumVal = numval });
+		}
+
+		public Instruction Emit_Swap(int p1, int p2)
+		{
+			return AppendInstruction(new Instruction() { OpCode = OpCode.Swap, NumVal = p1, NumVal2 = p2 });
 		}
 	}
 }

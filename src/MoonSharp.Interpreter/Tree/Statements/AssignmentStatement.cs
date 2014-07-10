@@ -28,25 +28,41 @@ namespace MoonSharp.Interpreter.Tree.Statements
 				.ToArray();
 		}
 
+		public AssignmentStatement(LuaParser.Stat_localassignmentContext context, ScriptLoadingContext lcontext)
+			: base(context, lcontext)
+		{
+			var explist = context.explist();
+
+			if (explist != null)
+			{
+				m_RValues = explist
+				.exp()
+				.Select(e => NodeFactory.CreateExpression(e, lcontext))
+				.ToArray();
+			}
+			else
+				m_RValues = new Expression[0];
+
+			m_LValues = context.namelist().NAME()
+				.Select(n => n.GetText())
+				.Select(n => lcontext.Scope.TryDefineLocal(n))
+				.Select(s => new SymbolRefExpression(context, lcontext, s))
+				.Cast<IVariable>()
+				.ToArray();
+		}
+
 
 		public override void Compile(Execution.VM.ByteCode bc)
 		{
-			if (m_LValues.Length == 1 && m_RValues.Length == 1)
-			{
-				m_LValues[0].CompileAssignment(bc);
-				m_RValues[0].Compile(bc);
-				bc.Emit_Store();
-			}
-			else
-			{
-				foreach (var var in m_LValues)
-					var.CompileAssignment(bc);
+			foreach (var exp in m_RValues)
+				exp.Compile(bc);
 
-				foreach (var exp in m_RValues)
-					exp.Compile(bc);
+			for(int i = 0; i < m_LValues.Length; i++)
+				m_LValues[i].CompileAssignment(bc,
+						Math.Max(m_RValues.Length - 1 - i, 0), // index of r-value
+						i - Math.Min(i, m_RValues.Length - 1)); // index in last tuple
 
-				bc.Emit_Assign(m_LValues.Length, m_RValues.Length);
-			}
+			bc.Emit_Pop(m_RValues.Length);
 		}
 
 	}

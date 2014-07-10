@@ -26,7 +26,7 @@
       <Argument Key="logoAlignment" Value="left" xmlns="" />
       <Argument Key="maxVersionParts" Value="" xmlns="" />
     </TransformComponentArguments>
-    <BuildAssemblerVerbosity>OnlyWarningsAndErrors</BuildAssemblerVerbosity>
+    <BuildAssemblerVerbosity>OnlyErrors</BuildAssemblerVerbosity>
     <HelpFileFormat>HtmlHelp1, Website</HelpFileFormat>
     <IndentHtml>False</IndentHtml>
     <KeepLogFile>True</KeepLogFile>

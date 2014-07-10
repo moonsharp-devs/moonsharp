@@ -49,6 +49,12 @@ namespace MoonSharp.Interpreter.DataStructs
 			T item = m_Storage[m_HeadIdx - 1 - idxofs];
 			return item;
 		}
+
+		public void Set(int idxofs, T item)
+		{
+			m_Storage[m_HeadIdx - 1 - idxofs] = item;
+		}
+
 		public void CropAtCount(int p)
 		{
 			RemoveLast(Count - p);
