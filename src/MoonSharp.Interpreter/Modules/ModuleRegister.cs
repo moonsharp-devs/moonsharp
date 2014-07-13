@@ -14,11 +14,13 @@ namespace MoonSharp.Interpreter
 		{
 			if (modules.Has(CoreModules.GlobalConsts)) RegisterConstants(table);
 			if (modules.Has(CoreModules.TableIterators)) RegisterModuleType<TableIterators>(table);
+			if (modules.Has(CoreModules.Basic)) RegisterModuleType<BasicMethods>(table);
 			if (modules.Has(CoreModules.Metatables)) RegisterModuleType<MetaTableMethods>(table);
 			if (modules.Has(CoreModules.String)) RegisterModuleType<StringModule>(table);
 			if (modules.Has(CoreModules.LoadMethods)) RegisterModuleType<LoadMethods>(table);
 			if (modules.Has(CoreModules.Table)) RegisterModuleType<TableModule>(table);
 			if (modules.Has(CoreModules.Table)) RegisterModuleType<TableModule_Globals>(table);
+			if (modules.Has(CoreModules.ErrorHandling)) RegisterModuleType<ErrorHandling>(table);
 
 			return table;
 		}

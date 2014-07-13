@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using MoonSharp.Interpreter.Execution;
+using MoonSharp.Interpreter.Execution.VM;
 
 namespace MoonSharp.Interpreter
 {
@@ -178,8 +179,8 @@ namespace MoonSharp.Interpreter
 		/// Creates a new request for a tail call. This is the preferred way to execute Lua/Moon# code from a callback,
 		/// although it's not always possible to use it. When a function (callback or script closure) returns a
 		/// TailCallRequest, the bytecode processor immediately executes the function contained in the request.
-		/// By executing script in this way, a callback function ensures it's not on the stack anymore and thus state
-		/// can be saved.
+		/// By executing script in this way, a callback function ensures it's not on the stack anymore and thus a number
+		/// of functionality (state savings, coroutines, etc) keeps working at full power.
 		/// </summary>
 		/// <param name="tailFn">The function to be called.</param>
 		/// <param name="args">The arguments.</param>
@@ -188,8 +189,30 @@ namespace MoonSharp.Interpreter
 		{
 			return new DynValue()
 			{
-				UserObject = tailFn,
-				Tuple = args,
+				UserObject = new TailCallData()
+				{
+					Args = args,
+					Function = tailFn,
+					Mode = CallMode.Normal 
+				},
+				Type = DataType.TailCallRequest,
+			};
+		}
+
+		/// <summary>
+		/// Creates a new request for a tail call. This is the preferred way to execute Lua/Moon# code from a callback,
+		/// although it's not always possible to use it. When a function (callback or script closure) returns a
+		/// TailCallRequest, the bytecode processor immediately executes the function contained in the request.
+		/// By executing script in this way, a callback function ensures it's not on the stack anymore and thus a number
+		/// of functionality (state savings, coroutines, etc) keeps working at full power.
+		/// </summary>
+		/// <param name="tailFn">The data for the tail call.</param>
+		/// <returns></returns>
+		public static DynValue NewTailCallReq(TailCallData tailCallData)
+		{
+			return new DynValue()
+			{
+				UserObject = tailCallData,
 				Type = DataType.TailCallRequest,
 			};
 		}

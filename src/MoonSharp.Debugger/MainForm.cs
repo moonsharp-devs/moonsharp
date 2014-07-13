@@ -147,11 +147,20 @@ namespace MoonSharp.Debugger
 
 		void DebugAction(DebuggerAction action)
 		{
+			bool savedState = timerFollow.Enabled;
+			timerFollow.Enabled = false;
+
 			m_NextAction = action;
 			m_WaitLock.Set();
 
 			if (!m_WaitBack.WaitOne(1000))
+			{
 				MessageBox.Show(this, "Operation timed out", "Timeout");
+			}
+			else
+			{
+				timerFollow.Enabled = true;
+			}
 		}
 
 
@@ -163,6 +172,7 @@ namespace MoonSharp.Debugger
 			}
 			catch (Exception ex)
 			{
+				timerFollow.Enabled = false;
 				Console_WriteLine("Guest raised unhandled CLR exception: {0}\n{1}\n", ex.GetType(), ex.ToString());
 			}
 		}
@@ -364,6 +374,16 @@ namespace MoonSharp.Debugger
 		private void GotoBytecode(int code)
 		{
 			codeView.CursorLine = code;
+		}
+
+		private void timerFollow_Tick(object sender, EventArgs e)
+		{
+			toolStepIN.PerformClick();
+		}
+
+		private void btnFollow_Click(object sender, EventArgs e)
+		{
+			timerFollow.Start();
 		}
 
 

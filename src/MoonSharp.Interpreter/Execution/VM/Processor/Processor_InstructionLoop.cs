@@ -11,177 +11,207 @@ namespace MoonSharp.Interpreter.Execution.VM
 	{
 		private DynValue Processing_Loop(int instructionPtr)
 		{
-			while (true)
+			repeat_execution:
+
+			try
 			{
-				Instruction i = m_RootChunk.Code[instructionPtr];
-
-				if (m_DebuggerAttached != null)
+				while (true)
 				{
-					ListenDebugger(i, instructionPtr);
+					Instruction i = m_RootChunk.Code[instructionPtr];
+
+					if (m_DebuggerAttached != null)
+					{
+						ListenDebugger(i, instructionPtr);
+					}
+
+					++instructionPtr;
+
+					switch (i.OpCode)
+					{
+						case OpCode.Nop:
+						case OpCode.Debug:
+							break;
+						case OpCode.Pop:
+							m_ValueStack.RemoveLast(i.NumVal);
+							break;
+						case OpCode.Copy:
+							m_ValueStack.Push(m_ValueStack.Peek(i.NumVal));
+							break;
+						case OpCode.Swap:
+							ExecSwap(i);
+							break;
+						case OpCode.Literal:
+							m_ValueStack.Push(i.Value);
+							break;
+						case OpCode.Add:
+							instructionPtr = ExecAdd(i, instructionPtr);
+							break;
+						case OpCode.Concat:
+							instructionPtr = ExecConcat(i, instructionPtr);
+							break;
+						case OpCode.Neg:
+							instructionPtr = ExecNeg(i, instructionPtr);
+							break;
+						case OpCode.Sub:
+							instructionPtr = ExecSub(i, instructionPtr);
+							break;
+						case OpCode.Mul:
+							instructionPtr = ExecMul(i, instructionPtr);
+							break;
+						case OpCode.Div:
+							instructionPtr = ExecDiv(i, instructionPtr);
+							break;
+						case OpCode.Mod:
+							instructionPtr = ExecMod(i, instructionPtr);
+							break;
+						case OpCode.Power:
+							instructionPtr = ExecPower(i, instructionPtr);
+							break;
+						case OpCode.Eq:
+							instructionPtr = ExecEq(i, instructionPtr);
+							break;
+						case OpCode.LessEq:
+							instructionPtr = ExecLessEq(i, instructionPtr);
+							break;
+						case OpCode.Less:
+							instructionPtr = ExecLess(i, instructionPtr);
+							break;
+						case OpCode.Len:
+							instructionPtr = ExecLen(i, instructionPtr);
+							break;
+						case OpCode.Call:
+							instructionPtr = Internal_ExecCall(i.NumVal, instructionPtr);
+							break;
+						case OpCode.Scalar:
+							m_ValueStack.Push(m_ValueStack.Pop().ToScalar());
+							break;
+						case OpCode.Not:
+							ExecNot(i);
+							break;
+						case OpCode.JfOrPop:
+						case OpCode.JtOrPop:
+							instructionPtr = ExecShortCircuitingOperator(i, instructionPtr);
+							break;
+						case OpCode.JNil:
+							{
+								DynValue v = m_ValueStack.Pop();
+
+								if (v.Type == DataType.Nil)
+									instructionPtr = i.NumVal;
+							}
+							break;
+						case OpCode.Jf:
+							instructionPtr = JumpBool(i, false, instructionPtr);
+							break;
+						case OpCode.Jump:
+							instructionPtr = i.NumVal;
+							break;
+						case OpCode.MkTuple:
+							ExecMkTuple(i);
+							break;
+						case OpCode.Enter:
+							NilifyBlockData(i);
+							break;
+						case OpCode.Leave:
+						case OpCode.Exit:
+							ClearBlockData(i);
+							break;
+						case OpCode.Closure:
+							ExecClosure(i);
+							break;
+						case OpCode.BeginFn:
+							ExecBeginFn(i);
+							break;
+						case OpCode.ToBool:
+							m_ValueStack.Push(DynValue.NewBoolean(m_ValueStack.Pop().CastToBool()));
+							break;
+						case OpCode.Args:
+							ExecArgs(i);
+							break;
+						case OpCode.Ret:
+							instructionPtr = ExecRet(i);
+							if (instructionPtr < 0)
+								goto return_to_native_code;
+							break;
+						case OpCode.Incr:
+							ExecIncr(i);
+							break;
+						case OpCode.ToNum:
+							ExecToNum(i);
+							break;
+						case OpCode.JFor:
+							instructionPtr = ExecJFor(i, instructionPtr);
+							break;
+						case OpCode.NewTable:
+							m_ValueStack.Push(DynValue.NewTable(this.m_Script));
+							break;
+						case OpCode.IterPrep:
+							ExecIterPrep(i);
+							break;
+						case OpCode.IterUpd:
+							ExecIterUpd(i);
+							break;
+						case OpCode.ExpTuple:
+							ExecExpTuple(i);
+							break;
+						case OpCode.Local:
+							m_ValueStack.Push(m_ExecutionStack.Peek().LocalScope[i.Symbol.i_Index]);
+							break;
+						case OpCode.Upvalue:
+							m_ValueStack.Push(m_ExecutionStack.Peek().ClosureScope[i.Symbol.i_Index]);
+							break;
+						case OpCode.StoreUpv:
+							ExecStoreUpv(i);
+							break;
+						case OpCode.StoreLcl:
+							ExecStoreLcl(i);
+							break;
+						case OpCode.TblInitN:
+							ExecTblInitN(i);
+							break;
+						case OpCode.TblInitI:
+							ExecTblInitI(i);
+							break;
+						case OpCode.Index:
+							instructionPtr = ExecIndex(i, instructionPtr);
+							break;
+						case OpCode.PushEnv:
+							m_ValueStack.Push(DynValue.NewTable(m_GlobalTable));
+							break;
+						case OpCode.IndexSet:
+							instructionPtr = ExecIndexSet(i, instructionPtr);
+							break;
+						case OpCode.Invalid:
+							throw new NotImplementedException(string.Format("Invalid opcode : {0}", i.Name));
+						default:
+							throw new NotImplementedException(string.Format("Execution for {0} not implented yet!", i.OpCode));
+					}
+				}
+			}
+			catch (ScriptRuntimeException ex)
+			{
+				while (m_ExecutionStack.Count > 0)
+				{
+					CallStackItem csi = PopToBasePointer();
+
+					CallMode mode = csi.Mode;
+					if (mode == CallMode.PCall)
+					{
+						instructionPtr = csi.ReturnAddress;
+						var argscnt = (int)(m_ValueStack.Pop().Number);
+						m_ValueStack.RemoveLast(argscnt + 1);
+
+						m_ValueStack.Push(DynValue.NewTuple(DynValue.False, DynValue.NewString(ex.Message)));
+
+						goto repeat_execution;
+					}
 				}
 
-				++instructionPtr;
-
-				switch (i.OpCode)
+				if (m_ExecutionStack.Count == 0)
 				{
-					case OpCode.Nop:
-					case OpCode.Debug:
-						break;
-					case OpCode.Pop:
-						m_ValueStack.RemoveLast(i.NumVal);
-						break;
-					case OpCode.Copy:
-						m_ValueStack.Push(m_ValueStack.Peek(i.NumVal));
-						break;
-					case OpCode.Swap:
-						ExecSwap(i);
-						break;
-					case OpCode.Literal:
-						m_ValueStack.Push(i.Value);
-						break;
-					case OpCode.Add:
-						instructionPtr = ExecAdd(i, instructionPtr);
-						break;
-					case OpCode.Concat:
-						instructionPtr = ExecConcat(i, instructionPtr);
-						break;
-					case OpCode.Neg:
-						instructionPtr = ExecNeg(i, instructionPtr);
-						break;
-					case OpCode.Sub:
-						instructionPtr = ExecSub(i, instructionPtr);
-						break;
-					case OpCode.Mul:
-						instructionPtr = ExecMul(i, instructionPtr);
-						break;
-					case OpCode.Div:
-						instructionPtr = ExecDiv(i, instructionPtr);
-						break;
-					case OpCode.Mod:
-						instructionPtr = ExecMod(i, instructionPtr);
-						break;
-					case OpCode.Power:
-						instructionPtr = ExecPower(i, instructionPtr);
-						break;
-					case OpCode.Eq:
-						instructionPtr = ExecEq(i, instructionPtr);
-						break;
-					case OpCode.LessEq:
-						instructionPtr = ExecLessEq(i, instructionPtr);
-						break;
-					case OpCode.Less:
-						instructionPtr = ExecLess(i, instructionPtr);
-						break;
-					case OpCode.Len:
-						instructionPtr = ExecLen(i, instructionPtr);
-						break;
-					case OpCode.Call:
-						instructionPtr = Internal_ExecCall(i.NumVal, instructionPtr);
-						break;
-					case OpCode.Scalar:
-						m_ValueStack.Push(m_ValueStack.Pop().ToScalar());
-						break;
-					case OpCode.Not:
-						ExecNot(i);
-						break;
-					case OpCode.JfOrPop:
-					case OpCode.JtOrPop:
-						instructionPtr = ExecShortCircuitingOperator(i, instructionPtr);
-						break;
-					case OpCode.JNil:
-						{
-							DynValue v = m_ValueStack.Pop();
-
-							if (v.Type == DataType.Nil)
-								instructionPtr = i.NumVal;
-						}
-						break;
-					case OpCode.Jf:
-						instructionPtr = JumpBool(i, false, instructionPtr);
-						break;
-					case OpCode.Jump:
-						instructionPtr = i.NumVal;
-						break;
-					case OpCode.MkTuple:
-						ExecMkTuple(i);
-						break;
-					case OpCode.Enter:
-						NilifyBlockData(i);
-						break;
-					case OpCode.Leave:
-					case OpCode.Exit:
-						ClearBlockData(i);
-						break;
-					case OpCode.Closure:
-						ExecClosure(i);
-						break;
-					case OpCode.BeginFn:
-						ExecBeginFn(i);
-						break;
-					case OpCode.ToBool:
-						m_ValueStack.Push(DynValue.NewBoolean(m_ValueStack.Pop().CastToBool()));
-						break;
-					case OpCode.Args:
-						ExecArgs(i);
-						break;
-					case OpCode.Ret:
-						instructionPtr = ExecRet(i);
-						if (instructionPtr < 0)
-							goto return_to_native_code;
-						break;
-					case OpCode.Incr:
-						ExecIncr(i);
-						break;
-					case OpCode.ToNum:
-						ExecToNum(i);
-						break;
-					case OpCode.JFor:
-						instructionPtr = ExecJFor(i, instructionPtr);
-						break;
-					case OpCode.NewTable:
-						m_ValueStack.Push(DynValue.NewTable(this.m_Script));
-						break;
-					case OpCode.IterPrep:
-						ExecIterPrep(i);
-						break;
-					case OpCode.IterUpd:
-						ExecIterUpd(i);
-						break;
-					case OpCode.ExpTuple:
-						ExecExpTuple(i);
-						break;
-					case OpCode.Local:
-						m_ValueStack.Push(m_ExecutionStack.Peek().LocalScope[i.Symbol.i_Index]);
-						break;
-					case OpCode.Upvalue:
-						m_ValueStack.Push(m_ExecutionStack.Peek().ClosureScope[i.Symbol.i_Index]);
-						break;
-					case OpCode.StoreUpv:
-						ExecStoreUpv(i);
-						break;
-					case OpCode.StoreLcl:
-						ExecStoreLcl(i);
-						break;
-					case OpCode.TblInitN:
-						ExecTblInitN(i);
-						break;
-					case OpCode.TblInitI:
-						ExecTblInitI(i);
-						break;
-					case OpCode.Index:
-						instructionPtr = ExecIndex(i, instructionPtr);
-						break;
-					case OpCode.PushEnv:
-						m_ValueStack.Push(DynValue.NewTable(m_GlobalTable));
-						break;
-					case OpCode.IndexSet:
-						instructionPtr = ExecIndexSet(i, instructionPtr);
-						break;
-					case OpCode.Invalid:
-						throw new NotImplementedException(string.Format("Invalid opcode : {0}", i.Name));
-					default:
-						throw new NotImplementedException(string.Format("Execution for {0} not implented yet!", i.OpCode));
+					throw;
 				}
+
 			}
 
 		return_to_native_code:
@@ -399,11 +429,11 @@ namespace MoonSharp.Interpreter.Execution.VM
 			}
 		}
 
-		private int PopToBasePointer()
+		private CallStackItem PopToBasePointer()
 		{
-			var xs = m_ExecutionStack.Pop();
-			m_ValueStack.CropAtCount(xs.BasePointer);
-			return xs.ReturnAddress;
+			var csi = m_ExecutionStack.Pop();
+			m_ValueStack.CropAtCount(csi.BasePointer);
+			return csi;
 		}
 
 		private int PopExecStackAndCheckVStack(int vstackguard)
@@ -446,7 +476,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 
 
-		private int Internal_ExecCall(int argsCount, int instructionPtr)
+		private int Internal_ExecCall(int argsCount, int instructionPtr, CallMode mode = CallMode.Normal)
 		{
 			DynValue fn = m_ValueStack.Peek(argsCount);
 
@@ -457,7 +487,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				m_ValueStack.RemoveLast(argsCount + 1);
 				m_ValueStack.Push(ret);
 
-				return ExecTailChk(null, instructionPtr);
+				return Internal_CheckForTailRequests(null, instructionPtr);
 			}
 			else if (fn.Type == DataType.Function)
 			{
@@ -467,7 +497,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 					BasePointer = m_ValueStack.Count,
 					ReturnAddress = instructionPtr,
 					Debug_EntryPoint = fn.Function.ByteCodeLocation,
-					ClosureScope = fn.Function.ClosureContext
+					ClosureScope = fn.Function.ClosureContext,
+					Mode = mode,
 				});
 				return fn.Function.ByteCodeLocation;
 			}
@@ -499,32 +530,59 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		private int ExecRet(Instruction i)
 		{
+			CallStackItem csi;
 			int retpoint = 0;
 
 			if (i.NumVal == 0)
 			{
-				retpoint = PopToBasePointer();
+				csi = PopToBasePointer();
+				retpoint = csi.ReturnAddress;
 				var argscnt = (int)(m_ValueStack.Pop().Number);
 				m_ValueStack.RemoveLast(argscnt + 1);
 				m_ValueStack.Push(DynValue.Nil);
-				return retpoint;
 			}
 			else if (i.NumVal == 1)
 			{
 				var retval = m_ValueStack.Pop();
-				retpoint = PopToBasePointer();
+				csi = PopToBasePointer();
+				retpoint = csi.ReturnAddress;
 				var argscnt = (int)(m_ValueStack.Pop().Number);
 				m_ValueStack.RemoveLast(argscnt + 1);
 				m_ValueStack.Push(retval);
-				return ExecTailChk(i, retpoint);
+				retpoint = Internal_CheckForTailRequests(i, retpoint);
 			}
 			else
 			{
 				throw new InternalErrorException("RET supports only 0 and 1 ret val scenarios");
 			}
+
+			if (csi.Mode != CallMode.Normal)
+				AdjustRetValueForMode(csi.Mode);
+
+			return retpoint;
 		}
 
-		private int ExecTailChk(Instruction i, int instructionPtr)
+		private void AdjustRetValueForMode(CallMode callMode)
+		{
+			DynValue r = m_ValueStack.Pop();
+
+			switch (callMode)
+			{
+				case CallMode.PCall:
+					m_ValueStack.Push(DynValue.NewTupleNested(DynValue.True, r));
+					break;
+				case CallMode.Require:
+					break;
+				case CallMode.Normal:
+				default:
+					throw new InternalErrorException("Unreachable case .. reached");
+			}
+
+
+			
+		}
+
+		private int Internal_CheckForTailRequests(Instruction i, int instructionPtr)
 		{
 			DynValue tail = m_ValueStack.Peek(0);
 
@@ -532,13 +590,15 @@ namespace MoonSharp.Interpreter.Execution.VM
 			{
 				m_ValueStack.Pop(); // discard tail call request
 
-				m_ValueStack.Push((DynValue)tail.UserObject);
+				TailCallData tcd = (TailCallData)tail.UserObject;
 
-				for (int ii = 0; ii < tail.Tuple.Length; ii++)
-					m_ValueStack.Push(tail.Tuple[ii]);
+				m_ValueStack.Push(tcd.Function);
+
+				for (int ii = 0; ii < tcd.Args.Length; ii++)
+					m_ValueStack.Push(tcd.Args[ii]);
 
 				//instructionPtr -= 1;
-				return Internal_ExecCall(tail.Tuple.Length, instructionPtr);
+				return Internal_ExecCall(tcd.Args.Length, instructionPtr, tcd.Mode);
 			}
 
 

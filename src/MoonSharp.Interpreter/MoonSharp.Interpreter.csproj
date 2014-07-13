@@ -98,6 +98,7 @@
     <Compile Include="DataStructs\LinkedListIndex.cs" />
     <Compile Include="DataStructs\Slice.cs" />
     <Compile Include="DataTypes\IScriptPrivateResource.cs" />
+    <Compile Include="DataTypes\TailCallData.cs" />
     <Compile Include="Debugging\DebuggerAction.cs" />
     <Compile Include="Debugging\IDebugger.cs" />
     <Compile Include="Debugging\SourceCodeType.cs" />
