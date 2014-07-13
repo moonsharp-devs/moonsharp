@@ -76,12 +76,11 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			{
 				bc.Emit_Literal(DynValue.Nil);
 				bc.Emit_Store(m_FuncSymbol, 0, 0);
-				bc.Emit_Pop();
-				m_FuncDef.Compile(bc, () => SetFunction(bc), m_FriendlyName);
+				m_FuncDef.Compile(bc, () => SetFunction(bc, 2), m_FriendlyName);
 			}
 			else if (m_MethodName == null)
 			{
-				m_FuncDef.Compile(bc, () => SetFunction(bc), m_FriendlyName);
+				m_FuncDef.Compile(bc, () => SetFunction(bc, 1), m_FriendlyName);
 			}
 			else
 			{
@@ -98,21 +97,21 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			foreach (string str in m_TableAccessors)
 			{
 				bc.Emit_Literal(DynValue.NewString(str));
-				bc.Emit_LoadIdx();
+				bc.Emit_Index();
 				cnt += 2;
 			}
 
 			bc.Emit_Literal(DynValue.NewString(m_MethodName));
 
-			bc.Emit_StoreIdx(0, 0);
+			bc.Emit_IndexSet(0, 0);
 
 			return 2 + cnt;
 		}
 
-		private int SetFunction(Execution.VM.ByteCode bc)
+		private int SetFunction(Execution.VM.ByteCode bc, int numPop)
 		{
 			int num = bc.Emit_Store(m_FuncSymbol, 0, 0);
-			bc.Emit_Pop();
+			bc.Emit_Pop(numPop);
 			return num + 1;
 		}
 

@@ -105,7 +105,8 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 			m_Statement.Compile(bc);
 
-			bc.Emit_Ret(0);
+			if (bc.GetLastInstruction().OpCode != OpCode.Ret)
+				bc.Emit_Ret(0);
 
 			I.NumVal = bc.GetJumpPointForNextInstruction();
 

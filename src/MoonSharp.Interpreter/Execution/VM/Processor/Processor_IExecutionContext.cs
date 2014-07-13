@@ -24,13 +24,10 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		internal DynValue GetMetamethod(DynValue value, string metamethod)
 		{
-			if (value.Meta == null || value.Type == DataType.Nil)
+			if (value.MetaTable == null || value.Type == DataType.Nil)
 				return null;
 
-			if (value.Meta.Type != DataType.Table)
-				throw new InternalErrorException("Metatable is not a table!");
-
-			var metameth = value.Meta.Table.RawGet(metamethod);
+			var metameth = value.MetaTable.RawGet(metamethod);
 			
 			if (metameth == null || metameth.Type == DataType.Nil)
 				return null;

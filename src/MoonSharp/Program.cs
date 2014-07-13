@@ -51,8 +51,51 @@ namespace MoonSharp
 			}
 			else
 			{
-				Console.WriteLine("Sorry, at the moment, only file operations are supported:");
-				Console.WriteLine("\tUsage : MoonSharp [filename]");
+				Console.WriteLine("Type <enter> twice to execute code.\n");
+
+				Script script = new Script();
+
+				script.Globals["print"] = DynValue.NewCallback(new CallbackFunction(Print));
+
+				string cmd = "";
+
+				while (true)
+				{
+					Console.Write("{0}> ", string.IsNullOrEmpty(cmd) ? "" : ">");
+					string s = Console.ReadLine();
+
+					if (s != "")
+					{
+						cmd += s + "\n";
+						continue;
+					}
+
+					if (cmd.Length == 0)
+						continue;
+
+					Console.WriteLine("=====");
+					Console.WriteLine("{0}", cmd);
+					Console.WriteLine("=====");
+
+					if (cmd == "exit")
+						return;
+
+					try
+					{
+						Console.WriteLine("={0}", script.DoString(cmd));
+					}
+					catch (Exception ex)
+					{
+						Console.WriteLine("Error: {0}", ex.Message);
+					}
+
+					cmd = "";
+
+				}
+
+
+
+
 			}
 		}
 

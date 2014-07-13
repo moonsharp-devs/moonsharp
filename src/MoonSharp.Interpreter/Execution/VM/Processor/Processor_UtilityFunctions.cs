@@ -53,9 +53,9 @@ namespace MoonSharp.Interpreter.Execution.VM
 		{
 			DynValue m = null;
 
-			if (op1.Meta != null)
+			if (op1.MetaTable != null)
 			{
-				DynValue meta1 = op1.Meta.Table.RawGet(eventName);
+				DynValue meta1 = op1.MetaTable.RawGet(eventName);
 				if (meta1 != null && meta1.Type != DataType.Nil)
 					m = meta1;
 			}
@@ -90,15 +90,15 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		private DynValue Internal_GetBinHandler(DynValue op1, DynValue op2, string eventName)
 		{
-			if (op1.Meta != null)
+			if (op1.MetaTable != null)
 			{
-				DynValue meta1 = op1.Meta.Table.RawGet(eventName);
+				DynValue meta1 = op1.MetaTable.RawGet(eventName);
 				if (meta1 != null && meta1.Type != DataType.Nil)
 					return meta1;
 			}
-			if (op2.Meta != null)
+			if (op2.MetaTable != null)
 			{
-				DynValue meta2 = op2.Meta.Table.RawGet(eventName);
+				DynValue meta2 = op2.MetaTable.RawGet(eventName);
 				if (meta2 != null && meta2.Type != DataType.Nil)
 					return meta2;
 			}

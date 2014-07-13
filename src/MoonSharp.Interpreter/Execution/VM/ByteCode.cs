@@ -48,6 +48,11 @@ namespace MoonSharp.Interpreter.Execution.VM
 			return Code.Count - 1;
 		}
 
+		public Instruction GetLastInstruction()
+		{
+			return Code[Code.Count - 1];
+		}
+
 		private Instruction AppendInstruction(Instruction c)
 		{
 			Code.Add(c);
@@ -72,7 +77,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 		public void Emit_Call(int argCount)
 		{
 			AppendInstruction(new Instruction() { OpCode = OpCode.Call, NumVal = argCount });
-			AppendInstruction(new Instruction() { OpCode = OpCode.TailChk });
 		}
 
 
@@ -190,15 +194,14 @@ namespace MoonSharp.Interpreter.Execution.VM
 			switch (sym.Type)
 			{
 				case SymbolRefType.Global:
-					AppendInstruction(new Instruction() { OpCode = OpCode.Global });
-					Emit_Literal(DynValue.NewString(sym.i_Name));
-					AppendInstruction(new Instruction() { OpCode = OpCode.LoadIdx });
-					return 3;
+					AppendInstruction(new Instruction() { OpCode = OpCode.PushEnv });
+					AppendInstruction(new Instruction() { OpCode = OpCode.Index, Value = DynValue.NewString(sym.i_Name) });
+					return 2;
 				case SymbolRefType.Local:
-					AppendInstruction(new Instruction() { OpCode = OpCode.LoadLcl, Symbol = sym });
+					AppendInstruction(new Instruction() { OpCode = OpCode.Local, Symbol = sym });
 					return 1;
 				case SymbolRefType.Upvalue:
-					AppendInstruction(new Instruction() { OpCode = OpCode.LoadUpv, Symbol = sym });
+					AppendInstruction(new Instruction() { OpCode = OpCode.Upvalue, Symbol = sym });
 					return 1;
 				default:
 					throw new InternalErrorException("Unexpected symbol type : {0}", sym);
@@ -210,10 +213,9 @@ namespace MoonSharp.Interpreter.Execution.VM
 			switch (sym.Type)
 			{
 				case SymbolRefType.Global:
-					AppendInstruction(new Instruction() { OpCode = OpCode.Global });
-					Emit_Literal(DynValue.NewString(sym.i_Name));
-					AppendInstruction(new Instruction() { OpCode = OpCode.StoreIdx, Symbol = sym, NumVal = stackofs, NumVal2 = tupleidx });
-					return 3;
+					AppendInstruction(new Instruction() { OpCode = OpCode.PushEnv });
+					AppendInstruction(new Instruction() { OpCode = OpCode.IndexSet, Symbol = sym, NumVal = stackofs, NumVal2 = tupleidx, Value = DynValue.NewString(sym.i_Name) });
+					return 2;
 				case SymbolRefType.Local:
 					AppendInstruction(new Instruction() { OpCode = OpCode.StoreLcl, Symbol = sym, NumVal = stackofs, NumVal2 = tupleidx });
 					return 1;
@@ -235,14 +237,14 @@ namespace MoonSharp.Interpreter.Execution.VM
 			return AppendInstruction(new Instruction() { OpCode = OpCode.TblInitI });
 		}
 
-		public Instruction Emit_LoadIdx()
+		public Instruction Emit_Index(DynValue index = null)
 		{
-			return AppendInstruction(new Instruction() { OpCode = OpCode.LoadIdx });
+			return AppendInstruction(new Instruction() { OpCode = OpCode.Index, Value = index });
 		}
 
-		public Instruction Emit_StoreIdx(int stackofs, int tupleidx)
+		public Instruction Emit_IndexSet(int stackofs, int tupleidx, DynValue index = null)
 		{
-			return AppendInstruction(new Instruction() { OpCode = OpCode.StoreIdx, NumVal = stackofs, NumVal2 = tupleidx });
+			return AppendInstruction(new Instruction() { OpCode = OpCode.IndexSet, NumVal = stackofs, NumVal2 = tupleidx, Value = index });
 		}
 
 		public Instruction Emit_Copy(int numval)

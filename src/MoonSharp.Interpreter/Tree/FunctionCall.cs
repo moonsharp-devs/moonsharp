@@ -31,7 +31,7 @@ namespace MoonSharp.Interpreter.Tree
 			{
 				bc.Emit_Copy(0);
 				bc.Emit_Literal(DynValue.NewString(m_Name));
-				bc.Emit_LoadIdx();
+				bc.Emit_Index();
 				bc.Emit_Swap(0, 1);
 				++argslen;
 			}

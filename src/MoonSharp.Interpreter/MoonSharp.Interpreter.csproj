@@ -89,7 +89,6 @@
     <Compile Include="CoreLib\Patterns\PatternMatching.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="CoreLib\RawTableAccess.cs" />
     <Compile Include="CoreLib\StringModule.cs" />
     <Compile Include="CoreLib\TableIterators.cs" />
     <Compile Include="CoreLib\TableModule.cs" />

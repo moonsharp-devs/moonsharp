@@ -90,11 +90,6 @@ namespace MoonSharp.Debugger
 					AddProperty("Count", V.Tuple.Length);
 					BuildTupleTable(V);
 					break;
-				case DataType.Symbol:
-					lblData.Text = "SYMBOL / TABLE-REF";
-					txtString.Text = V.String.ToString();
-					BuildSymbolTable(V);
-					break;
 				case DataType.ClrFunction:
 					txtString.Visible = true;
 					txtString.Text = "Value is a CLR function.";
@@ -131,13 +126,7 @@ namespace MoonSharp.Debugger
 			}
 		}
 
-		private void BuildSymbolTable(DynValue V)
-		{
-			var S = V.Symbol;
-			lvTableData.Add("Type", S.Type);
-			lvTableData.Add("Index", S.Index);
-			lvTableData.Add("Name", S.Name);
-		}
+
 
 		private void BuildFunctionTable(DynValue V)
 		{

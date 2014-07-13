@@ -13,6 +13,11 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 	{
 		DynValue m_Value;
 
+		public DynValue Value
+		{
+			get { return m_Value; }
+		}
+
 		public LiteralExpression(IParseTree context, ScriptLoadingContext lcontext, DynValue rvalue)
 			: base(context, lcontext)
 		{

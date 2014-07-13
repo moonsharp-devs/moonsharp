@@ -19,7 +19,6 @@ namespace MoonSharp.Interpreter
 			if (modules.Has(CoreModules.LoadMethods)) RegisterModuleType<LoadMethods>(table);
 			if (modules.Has(CoreModules.Table)) RegisterModuleType<TableModule>(table);
 			if (modules.Has(CoreModules.Table)) RegisterModuleType<TableModule_Globals>(table);
-			if (modules.Has(CoreModules.RawTableAccess)) RegisterModuleType<RawTableAccess>(table);
 
 			return table;
 		}

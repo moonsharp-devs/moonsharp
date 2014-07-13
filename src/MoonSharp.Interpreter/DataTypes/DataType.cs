@@ -19,7 +19,6 @@ namespace MoonSharp.Interpreter
 		UserData,
 		Thread,
 
-		Symbol,
 		ClrFunction,
 		TailCallRequest,
 	}
@@ -50,7 +49,6 @@ namespace MoonSharp.Interpreter
 					return "thread";
 				case DataType.Tuple:
 				case DataType.TailCallRequest:
-				case DataType.Symbol:
 				default:
 					throw new ScriptRuntimeException(null, "Unexpected LuaType {0}", type);
 			}

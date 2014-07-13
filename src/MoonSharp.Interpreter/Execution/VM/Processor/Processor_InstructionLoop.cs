@@ -78,9 +78,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 					case OpCode.Call:
 						instructionPtr = Internal_ExecCall(i.NumVal, instructionPtr);
 						break;
-					case OpCode.TailChk:
-						instructionPtr = ExecTailChk(i, instructionPtr);
-						break;
 					case OpCode.Scalar:
 						m_ValueStack.Push(m_ValueStack.Pop().ToScalar());
 						break;
@@ -153,18 +150,17 @@ namespace MoonSharp.Interpreter.Execution.VM
 					case OpCode.ExpTuple:
 						ExecExpTuple(i);
 						break;
-					case OpCode.TMP_Load:
-					case OpCode.LoadLcl:
-					case OpCode.LoadUpv:
-						m_ValueStack.Push(this.GetGenericSymbol(i.Symbol));
+					case OpCode.Local:
+						m_ValueStack.Push(m_ExecutionStack.Peek().LocalScope[i.Symbol.i_Index]);
+						break;
+					case OpCode.Upvalue:
+						m_ValueStack.Push(m_ExecutionStack.Peek().ClosureScope[i.Symbol.i_Index]);
 						break;
 					case OpCode.StoreUpv:
+						ExecStoreUpv(i);
+						break;
 					case OpCode.StoreLcl:
-					case OpCode.TMP_Store:
-						{
-							DynValue v = GetStoreValue(i);
-							AssignGenericSymbol(i.Symbol, v);
-						}
+						ExecStoreLcl(i);
 						break;
 					case OpCode.TblInitN:
 						ExecTblInitN(i);
@@ -172,14 +168,14 @@ namespace MoonSharp.Interpreter.Execution.VM
 					case OpCode.TblInitI:
 						ExecTblInitI(i);
 						break;
-					case OpCode.LoadIdx:
-						instructionPtr = ExecLoadIdx(i, instructionPtr);
+					case OpCode.Index:
+						instructionPtr = ExecIndex(i, instructionPtr);
 						break;
-					case OpCode.Global:
+					case OpCode.PushEnv:
 						m_ValueStack.Push(DynValue.NewTable(m_GlobalTable));
 						break;
-					case OpCode.StoreIdx:
-						instructionPtr = ExecStoreIdx(i, instructionPtr);
+					case OpCode.IndexSet:
+						instructionPtr = ExecIndexSet(i, instructionPtr);
 						break;
 					case OpCode.Invalid:
 						throw new NotImplementedException(string.Format("Invalid opcode : {0}", i.Name));
@@ -197,6 +193,40 @@ namespace MoonSharp.Interpreter.Execution.VM
 			else
 				throw new InternalErrorException("Unexpected value stack count at program end : {0}", m_ValueStack.Count);
 
+		}
+
+
+		private void AssignLocal(SymbolRef symref, DynValue value)
+		{
+			var stackframe = m_ExecutionStack.Peek();
+
+			DynValue v = stackframe.LocalScope[symref.i_Index];
+			if (v == null)
+				stackframe.LocalScope[symref.i_Index] = v = DynValue.NewNil();
+
+			v.Assign(value);
+		}
+
+		private void ExecStoreLcl(Instruction i)
+		{
+			DynValue value = GetStoreValue(i);
+			SymbolRef symref = i.Symbol;
+
+			AssignLocal(symref, value);
+		}
+
+		private void ExecStoreUpv(Instruction i)
+		{
+			DynValue value = GetStoreValue(i);
+			SymbolRef symref = i.Symbol;
+
+			var stackframe = m_ExecutionStack.Peek();
+
+			DynValue v = stackframe.ClosureScope[symref.i_Index];
+			if (v == null)
+				stackframe.ClosureScope[symref.i_Index] = v = DynValue.NewNil();
+
+			v.Assign(value);
 		}
 
 		private void ExecSwap(Instruction i)
@@ -353,30 +383,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 		}
 
 
-		private int ExecRet(Instruction i)
-		{
-			if (i.NumVal == 0)
-			{
-				int retpoint = PopToBasePointer();
-				var argscnt = (int)(m_ValueStack.Pop().Number);
-				m_ValueStack.RemoveLast(argscnt + 1);
-				m_ValueStack.Push(DynValue.Nil);
-				return retpoint;
-			}
-			else if (i.NumVal == 1)
-			{
-				var retval = m_ValueStack.Pop();
-				int retpoint = PopToBasePointer();
-				var argscnt = (int)(m_ValueStack.Pop().Number);
-				m_ValueStack.RemoveLast(argscnt + 1);
-				m_ValueStack.Push(retval);
-				return retpoint;
-			}
-			else
-			{
-				throw new InternalErrorException("RET supports only 0 and 1 ret val scenarios");
-			}
-		}
 
 		private void ExecBeginFn(Instruction i)
 		{
@@ -417,7 +423,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			{
 				if (i >= numargs)
 				{
-					this.AssignGenericSymbol(I.SymbolList[i], DynValue.NewNil());
+					this.AssignLocal(I.SymbolList[i], DynValue.NewNil());
 				}
 				else if ((i == I.SymbolList.Length - 1) && (I.SymbolList[i].i_Name == "..."))
 				{
@@ -429,14 +435,15 @@ namespace MoonSharp.Interpreter.Execution.VM
 						varargs[ii] = m_ValueStack.Peek(numargs - i - ii).CloneAsWritable();
 					}
 
-					this.AssignGenericSymbol(I.SymbolList[i], DynValue.NewTuple(varargs));
+					this.AssignLocal(I.SymbolList[i], DynValue.NewTuple(varargs));
 				}
 				else
 				{
-					this.AssignGenericSymbol(I.SymbolList[i], m_ValueStack.Peek(numargs - i).CloneAsWritable());
+					this.AssignLocal(I.SymbolList[i], m_ValueStack.Peek(numargs - i).CloneAsWritable());
 				}
 			}
 		}
+
 
 
 		private int Internal_ExecCall(int argsCount, int instructionPtr)
@@ -449,7 +456,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 				var ret = fn.Callback.Invoke(new ScriptExecutionContext(this, fn.Callback), args);
 				m_ValueStack.RemoveLast(argsCount + 1);
 				m_ValueStack.Push(ret);
-				return instructionPtr;
+
+				return ExecTailChk(null, instructionPtr);
 			}
 			else if (fn.Type == DataType.Function)
 			{
@@ -465,9 +473,9 @@ namespace MoonSharp.Interpreter.Execution.VM
 			}
 			else
 			{
-				if (fn.Meta != null)
+				if (fn.MetaTable != null)
 				{
-					var m = fn.Meta.Table.RawGet("__call");
+					var m = fn.MetaTable.RawGet("__call");
 
 					if (m != null && m.Type != DataType.Nil)
 					{
@@ -489,6 +497,32 @@ namespace MoonSharp.Interpreter.Execution.VM
 		}
 
 
+		private int ExecRet(Instruction i)
+		{
+			int retpoint = 0;
+
+			if (i.NumVal == 0)
+			{
+				retpoint = PopToBasePointer();
+				var argscnt = (int)(m_ValueStack.Pop().Number);
+				m_ValueStack.RemoveLast(argscnt + 1);
+				m_ValueStack.Push(DynValue.Nil);
+				return retpoint;
+			}
+			else if (i.NumVal == 1)
+			{
+				var retval = m_ValueStack.Pop();
+				retpoint = PopToBasePointer();
+				var argscnt = (int)(m_ValueStack.Pop().Number);
+				m_ValueStack.RemoveLast(argscnt + 1);
+				m_ValueStack.Push(retval);
+				return ExecTailChk(i, retpoint);
+			}
+			else
+			{
+				throw new InternalErrorException("RET supports only 0 and 1 ret val scenarios");
+			}
+		}
 
 		private int ExecTailChk(Instruction i, int instructionPtr)
 		{
@@ -498,12 +532,12 @@ namespace MoonSharp.Interpreter.Execution.VM
 			{
 				m_ValueStack.Pop(); // discard tail call request
 
-				m_ValueStack.Push(tail.Meta);
+				m_ValueStack.Push((DynValue)tail.UserObject);
 
 				for (int ii = 0; ii < tail.Tuple.Length; ii++)
 					m_ValueStack.Push(tail.Tuple[ii]);
 
-				instructionPtr -= 1;
+				//instructionPtr -= 1;
 				return Internal_ExecCall(tail.Tuple.Length, instructionPtr);
 			}
 
@@ -701,7 +735,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			{
 				m_ValueStack.Push(DynValue.False);
 			}
-			else if ((l.Type == DataType.Table || l.Type == DataType.UserData) && (l.Meta != null) && (l.Meta == r.Meta))
+			else if ((l.Type == DataType.Table || l.Type == DataType.UserData) && (l.MetaTable != null) && (l.MetaTable == r.MetaTable))
 			{
 				int ip = Internal_InvokeBinaryMetaMethod(l, r, "__eq", instructionPtr);
 				if (ip < 0)
@@ -841,10 +875,10 @@ namespace MoonSharp.Interpreter.Execution.VM
 			tbl.Table[key] = val.ToScalar();
 		}
 
-		private int ExecStoreIdx(Instruction i, int instructionPtr)
+		private int ExecIndexSet(Instruction i, int instructionPtr)
 		{
 			// stack: vals.. - base - index
-			DynValue idx = m_ValueStack.Pop();
+			DynValue idx = i.Value ?? m_ValueStack.Pop();
 			DynValue obj = m_ValueStack.Pop();
 			var v = GetStoreValue(i);
 
@@ -859,22 +893,63 @@ namespace MoonSharp.Interpreter.Execution.VM
 			}
 		}
 
-		private int ExecLoadIdx(Instruction i, int instructionPtr)
+		private int ExecIndex(Instruction i, int instructionPtr)
 		{
+			int nestedMetaOps = 100; // sanity check, to avoid potential infinite loop here
+
 			// stack: base - index
-			DynValue idx = m_ValueStack.Pop();
+			DynValue idx = i.Value ?? m_ValueStack.Pop();
 			DynValue obj = m_ValueStack.Pop();
 
-			if (obj.Type == DataType.Table)
+			DynValue h = null;
+
+			while (nestedMetaOps > 0)
 			{
-				var v = obj.Table[idx];
-				m_ValueStack.Push(v);
-				return instructionPtr;
+				--nestedMetaOps;
+
+				if (obj.Type == DataType.Table)
+				{
+					var v = obj.Table[idx];
+
+					if (!v.IsNil())
+					{
+						m_ValueStack.Push(v);
+						return instructionPtr;
+					}
+
+					if (obj.MetaTable != null)
+						h = obj.MetaTable.RawGet("__index");
+
+					if (h == null || h.IsNil())
+					{
+						m_ValueStack.Push(DynValue.NewNil());
+						return instructionPtr;
+					}
+				}
+				else
+				{
+					if (obj.MetaTable != null)
+						h = obj.MetaTable.RawGet("__index");
+
+					if (h == null || h.IsNil())
+						throw new ScriptRuntimeException("Can't index non table: {0}", obj);
+				}
+
+				if (h.Type == DataType.Function)
+				{
+					m_ValueStack.Push(h);
+					m_ValueStack.Push(obj);
+					m_ValueStack.Push(idx);
+					return Internal_ExecCall(2, instructionPtr);
+				}
+				else
+				{
+					obj = h;
+					h = null;
+				}
 			}
-			else
-			{
-				throw new NotImplementedException();
-			}
+
+			throw new ScriptRuntimeException("__index returning too many nested tables");
 		}
 
 

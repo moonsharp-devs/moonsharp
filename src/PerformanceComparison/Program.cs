@@ -16,12 +16,12 @@ namespace PerformanceComparison
 	class Program
 	{
 #if PROFILER
-		const int ITERATIONS = 1000;
+		const int ITERATIONS = 10;
 #else
-		const int ITERATIONS = 1;
+		const int ITERATIONS = 100;
 #endif
 
-		static  string scriptText = @"
+		static  string scriptText2 = @"
 			function move(n, src, dst, via)
 				if n > 0 then
 					move(n - 1, src, via, dst)
@@ -34,7 +34,7 @@ namespace PerformanceComparison
 				move(4, 1, 2, 3)
 			end
 			";
-		static  string scriptText2 = @"
+		static  string scriptText = @"
 N = 8
  
 board = {}
@@ -71,15 +71,15 @@ if Find_Solution( 1 ) then
     for i = 1, N do
  	for j = 1, N do
   	    if board[i][j] then 
-		print( 'Q' )
+		--print( 'Q' )
 	    else 
-		print( 'x' )
+		--print( 'x' )
 	    end
 	end
-	print( '|' )
+	--print( '|' )
     end
 else
-    print( 'NO!' )
+    --print( 'NO!' )
 end
  
 			";
@@ -125,7 +125,8 @@ end
 
 			sw = Stopwatch.StartNew();
 
-			Script.RunString("return 0;");
+			var _s = new Script();
+			_s.LoadString(scriptText);
 
 			sw.Stop();
 

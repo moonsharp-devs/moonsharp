@@ -39,7 +39,11 @@ namespace MoonSharp.Interpreter.Execution.VM
 				case OpCode.Debug:
 					return string.Format("[[ {0} ]]", Name);
 				case OpCode.Literal:
+				case OpCode.Index:
 					append = string.Format("{0}{1}", GenSpaces(), PurifyFromNewLines(Value));
+					break;
+				case OpCode.IndexSet:
+					append = string.Format("{0}{1} <- {2}:{3}", GenSpaces(), PurifyFromNewLines(Value), NumVal, NumVal2);
 					break;
 				case OpCode.Nop:
 					append = string.Format("{0}#{1}", GenSpaces(), Name);
@@ -50,19 +54,21 @@ namespace MoonSharp.Interpreter.Execution.VM
 				case OpCode.ExpTuple:
 				case OpCode.Incr:
 				case OpCode.Pop:
+				case OpCode.Copy:
 					append = string.Format("{0}{1}", GenSpaces(), NumVal);
+					break;
+				case OpCode.Swap:
+					append = string.Format("{0}{1},{2}", GenSpaces(), NumVal, NumVal2);
 					break;
 				case OpCode.BeginFn:
 					append = string.Format("{0}{1}:{2},{3}", GenSpaces(), Name, NumVal, NumVal2);
 					break;
-				case OpCode.TMP_Load:
-				case OpCode.LoadLcl:
-				case OpCode.LoadUpv:
+				case OpCode.Local:
+				case OpCode.Upvalue:
 					append = string.Format("{0}{1}", GenSpaces(), Symbol);
 					break;
 				case OpCode.StoreUpv:
 				case OpCode.StoreLcl:
-				case OpCode.TMP_Store:
 					append = string.Format("{0}{1} <- {2}:{3}", GenSpaces(), Symbol, NumVal, NumVal2);
 					break;
 				case OpCode.JtOrPop:
@@ -93,6 +99,9 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		private string PurifyFromNewLines(DynValue Value)
 		{
+			if (Value == null)
+				return "";
+
 			return Value.ToString().Replace('\n', ' ').Replace('\r', ' ');
 		}
 

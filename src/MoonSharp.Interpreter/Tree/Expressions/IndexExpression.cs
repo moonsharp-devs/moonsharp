@@ -26,15 +26,35 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 		public override void Compile(ByteCode bc)
 		{
 			m_BaseExp.Compile(bc);
-			m_IndexExp.Compile(bc);
-			bc.Emit_LoadIdx();
+
+			if (m_IndexExp is LiteralExpression)
+			{
+				LiteralExpression lit = (LiteralExpression)m_IndexExp;
+				bc.Emit_Index(lit.Value);
+			}
+			else
+			{
+				m_IndexExp.Compile(bc);
+				bc.Emit_Index();
+			}
 		}
 
 		public void CompileAssignment(ByteCode bc, int stackofs, int tupleidx)
 		{
 			m_BaseExp.Compile(bc);
-			m_IndexExp.Compile(bc);
-			bc.Emit_StoreIdx(stackofs, tupleidx);
+
+			if (m_IndexExp is LiteralExpression)
+			{
+				LiteralExpression lit = (LiteralExpression)m_IndexExp;
+				bc.Emit_IndexSet(stackofs, tupleidx, lit.Value);
+			}
+			else
+			{
+				m_IndexExp.Compile(bc);
+				bc.Emit_IndexSet(stackofs, tupleidx);
+			}
+
+
 		}
 	}
 }

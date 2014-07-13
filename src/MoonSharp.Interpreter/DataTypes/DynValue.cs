@@ -54,17 +54,13 @@ namespace MoonSharp.Interpreter
 		/// </summary>
 		public string String { get; private set; }
 		/// <summary>
-		/// Gets the symbol reference contained in this value (valid only if the <seealso cref="Type"/> is <seealso cref="DataType.Symbol"/>)
-		/// </summary>
-		public SymbolRef Symbol { get; private set; }
-		/// <summary>
 		/// Gets the CLR callback (valid only if the <seealso cref="Type"/> is <seealso cref="DataType.Callback"/>)
 		/// </summary>
 		public CallbackFunction Callback { get; set; }
 		/// <summary>
 		/// Gets the meta-table associated with this instance.
 		/// </summary>
-		public DynValue Meta { get; set; }
+		public Table MetaTable { get; set; }
 		/// <summary>
 		/// Gets or sets the user object, if this value is userdata
 		/// </summary>
@@ -106,18 +102,6 @@ namespace MoonSharp.Interpreter
 				Number = num,
 				Type = DataType.Number,
 				m_HashCode = -1,
-			};
-		}
-
-		/// <summary>
-		/// Creates a new writable value initialized to the specified symbol reference.
-		/// </summary>
-		public static DynValue NewReference(SymbolRef symbol)
-		{
-			return new DynValue()
-			{
-				Symbol = symbol,
-				Type = DataType.Symbol,
 			};
 		}
 
@@ -204,7 +188,7 @@ namespace MoonSharp.Interpreter
 		{
 			return new DynValue()
 			{
-				Meta = tailFn,
+				UserObject = tailFn,
 				Tuple = args,
 				Type = DataType.TailCallRequest,
 			};
@@ -274,13 +258,13 @@ namespace MoonSharp.Interpreter
 		/// </summary>
 		/// <param name="obj">The CLR object.</param>
 		/// <param name="metatable">Optional - the metatable.</param>
-		public static DynValue NewObject(object obj, DynValue metatable = null)
+		public static DynValue NewObject(object obj, Table metatable = null)
 		{
 			return new DynValue()
 			{
 				UserObject = obj,
 				Type = DataType.UserData,
-				Meta = metatable
+				MetaTable = metatable
 			};
 		}
 
@@ -307,9 +291,6 @@ namespace MoonSharp.Interpreter
 		/// <exception cref="System.ArgumentException">Can't clone Symbol values</exception>
 		public DynValue Clone()
 		{
-			if (this.Type == DataType.Symbol)
-				throw new ArgumentException("Can't clone Symbol values");
-
 			DynValue v = new DynValue();
 			v.Boolean = this.Boolean;
 			v.Callback = this.Callback;
@@ -320,7 +301,7 @@ namespace MoonSharp.Interpreter
 			v.Table = this.Table;
 			v.Tuple = this.Tuple;
 			v.Type = this.Type;
-			v.Meta = this.Meta;
+			v.MetaTable = this.MetaTable;
 			v.m_HashCode = this.m_HashCode;
 			return v;
 		}
@@ -331,9 +312,6 @@ namespace MoonSharp.Interpreter
 		/// <exception cref="System.ArgumentException">Can't clone Symbol values</exception>
 		public DynValue CloneAsWritable()
 		{
-			if (this.Type == DataType.Symbol)
-				throw new ArgumentException("Can't clone Symbol values");
-
 			DynValue v = new DynValue();
 			v.Boolean = this.Boolean;
 			v.Function = this.Function;
@@ -344,7 +322,7 @@ namespace MoonSharp.Interpreter
 			v.Table = this.Table;
 			v.Tuple = this.Tuple;
 			v.Type = this.Type;
-			v.Meta = this.Meta;
+			v.MetaTable = this.MetaTable;
 			v.m_HashCode = this.m_HashCode;
 			return v;
 		}
@@ -385,8 +363,6 @@ namespace MoonSharp.Interpreter
 					return "(Table)";
 				case DataType.Tuple:
 					return string.Join("\t", Tuple.Select(t => t.ToPrintString()).ToArray());
-				case DataType.Symbol:
-					return "(Symbol -- INTERNAL!)";
 				case DataType.TailCallRequest:
 					return "(TailCallRequest -- INTERNAL!)";
 				case DataType.UserData:
@@ -426,8 +402,6 @@ namespace MoonSharp.Interpreter
 					return string.Join(", ", Tuple.Select(t => t.ToString()).ToArray());
 				case DataType.TailCallRequest:
 					return "Tail:(" + string.Join(", ", Tuple.Select(t => t.ToString()).ToArray()) + ")";
-				case DataType.Symbol:
-					return Symbol.ToString();
 				case DataType.UserData:
 					return "(UserData)";
 				case DataType.Thread:
@@ -501,7 +475,7 @@ namespace MoonSharp.Interpreter
 			if (other == null) return false;
 			if (other.Type != this.Type) return false;
 
-			if (other.Meta != this.Meta) return false;
+			if (other.MetaTable != this.MetaTable) return false;
 
 			switch (Type)
 			{
@@ -614,7 +588,7 @@ namespace MoonSharp.Interpreter
 			this.Table = value.Table;
 			this.Tuple = value.Tuple;
 			this.Type = value.Type;
-			this.Meta = value.Meta;
+			this.MetaTable = value.MetaTable;
 			this.m_HashCode = -1;
 		}
 

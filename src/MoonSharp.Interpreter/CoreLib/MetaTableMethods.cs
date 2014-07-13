@@ -28,7 +28,7 @@ namespace MoonSharp.Interpreter.CoreLib
 				throw new ScriptRuntimeException(null, "cannot change a protected metatable");
 			}
 
-			table.Meta = metatable;
+			table.MetaTable = metatable.Table;
 			return table;
 		}
 
@@ -51,7 +51,10 @@ namespace MoonSharp.Interpreter.CoreLib
 				return curmeta;
 			}
 
-			return obj.Meta ?? DynValue.Nil;
+			if (obj.MetaTable != null)
+				return DynValue.NewTable(obj.MetaTable);
+
+			return DynValue.Nil;
 		}
 
 		// rawget (table, index)
