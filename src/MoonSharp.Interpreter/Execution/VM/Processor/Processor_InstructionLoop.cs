@@ -106,11 +106,11 @@ namespace MoonSharp.Interpreter.Execution.VM
 						ExecMkTuple(i);
 						break;
 					case OpCode.Enter:
-						NilifyBlockData(i.Block);
+						NilifyBlockData(i);
 						break;
 					case OpCode.Leave:
 					case OpCode.Exit:
-						ClearBlockData(i.Block, i.OpCode == OpCode.Exit);
+						ClearBlockData(i);
 						break;
 					case OpCode.Closure:
 						ExecClosure(i);
@@ -877,20 +877,58 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		private int ExecIndexSet(Instruction i, int instructionPtr)
 		{
+			int nestedMetaOps = 100; // sanity check, to avoid potential infinite loop here
+			
 			// stack: vals.. - base - index
 			DynValue idx = i.Value ?? m_ValueStack.Pop();
 			DynValue obj = m_ValueStack.Pop();
-			var v = GetStoreValue(i);
+			var value = GetStoreValue(i);
+			DynValue h = null;
 
-			if (obj.Type == DataType.Table)
+			while (nestedMetaOps > 0)
 			{
-				obj.Table[idx] = v;
-				return instructionPtr;
+				--nestedMetaOps;
+
+				if (obj.Type == DataType.Table)
+				{
+					if (!obj.Table[idx].IsNil())
+					{
+						obj.Table[idx] = value;
+						return instructionPtr;
+					}
+
+					if (obj.MetaTable != null)
+						h = obj.MetaTable.RawGet("__newindex");
+
+					if (h == null || h.IsNil())
+					{
+						obj.Table[idx] = value;
+						return instructionPtr;
+					}
+				}
+				else
+				{
+					h = obj.MetaTable.RawGet("__newindex");
+
+					if (h == null || h.IsNil())
+						throw new ScriptRuntimeException("Can't index non table: {0}", obj);
+				}
+
+				if (h.Type == DataType.Function || h.Type == DataType.ClrFunction)
+				{
+					m_ValueStack.Push(h);
+					m_ValueStack.Push(obj);
+					m_ValueStack.Push(idx);
+					m_ValueStack.Push(value);
+					return Internal_ExecCall(3, instructionPtr);
+				}
+				else
+				{
+					obj = h;
+					h = null;
+				}
 			}
-			else
-			{
-				throw new NotImplementedException();
-			}
+			throw new ScriptRuntimeException("__newindex returning too many nested tables");
 		}
 
 		private int ExecIndex(Instruction i, int instructionPtr)
@@ -935,7 +973,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 						throw new ScriptRuntimeException("Can't index non table: {0}", obj);
 				}
 
-				if (h.Type == DataType.Function)
+				if (h.Type == DataType.Function || h.Type == DataType.ClrFunction)
 				{
 					m_ValueStack.Push(h);
 					m_ValueStack.Push(obj);

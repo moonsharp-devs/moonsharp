@@ -15,7 +15,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 		public DynValue Value;
 		public int NumVal;
 		public int NumVal2;
-		public RuntimeScopeBlock Block;
 		public bool Breakpoint;
 		public SourceRef SourceCodeRef;
 
@@ -30,11 +29,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 					break;
 				case OpCode.Args:
 					append = string.Format("{0}({1})", GenSpaces(), string.Join(",", SymbolList.Select(s => s.ToString()).ToArray()));
-					break;
-				case OpCode.Enter:
-				case OpCode.Leave:
-				case OpCode.Exit:
-					append = string.Format("{0}{1}", GenSpaces(), FrameToString(Block));
 					break;
 				case OpCode.Debug:
 					return string.Format("[[ {0} ]]", Name);
@@ -57,6 +51,9 @@ namespace MoonSharp.Interpreter.Execution.VM
 				case OpCode.Copy:
 					append = string.Format("{0}{1}", GenSpaces(), NumVal);
 					break;
+				case OpCode.Enter:
+				case OpCode.Leave:
+				case OpCode.Exit:
 				case OpCode.Swap:
 					append = string.Format("{0}{1},{2}", GenSpaces(), NumVal, NumVal2);
 					break;
@@ -87,14 +84,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 			}
 
 			return this.OpCode.ToString().ToUpperInvariant() + append;
-		}
-
-		private string FrameToString(RuntimeScopeBlock frame)
-		{
-			if (frame == null)
-				return "<null>";
-			else
-				return frame.ToString();
 		}
 
 		private string PurifyFromNewLines(DynValue Value)

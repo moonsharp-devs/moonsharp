@@ -8,10 +8,10 @@ namespace MoonSharp.Interpreter.Execution.VM
 {
 	sealed partial class Processor
 	{
-		private void NilifyBlockData(RuntimeScopeBlock runtimeScopeBlock)
+		private void NilifyBlockData(Instruction I)
 		{
-			int from = runtimeScopeBlock.From;
-			int to = runtimeScopeBlock.To;
+			int from = I.NumVal;
+			int to = I.NumVal2;
 
 			var array = this.m_ExecutionStack.Peek().LocalScope;
 
@@ -22,10 +22,10 @@ namespace MoonSharp.Interpreter.Execution.VM
 			}
 		}
 
-		private void ClearBlockData(RuntimeScopeBlock runtimeScopeBlock, bool clearToInclusive)
+		private void ClearBlockData(Instruction I)
 		{
-			int from = runtimeScopeBlock.From;
-			int to = clearToInclusive ? runtimeScopeBlock.ToInclusive : runtimeScopeBlock.To;
+			int from = I.NumVal;
+			int to = I.NumVal2;
 
 			var array = this.m_ExecutionStack.Peek().LocalScope;
 

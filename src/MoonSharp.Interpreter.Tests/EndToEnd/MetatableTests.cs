@@ -133,5 +133,77 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 		}
 
+		[Test]
+		public void MetatableIndexAndSetIndexFuncs()
+		{
+			string script = @"    
+					T = { a = 'a', b = 'b', c = 'c' };
+
+					t = { };
+
+					m = { };
+
+					s = '';
+
+
+					function m.__index(obj, idx)
+						return T[idx];
+					end
+
+					function m.__newindex(obj, idx, val)
+						T[idx] = val;
+					end
+
+					setmetatable(t, m);
+
+					s = s .. t.a .. t.b .. t.c;
+
+					t.a = '!';
+
+					s = s .. t.a .. t.b .. t.c;
+
+					return(s);
+				";
+
+			DynValue res = (new Script()).DoString(script);
+
+
+			Assert.AreEqual(DataType.String, res.Type);
+			Assert.AreEqual("abc!bc", res.String);
+		}
+
+		[Test]
+		public void MetatableIndexAndSetIndexBounce()
+		{
+			string script = @"    
+					T = { a = 'a', b = 'b', c = 'c' };
+
+					t = { };
+
+					m = { __index = T, __newindex = T };
+
+					s = '';
+
+					setmetatable(t, m);
+
+					s = s .. t.a .. t.b .. t.c;
+
+					t.a = '!';
+
+					s = s .. t.a .. t.b .. t.c;
+
+					return(s);
+				";
+
+			DynValue res = (new Script()).DoString(script);
+
+
+			Assert.AreEqual(DataType.String, res.Type);
+			Assert.AreEqual("abc!bc", res.String);
+		}
+
+
+
+
 	}
 }

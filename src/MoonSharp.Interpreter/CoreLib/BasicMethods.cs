@@ -9,6 +9,19 @@ namespace MoonSharp.Interpreter.CoreLib
 	[MoonSharpModule]
 	public static class BasicMethods
 	{
+		//type (v)
+		//----------------------------------------------------------------------------------------------------------------
+		//Returns the type of its only argument, coded as a string. The possible results of this function are "nil" 
+		//(a string, not the value nil), "number", "string", "boolean", "table", "function", "thread", and "userdata". 
+		[MoonSharpMethod]
+		public static DynValue type(ScriptExecutionContext executionContext, CallbackArguments args)
+		{
+			DynValue v = args[0];
+			return DynValue.NewString(v.Type.ToLuaTypeString());
+		}
+
+
+
 		//assert (v [, message])
 		//----------------------------------------------------------------------------------------------------------------
 		//Issues an error when the value of its argument v is false (i.e., nil or false); 
