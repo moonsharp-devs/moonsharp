@@ -23,10 +23,20 @@ namespace MoonSharp.Interpreter.CoreLib
 			{
 				Args = a,
 				Function = v,
-				Mode = CallMode.PCall
+				Continuation = new CallbackFunction(pcall_continuation),
+				ErrorHandler = new CallbackFunction(pcall_onerror)
 			});
 		}
 
+		public static DynValue pcall_continuation(ScriptExecutionContext executionContext, CallbackArguments args)
+		{
+			return DynValue.NewTupleNested(DynValue.True, args[0]);
+		}
+
+		public static DynValue pcall_onerror(ScriptExecutionContext executionContext, CallbackArguments args)
+		{
+			return DynValue.NewTupleNested(DynValue.True, args[0]);
+		}
 
 
 

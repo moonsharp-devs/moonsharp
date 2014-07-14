@@ -75,5 +75,15 @@ namespace MoonSharp.Interpreter.CoreLib
 		}
 
 
+		[MoonSharpMethod]
+		public static DynValue tostring(ScriptExecutionContext executionContext, CallbackArguments args)
+		{
+			DynValue v = args[0];
+			return DynValue.NewString(v.ToPrintString());
+		}
+
+
+
+
 	}
 }

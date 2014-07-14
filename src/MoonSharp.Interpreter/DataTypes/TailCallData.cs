@@ -10,6 +10,7 @@ namespace MoonSharp.Interpreter
 	{
 		public DynValue Function { get; set; }
 		public DynValue[] Args { get; set; }
-		public CallMode Mode { get; set; }
+		public CallbackFunction Continuation { get; set; }
+		public CallbackFunction ErrorHandler { get; set; }
 	}
 }

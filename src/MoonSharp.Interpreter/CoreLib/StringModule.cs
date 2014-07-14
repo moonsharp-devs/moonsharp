@@ -11,6 +11,17 @@ namespace MoonSharp.Interpreter.CoreLib
 	public class StringModule
 	{
 		[MoonSharpMethod()]
+		public static DynValue match(ScriptExecutionContext executionContext, CallbackArguments args)
+		{
+			DynValue s = args.AsType(0, "match", DataType.String, false);
+			DynValue p = args.AsType(1, "match", DataType.String, false);
+			DynValue i = args.AsType(2, "match", DataType.Number, true);
+
+			return PatternMatching.Match(s.String, p.String, i.IsNilOrNan() ? 1 : (int)i.Number);
+		}
+
+
+		[MoonSharpMethod()]
 		public static DynValue gmatch(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			DynValue s = args.AsType(0, "gmatch", DataType.String, false);

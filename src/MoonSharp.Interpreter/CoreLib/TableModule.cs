@@ -47,6 +47,54 @@ namespace MoonSharp.Interpreter.CoreLib
 			return v;
 		}
 
+		//table.concat (list [, sep [, i [, j]]])
+		//Given a list where all elements are strings or numbers, returns the string list[i]..sep..list[i+1] (...) sep..list[j]. 
+		//The default value for sep is the empty string, the default for i is 1, and the default for j is #list. If i is greater 
+		//than j, returns the empty string. 
+		[MoonSharpMethod()]
+		public static DynValue concat(ScriptExecutionContext executionContext, CallbackArguments args)
+		{
+			// !INCOMPAT
+
+			// The theory says the method calls __len to get the len in case it's not forced as a param.
+			// But then it uses rawget to access. The only case where we differ if we take the shortcut
+			// of using rawlen is if the first param is passed to force a non-first index and the second 
+			// isn't. Likely an acceptable divergence, at least for now. [Note that this behaviour is
+			// actually undefined in Lua 5.1, and __len is documented only for Lua 5.2]
+
+			DynValue vlist = args.AsType(0, "concat", DataType.Table, false);
+			DynValue vsep = args.AsType(1, "concat", DataType.String, true);
+			DynValue vstart = args.AsType(2, "concat", DataType.Number, true);
+			DynValue vend = args.AsType(3, "concat", DataType.Number, true);
+
+			Table list = vlist.Table;
+			string sep = vsep.IsNil() ? "" : vsep.String;
+			int start = vstart.IsNilOrNan() ? 1 : (int)vstart.Number;
+			int end = vend.IsNilOrNan() ? (int)list.Length : (int)vend.Number;
+
+			if (end < start)
+				return DynValue.NewString(string.Empty);
+
+			StringBuilder sb = new StringBuilder();
+
+			for (int i = start; i <= end; i++)
+			{
+				DynValue v = list[i];
+
+				if (v.Type != DataType.Number && v.Type != DataType.String)
+					throw new ScriptRuntimeException("invalid value (boolean) at index {0} in table for 'concat'", i);
+
+				string s = v.ToPrintString();
+
+				sb.Append(s);
+
+				if (i != start)
+					sb.Append(sep);
+			}
+
+			return DynValue.NewString(sb.ToString());
+		}
+
 	}
 
 

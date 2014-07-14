@@ -5,20 +5,13 @@ using System.Text;
 
 namespace MoonSharp.Interpreter.Execution.VM
 {
-	public enum CallMode
-	{
-		Normal,
-		PCall,
-		Require,
-	}
-
-
 	public class CallStackItem
 	{
 		public int Debug_EntryPoint;
 		public SymbolRef[] Debug_Symbols;
 
-		public CallMode Mode;
+		public CallbackFunction Continuation;
+		public CallbackFunction ErrorHandler;
 
 		public int BasePointer;
 		public int ReturnAddress;

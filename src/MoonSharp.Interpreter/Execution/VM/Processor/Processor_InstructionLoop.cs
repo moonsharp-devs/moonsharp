@@ -194,12 +194,13 @@ namespace MoonSharp.Interpreter.Execution.VM
 				{
 					CallStackItem csi = PopToBasePointer();
 
-					CallMode mode = csi.Mode;
-					if (mode == CallMode.PCall)
+					if (csi.ErrorHandler != null)
 					{
 						instructionPtr = csi.ReturnAddress;
 						var argscnt = (int)(m_ValueStack.Pop().Number);
 						m_ValueStack.RemoveLast(argscnt + 1);
+
+						// +++ todo: add a *real* call to the error handler
 
 						m_ValueStack.Push(DynValue.NewTuple(DynValue.False, DynValue.NewString(ex.Message)));
 
@@ -476,7 +477,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 
 
-		private int Internal_ExecCall(int argsCount, int instructionPtr, CallMode mode = CallMode.Normal)
+		private int Internal_ExecCall(int argsCount, int instructionPtr, CallbackFunction handler = null, CallbackFunction continuation = null)
 		{
 			DynValue fn = m_ValueStack.Peek(argsCount);
 
@@ -498,7 +499,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 					ReturnAddress = instructionPtr,
 					Debug_EntryPoint = fn.Function.ByteCodeLocation,
 					ClosureScope = fn.Function.ClosureContext,
-					Mode = mode,
+					ErrorHandler = handler,
+					Continuation = continuation 
 				});
 				return fn.Function.ByteCodeLocation;
 			}
@@ -519,7 +521,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 						for (int i = argsCount; i >= 0; i--)
 							m_ValueStack.Push(tmp[i]);
 
-						return Internal_ExecCall(argsCount + 1, instructionPtr);
+						return Internal_ExecCall(argsCount + 1, instructionPtr, handler, continuation);
 					}
 				}
 
@@ -556,31 +558,14 @@ namespace MoonSharp.Interpreter.Execution.VM
 				throw new InternalErrorException("RET supports only 0 and 1 ret val scenarios");
 			}
 
-			if (csi.Mode != CallMode.Normal)
-				AdjustRetValueForMode(csi.Mode);
+			if (csi.Continuation != null)
+				m_ValueStack.Push(csi.Continuation.Invoke(new ScriptExecutionContext(this, csi.Continuation),
+					new DynValue[1] { m_ValueStack.Pop() }));
 
 			return retpoint;
 		}
 
-		private void AdjustRetValueForMode(CallMode callMode)
-		{
-			DynValue r = m_ValueStack.Pop();
 
-			switch (callMode)
-			{
-				case CallMode.PCall:
-					m_ValueStack.Push(DynValue.NewTupleNested(DynValue.True, r));
-					break;
-				case CallMode.Require:
-					break;
-				case CallMode.Normal:
-				default:
-					throw new InternalErrorException("Unreachable case .. reached");
-			}
-
-
-			
-		}
 
 		private int Internal_CheckForTailRequests(Instruction i, int instructionPtr)
 		{
@@ -598,7 +583,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 					m_ValueStack.Push(tcd.Args[ii]);
 
 				//instructionPtr -= 1;
-				return Internal_ExecCall(tcd.Args.Length, instructionPtr, tcd.Mode);
+				return Internal_ExecCall(tcd.Args.Length, instructionPtr, tcd.ErrorHandler, tcd.Continuation);
 			}
 
 

@@ -55,7 +55,7 @@ namespace MoonSharp.Interpreter
 		/// </summary>
 		public string String { get; private set; }
 		/// <summary>
-		/// Gets the CLR callback (valid only if the <seealso cref="Type"/> is <seealso cref="DataType.Callback"/>)
+		/// Gets the CLR callback (valid only if the <seealso cref="Type"/> is <seealso cref="DataType.CallbackFunction"/>)
 		/// </summary>
 		public CallbackFunction Callback { get; set; }
 		/// <summary>
@@ -193,7 +193,6 @@ namespace MoonSharp.Interpreter
 				{
 					Args = args,
 					Function = tailFn,
-					Mode = CallMode.Normal 
 				},
 				Type = DataType.TailCallRequest,
 			};

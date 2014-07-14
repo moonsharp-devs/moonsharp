@@ -520,7 +520,10 @@ namespace MoonSharp.Interpreter.CoreLib.Patterns
 
 			return aux;
 		}
-
+		public static DynValue Match(string s, string p, int init)
+		{
+			return StrFindAux(s, p, init, false, false);
+		}
 
 
 	}
