@@ -106,10 +106,14 @@
     <Compile Include="Debugging\WatchItem.cs" />
     <Compile Include="Debugging\WatchType.cs" />
     <Compile Include="Diagnostics\Debug.cs" />
+    <Compile Include="Errors\ScriptRuntimeException.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Errors\StackTraceItem.cs" />
     <Compile Include="Errors\InternalErrorException.cs" />
     <Compile Include="Diagnostics\AstDump.cs" />
     <Compile Include="Diagnostics\CodeChrono.cs" />
-    <Compile Include="Errors\ScriptRuntimeException.cs" />
+    <Compile Include="Errors\InterpreterException.cs" />
     <Compile Include="Errors\SyntaxErrorException.cs" />
     <Compile Include="DataTypes\CallbackArguments.cs" />
     <Compile Include="DataTypes\Closure.cs" />
@@ -124,6 +128,7 @@
     </Compile>
     <Compile Include="Debugging\SourceCode.cs" />
     <Compile Include="Execution\VM\Chunk.cs" />
+    <Compile Include="Execution\VM\Processor\Processor_Errors.cs" />
     <Compile Include="Interface\IteratorHelper.cs" />
     <Compile Include="Loaders\ClassicLuaScriptLoader.cs" />
     <Compile Include="Loaders\IScriptLoader.cs" />

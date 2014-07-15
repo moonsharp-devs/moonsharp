@@ -8,29 +8,63 @@ using Antlr4.Runtime.Tree;
 namespace MoonSharp.Interpreter
 {
 	[Serializable]
-	public class ScriptRuntimeException : Exception
+	public class ScriptRuntimeException : InterpreterException
 	{
-		internal ScriptRuntimeException(string format, params object[] args)
-			: base(string.Format(format, args))
+		public ScriptRuntimeException(string format, params object[] args)
+			: base(format, args)
 		{
 
 		}
 
-		internal ScriptRuntimeException(IParseTree tree, string format, params object[] args)
-			: base(string.Format(format, args) + FormatTree(tree))
+		public static ScriptRuntimeException ArithmeticOnNonNumber(DynValue l, DynValue r = null)
 		{
-
+			if (l.Type != DataType.Number && l.Type != DataType.String)
+				return new ScriptRuntimeException("attempt to perform arithmetic on a {0} value", l.Type.ToLuaTypeString());
+			else if (r != null && r.Type != DataType.Number && r.Type != DataType.String)
+				return new ScriptRuntimeException("attempt to perform arithmetic on a {0} value", r.Type.ToLuaTypeString());
+			else if (l.Type == DataType.String || (r != null && r.Type == DataType.String))
+				return new ScriptRuntimeException("attempt to perform arithmetic on a string value");
+			else
+				throw new InternalErrorException("ArithmeticOnNonNumber - both are numbers/strings");
 		}
 
-		private static string FormatTree(IParseTree tree)
-		{
-			if (tree == null)
-				return "";
 
-			return "@ " + tree.GetText();
+		public static ScriptRuntimeException ConcatOnNonString(DynValue l, DynValue r)
+		{
+			if (l.Type != DataType.Number && l.Type != DataType.String)
+				return new ScriptRuntimeException("attempt to concatenate a {0} value", l.Type.ToLuaTypeString());
+			else if (r != null && r.Type != DataType.Number && r.Type != DataType.String)
+				return new ScriptRuntimeException("attempt to concatenate a {0} value", r.Type.ToLuaTypeString());
+			else
+				throw new InternalErrorException("ConcatOnNonString - both are numbers/strings");
 		}
 
+		public static ScriptRuntimeException LenOnInvalidType(DynValue r)
+		{
+			return new ScriptRuntimeException("attempt to get length of a {0} value", r.Type.ToLuaTypeString());
+		}
 
+		public static ScriptRuntimeException CompareInvalidType(DynValue l, DynValue r)
+		{
+			if (l.Type.ToLuaTypeString() == r.Type.ToLuaTypeString())
+				return new ScriptRuntimeException("attempt to compare two {0} values", l.Type.ToLuaTypeString());
+			else
+				return new ScriptRuntimeException("attempt to compare {0} with {1}", l.Type.ToLuaTypeString(), r.Type.ToLuaTypeString());
+		}
 
+		public static ScriptRuntimeException IndexType(DynValue obj)
+		{
+			return new ScriptRuntimeException("attempt to index a {0} value", obj.Type.ToLuaTypeString());
+		}
+
+		public static ScriptRuntimeException LoopInIndex()
+		{
+			return new ScriptRuntimeException("loop in gettable");
+		}
+
+		public static ScriptRuntimeException LoopInNewIndex()
+		{
+			return new ScriptRuntimeException("loop in settable");
+		}
 	}
 }

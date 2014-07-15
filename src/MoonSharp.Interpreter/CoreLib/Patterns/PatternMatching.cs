@@ -525,6 +525,120 @@ namespace MoonSharp.Interpreter.CoreLib.Patterns
 			return StrFindAux(s, p, init, false, false);
 		}
 
+		private static void Add_S(MatchState ms, StringBuilder b, int s, int e, DynValue repl)
+		{
+			string news = repl.CastToString();
+			for (int i = 0; i < news.Length; i++)
+			{
+				if (news[i] != L_ESC)
+					b.Append(news[i]);
+				else
+				{
+					i++;  /* skip ESC */
+					if (!Char.IsDigit((news[i])))
+						b.Append(news[i]);
+					else if (news[i] == '0')
+						b.Append(ms.Src.Substring(s, (e - s)));
+					else
+					{
+						var v = PushOneCapture(ms, news[i] - '1', s, e);
+						b.Append(v.CastToString());  /* add capture to accumulated result */
+					}
+				}
+			}
+		}
+
+
+		private static void Add_Value(MatchState ms, StringBuilder b, int s, int e, DynValue repl)
+		{
+			var result = DynValue.Nil;
+
+			switch (repl.Type)
+			{
+				case DataType.Number:
+				case DataType.String:
+					{
+						Add_S(ms, b, s, e, repl);
+						return;
+					}
+				case DataType.Function:
+					{
+						//int n;
+						//lua.PushValue(3);
+						//n = PushCaptures(lua, ms, s, e);
+						//lua.Call(n, 1);
+						throw new NotImplementedException("TO DO! - GSub over function");
+						//break;
+					}
+				case DataType.Table:
+					{
+						var v = PushOneCapture(ms, 0, s, e);
+						result = repl.Table[v];
+						break;
+					}
+			}
+			if (result.CastToBool() == false)
+			{  
+				b.Append(ms.Src.Substring(s, (e - s)));  /* keep original text */
+			}
+			else if (result.Type != DataType.String && result.Type != DataType.Number)
+				throw new ScriptRuntimeException("invalid replacement value (a %s)", result.Type.ToLuaTypeString());
+			else
+				b.Append(result.CastToString());
+		}
+
+		public static DynValue Str_Gsub(string src, string p, DynValue repl, int? max_s_n)
+		{
+			int srcl = src.Length;
+			DataType tr = repl.Type;
+			int max_s = max_s_n ?? srcl + 1;
+
+			int anchor = 0;
+			if (p[0] == '^')
+			{
+				p = p.Substring(1);
+				anchor = 1;
+			}
+			int n = 0;
+			MatchState ms = new MatchState();
+			StringBuilder b = new StringBuilder(srcl);
+
+			if (tr != DataType.Number && tr != DataType.String && tr != DataType.Function && tr != DataType.Table)
+				throw new ScriptRuntimeException("string/function/table expected");
+
+			ms.Src = src;
+			ms.SrcInit = 0;
+			ms.SrcEnd = srcl;
+			ms.Pattern = p;
+			ms.PatternEnd = p.Length;
+			int s = 0;
+			while (n < max_s)
+			{
+				ms.Level = 0;
+				int e = Match(ms, s, 0);
+				if (e != -1)
+				{
+					n++;
+					Add_Value(ms, b, s, e, repl);
+				}
+				if ((e != -1) && e > s) /* non empty match? */
+					s = e;  /* skip it */
+				else if (s < ms.SrcEnd)
+				{
+					char c = src[s];
+					++s;
+					b.Append(c);
+				}
+				else break;
+				if (anchor != 0) break;
+			}
+			b.Append(src.Substring(s, ms.SrcEnd - s));
+
+			return DynValue.NewTuple(
+				DynValue.NewString(b.ToString()),
+				DynValue.NewNumber(n)
+				);
+		}
 
 	}
 

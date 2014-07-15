@@ -55,7 +55,7 @@ namespace MoonSharp.Interpreter
 		/// </summary>
 		public string String { get; private set; }
 		/// <summary>
-		/// Gets the CLR callback (valid only if the <seealso cref="Type"/> is <seealso cref="DataType.CallbackFunction"/>)
+		/// Gets the CLR callback (valid only if the <seealso cref="Type"/> is <seealso cref="DataType.ClrFunction"/>)
 		/// </summary>
 		public CallbackFunction Callback { get; set; }
 		/// <summary>
@@ -599,7 +599,7 @@ namespace MoonSharp.Interpreter
 		public void Assign(DynValue value)
 		{
 			if (this.ReadOnly)
-				throw new ScriptRuntimeException(null, "Assigning on r-value");
+				throw new ScriptRuntimeException("Assigning on r-value");
 
 			this.Boolean = value.Boolean;
 			this.Callback = value.Callback;
@@ -628,7 +628,7 @@ namespace MoonSharp.Interpreter
 			if (this.Type == DataType.String)
 				return DynValue.NewNumber(this.String.Length);
 
-			throw new ScriptRuntimeException(null, "Can't get length of type {0}", this.Type);
+			throw new ScriptRuntimeException("Can't get length of type {0}", this.Type);
 		}
 
 		/// <summary>

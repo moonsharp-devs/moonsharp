@@ -31,6 +31,17 @@ namespace MoonSharp.Interpreter.CoreLib
 		}
 
 		[MoonSharpMethod()]
+		public static DynValue gsub(ScriptExecutionContext executionContext, CallbackArguments args)
+		{
+			DynValue s = args.AsType(0, "gsub", DataType.String, false);
+			DynValue p = args.AsType(1, "gsub", DataType.String, false);
+			DynValue v_i = args.AsType(3, "gsub", DataType.Number, true);
+			int? i = v_i.IsNilOrNan() ? (int?)null : (int)v_i.Number;
+
+			return PatternMatching.Str_Gsub(s.String, p.String, args[2], i);
+		}
+
+		[MoonSharpMethod()]
 		public static DynValue find(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			DynValue v_s = args.AsType(0, "find", DataType.String, false);

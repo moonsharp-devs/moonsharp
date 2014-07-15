@@ -50,7 +50,7 @@ namespace MoonSharp.Interpreter
 				case DataType.Tuple:
 				case DataType.TailCallRequest:
 				default:
-					throw new ScriptRuntimeException(null, "Unexpected LuaType {0}", type);
+					throw new ScriptRuntimeException("Unexpected LuaType {0}", type);
 			}
 		}
 	}

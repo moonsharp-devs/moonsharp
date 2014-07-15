@@ -296,7 +296,7 @@ namespace MoonSharp.Interpreter
 			string filename = m_ScriptLoader.ResolveModuleName(modname, globals);
 
 			if (filename == null)
-				throw new ScriptRuntimeException(null, "module '{0}' not found", modname);
+				throw new ScriptRuntimeException("module '{0}' not found", modname);
 
 			DynValue func = LoadResolvedFile(filename, globalContext);
 			return func;

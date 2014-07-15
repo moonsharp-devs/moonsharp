@@ -188,8 +188,13 @@ namespace MoonSharp.Interpreter.Execution.VM
 					}
 				}
 			}
-			catch (ScriptRuntimeException ex)
+			catch (InterpreterException ex)
 			{
+				FillDebugData(ex, instructionPtr - 1);
+
+
+				if (!(ex is ScriptRuntimeException)) throw;
+
 				while (m_ExecutionStack.Count > 0)
 				{
 					CallStackItem csi = PopToBasePointer();
@@ -202,7 +207,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 						// +++ todo: add a *real* call to the error handler
 
-						m_ValueStack.Push(DynValue.NewTuple(DynValue.False, DynValue.NewString(ex.Message)));
+						m_ValueStack.Push(DynValue.NewTuple(DynValue.False, DynValue.NewString(ex.DecoratedMessage)));
 
 						goto repeat_execution;
 					}
@@ -225,6 +230,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				throw new InternalErrorException("Unexpected value stack count at program end : {0}", m_ValueStack.Count);
 
 		}
+
 
 
 		private void AssignLocal(SymbolRef symref, DynValue value)
@@ -322,7 +328,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			if (v.HasValue)
 				m_ValueStack.Push(DynValue.NewNumber(v.Value));
 			else
-				throw new ScriptRuntimeException(null, "Can't convert value to number");
+				throw new ScriptRuntimeException("Can't convert value to number");
 		}
 
 
@@ -525,7 +531,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 					}
 				}
 
-				throw new NotImplementedException("Can't call non function - " + fn.ToString());
+				throw new ScriptRuntimeException("Can't call non function - " + fn.ToString());
 			}
 		}
 
@@ -637,7 +643,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			{
 				int ip = Internal_InvokeBinaryMetaMethod(l, r, "__add", instructionPtr);
 				if (ip >= 0) return ip;
-				else throw new ScriptRuntimeException(null, "Arithmetic on non numbers");
+				else throw ScriptRuntimeException.ArithmeticOnNonNumber(l, r);
 			}
 		}
 
@@ -658,7 +664,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			{
 				int ip = Internal_InvokeBinaryMetaMethod(l, r, "__sub", instructionPtr);
 				if (ip >= 0) return ip;
-				else throw new ScriptRuntimeException(null, "Arithmetic on non numbers");
+				else throw ScriptRuntimeException.ArithmeticOnNonNumber(l, r);
 			}
 		}
 
@@ -680,7 +686,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			{
 				int ip = Internal_InvokeBinaryMetaMethod(l, r, "__mul", instructionPtr);
 				if (ip >= 0) return ip;
-				else throw new ScriptRuntimeException(null, "Arithmetic on non numbers");
+				else throw ScriptRuntimeException.ArithmeticOnNonNumber(l, r);
 			}
 		}
 
@@ -694,14 +700,16 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 			if (ln.HasValue && rn.HasValue)
 			{
-				m_ValueStack.Push(DynValue.NewNumber(Math.IEEERemainder(ln.Value, rn.Value)));
+				double mod = Math.IEEERemainder(ln.Value, rn.Value);
+				if (mod < 0) mod += rn.Value;
+				m_ValueStack.Push(DynValue.NewNumber(mod));
 				return instructionPtr;
 			}
 			else
 			{
 				int ip = Internal_InvokeBinaryMetaMethod(l, r, "__div", instructionPtr);
 				if (ip >= 0) return ip;
-				else throw new ScriptRuntimeException(null, "Arithmetic on non numbers");
+				else throw ScriptRuntimeException.ArithmeticOnNonNumber(l, r);
 			}
 		}
 
@@ -722,7 +730,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			{
 				int ip = Internal_InvokeBinaryMetaMethod(l, r, "__div", instructionPtr);
 				if (ip >= 0) return ip;
-				else throw new ScriptRuntimeException(null, "Arithmetic on non numbers");
+				else throw ScriptRuntimeException.ArithmeticOnNonNumber(l, r);
 			}
 		}
 		private int ExecPower(Instruction i, int instructionPtr)
@@ -742,11 +750,10 @@ namespace MoonSharp.Interpreter.Execution.VM
 			{
 				int ip = Internal_InvokeBinaryMetaMethod(l, r, "__pow", instructionPtr);
 				if (ip >= 0) return ip;
-				else throw new ScriptRuntimeException(null, "Arithmetic on non numbers");
+				else throw ScriptRuntimeException.ArithmeticOnNonNumber(l, r);
 			}
 
 		}
-
 
 		private int ExecNeg(Instruction i, int instructionPtr)
 		{
@@ -762,7 +769,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			{
 				int ip = Internal_InvokeUnaryMetaMethod(r, "__unm", instructionPtr);
 				if (ip >= 0) return ip;
-				else throw new ScriptRuntimeException(null, "Arithmetic on non number");
+				else throw ScriptRuntimeException.ArithmeticOnNonNumber(r);
 			}
 		}
 
@@ -813,13 +820,14 @@ namespace MoonSharp.Interpreter.Execution.VM
 			{
 				int ip = Internal_InvokeBinaryMetaMethod(l, r, "__lt", instructionPtr);
 				if (ip < 0)
-					throw new ScriptRuntimeException(null, "Can't compare on non number non string");
+					throw ScriptRuntimeException.CompareInvalidType(l, r);
 				else
 					return ip;
 			}
 
 			return instructionPtr;
 		}
+
 
 		private int ExecLessEq(Instruction i, int instructionPtr)
 		{
@@ -842,7 +850,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 					ip = Internal_InvokeBinaryMetaMethod(r, l, "__lt", instructionPtr);
 
 					if (ip < 0)
-						throw new ScriptRuntimeException(null, "Can't compare on non number non string");
+						throw ScriptRuntimeException.CompareInvalidType(l, r);
 					else
 						return ip;
 				}
@@ -866,12 +874,13 @@ namespace MoonSharp.Interpreter.Execution.VM
 					return ip;
 				else if (r.Type == DataType.Table)
 					m_ValueStack.Push(DynValue.NewNumber(r.Table.Length));
-				else
-					throw new ScriptRuntimeException(null, "Arithmetic on non number");
+
+				else throw ScriptRuntimeException.LenOnInvalidType(r);
 			}
 
 			return instructionPtr;
 		}
+
 
 		private int ExecConcat(Instruction i, int instructionPtr)
 		{
@@ -890,10 +899,11 @@ namespace MoonSharp.Interpreter.Execution.VM
 			{
 				int ip = Internal_InvokeBinaryMetaMethod(l, r, "__concat", instructionPtr);
 				if (ip >= 0) return ip;
-				else throw new ScriptRuntimeException(null, "Concatenation on non strings");
+				else throw ScriptRuntimeException.ConcatOnNonString(l, r);
 			}
 
 		}
+
 
 		private void ExecTblInitI(Instruction i)
 		{
@@ -953,10 +963,11 @@ namespace MoonSharp.Interpreter.Execution.VM
 				}
 				else
 				{
-					h = obj.MetaTable.RawGet("__newindex");
+					if (obj.MetaTable != null)
+						h = obj.MetaTable.RawGet("__newindex");
 
 					if (h == null || h.IsNil())
-						throw new ScriptRuntimeException("Can't index non table: {0}", obj);
+						throw ScriptRuntimeException.IndexType(obj);
 				}
 
 				if (h.Type == DataType.Function || h.Type == DataType.ClrFunction)
@@ -973,7 +984,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 					h = null;
 				}
 			}
-			throw new ScriptRuntimeException("__newindex returning too many nested tables");
+			throw ScriptRuntimeException.LoopInNewIndex();
 		}
 
 		private int ExecIndex(Instruction i, int instructionPtr)
@@ -1009,13 +1020,24 @@ namespace MoonSharp.Interpreter.Execution.VM
 						return instructionPtr;
 					}
 				}
+				else if (obj.Type == DataType.String)
+				{
+					if (obj.MetaTable != null)
+						h = obj.MetaTable.RawGet("__index");
+
+					if (h == null || h.IsNil())
+					{
+						// by default, bounce to the string table
+						h = m_GlobalTable["string"];
+					}
+				}
 				else
 				{
 					if (obj.MetaTable != null)
 						h = obj.MetaTable.RawGet("__index");
 
 					if (h == null || h.IsNil())
-						throw new ScriptRuntimeException("Can't index non table: {0}", obj);
+						throw ScriptRuntimeException.IndexType(obj);
 				}
 
 				if (h.Type == DataType.Function || h.Type == DataType.ClrFunction)
@@ -1032,7 +1054,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				}
 			}
 
-			throw new ScriptRuntimeException("__index returning too many nested tables");
+			throw ScriptRuntimeException.LoopInIndex();
 		}
 
 

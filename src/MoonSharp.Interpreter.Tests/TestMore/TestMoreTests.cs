@@ -66,8 +66,7 @@ namespace MoonSharp.Interpreter.Tests
 		}
 
 
-		[Test]
-		[Ignore]
+		[Test] 
 		public void TestMore_102_function()
 		{
 			TapRunner.Run(@"TestMore\102-function.t");
@@ -75,7 +74,6 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
-		[Ignore]
 		public void TestMore_103_nil()
 		{
 			TapRunner.Run(@"TestMore\103-nil.t");
@@ -83,7 +81,6 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
-		[Ignore]
 		public void TestMore_104_number()
 		{
 			TapRunner.Run(@"TestMore\104-number.t");
@@ -91,7 +88,6 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
-		[Ignore]
 		public void TestMore_105_string()
 		{
 			TapRunner.Run(@"TestMore\105-string.t");
@@ -99,7 +95,6 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
-		[Ignore]
 		public void TestMore_106_table()
 		{
 			TapRunner.Run(@"TestMore\106-table.t");
@@ -123,7 +118,6 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
-		[Ignore]
 		public void TestMore_200_examples()
 		{
 			TapRunner.Run(@"TestMore\200-examples.t");
@@ -131,7 +125,6 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
-		[Ignore]
 		public void TestMore_201_assign()
 		{
 			TapRunner.Run(@"TestMore\201-assign.t");

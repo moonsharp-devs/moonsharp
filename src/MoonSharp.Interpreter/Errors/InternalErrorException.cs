@@ -7,10 +7,10 @@ using Antlr4.Runtime.Tree;
 namespace MoonSharp.Interpreter
 {
 	[Serializable]
-	public class InternalErrorException : Exception
+	public class InternalErrorException : InterpreterException
 	{
 		internal InternalErrorException(string format, params object[] args)
-			: base(string.Format(format, args))
+			: base(format, args)
 		{
 
 		}

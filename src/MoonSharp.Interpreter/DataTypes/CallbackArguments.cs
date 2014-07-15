@@ -40,7 +40,7 @@ namespace MoonSharp.Interpreter
 		public void ThrowBadArgument(int argNum, string funcName, object expected, object got)
 		{
 			// bad argument #1 to 'next' (table expected, got number)
-			throw new ScriptRuntimeException(null, "bad argument #{0} to '{1}' ({2} expected, got {3}",
+			throw new ScriptRuntimeException("bad argument #{0} to '{1}' ({2} expected, got {3}",
 				argNum + 1, funcName, expected, got);
 		}
 

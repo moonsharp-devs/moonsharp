@@ -8,11 +8,18 @@ using Antlr4.Runtime.Tree;
 namespace MoonSharp.Interpreter
 {
 	[Serializable]
-	public class SyntaxErrorException : Exception
+	public class SyntaxErrorException : InterpreterException
 	{
-		internal SyntaxErrorException(IParseTree tree, string format, params object[] args)
-			: base(string.Format(format, args))
+		internal SyntaxErrorException(string format, params object[] args)
+			: base(format, args)
 		{
+
+		}
+
+		internal SyntaxErrorException(IParseTree tree, string format, params object[] args)
+			: base(tree, format, args)
+		{
+
 		}
 	}
 }

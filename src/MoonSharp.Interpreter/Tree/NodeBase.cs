@@ -24,21 +24,10 @@ namespace MoonSharp.Interpreter.Tree
 			return new SyntaxErrorException(TreeNode, format, args);
 		}
 
-		public Exception RuntimeError(string format, params object[] args)
-		{
-			return new ScriptRuntimeException(TreeNode, format, args);
-		}
-
 		public void SyntaxAssert(bool condition, string format, params object[] args)
 		{
 			if (!condition)
 				throw  SyntaxError(format, args);
-		}
-
-		public void RuntimeAssert(bool condition, string format, params object[] args)
-		{
-			if (!condition)
-				throw  RuntimeError(format, args);
 		}
 
 		public abstract void Compile(ByteCode bc);

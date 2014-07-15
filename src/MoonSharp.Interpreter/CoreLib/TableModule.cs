@@ -59,8 +59,9 @@ namespace MoonSharp.Interpreter.CoreLib
 			// The theory says the method calls __len to get the len in case it's not forced as a param.
 			// But then it uses rawget to access. The only case where we differ if we take the shortcut
 			// of using rawlen is if the first param is passed to force a non-first index and the second 
-			// isn't. Likely an acceptable divergence, at least for now. [Note that this behaviour is
-			// actually undefined in Lua 5.1, and __len is documented only for Lua 5.2]
+			// isn't, or if __len is used to limit the maximum length. Likely an acceptable divergence, 
+			// at least for now. [Note that this behaviour is actually undefined in Lua 5.1, and __len 
+			// usage is documented only for Lua 5.2]
 
 			DynValue vlist = args.AsType(0, "concat", DataType.Table, false);
 			DynValue vsep = args.AsType(1, "concat", DataType.String, true);

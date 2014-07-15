@@ -25,7 +25,7 @@ namespace MoonSharp.Interpreter.CoreLib
 
 			if (curmeta != null)
 			{
-				throw new ScriptRuntimeException(null, "cannot change a protected metatable");
+				throw new ScriptRuntimeException("cannot change a protected metatable");
 			}
 
 			table.MetaTable = metatable.Table;

@@ -30,13 +30,13 @@ function m.puts (f, str)
 end
 
 local function _print_to_fh (self, f, ...)
-    if f then
-        local msg = tconcat({...})
-        gsub(msg, "\n", "\n" .. self.indent)
-        m.puts(f, self.indent .. msg .. "\n")
-    else
+   -- if f then
+   --     local msg = tconcat({...})
+   --     gsub(msg, "\n", "\n" .. self.indent)
+   --     m.puts(f, self.indent .. msg .. "\n")
+   -- else
         print(self.indent, ...)
-    end
+   -- end
 end
 
 local function _print (self, ...)

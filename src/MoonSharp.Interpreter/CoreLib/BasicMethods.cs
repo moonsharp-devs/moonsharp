@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using MoonSharp.Interpreter.Execution;
@@ -35,9 +36,9 @@ namespace MoonSharp.Interpreter.CoreLib
 			if (!v.CastToBool())
 			{
 				if (message.IsNil())
-					throw new ScriptRuntimeException(null, "assertion failed!");
+					throw new ScriptRuntimeException("assertion failed!");
 				else
-					throw new ScriptRuntimeException(null, message.ToPrintString());
+					throw new ScriptRuntimeException(message.ToPrintString());
 			}
 
 			return DynValue.Nil;
@@ -71,7 +72,7 @@ namespace MoonSharp.Interpreter.CoreLib
 		public static DynValue error(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			DynValue message = args.AsType(0, "dofile", DataType.String, false);
-			throw new ScriptRuntimeException(null, message.String);
+			throw new ScriptRuntimeException(message.String);
 		}
 
 
@@ -80,6 +81,50 @@ namespace MoonSharp.Interpreter.CoreLib
 		{
 			DynValue v = args[0];
 			return DynValue.NewString(v.ToPrintString());
+		}
+
+
+		// tonumber (e [, base])
+		// ----------------------------------------------------------------------------------------------------------------
+		// When called with no base, tonumber tries to convert its argument to a number. If the argument is already 
+		// a number or a string convertible to a number (see §3.4.2), then tonumber returns this number; otherwise, 
+		// it returns nil.
+		//
+		// When called with base, then e should be a string to be interpreted as an integer numeral in that base. 
+		// The base may be any integer between 2 and 36, inclusive. In bases above 10, the letter 'A' (in either 
+		// upper or lower case) represents 10, 'B' represents 11, and so forth, with 'Z' representing 35. If the 
+		// string e is not a valid numeral in the given base, the function returns nil. 
+		[MoonSharpMethod]
+		public static DynValue tonumber(ScriptExecutionContext executionContext, CallbackArguments args)
+		{
+			DynValue e = args[0];
+			DynValue b = args.AsType(1, "tonumber", DataType.Number, true);
+
+			if (b.IsNil())
+			{
+				if (e.Type == DataType.Number)
+					return e;
+
+				if (e.Type != DataType.String)
+					return DynValue.Nil;
+
+				double d;
+				if (double.TryParse(e.String, NumberStyles.Any, CultureInfo.InvariantCulture, out d))
+				{
+					return DynValue.NewNumber(d);
+				}
+				return DynValue.Nil;
+			}
+			else
+			{
+				//!COMPAT: tonumber supports only 2,8,10 or 16 as base
+				DynValue ee = args.AsType(0, "tonumber", DataType.String, false);
+				int bb = (int)b.Number;
+
+				uint uiv = Convert.ToUInt32(ee.String, bb);
+
+				return DynValue.NewNumber(uiv);
+			}
 		}
 
 
