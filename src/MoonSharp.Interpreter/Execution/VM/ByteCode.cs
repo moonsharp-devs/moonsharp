@@ -142,9 +142,9 @@ namespace MoonSharp.Interpreter.Execution.VM
 			return AppendInstruction(new Instruction() { OpCode = OpCode.Ret, NumVal = retvals });
 		}
 
-		public Instruction Emit_ToNum()
+		public Instruction Emit_ToNum(int stage = 0)
 		{
-			return AppendInstruction(new Instruction() { OpCode = OpCode.ToNum });
+			return AppendInstruction(new Instruction() { OpCode = OpCode.ToNum, NumVal = stage });
 		}
 
 

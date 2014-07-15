@@ -147,7 +147,6 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
-		[Ignore]
 		public void TestMore_211_scope()
 		{
 			TapRunner.Run(@"TestMore\211-scope.t");
@@ -155,7 +154,6 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
-		[Ignore]
 		public void TestMore_212_function()
 		{
 			TapRunner.Run(@"TestMore\212-function.t");

@@ -29,8 +29,17 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			: base(context, lcontext)
 		{
 			if (m_Value == null) TryParse(context.FLOAT(), s => double.Parse(s, CultureInfo.InvariantCulture));
-			if (m_Value == null) TryParse(context.HEX(), s => (double)ulong.Parse(s, NumberStyles.HexNumber, CultureInfo.InvariantCulture));
+			if (m_Value == null) TryParse(context.HEX(), s => (double)ulong.Parse(RemoveHexHeader(s), NumberStyles.HexNumber, CultureInfo.InvariantCulture));
 			if (m_Value == null) TryParse(context.INT(), s => double.Parse(s, CultureInfo.InvariantCulture));
+		}
+
+		private string RemoveHexHeader(string s)
+		{
+			s = s.ToUpperInvariant();
+			if (s.StartsWith("0X"))
+				s = s.Substring(2);
+
+			return s;
 		}
 
 

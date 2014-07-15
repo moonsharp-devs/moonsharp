@@ -79,6 +79,7 @@
     <Compile Include="CoreLib\BasicMethods.cs" />
     <Compile Include="CoreLib\ErrorHandling.cs" />
     <Compile Include="CoreLib\LoadMethods.cs" />
+    <Compile Include="CoreLib\MathModule.cs" />
     <Compile Include="CoreLib\MetaTableMethods.cs" />
     <Compile Include="CoreLib\Patterns\CaptureInfo.cs">
       <SubType>Code</SubType>
@@ -144,6 +145,7 @@
     <Compile Include="Execution\Scopes\RuntimeScopeFrame.cs" />
     <Compile Include="Execution\ScriptLoadingContext.cs" />
     <Compile Include="DataTypes\DataType.cs" />
+    <Compile Include="Modules\MoonSharpConstantAttribute.cs" />
     <Compile Include="Script.cs" />
     <Compile Include="DataTypes\Table.cs" />
     <Compile Include="Execution\VM\ByteCode.cs" />

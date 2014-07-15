@@ -330,8 +330,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 			double? v = m_ValueStack.Pop().CastToNumber();
 			if (v.HasValue)
 				m_ValueStack.Push(DynValue.NewNumber(v.Value));
-			else
-				throw new ScriptRuntimeException("Can't convert value to number");
+			else  
+				throw  ScriptRuntimeException.ConvertToNumberFailed(i.NumVal);
 		}
 
 

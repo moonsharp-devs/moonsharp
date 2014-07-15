@@ -87,10 +87,11 @@ namespace MoonSharp.Interpreter.CoreLib
 
 				string s = v.ToPrintString();
 
-				sb.Append(s);
-
 				if (i != start)
 					sb.Append(sep);
+				
+				sb.Append(s);
+
 			}
 
 			return DynValue.NewString(sb.ToString());

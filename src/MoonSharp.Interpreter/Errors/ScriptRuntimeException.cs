@@ -66,5 +66,20 @@ namespace MoonSharp.Interpreter
 		{
 			return new ScriptRuntimeException("loop in settable");
 		}
+
+		public static ScriptRuntimeException ConvertToNumberFailed(int stage)
+		{
+			switch (stage)
+			{
+				case 1:
+					return new ScriptRuntimeException("'for' initial value must be a number");
+				case 2:
+					return new ScriptRuntimeException("'for' step must be a number");
+				case 3:
+					return new ScriptRuntimeException("'for' limit must be a number");
+				default:
+					return new ScriptRuntimeException("value must be a number");
+			}
+		}
 	}
 }
