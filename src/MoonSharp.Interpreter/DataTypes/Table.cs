@@ -255,5 +255,10 @@ namespace MoonSharp.Interpreter
 				this[++m_InitArray] = val;
 			}
 		}
+
+		/// <summary>
+		/// Gets the meta-table associated with this instance.
+		/// </summary>
+		public Table MetaTable { get; set; }
 	}
 }

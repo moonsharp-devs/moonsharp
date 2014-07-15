@@ -41,6 +41,12 @@ namespace MoonSharp.Interpreter.Execution
 			return m_Processor.FindVar(name);
 		}
 
+		public Table GetMetatable(DynValue value)
+		{
+			return m_Processor.GetMetatable(value);
+		}
+
+
 		public DynValue GetMetamethod(DynValue value, string metamethod)
 		{
 			return m_Processor.GetMetamethod(value, metamethod);

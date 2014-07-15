@@ -132,7 +132,6 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
-		[Ignore]
 		public void TestMore_202_expr()
 		{
 			TapRunner.Run(@"TestMore\202-expr.t");

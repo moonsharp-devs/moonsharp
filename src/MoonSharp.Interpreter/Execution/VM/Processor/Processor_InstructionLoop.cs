@@ -155,10 +155,10 @@ namespace MoonSharp.Interpreter.Execution.VM
 							ExecExpTuple(i);
 							break;
 						case OpCode.Local:
-							m_ValueStack.Push(m_ExecutionStack.Peek().LocalScope[i.Symbol.i_Index]);
+							m_ValueStack.Push(m_ExecutionStack.Peek().LocalScope[i.Symbol.i_Index].AsReadOnly());
 							break;
 						case OpCode.Upvalue:
-							m_ValueStack.Push(m_ExecutionStack.Peek().ClosureScope[i.Symbol.i_Index]);
+							m_ValueStack.Push(m_ExecutionStack.Peek().ClosureScope[i.Symbol.i_Index].AsReadOnly());
 							break;
 						case OpCode.StoreUpv:
 							ExecStoreUpv(i);
@@ -515,9 +515,11 @@ namespace MoonSharp.Interpreter.Execution.VM
 			}
 			else
 			{
-				if (fn.MetaTable != null)
+				var metatable = GetMetatable(fn);
+
+				if (metatable != null)
 				{
-					var m = fn.MetaTable.RawGet("__call");
+					var m = metatable.RawGet("__call");
 
 					if (m != null && m.Type != DataType.Nil)
 					{
@@ -790,7 +792,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			{
 				m_ValueStack.Push(DynValue.False);
 			}
-			else if ((l.Type == DataType.Table || l.Type == DataType.UserData) && (l.MetaTable != null) && (l.MetaTable == r.MetaTable))
+			else if ((l.Type == DataType.Table || l.Type == DataType.UserData) && (GetMetatable(l) != null) && (GetMetatable(l) == GetMetatable(r)))
 			{
 				int ip = Internal_InvokeBinaryMetaMethod(l, r, "__eq", instructionPtr);
 				if (ip < 0)
@@ -955,8 +957,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 						return instructionPtr;
 					}
 
-					if (obj.MetaTable != null)
-						h = obj.MetaTable.RawGet("__newindex");
+					h = GetMetamethod(obj, "__newindex");
 
 					if (h == null || h.IsNil())
 					{
@@ -966,8 +967,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				}
 				else
 				{
-					if (obj.MetaTable != null)
-						h = obj.MetaTable.RawGet("__newindex");
+					h = GetMetamethod(obj, "__newindex");
 
 					if (h == null || h.IsNil())
 						throw ScriptRuntimeException.IndexType(obj);
@@ -1010,23 +1010,21 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 					if (!v.IsNil())
 					{
-						m_ValueStack.Push(v);
+						m_ValueStack.Push(v.AsReadOnly());
 						return instructionPtr;
 					}
 
-					if (obj.MetaTable != null)
-						h = obj.MetaTable.RawGet("__index");
+					h = GetMetamethod(obj, "__index");
 
 					if (h == null || h.IsNil())
 					{
-						m_ValueStack.Push(DynValue.NewNil());
+						m_ValueStack.Push(DynValue.Nil);
 						return instructionPtr;
 					}
 				}
 				else if (obj.Type == DataType.String)
 				{
-					if (obj.MetaTable != null)
-						h = obj.MetaTable.RawGet("__index");
+					h = GetMetamethod(obj, "__index");
 
 					if (h == null || h.IsNil())
 					{
@@ -1036,8 +1034,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				}
 				else
 				{
-					if (obj.MetaTable != null)
-						h = obj.MetaTable.RawGet("__index");
+					h = GetMetamethod(obj, "__index");
 
 					if (h == null || h.IsNil())
 						throw ScriptRuntimeException.IndexType(obj);

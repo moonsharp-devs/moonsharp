@@ -22,12 +22,26 @@ namespace MoonSharp.Interpreter.Execution.VM
 			return FindRefByName(name);
 		}
 
+		internal Table GetMetatable(DynValue value)
+		{
+			if (value.Type == DataType.Table)
+			{
+				return value.Table.MetaTable;
+			}
+			else
+			{
+				return null;
+			}
+		}
+
 		internal DynValue GetMetamethod(DynValue value, string metamethod)
 		{
-			if (value.MetaTable == null || value.Type == DataType.Nil)
+			var metatable = GetMetatable(value);
+
+			if (metatable == null)
 				return null;
 
-			var metameth = value.MetaTable.RawGet(metamethod);
+			var metameth = metatable.RawGet(metamethod);
 			
 			if (metameth == null || metameth.Type == DataType.Nil)
 				return null;

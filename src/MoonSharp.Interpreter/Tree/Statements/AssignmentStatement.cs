@@ -57,11 +57,6 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			foreach (var exp in m_RValues)
 			{
 				exp.Compile(bc);
-
-				if (exp is SymbolRefExpression)
-				{
-					bc.Emit_Clone();
-				}
 			}
 
 			for(int i = 0; i < m_LValues.Length; i++)

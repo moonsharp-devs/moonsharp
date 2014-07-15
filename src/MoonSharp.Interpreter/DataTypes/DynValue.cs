@@ -59,10 +59,6 @@ namespace MoonSharp.Interpreter
 		/// </summary>
 		public CallbackFunction Callback { get; set; }
 		/// <summary>
-		/// Gets the meta-table associated with this instance.
-		/// </summary>
-		public Table MetaTable { get; set; }
-		/// <summary>
 		/// Gets or sets the user object, if this value is userdata
 		/// </summary>
 		public object UserObject { get; set; }
@@ -280,13 +276,12 @@ namespace MoonSharp.Interpreter
 		/// </summary>
 		/// <param name="obj">The CLR object.</param>
 		/// <param name="metatable">Optional - the metatable.</param>
-		public static DynValue NewObject(object obj, Table metatable = null)
+		public static DynValue NewObject(object obj)
 		{
 			return new DynValue()
 			{
 				UserObject = obj,
 				Type = DataType.UserData,
-				MetaTable = metatable
 			};
 		}
 
@@ -323,7 +318,6 @@ namespace MoonSharp.Interpreter
 			v.Table = this.Table;
 			v.Tuple = this.Tuple;
 			v.Type = this.Type;
-			v.MetaTable = this.MetaTable;
 			v.m_HashCode = this.m_HashCode;
 			return v;
 		}
@@ -344,7 +338,6 @@ namespace MoonSharp.Interpreter
 			v.Table = this.Table;
 			v.Tuple = this.Tuple;
 			v.Type = this.Type;
-			v.MetaTable = this.MetaTable;
 			v.m_HashCode = this.m_HashCode;
 			return v;
 		}
@@ -497,7 +490,6 @@ namespace MoonSharp.Interpreter
 			if (other == null) return false;
 			if (other.Type != this.Type) return false;
 
-			if (other.MetaTable != this.MetaTable) return false;
 
 			switch (Type)
 			{
@@ -610,7 +602,6 @@ namespace MoonSharp.Interpreter
 			this.Table = value.Table;
 			this.Tuple = value.Tuple;
 			this.Type = value.Type;
-			this.MetaTable = value.MetaTable;
 			this.m_HashCode = -1;
 		}
 
