@@ -17,6 +17,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 		Pop,		// Discards the topmost n elements from the v-stack. 
 		Copy,		// Copies the n-th value of the stack on the top
 		Swap,		// Swaps two entries relative to the v-stack
+		Clone,		// Sets the top of the stack to be a clone of itself (by value, not by ref)
 		Literal,	// Pushes a literal (constant value) on the stack. 
 		Closure,	// Creates a closure on the top of the v-stack, using the symbols for upvalues and num-val for entry point of the function.
 		NewTable,	// Creates a new empty table on the stack
@@ -27,7 +28,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		StoreLcl, Local,
 		StoreUpv, Upvalue,
-		IndexSet, Index, 
+		IndexSet, Index,
 
 		// Stack-frame ops and calls
 		Enter,		// Enters a new stack frame

@@ -181,6 +181,9 @@ namespace MoonSharp.Interpreter.Execution.VM
 						case OpCode.IndexSet:
 							instructionPtr = ExecIndexSet(i, instructionPtr);
 							break;
+						case OpCode.Clone:
+							m_ValueStack.Push(m_ValueStack.Pop().Clone());
+							break;
 						case OpCode.Invalid:
 							throw new NotImplementedException(string.Format("Invalid opcode : {0}", i.Name));
 						default:

@@ -256,5 +256,10 @@ namespace MoonSharp.Interpreter.Execution.VM
 		{
 			return AppendInstruction(new Instruction() { OpCode = OpCode.Swap, NumVal = p1, NumVal2 = p2 });
 		}
+
+		public Instruction Emit_Clone()
+		{
+			return AppendInstruction(new Instruction() { OpCode = OpCode.Clone });
+		}
 	}
 }

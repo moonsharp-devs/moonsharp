@@ -838,6 +838,51 @@ namespace MoonSharp.Interpreter.Tests
 			Assert.AreEqual(10, res.Number);
 		}
 
+		[Test]
+		public void SwapPattern()
+		{
+			string script = @"
+					local n1 = 1
+					local n2 = 2
+					local n3 = 3
+					local n4 = 4
+					n1,n2,n3,n4 = n4,n3,n2,n1
+
+					return n1,n2,n3,n4;
+								";
+
+			DynValue res = Script.RunString(script);
+
+			Assert.AreEqual(DataType.Tuple, res.Type);
+			Assert.AreEqual(4, res.Tuple.Length);
+			Assert.AreEqual(4, res.Tuple[0].Number);
+			Assert.AreEqual(3, res.Tuple[1].Number);
+			Assert.AreEqual(2, res.Tuple[2].Number);
+			Assert.AreEqual(1, res.Tuple[3].Number);
+		}
+
+		[Test]
+		public void SwapPatternGlobal()
+		{
+			string script = @"
+					n1 = 1
+					n2 = 2
+					n3 = 3
+					n4 = 4
+					n1,n2,n3,n4 = n4,n3,n2,n1
+
+					return n1,n2,n3,n4;
+								";
+
+			DynValue res = Script.RunString(script);
+
+			Assert.AreEqual(DataType.Tuple, res.Type);
+			Assert.AreEqual(4, res.Tuple.Length);
+			Assert.AreEqual(4, res.Tuple[0].Number);
+			Assert.AreEqual(3, res.Tuple[1].Number);
+			Assert.AreEqual(2, res.Tuple[2].Number);
+			Assert.AreEqual(1, res.Tuple[3].Number);
+		}
 
 
 	}

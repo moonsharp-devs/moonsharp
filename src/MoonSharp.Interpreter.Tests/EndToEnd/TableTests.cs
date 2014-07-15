@@ -143,7 +143,7 @@ namespace MoonSharp.Interpreter.Tests
 			string script = @"
 						x = 0
 	
-						a = 
+						local a = 
 						{ 
 							value = 1912,
 						}

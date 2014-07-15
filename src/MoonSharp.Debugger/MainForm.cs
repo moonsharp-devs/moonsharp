@@ -159,7 +159,7 @@ namespace MoonSharp.Debugger
 			}
 			else
 			{
-				timerFollow.Enabled = true;
+				timerFollow.Enabled = savedState;
 			}
 		}
 
