@@ -53,7 +53,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			}
 			else
 			{
-				m_FuncSymbol = SymbolRef.Global(fnname.Text);
+				m_FuncSymbol = lcontext.Scope.Find(fnname.Text);
 				m_FriendlyName = fnname.Text;
 			}
 

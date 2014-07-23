@@ -2,7 +2,7 @@
 --
 -- lua-TestMore : <http://fperrad.github.com/lua-TestMore/>
 --
--- Copyright (C) 2009, Perrad Francois
+-- Copyright (C) 2009-2010, Perrad Francois
 --
 -- This code is licensed under the terms of the MIT/X11 license,
 -- like Lua itself.
@@ -18,8 +18,8 @@
 
 =head2 Description
 
-See "Lua 5.1 Reference Manual", section 2.5.9 "Function Definitions",
-L<http://www.lua.org/manual/5.1/manual.html#2.5.9>.
+See "Lua 5.2 Reference Manual", section 3.4.10 "Function Definitions",
+L<http://www.lua.org/manual/5.2/manual.html#3.4.10>.
 
 See "Programming in Lua", section 5 "Functions".
 
@@ -29,7 +29,7 @@ See "Programming in Lua", section 5 "Functions".
 
 require 'Test.More'
 
-plan(65)
+plan(63)
 
 --[[ add ]]
 function add (a)
@@ -208,30 +208,17 @@ is(z, nil)
 
 
 --[[ invalid var args ]]
-f, msg = loadstring [[
+f, msg = load [[
 function f ()
     print(...)
 end
 ]]
 like(msg, "^[^:]+:%d+: cannot use '...' outside a vararg function", "invalid var args")
 
---[[ orphan break ]]
-f, msg = loadstring [[
-function f()
-    print "before"
-    do
-        print "inner"
-        break
-    end
-    print "after"
-end
-]]
-like(msg, "^[^:]+:%d+: no loop to break", "orphan break")
-
 --[[ tail call ]]
 output = {}
 local function foo (n)
-    table.insert(output, n)
+    output[#output+1] = n
     if n > 0 then
         return foo(n -1)
     end
@@ -244,7 +231,7 @@ eq_array(output, {3, 2, 1, 0})
 --[[ no tail call ]]
 output = {}
 local function foo (n)
-    table.insert(output, n)
+    output[#output+1] = n
     if n > 0 then
         return (foo(n -1))
     end
@@ -257,7 +244,7 @@ eq_array(output, {3, 2, 1, 0})
 --[[ no tail call ]]
 output = {}
 local function foo (n)
-    table.insert(output, n)
+    output[#output+1] = n
     if n > 0 then
         foo(n -1)
     end
@@ -272,13 +259,6 @@ is(f(), 1, "sub name")
 
 local function f () return 2 end
 is(f(), 2)
-
---[[ ambiguous ]]
-f, msg = loadstring [[
-a = f
-(g).x(a)
-]]
-like(msg, "^[^:]+:%d+: ambiguous syntax %(function call x new statement%)", "ambiguous")
 
 -- Local Variables:
 --   mode: lua

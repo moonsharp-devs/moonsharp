@@ -2,7 +2,7 @@
 --
 -- lua-TestMore : <http://fperrad.github.com/lua-TestMore/>
 --
--- Copyright (C) 2009-2011, Perrad Francois
+-- Copyright (C) 2009-2013, Perrad Francois
 --
 -- This code is licensed under the terms of the MIT/X11 license,
 -- like Lua itself.
@@ -20,8 +20,8 @@
 
 Tests Lua Package Library
 
-See "Lua 5.1 Reference Manual", section 5.3 "Modules",
-L<http://www.lua.org/manual/5.1/manual.html#5.3>.
+See "Lua 5.2 Reference Manual", section 6.3 "Modules",
+L<http://www.lua.org/manual/5.2/manual.html#6.3>.
 
 =cut
 
@@ -33,7 +33,6 @@ plan(33)
 
 ok(package.loaded._G, "table package.loaded")
 ok(package.loaded.coroutine)
-ok(package.loaded.debug)
 ok(package.loaded.io)
 ok(package.loaded.math)
 ok(package.loaded.os)
@@ -46,13 +45,33 @@ type_ok(package.path, 'string')
 type_ok(package.preload, 'table', "table package.preload")
 is(# package.preload, 0)
 
+if (platform and platform.compat) or jit then
+    type_ok(package.loaders, 'table', "table package.loaders")
+    if jit then
+        todo("LuaJIT TODO. package.searchers", 1)
+    end
+    is(package.searchers, package.loaders, "alias")
+else
+    type_ok(package.searchers, 'table', "table package.searchers")
+    is(package.loaders, nil)
+end
+
 m = {}
-package.seeall(m)
-m.pass("function package.seeall")
+if (platform and platform.compat) or jit then
+    package.seeall(m)
+    m.pass("function package.seeall")
+else
+    is(package.seeall, nil, "package.seeall (removed)")
+end
 
 local m = require 'Test.More'
 m.ok(true, "function require")
 is(m, package.loaded['Test.More'])
+
+p = package.searchpath('Test.More', package.path)
+type_ok(p, 'string', "searchpath")
+p = package.searchpath('Test.More', 'bad path')
+is(p, nil)
 
 f = io.open('complex.lua', 'w')
 f:write [[
@@ -130,23 +149,25 @@ os.remove('bar.lua') -- clean up
 f = io.open('cplx.lua', 'w')
 f:write [[
 -- print('cplx.lua', ...)
--- module(...)
-module('cplx')
+local _G = _G
+_ENV = nil
+local cplx = {}
 
-function new (r, i) return {r=r, i=i} end
+local function new (r, i) return {r=r, i=i} end
+cplx.new = new
 
 --defines a constant 'i'
-i = new(0, 1)
+cplx.i = new(0, 1)
 
-function add (c1, c2)
+function cplx.add (c1, c2)
     return new(c1.r + c2.r, c1.i + c2.i)
 end
 
-function sub (c1, c2)
+function cplx.sub (c1, c2)
     return new(c1.r - c2.r, c1.i - c2.i)
 end
 
-function mul (c1, c2)
+function cplx.mul (c1, c2)
     return new(c1.r*c2.r - c1.i*c2.i,
                c1.r*c2.i + c1.i*c2.r)
 end
@@ -156,29 +177,34 @@ local function inv (c)
     return new(c.r/n, -c.i/n)
 end
 
-function div (c1, c2)
+function cplx.div (c1, c2)
     return mul(c1, inv(c2))
 end
+
+_G.cplx = cplx
+return cplx
 ]]
 f:close()
 require 'cplx'
 is(cplx.i.r, 0, "function require & module")
 is(cplx.i.i, 1)
-is(cplx._M, cplx, "_M")
-is(cplx._NAME, 'cplx', "_NAME")
-is(cplx._PACKAGE, '', "_PACKAGE")
 os.remove('cplx.lua') -- clean up
 
-is(mod, nil, "function module & seeall")
-module('mod', package.seeall)
-type_ok(mod, 'table')
-is(mod, package.loaded.mod)
+if (platform and platform.compat) or jit then
+    is(mod, nil, "function module & seeall")
+    module('mod', package.seeall)
+    type_ok(mod, 'table')
+    is(mod, package.loaded.mod)
 
-is(modz, nil, "function module")
-local _G = _G
-module('modz')
-_G.type_ok(_G.modz, 'table')
-_G.is(_G.modz, _G.package.loaded.modz)
+    is(modz, nil, "function module")
+    local _G = _G
+    module('modz')
+    _G.type_ok(_G.modz, 'table')
+    _G.is(_G.modz, _G.package.loaded.modz)
+else
+    is(module, nil, "module (removed)")
+    skip("module (removed)", 5)
+end
 
 -- Local Variables:
 --   mode: lua

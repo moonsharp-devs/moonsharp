@@ -2,7 +2,7 @@
 --
 -- lua-TestMore : <http://fperrad.github.com/lua-TestMore/>
 --
--- Copyright (C) 2009, Perrad Francois
+-- Copyright (C) 2009-2013, Perrad Francois
 --
 -- This code is licensed under the terms of the MIT/X11 license,
 -- like Lua itself.
@@ -14,14 +14,14 @@
 
 =head2 Synopsis
 
-    % prove 308-os.t
+    % prove 309-os.t
 
 =head2 Description
 
 Tests Lua Operating System Library
 
-See "Lua 5.1 Reference Manual", section 5.8 "Operating System Facilities",
-L<http://www.lua.org/manual/5.1/manual.html#5.8>.
+See "Lua 5.2 Reference Manual", section 6.9 "Operating System Facilities",
+L<http://www.lua.org/manual/5.2/manual.html#6.9>.
 
 See "Programming in Lua", section 22 "The Operating System Library".
 
@@ -31,7 +31,7 @@ See "Programming in Lua", section 22 "The Operating System Library".
 
 require 'Test.More'
 
-plan(37)
+plan(54)
 
 local lua = (platform and platform.lua) or arg[-1]
 
@@ -54,27 +54,65 @@ is(os.date('!%d/%m/%y %H:%M:%S', 0), '01/01/70 00:00:00', "function date")
 
 like(os.date('%H:%M:%S'), '^%d%d:%d%d:%d%d', "function date")
 
+if jit and jit.version_num < 20100 then
+    todo("LuaJIT TODO. invalid strftime.", 1)
+end
+is(os.date('%Oy', 0), '70')
+if jit then
+    todo("LuaJIT TODO. invalid strftime.", 1)
+end
+error_like(function () os.date('%Ja', 0) end,
+           "^[^:]+:%d+: bad argument #1 to 'date' %(invalid conversion specifier '%%Ja'%)",
+           "function date (invalid)")
+
 is(os.difftime(1234, 1200), 34, "function difftime")
 is(os.difftime(1234), 1234)
 
 r = os.execute()
-is(r, 1, "function execute")
+is(r, true, "function execute")
+
+r, s, n = os.execute('__IMPROBABLE__')
+is(r, nil, "function execute")
+is(s, 'exit')
+type_ok(n, 'number')
 
 cmd = lua .. [[ -e "print '# hello from external Lua'; os.exit(2)"]]
-if platform and platform.osname == 'MSWin32' then
-    is(os.execute(cmd), 2, "function execute & exit")
-else
-    is(os.execute(cmd), 512, "function execute & exit")
-end
+r, s, n = os.execute(cmd)
+is(r, nil)
+is(s, 'exit', "function execute & exit")
+is(n, 2, "exit value")
+
+cmd = lua .. [[ -e "print '# hello from external Lua'; os.exit(false)"]]
+r, s, n = os.execute(cmd)
+is(r, nil)
+is(s, 'exit', "function execute & exit")
+is(n, 1, "exit value")
+
+cmd = lua .. [[ -e "print '# hello from external Lua'; os.exit(true, true)"]]
+is(os.execute(cmd), true, "function execute & exit")
 
 cmd = lua .. [[ -e "print 'reached'; os.exit(); print 'not reached';"]]
 r, f = pcall(io.popen, cmd)
 if r then
     is(f:read'*l', 'reached', "function exit")
     is(f:read'*l', nil)
-    f:close()
+    code = f:close()
+    is(code, true, "exit code")
 else
-    skip("io.popen not supported", 2)
+    skip("io.popen not supported", 3)
+end
+
+cmd = lua .. [[ -e "print 'reached'; os.exit(3); print 'not reached';"]]
+r, f = pcall(io.popen, cmd)
+if r then
+    is(f:read'*l', 'reached', "function exit")
+    is(f:read'*l', nil)
+    r, s, n = f:close()
+    is(r, nil)
+    is(s, 'exit', "exit code")
+    is(n, 3, "exit value")
+else
+    skip("io.popen not supported", 5)
 end
 
 is(os.getenv('__IMPROBABLE__'), nil, "function getenv")
@@ -102,7 +140,7 @@ os.remove('file.new') -- clean up
 
 r, msg = os.rename('file.old', 'file.new')
 is(r, nil, "function rename")
-like(msg, '^file.old: No such file or directory')
+like(msg, 'No such file or directory')
 
 is(os.setlocale('C', 'all'), 'C', "function setlocale")
 is(os.setlocale(), 'C')

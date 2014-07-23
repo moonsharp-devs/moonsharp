@@ -152,6 +152,9 @@
     <None Include="TestMore\203-lexico.t">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="TestMore\204-grammar.t">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="TestMore\211-scope.t">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -182,6 +185,9 @@
     <None Include="TestMore\241-standalone.t">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="TestMore\242-luac.t">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="TestMore\301-basic.t">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -197,16 +203,22 @@
     <None Include="TestMore\306-math.t">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="TestMore\307-io.t">
+    <None Include="TestMore\307-bit.t">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="TestMore\308-os.t">
+    <None Include="TestMore\308-io.t">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="TestMore\310-stdin.t">
+    <None Include="TestMore\309-os.t">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="TestMore\310-debug.t">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="TestMore\314-regex.t">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="TestMore\320-stdin.t">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="TestMore\Modules\Test\Builder.lua">

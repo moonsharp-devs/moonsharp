@@ -2,7 +2,7 @@
 --
 -- lua-TestMore : <http://fperrad.github.com/lua-TestMore/>
 --
--- Copyright (C) 2009-2012, Perrad Francois
+-- Copyright (C) 2009-2013, Perrad Francois
 --
 -- This code is licensed under the terms of the MIT/X11 license,
 -- like Lua itself.
@@ -20,8 +20,8 @@
 
 Tests Lua String Library
 
-See "Lua 5.1 Reference Manual", section 5.4 "String Manipulation",
-L<http://www.lua.org/manual/5.1/manual.html#5.4>.
+See "Lua 5.2 Reference Manual", section 6.4 "String Manipulation",
+L<http://www.lua.org/manual/5.2/manual.html#6.4>.
 
 See "Programming in Lua", section 20 "The String Library".
 
@@ -31,7 +31,7 @@ See "Programming in Lua", section 20 "The String Library".
 
 require 'Test.More'
 
-plan(97)
+plan(115)
 
 is(string.byte('ABC'), 65, "function byte")
 is(string.byte('ABC', 2), 66)
@@ -49,6 +49,21 @@ is(s:byte(2), 66, "method s:byte")
 is(string.char(65, 66, 67), 'ABC', "function char")
 is(string.char(), '')
 
+error_like(function () string.char(0, 'bad') end,
+           "^[^:]+:%d+: bad argument #2 to 'char' %(number expected, got string%)",
+           "function char (bad arg)")
+
+error_like(function () string.char(0, 9999) end,
+           "^[^:]+:%d+: bad argument #2 to 'char' %(.-value.-%)",
+           "function char (invalid)")
+
+d = string.dump(plan)
+type_ok(d, 'string', "function dump")
+
+error_like(function () string.dump(print) end,
+           "^[^:]+:%d+: unable to dump given function",
+           "function dump (C function)")
+
 s = "hello world"
 eq_array({string.find(s, "hello")}, {1, 5}, "function find (mode plain)")
 eq_array({string.find(s, "hello", 1, true)}, {1, 5})
@@ -59,6 +74,7 @@ eq_array({string.find(s, "l")}, {3, 3})
 is(string.find(s, "lll"), nil)
 is(string.find(s, "hello", 2, true), nil)
 eq_array({string.find(s, "world", 2, true)}, {7, 11})
+is(string.find(s, "hello", 20), nil)
 
 s = "hello world"
 eq_array({string.find(s, "^h.ll.")}, {1, 5}, "function find (with regex & captures)")
@@ -69,19 +85,31 @@ eq_array({string.find(s, "^(h.)l(l.)")}, {1, 5, 'he', 'lo'})
 s = "Deadline is 30/05/1999, firm"
 date = "%d%d/%d%d/%d%d%d%d"
 is(string.sub(s, string.find(s, date)), "30/05/1999")
+date = "%f[%S]%d%d/%d%d/%d%d%d%d"
+is(string.sub(s, string.find(s, date)), "30/05/1999")
+
+error_like(function () string.find(s, '%f') end,
+           "^[^:]+:%d+: missing '%[' after '%%f' in pattern",
+           "function find (invalid frontier)")
 
 is(string.format("pi = %.4f", math.pi), 'pi = 3.1416', "function format")
 d = 5; m = 11; y = 1990
 is(string.format("%02d/%02d/%04d", d, m, y), "05/11/1990")
+is(string.format("%X %x", 126, 126), "7E 7e")
 tag, title = "h1", "a title"
 is(string.format("<%s>%s</%s>", tag, title, tag), "<h1>a title</h1>")
 
 is(string.format('%q', 'a string with "quotes" and \n new line'), [["a string with \"quotes\" and \
  new line"]], "function format %q")
 
+is(string.format('%q', 'a string with \b and \b2'), [["a string with \8 and \0082"]], "function format %q")
+
 is(string.format("%s %s", 1, 2, 3), '1 2', "function format (too many arg)")
 
-is(string.format("%% %s %%", 'percent'), '% percent %', "function format (%%)")
+is(string.format("%% %c %%", 65), '% A %', "function format (%%)")
+
+r = string.rep("ab", 100)
+is(string.format("%s %d", r, r:len()), r .. " 200")
 
 error_like(function () string.format("%s %s", 1) end,
            "^[^:]+:%d+: bad argument #3 to 'format' %(.-no value%)",
@@ -139,14 +167,20 @@ eq_array(output, {'from', 'world', 'to', 'Lua'})
 is(string.gsub("hello world", "(%w+)", "%1 %1"), "hello hello world world", "function gsub")
 is(string.gsub("hello world", "%w+", "%0 %0", 1), "hello hello world")
 is(string.gsub("hello world from Lua", "(%w+)%s*(%w+)", "%2 %1"), "world hello Lua from")
+if jit then
+    todo("LuaJIT TODO. gsub.", 1)
+end
+error_like(function () string.gsub("hello world", "%w+", "%e") end,
+           "^[^:]+:%d+: invalid use of '%%' in replacement string",
+           "function gsub (invalid replacement string)")
 is(string.gsub("home = $HOME, user = $USER", "%$(%w+)", string.reverse), "home = EMOH, user = RESU")
-is(string.gsub("4+5 = $return 4+5$", "%$(.-)%$", function (s) return loadstring(s)() end), "4+5 = 9")
+is(string.gsub("4+5 = $return 4+5$", "%$(.-)%$", function (s) return load(s)() end), "4+5 = 9")
 local t = {name='lua', version='5.1'}
 is(string.gsub("$name-$version.tar.gz", "%$(%w+)", t), "lua-5.1.tar.gz")
 
 is(string.gsub("Lua is cute", 'cute', 'great'), "Lua is great")
 is(string.gsub("all lii", 'l', 'x'), "axx xii")
-is(string.gsub("Lua is great", 'Sol', 'Sun'), "Lua is great")
+is(string.gsub("Lua is great", '^Sol', 'Sun'), "Lua is great")
 is(string.gsub("all lii", 'l', 'x', 1), "axl lii")
 is(string.gsub("all lii", 'l', 'x', 2), "axx lii")
 is(select(2, string.gsub("string with 3 spaces", ' ', ' ')), 3)
@@ -161,6 +195,11 @@ eq_array({string.gsub(test, "/%*.*%*/", '<COMMENT>')}, {"int x; <COMMENT>", 1})
 eq_array({string.gsub(test, "/%*.-%*/", '<COMMENT>')}, {"int x; <COMMENT>  int y; <COMMENT>", 2})
 s = "a (enclosed (in) parentheses) line"
 eq_array({string.gsub(s, '%b()', '')}, {"a  line", 1})
+
+error_like(function () string.gsub(s, '%b(', '') end,
+           "^[^:]+:%d+: .- pattern",
+           "function gsub (malformed pattern)")
+
 eq_array({string.gsub("hello Lua!", "%a", "%0-%0")}, {"h-he-el-ll-lo-o L-Lu-ua-a!", 8})
 eq_array({string.gsub("hello Lua", "(.)(.)", "%2%1")}, {"ehll ouLa", 4})
 
@@ -224,10 +263,21 @@ p = "%[(=*)%[(.-)%]%1%]"
 s = "a = [=[[[ something ]] ]==]x]=]; print(a)"
 eq_array({string.match(s, p)}, {'=', '[[ something ]] ]==]x'})
 
+is(string.match(s, "%g"), "a", "match graphic char")
+
+error_like(function () string.match("hello world", "%1") end,
+           "^[^:]+:%d+: invalid capture index",
+           "function match invalid capture")
+
+error_like(function () string.match("hello world", "%w)") end,
+           "^[^:]+:%d+: invalid pattern capture",
+           "function match invalid capture")
+
 is(string.rep('ab', 3), 'ababab', "function rep")
 is(string.rep('ab', 0), '')
 is(string.rep('ab', -1), '')
 is(string.rep('', 5), '')
+is(string.rep('ab', 3, ','), 'ab,ab,ab', "with sep")
 
 is(string.reverse('abcde'), 'edcba', "function reverse")
 is(string.reverse('abcd'), 'dcba')
@@ -236,9 +286,11 @@ is(string.reverse(''), '')
 is(string.sub('abcde', 1, 2), 'ab', "function sub")
 is(string.sub('abcde', 3, 4), 'cd')
 is(string.sub('abcde', -2), 'de')
+is(string.sub('abcde', 3, 2), '')
 
 is(string.upper('Test'), 'TEST', "function upper")
 is(string.upper('TeSt'), 'TEST')
+is(string.upper(string.rep('Test', 10000)), string.rep('TEST', 10000))
 
 -- Local Variables:
 --   mode: lua

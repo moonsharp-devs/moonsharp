@@ -2,7 +2,7 @@
 --
 -- lua-TestMore : <http://fperrad.github.com/lua-TestMore/>
 --
--- Copyright (C) 2009, Perrad Francois
+-- Copyright (C) 2009-2011, Perrad Francois
 --
 -- This code is licensed under the terms of the MIT/X11 license,
 -- like Lua itself.
@@ -24,7 +24,7 @@
 
 require 'Test.More'
 
-plan(27)
+plan(28)
 
 error_like(function () return -{} end,
            "^[^:]+:%d+: attempt to perform arithmetic on",
@@ -111,6 +111,11 @@ t = {}
 is( t[1], nil, "index" )
 t[1] = 42
 is( t[1], 42, "index" )
+
+error_like(function () t = {}; t[nil] = 42 end,
+           "^[^:]+:%d+: table index is nil",
+           "table index is nil")
+
 
 -- Local Variables:
 --   mode: lua

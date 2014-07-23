@@ -2,7 +2,7 @@
 --
 -- lua-TestMore : <http://fperrad.github.com/lua-TestMore/>
 --
--- Copyright (C) 2009, Perrad Francois
+-- Copyright (C) 2009-2011, Perrad Francois
 --
 -- This code is licensed under the terms of the MIT/X11 license,
 -- like Lua itself.
@@ -24,7 +24,7 @@
 
 require 'Test.More'
 
-plan(24)
+plan(25)
 
 u = io.stdin
 
@@ -112,6 +112,10 @@ is(u[1], nil, "index")
 error_like(function () u[1] = 1 end,
            "^[^:]+:%d+: attempt to index",
            "index")
+
+t = {}
+t[u] = true
+ok(t[u])
 
 -- Local Variables:
 --   mode: lua

@@ -2,7 +2,7 @@
 --
 -- lua-TestMore : <http://fperrad.github.com/lua-TestMore/>
 --
--- Copyright (C) 2009, Perrad Francois
+-- Copyright (C) 2009-2011, Perrad Francois
 --
 -- This code is licensed under the terms of the MIT/X11 license,
 -- like Lua itself.
@@ -29,7 +29,7 @@ plan(51)
 is(- '1', -1, "-'1'")
 
 error_like(function () return - 'text' end,
-           "^[^:]+:%d+: attempt to perform arithmetic on a string value",
+           "^[^:]+:%d+: attempt to perform arithmetic on .- string value",
            "-'text'")
 
 is(# 'text', 4, "#'text'")

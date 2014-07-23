@@ -2,7 +2,7 @@
 --
 -- lua-TestMore : <http://fperrad.github.com/lua-TestMore/>
 --
--- Copyright (C) 2009, Perrad Francois
+-- Copyright (C) 2009-2011, Perrad Francois
 --
 -- This code is licensed under the terms of the MIT/X11 license,
 -- like Lua itself.
@@ -26,7 +26,7 @@ First tests in order to check infrastructure.
 
 require 'Test.More'
 
-plan(4)
+plan(5)
 
 function factorial (n)
     if n == 0 then
@@ -41,7 +41,7 @@ local function local_factorial (n)
     if n == 0 then
         return 1
     else
-        return n * factorial(n-1)
+        return n * local_factorial(n-1)
     end
 end
 is(local_factorial(7), 5040, "factorial (recursive)")
@@ -54,6 +54,18 @@ function loop_factorial (n)
     return a
 end
 is(loop_factorial(7), 5040, "factorial (loop)")
+
+function iter_factorial (n)
+    local function iter (product, counter)
+        if counter > n then
+            return product
+        else
+            return iter(counter*product, counter+1)
+        end
+    end
+    return iter(1, 1)
+end
+is(iter_factorial(7), 5040, "factorial (iter)")
 
 --[[
 

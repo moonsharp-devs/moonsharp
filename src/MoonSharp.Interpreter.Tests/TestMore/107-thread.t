@@ -2,7 +2,7 @@
 --
 -- lua-TestMore : <http://fperrad.github.com/lua-TestMore/>
 --
--- Copyright (C) 2009, Perrad Francois
+-- Copyright (C) 2009-2011, Perrad Francois
 --
 -- This code is licensed under the terms of the MIT/X11 license,
 -- like Lua itself.
@@ -24,7 +24,7 @@
 
 require 'Test.More'
 
-plan(24)
+plan(25)
 
 co = coroutine.create(function () return 1 end)
 
@@ -115,6 +115,10 @@ error_like(function () a = co[1] end,
 error_like(function () co[1] = 1 end,
            "^[^:]+:%d+: attempt to index",
            "index")
+
+t = {}
+t[co] = true
+ok(t[co])
 
 -- Local Variables:
 --   mode: lua

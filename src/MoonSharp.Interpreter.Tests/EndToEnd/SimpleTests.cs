@@ -884,6 +884,61 @@ namespace MoonSharp.Interpreter.Tests
 			Assert.AreEqual(1, res.Tuple[3].Number);
 		}
 
+		[Test]
+		public void EnvTestSuite()
+		{
+			string script = @"
+				local RES = { }
+
+				RES.T1 = (_ENV == _G) 
+
+				a = 1
+
+				local function f(t)
+				  local _ENV = t 
+
+				  RES.T2 = (getmetatable == nil) 
+  
+				  a = 2 -- create a new entry in t, doesn't touch the original 'a' global
+				  b = 3 -- create a new entry in t
+				end
+
+				local t = {}
+				f(t)
+
+				RES.T3 = a;
+				RES.T4 = b;
+				RES.T5 = t.a;
+				RES.T6 = t.b;
+
+				return RES;
+								";
+
+			DynValue res = Script.RunString(script);
+
+			Assert.AreEqual(DataType.Table, res.Type);
+
+			Table T = res.Table;
+
+			Assert.AreEqual(DataType.Boolean, T["T1"].Type);
+			Assert.AreEqual(true, T["T1"].Boolean);
+
+			Assert.AreEqual(DataType.Boolean, T["T2"].Type);
+			Assert.AreEqual(true, T["T2"].Boolean);
+
+			Assert.AreEqual(DataType.Number, T["T3"].Type);
+			Assert.AreEqual(1, T["T3"].Number);
+
+			Assert.AreEqual(DataType.Nil, T["T4"].Type);
+
+			Assert.AreEqual(DataType.Number, T["T5"].Type);
+			Assert.AreEqual(2, T["T5"].Number);
+
+			Assert.AreEqual(DataType.Number, T["T6"].Type);
+			Assert.AreEqual(3, T["T6"].Number);
+		}
+
+
 
 	}
 }

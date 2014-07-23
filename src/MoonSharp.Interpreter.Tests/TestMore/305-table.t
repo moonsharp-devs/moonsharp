@@ -2,7 +2,7 @@
 --
 -- lua-TestMore : <http://fperrad.github.com/lua-TestMore/>
 --
--- Copyright (C) 2009, Perrad Francois
+-- Copyright (C) 2009-2013, Perrad Francois
 --
 -- This code is licensed under the terms of the MIT/X11 license,
 -- like Lua itself.
@@ -20,8 +20,8 @@
 
 Tests Lua Table Library
 
-See "Lua 5.1 Reference Manual", section 5.5 "Table Manipulation",
-L<http://www.lua.org/manual/5.1/manual.html#5.5>.
+See "Lua 5.2 Reference Manual", section 6.5 "Table Manipulation",
+L<http://www.lua.org/manual/5.2/manual.html#6.5>.
 
 See "Programming in Lua", section 19 "The Table Library".
 
@@ -31,7 +31,7 @@ See "Programming in Lua", section 19 "The Table Library".
 
 require 'Test.More'
 
-plan(40)
+plan(44)
 
 t = {'a','b','c','d','e'}
 is(table.concat(t), 'abcde', "function concat")
@@ -53,9 +53,6 @@ error_like(function () table.concat(t, ',') end,
            "^[^:]+:%d+: invalid value %(boolean%) at index 3 in table for 'concat'",
            "function concat (non-string)")
 
-is(table.getn{10,2,4}, 3, "function getn")
-is(table.getn{10,2,nil}, 2)
-
 a = {10, 20, 30}
 table.insert(a, 1, 15)
 is(table.concat(a,','), '15,10,20,30', "function insert")
@@ -68,45 +65,51 @@ table.insert(t, 1, 'c')
 is(table.concat(t, ','), 'c,a,b')
 table.insert(t, 2, 'd')
 is(table.concat(t, ','), 'c,d,a,b')
-table.insert(t, 7, 'e')
-is(t[7], 'e')
-table.insert(t, -9, 'f')
-is(t[-9], 'f')
+table.insert(t, 5, 'e')
+is(table.concat(t, ','), 'c,d,a,b,e')
+
+if jit then
+    todo("LuaJIT TODO. table.insert.", 2)
+end
+error_like(function () table.insert(t, 7, 'f') end,
+           "^[^:]+:%d+: bad argument #2 to 'insert' %(position out of bounds%)",
+           "function insert (out of bounds)")
+
+error_like(function () table.insert(t, -9, 'f') end,
+           "^[^:]+:%d+: bad argument #2 to 'insert' %(position out of bounds%)",
+           "function insert (out of bounds)")
 
 error_like(function () table.insert(t, 2, 'g', 'h')  end,
            "^[^:]+:%d+: wrong number of arguments to 'insert'",
            "function insert (too many arg)")
 
-t = {a=10, b=100}
-output = {}
-table.foreach(t, function (k, v) output[k] = v end)
-eq_array(output, t, "function foreach (hash)")
+if (platform and platform.compat) or jit then
+    t = {}
+    is(table.maxn(t), 0, "function maxn")
+    t[1] = 'a'
+    t[2] = 'b'
+    is(table.maxn(t), 2)
+    t[6] = 'g'
+    is(table.maxn(t), 6)
+    a = {}
+    a[10000] = 1
+    is(table.maxn(a), 10000)
+else
+    is(table.maxn, nil, "maxn (removed)")
+    skip("maxn (removed)", 3)
+end
 
-t = {'a','b','c'}
-output = {}
-table.foreach(t, function (k, v)
-    table.insert(output, k)
-    table.insert(output, v)
-end)
-eq_array(output, {1, 'a', 2, 'b', 3, 'c'}, "function foreach (array)")
+t = table.pack("abc", "def", "ghi")
+eq_array(t, {
+    "abc",
+    "def",
+    "ghi"
+}, "function pack")
+is(t.n, 3)
 
-output = {}
-table.foreachi(t, function (i, v)
-    table.insert(output, i)
-    table.insert(output, v)
-end)
-eq_array(output, {1, 'a', 2, 'b', 3, 'c'}, "function foreachi")
-
-t = {}
-is(table.maxn(t), 0, "function maxn")
-t[1] = 'a'
-t[2] = 'b'
-is(table.maxn(t), 2)
-t[6] = 'g'
-is(table.maxn(t), 6)
-a = {}
-a[10000] = 1
-is(table.maxn(a), 10000)
+t = table.pack()
+eq_array(t, {}, "function pack (no element)")
+is(t.n, 0)
 
 t = {}
 a = table.remove(t)
@@ -121,18 +124,13 @@ is(table.concat(t, ','), 'a,b,d')
 a = table.remove(t,1)
 is(a, 'a')
 is(table.concat(t, ','), 'b,d')
-a = table.remove(t,7)
-is(a, nil)
-is(table.concat(t, ','), 'b,d')
 
-if table.setn == nil then
-    skip("setn is deprecated", 1)
-else
-    a = {}
-    error_like(function () table.setn(a, 10000) end,
-               "^[^:]+:%d+: 'setn' is obsolete",
-               "function setn")
+if jit then
+    todo("LuaJIT TODO. table.remove.", 1)
 end
+error_like(function () table.remove(t,7) end,
+           "^[^:]+:%d+: bad argument #1 to 'remove' %(position out of bounds%)",
+           "function remove (out of bounds)")
 
 lines = {
     luaH_set = 10,
@@ -223,16 +221,19 @@ eq_array(output, {
     'a b c d e f g', 5040,
 }, "function sort (all permutations)")
 
-if jit then
-    todo("LuaJIT intentional. sort", 1)
-end
 error_like(function ()
     local t = { 1 }
     table.sort( { t, t, t, t, }, function (a, b) return a[1] == b[1] end )
            end,
-           "^[^:]+:%d+: attempt to index local 'a' %(a nil value%)",
+           "^[^:]+:%d+: invalid order function for sorting",
            "function sort (bad func)")
--- see bug : http://www.lua.org/bugs.html#5.1.3
+
+eq_array({table.unpack({})}, {}, "function unpack")
+eq_array({table.unpack({'a'})}, {'a'})
+eq_array({table.unpack({'a','b','c'})}, {'a','b','c'})
+eq_array({(table.unpack({'a','b','c'}))}, {'a'})
+eq_array({table.unpack({'a','b','c','d','e'},2,4)}, {'b','c','d'})
+eq_array({table.unpack({'a','b','c'},2,4)}, {'b','c'})
 
 -- Local Variables:
 --   mode: lua

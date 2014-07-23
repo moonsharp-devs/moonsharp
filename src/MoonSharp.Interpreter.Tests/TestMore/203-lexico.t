@@ -27,10 +27,13 @@ L<http://www.lua.org/manual/5.2/manual.html#3.1>.
 
 require 'Test.More'
 
-plan(29)
+plan(40)
 
 is("\65", "A")
 is("\065", "A")
+is("\x41", "A")
+is("\x3d", "=")
+is("\x3D", "=")
 
 is(string.byte("\a"), 7)
 is(string.byte("\b"), 8)
@@ -43,27 +46,33 @@ is(string.byte("\\"), 92)
 
 is(string.len("A\0B"), 3)
 
-f, msg = loadstring [[a = "A\300"]]
+f, msg = load [[a = "A\300"]]
+like(msg, "^[^:]+:%d+: .- escape .- near")
+
+f, msg = load [[a = "A\xyz"]]
 like(msg, "^[^:]+:%d+: .- near")
 
-f, msg = loadstring [[a = " unfinished string ]]
+f, msg = load [[a = "A\Z"]]
+like(msg, "^[^:]+:%d+: .- escape .- near")
+
+f, msg = load [[a = " unfinished string ]]
 like(msg, "^[^:]+:%d+: unfinished string near")
 
-f, msg = loadstring [[a = " unfinished string
+f, msg = load [[a = " unfinished string
 ]]
 like(msg, "^[^:]+:%d+: unfinished string near")
 
-f, msg = loadstring [[a = " unfinished string \
+f, msg = load [[a = " unfinished string \
 ]]
 like(msg, "^[^:]+:%d+: unfinished string near")
 
-f, msg = loadstring [[a = " unfinished string \]]
+f, msg = load [[a = " unfinished string \]]
 like(msg, "^[^:]+:%d+: unfinished string near")
 
-f, msg = loadstring "a = [[ unfinished long string "
+f, msg = load "a = [[ unfinished long string "
 like(msg, "^[^:]+:%d+: unfinished long string near")
 
-f, msg = loadstring "a = [== invalid long string delimiter "
+f, msg = load "a = [== invalid long string delimiter "
 like(msg, "^[^:]+:%d+: invalid long string delimiter near")
 
 a = 'alo\n123"'
@@ -75,12 +84,24 @@ is([[alo
 is([==[
 alo
 123"]==], a)
+is("alo\n\z
+    123\"", a)
+
+f, msg = load [[a = " escape \z unauthorized
+new line" ]]
+like(msg, "^[^:]+:%d+: unfinished string near")
 
 is(3.0, 3)
 is(314.16e-2, 3.1416)
 is(0.31416E1, 3.1416)
 is(0xff, 255)
 is(0x56, 86)
+is(0x0.1E, 0x1E / 0x100)        -- 0.1171875
+is(0xA23p-4, 0xA23 / (2^4))     -- 162.1875
+is(0X1.921FB54442D18P+1, (1 + 0x921FB54442D18/0x10000000000000) * 2)
+
+f, msg = load [[a = 12e34e56]]
+like(msg, "^[^:]+:%d+: malformed number near")
 
 --[===[
 --[[
@@ -90,7 +111,7 @@ is(0x56, 86)
 --]]
 --]===]
 
-f, msg = loadstring "  --[[ unfinished long comment "
+f, msg = load "  --[[ unfinished long comment "
 like(msg, "^[^:]+:%d+: unfinished long comment near")
 
 -- Local Variables:
