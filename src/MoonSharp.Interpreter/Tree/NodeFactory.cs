@@ -21,8 +21,8 @@ namespace MoonSharp.Interpreter.Tree
 			if (tree is LuaParser.BlockContext)
 				return new CompositeStatement((LuaParser.BlockContext)tree, lcontext);
 
-			if (tree is LuaParser.ChunkContext)
-				return new ChunkStatement((LuaParser.ChunkContext)tree, lcontext);
+			//if (tree is LuaParser.ChunkContext)
+			//	return new ChunkStatement((LuaParser.ChunkContext)tree, lcontext, null);
 
 			if (tree is LuaParser.Stat_funcdefContext)
 				return new FunctionDefinitionStatement((LuaParser.Stat_funcdefContext)tree, lcontext);

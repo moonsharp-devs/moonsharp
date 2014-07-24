@@ -16,11 +16,17 @@ namespace MoonSharp.Interpreter.Tree.Statements
 	{
 		Statement m_Block;
 		RuntimeScopeFrame m_StackFrame;
+		Table m_GlobalEnv;
+		SymbolRef m_Env;
 
-		public ChunkStatement(LuaParser.ChunkContext context, ScriptLoadingContext lcontext)
+		public ChunkStatement(LuaParser.ChunkContext context, ScriptLoadingContext lcontext, Table globalEnv)
 			: base(context, lcontext)
 		{
-			lcontext.Scope.PushFunction(this);
+			lcontext.Scope.PushFunction(this, false);
+			m_Env = lcontext.Scope.DefineLocal(WellKnownSymbols.ENV);
+			
+			m_GlobalEnv = globalEnv;
+
 			m_Block = NodeFactory.CreateStatement(context.block(), lcontext);
 			m_StackFrame = lcontext.Scope.PopFunction();
 		}
@@ -28,14 +34,14 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		public override void Compile(Execution.VM.ByteCode bc)
 		{
 			bc.Emit_BeginFn(m_StackFrame, "<chunk-root>");
+
+			bc.Emit_Literal(DynValue.NewTable(m_GlobalEnv));
+			bc.Emit_Store(m_Env, 0, 0);
+			bc.Emit_Pop();
+
 			m_Block.Compile(bc);
 			bc.Emit_Ret(0);
 			//bc.Leave(m_StackFrame);
-		}
-
-		public object UpvalueCreationTag
-		{
-			get; set;
 		}
 
 		public SymbolRef CreateUpvalue(BuildTimeScope scope, SymbolRef symbol)

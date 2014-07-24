@@ -18,12 +18,12 @@ namespace MoonSharp.Interpreter.Tree
 {
 	internal static class Loader
 	{
-		internal static int LoadChunkFromICharStream(ICharStream charStream, ByteCode bytecode, string sourceName, int sourceIdx)
+		internal static int LoadChunkFromICharStream(ICharStream charStream, ByteCode bytecode, string sourceName, int sourceIdx, Table globalContext)
 		{
 			LuaParser parser = CreateParser(charStream, sourceIdx, p => p.chunk());
 
 			ScriptLoadingContext lcontext = CreateLoadingContext(sourceName, sourceIdx);
-			ChunkStatement stat = new ChunkStatement(parser.chunk(), lcontext);
+			ChunkStatement stat = new ChunkStatement(parser.chunk(), lcontext, globalContext);
 
 			int beginIp = -1;
 
@@ -40,12 +40,12 @@ namespace MoonSharp.Interpreter.Tree
 			return beginIp;
 		}
 
-		internal static int LoadFunctionFromICharStream(ICharStream charStream, ByteCode bytecode, string sourceName, int sourceIdx)
+		internal static int LoadFunctionFromICharStream(ICharStream charStream, ByteCode bytecode, string sourceName, int sourceIdx, Table globalContext)
 		{
 			LuaParser parser = CreateParser(charStream, sourceIdx, p => p.anonfunctiondef());
 
 			ScriptLoadingContext lcontext = CreateLoadingContext(sourceName, sourceIdx);
-			FunctionDefinitionExpression fndef = new FunctionDefinitionExpression(parser.anonfunctiondef(), lcontext);
+			FunctionDefinitionExpression fndef = new FunctionDefinitionExpression(parser.anonfunctiondef(), lcontext, false, globalContext);
 
 			int beginIp = -1;
 

@@ -99,12 +99,13 @@ namespace MoonSharp.Interpreter
 			int address = Loader.LoadFunctionFromICharStream(new AntlrInputStream(code),
 				m_ByteCode,
 				funcFriendlyName ?? chunkName,
-				m_Sources.Count - 1);
+				m_Sources.Count - 1,
+				globalTable ?? m_GlobalTable);
 
 			if (m_Debugger != null)
 				m_Debugger.SetSourceCode(m_ByteCode, null);
 
-			return MakeClosure(address, globalTable);
+			return MakeClosure(address);
 		}
 
 
@@ -126,12 +127,13 @@ namespace MoonSharp.Interpreter
 			int address = Loader.LoadChunkFromICharStream(new AntlrInputStream(code),
 				m_ByteCode,
 				codeFriendlyName ?? chunkName,
-				m_Sources.Count - 1);
+				m_Sources.Count - 1,
+				globalTable ?? m_GlobalTable);
 
 			if (m_Debugger != null)
 				m_Debugger.SetSourceCode(m_ByteCode, null);
 
-			return MakeClosure(address, globalTable);
+			return MakeClosure(address);
 		}
 
 		/// <summary>
@@ -220,14 +222,17 @@ namespace MoonSharp.Interpreter
 		/// Creates a closure from a bytecode address.
 		/// </summary>
 		/// <param name="address">The address.</param>
-		/// <param name="globalContext">The global context.</param>
 		/// <returns></returns>
-		private DynValue MakeClosure(int address, Table globalContext)
+		private DynValue MakeClosure(int address)
 		{
-			Closure c = new Closure(this, address, new SymbolRef[0], new DynValue[0]);
-			c.GlobalEnv = globalContext;
+			Closure c = new Closure(this, address,
+				new SymbolRef[0],
+				new DynValue[0]);
+
 			return DynValue.NewClosure(c);
 		}
+
+
 
 		/// <summary>
 		/// Fixes the index of a coroutine translating a -1 parameter.
@@ -253,11 +258,10 @@ namespace MoonSharp.Interpreter
 		/// <summary>
 		/// Gets the main chunk function.
 		/// </summary>
-		/// <param name="globalContext">The global context.</param>
 		/// <returns>A DynValue containing a function which executes the first chunk that has been loaded.</returns>
-		public DynValue GetMainChunk(Table globalContext = null)
+		public DynValue GetMainChunk()
 		{
-			return MakeClosure(0, globalContext);
+			return MakeClosure(0);
 		}
 
 		/// <summary>

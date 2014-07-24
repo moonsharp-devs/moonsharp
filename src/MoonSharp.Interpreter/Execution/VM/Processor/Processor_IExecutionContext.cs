@@ -17,10 +17,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 			AssignGenericSymbol(symref, value);
 		}
 
-		internal SymbolRef FindVar(string name)
-		{
-			return FindRefByName(name);
-		}
 
 		internal Table GetMetatable(DynValue value)
 		{

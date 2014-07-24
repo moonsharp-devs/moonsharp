@@ -17,34 +17,16 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 		bool m_HasVarArgs = false;
 		Instruction m_ClosureInstruction = null;
 
-		public object UpvalueCreationTag { get; set; }
+		Table m_GlobalEnv;
+		SymbolRef m_Env;
 
-		public FunctionDefinitionExpression(LuaParser.AnonfunctiondefContext context, ScriptLoadingContext lcontext, bool pushSelfParam = false)
-			: this(context.funcbody(), lcontext, pushSelfParam)
+		public FunctionDefinitionExpression(LuaParser.AnonfunctiondefContext context, ScriptLoadingContext lcontext, bool pushSelfParam = false, Table globalContext = null)
+			: this(context.funcbody(), lcontext, pushSelfParam, globalContext)
 		{
 		}
 
-		public SymbolRef CreateUpvalue(BuildTimeScope scope, SymbolRef symbol)
-		{
-			for (int i = 0; i < m_Closure.Count; i++)
-			{
-				if (m_Closure[i].i_Name == symbol.i_Name)
-				{
-					return SymbolRef.Upvalue(symbol.i_Name, i);
-				}
-			}
 
-			m_Closure.Add(symbol);
-
-			if (m_ClosureInstruction != null)
-			{
-				m_ClosureInstruction.SymbolList = m_Closure.ToArray();
-			}
-
-			return SymbolRef.Upvalue(symbol.i_Name, m_Closure.Count - 1);
-		}
-
-		public FunctionDefinitionExpression(LuaParser.FuncbodyContext context, ScriptLoadingContext lcontext, bool pushSelfParam = false)
+		public FunctionDefinitionExpression(LuaParser.FuncbodyContext context, ScriptLoadingContext lcontext, bool pushSelfParam = false, Table globalContext = null)
 			: base(context, lcontext)
 		{
 			var parlist = context.parlist();
@@ -70,9 +52,15 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			m_HasVarArgs = (parlist != null && parlist.vararg() != null);
 
 			if (m_HasVarArgs)
-				paramnames.Add("...");
+				paramnames.Add(WellKnownSymbols.VARARGS);
 
-			lcontext.Scope.PushFunction(this);
+			lcontext.Scope.PushFunction(this, m_HasVarArgs);
+
+			if (globalContext != null)
+			{
+				m_GlobalEnv = globalContext;
+				m_Env = lcontext.Scope.TryDefineLocal(WellKnownSymbols.ENV);
+			}
 
 			m_ParamNames = DefineArguments(paramnames, lcontext);
 
@@ -80,6 +68,26 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 			m_StackFrame = lcontext.Scope.PopFunction();
 
+		}
+
+		public SymbolRef CreateUpvalue(BuildTimeScope scope, SymbolRef symbol)
+		{
+			for (int i = 0; i < m_Closure.Count; i++)
+			{
+				if (m_Closure[i].i_Name == symbol.i_Name)
+				{
+					return SymbolRef.Upvalue(symbol.i_Name, i);
+				}
+			}
+
+			m_Closure.Add(symbol);
+
+			if (m_ClosureInstruction != null)
+			{
+				m_ClosureInstruction.SymbolList = m_Closure.ToArray();
+			}
+
+			return SymbolRef.Upvalue(symbol.i_Name, m_Closure.Count - 1);
 		}
 
 		private SymbolRef[] DefineArguments(List<string> paramnames, ScriptLoadingContext lcontext)
@@ -100,6 +108,13 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 			int entryPoint = bc.GetJumpPointForLastInstruction();
 
+			if (m_GlobalEnv != null)
+			{
+				bc.Emit_Literal(DynValue.NewTable(m_GlobalEnv));
+				bc.Emit_Store(m_Env, 0, 0);
+				bc.Emit_Pop();
+			} 
+			
 			if (m_ParamNames.Length > 0)
 				bc.Emit_Args(m_ParamNames);
 

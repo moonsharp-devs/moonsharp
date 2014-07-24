@@ -109,7 +109,7 @@ namespace MoonSharp.Interpreter
 
 			string val = fi.GetValue(o) as string;
 
-			DynValue fn = table.OwnerScript.LoadFunction(val, null, name);
+			DynValue fn = table.OwnerScript.LoadFunction(val, table, name);
 
 			table[name] = fn;
 		}

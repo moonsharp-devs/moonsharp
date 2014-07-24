@@ -22,7 +22,12 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 		public SymbolRefExpression(LuaParser.VarargContext context, ScriptLoadingContext lcontext)
 			: base(context, lcontext)
 		{
-			m_Ref = lcontext.Scope.TryDefineLocal("...");
+			m_Ref = lcontext.Scope.TryDefineLocal(WellKnownSymbols.VARARGS);
+
+			if (!lcontext.Scope.CurrentFunctionHasVarArgs())
+			{
+				throw new SyntaxErrorException("cannot use '...' outside a vararg function");
+			}
 		}
 
 

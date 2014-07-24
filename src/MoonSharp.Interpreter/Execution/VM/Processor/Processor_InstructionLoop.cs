@@ -465,7 +465,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				{
 					this.AssignLocal(I.SymbolList[i], DynValue.NewNil());
 				}
-				else if ((i == I.SymbolList.Length - 1) && (I.SymbolList[i].i_Name == "..."))
+				else if ((i == I.SymbolList.Length - 1) && (I.SymbolList[i].i_Name == WellKnownSymbols.VARARGS))
 				{
 					int len = numargs - i;
 					DynValue[] varargs = new DynValue[len];

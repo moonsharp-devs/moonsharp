@@ -5,10 +5,9 @@ using System.Text;
 
 namespace MoonSharp.Interpreter
 {
-	public enum SymbolRefType
+	public static class WellKnownSymbols
 	{
-		Local,
-		Upvalue,
-		Global,
+		public const string VARARGS = "...";
+		public const string ENV = "_ENV";
 	}
 }

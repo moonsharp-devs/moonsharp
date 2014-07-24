@@ -194,7 +194,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			switch (sym.Type)
 			{
 				case SymbolRefType.Global:
-					AppendInstruction(new Instruction() { OpCode = OpCode.PushEnv });
+					Emit_Load(sym.i_Env);
 					AppendInstruction(new Instruction() { OpCode = OpCode.Index, Value = DynValue.NewString(sym.i_Name) });
 					return 2;
 				case SymbolRefType.Local:
@@ -213,7 +213,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			switch (sym.Type)
 			{
 				case SymbolRefType.Global:
-					AppendInstruction(new Instruction() { OpCode = OpCode.PushEnv });
+					Emit_Load(sym.i_Env);
 					AppendInstruction(new Instruction() { OpCode = OpCode.IndexSet, Symbol = sym, NumVal = stackofs, NumVal2 = tupleidx, Value = DynValue.NewString(sym.i_Name) });
 					return 2;
 				case SymbolRefType.Local:

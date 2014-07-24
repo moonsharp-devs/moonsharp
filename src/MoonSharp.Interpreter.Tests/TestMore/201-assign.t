@@ -40,7 +40,7 @@ else
     is(_ENV.b, 10, "_ENV")
     is(_G, _ENV, "_G")
     error_like([[ _ENV = nil; b = 20 ]],
-               "^[^:]+:%d+: attempt to index upvalue '_ENV' %(a nil value%)")
+               "^[^:]+:%d+: attempt to index a nil value")
 end
 b = nil
 is(b, nil)

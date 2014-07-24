@@ -36,10 +36,6 @@ namespace MoonSharp.Interpreter.Execution
 			m_Processor.SetVar(symref, value);
 		}
 
-		public SymbolRef FindVar(string name)
-		{
-			return m_Processor.FindVar(name);
-		}
 
 		public Table GetMetatable(DynValue value)
 		{

@@ -41,7 +41,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			switch (symref.i_Type)
 			{
 				case SymbolRefType.Global:
-					return m_GlobalTable[symref.i_Name];
+					return GetGlobalSymbol(GetGenericSymbol(symref.i_Env), symref.i_Name);
 				case SymbolRefType.Local:
 					return m_ExecutionStack.Peek().LocalScope[symref.i_Index];
 				case SymbolRefType.Upvalue:
@@ -51,12 +51,29 @@ namespace MoonSharp.Interpreter.Execution.VM
 			}
 		}
 
+		private DynValue GetGlobalSymbol(DynValue dynValue, string name)
+		{
+			if (dynValue.Type != DataType.Table)
+				throw new InvalidOperationException(string.Format("_ENV is not a table but a {0}", dynValue.Type));
+
+			return dynValue.Table[name];
+		}
+
+		private void SetGlobalSymbol(DynValue dynValue, string name, DynValue value)
+		{
+			if (dynValue.Type != DataType.Table)
+				throw new InvalidOperationException(string.Format("_ENV is not a table but a {0}", dynValue.Type));
+
+			dynValue.Table[name] = value ?? DynValue.Nil;
+		}
+
+
 		public void AssignGenericSymbol(SymbolRef symref, DynValue value)
 		{
 			switch (symref.i_Type)
 			{
 				case SymbolRefType.Global:
-					m_GlobalTable[symref.i_Name] = value.CloneAsWritable();
+					SetGlobalSymbol(GetGenericSymbol(symref.i_Env), symref.i_Name, value);
 					break;
 				case SymbolRefType.Local:
 					{
@@ -85,6 +102,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			}
 		}
 
+
 		public SymbolRef FindRefByName(string name)
 		{
 			var stackframe = m_ExecutionStack.Peek();
@@ -110,8 +128,11 @@ namespace MoonSharp.Interpreter.Execution.VM
 						return SymbolRef.Upvalue(name, i);
 			}
 
-			if (m_GlobalTable.HasStringSymbol(name))
-				return SymbolRef.Global(name);
+			if (name != WellKnownSymbols.ENV)
+			{
+				SymbolRef env = FindRefByName(WellKnownSymbols.ENV);
+				return SymbolRef.Global(name, env);
+			}
 
 			return null;
 		}

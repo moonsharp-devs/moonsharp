@@ -100,13 +100,13 @@
     <Compile Include="DataStructs\Slice.cs" />
     <Compile Include="DataTypes\IScriptPrivateResource.cs" />
     <Compile Include="DataTypes\TailCallData.cs" />
+    <Compile Include="DataTypes\WellKnownSymbols.cs" />
     <Compile Include="Debugging\DebuggerAction.cs" />
     <Compile Include="Debugging\IDebugger.cs" />
     <Compile Include="Debugging\SourceCodeType.cs" />
     <Compile Include="Debugging\SourceRef.cs" />
     <Compile Include="Debugging\WatchItem.cs" />
     <Compile Include="Debugging\WatchType.cs" />
-    <Compile Include="Diagnostics\Debug.cs" />
     <Compile Include="Errors\ScriptRuntimeException.cs">
       <SubType>Code</SubType>
     </Compile>

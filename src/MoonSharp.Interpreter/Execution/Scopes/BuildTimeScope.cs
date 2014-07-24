@@ -12,14 +12,10 @@ namespace MoonSharp.Interpreter.Execution
 		List<IClosureBuilder> m_ClosureBuilders = new List<IClosureBuilder>();
 
 
-		public void PushFunction(IClosureBuilder closureBuilder)
+		public void PushFunction(IClosureBuilder closureBuilder, bool hasVarArgs)
 		{
 			m_ClosureBuilders.Add(closureBuilder);
-
-			if (closureBuilder != null)
-				closureBuilder.UpvalueCreationTag = (m_Frames.Count - 1);
-
-			m_Frames.Add(new BuildTimeScopeFrame());
+			m_Frames.Add(new BuildTimeScopeFrame(hasVarArgs));
 		}
 
 		public void PushBlock()
@@ -64,7 +60,16 @@ namespace MoonSharp.Interpreter.Execution
 				}
 			}
 
-			return SymbolRef.Global(name);
+			return CreateGlobalReference(name);
+		}
+
+		public SymbolRef CreateGlobalReference(string name)
+		{
+			if (name == WellKnownSymbols.ENV)
+				throw new InternalErrorException("_ENV passed in CreateGlobalReference");
+
+			SymbolRef env = Find(WellKnownSymbols.ENV);
+			return SymbolRef.Global(name, env);
 		}
 
 		private SymbolRef CreateUpValue(BuildTimeScope buildTimeScope, SymbolRef symb, int closuredFrame, int currentFrame)
@@ -88,7 +93,9 @@ namespace MoonSharp.Interpreter.Execution
 			return m_Frames.Last().TryDefineLocal(name);
 		}
 
-
-
+		public bool CurrentFunctionHasVarArgs()
+		{
+			return m_Frames.Last().HasVarArgs;
+		}
 	}
 }

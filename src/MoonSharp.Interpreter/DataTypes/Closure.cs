@@ -13,8 +13,6 @@ namespace MoonSharp.Interpreter
 
 		public ClosureContext ClosureContext { get; private set; }
 
-		public Table GlobalEnv { get; set; }
-
 		public Script OwnerScript { get; private set; }
 
 

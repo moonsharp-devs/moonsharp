@@ -9,6 +9,65 @@ namespace MoonSharp.Interpreter.CoreLib
 	[MoonSharpModule]
 	public class LoadMethods
 	{
+		// load (ld [, source [, mode [, env]]])
+		// ----------------------------------------------------------------
+		// Loads a chunk.
+		// 
+		// If ld is a string, the chunk is this string. 
+		// 
+		// If there are no syntactic errors, returns the compiled chunk as a function; 
+		// otherwise, returns nil plus the error message.
+		// 
+		// source is used as the source of the chunk for error messages and debug 
+		// information (see §4.9). When absent, it defaults to ld, if ld is a string, 
+		// or to "=(load)" otherwise.
+		// 
+		// The string mode is ignored, and assumed to be "t"; 
+		[MoonSharpMethod]
+		public static DynValue load(ScriptExecutionContext executionContext, CallbackArguments args)
+		{
+			try
+			{
+				Script S = executionContext.GetOwnerScript();
+				DynValue ld = args.AsType(0, "load", DataType.String, false);
+				DynValue source = args.AsType(1, "load", DataType.String, true);
+				DynValue env = args.AsType(3, "load", DataType.Table, true);
+
+				DynValue fn = S.LoadString(ld.String,
+					env != null ? env.Table : null,
+					source != null ? source.String : "=(load)");
+
+				return fn;
+			}
+			catch (SyntaxErrorException ex)
+			{
+				throw new ScriptRuntimeException("{0}", ex.Message);
+			}
+		}
+
+		// loadfile ([filename [, mode [, env]]])
+		// ----------------------------------------------------------------
+		// Similar to load, but gets the chunk from file filename or from the standard input, 
+		// if no file name is given. INCOMPAT: stdin not supported, mode ignored
+		[MoonSharpMethod]
+		public static DynValue loadfile(ScriptExecutionContext executionContext, CallbackArguments args)
+		{
+			try
+			{
+				Script S = executionContext.GetOwnerScript();
+				DynValue filename = args.AsType(0, "loadfile", DataType.String, false);
+				DynValue env = args.AsType(2, "loadfile", DataType.Table, true);
+
+				DynValue fn = S.LoadFile(filename.String, env != null ? env.Table : null);
+
+				return fn;
+			}
+			catch (SyntaxErrorException ex)
+			{
+				throw new ScriptRuntimeException("{0}", ex.Message);
+			}
+		}
+
 		//dofile ([filename])
 		//--------------------------------------------------------------------------------------------------------------
 		//Opens the named file and executes its contents as a Lua chunk. When called without arguments, 
@@ -17,12 +76,19 @@ namespace MoonSharp.Interpreter.CoreLib
 		[MoonSharpMethod]
 		public static DynValue dofile(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
-			Script S = executionContext.GetOwnerScript();
-			DynValue v = args.AsType(0, "dofile", DataType.String, false);
+			try
+			{
+				Script S = executionContext.GetOwnerScript();
+				DynValue v = args.AsType(0, "dofile", DataType.String, false);
 
-			DynValue fn = S.LoadFile(v.String);
+				DynValue fn = S.LoadFile(v.String);
 
-			return DynValue.NewTailCallReq(fn); // tail call to dofile
+				return DynValue.NewTailCallReq(fn); // tail call to dofile
+			}
+			catch (SyntaxErrorException ex)
+			{
+				throw new ScriptRuntimeException("{0}", ex.Message);
+			}
 		}
 
 		//require (modname)
