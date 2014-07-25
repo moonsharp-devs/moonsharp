@@ -27,6 +27,7 @@ namespace MoonSharp.Interpreter
 		Table m_GlobalTable;
 		IDebugger m_Debugger;
 		IScriptLoader m_ScriptLoader = DefaultScriptLoader;
+		Table[] m_TypeMetatables = new Table[(int)DataType.MaxMetaTypes];
 
 		static Script()
 		{
@@ -48,6 +49,7 @@ namespace MoonSharp.Interpreter
 		/// <param name="coreModules">The core modules to be pre-registered in the default global table.</param>
 		public Script(CoreModules coreModules)
 		{
+			DebugPrint = s => { Console.WriteLine(s); };
 			m_ByteCode = new ByteCode();
 			m_GlobalTable = new Table(this).RegisterCoreModules(coreModules);
 			m_Coroutines.Add(new Processor(this, m_GlobalTable, m_ByteCode));
@@ -321,5 +323,43 @@ namespace MoonSharp.Interpreter
 		{
 			RandomGenerator = new Random();
 		}
+
+
+		/// <summary>
+		/// Gets a type metatable.
+		/// </summary>
+		/// <param name="type">The type.</param>
+		/// <returns></returns>
+		public Table GetTypeMetatable(DataType type)
+		{
+			int t = (int)type;
+
+			if (t >= 0 && t < m_TypeMetatables.Length)
+				return m_TypeMetatables[t];
+
+			return null;
+		}
+
+		/// <summary>
+		/// Sets a type metatable.
+		/// </summary>
+		/// <param name="type">The type. Must be Nil, Boolean, Number, String or Function</param>
+		/// <param name="metatable">The metatable.</param>
+		/// <exception cref="System.ArgumentException">Specified type not supported :  + type.ToString()</exception>
+		public void SetTypeMetatable(DataType type, Table metatable)
+		{
+			int t = (int)type;
+
+			if (t >= 0 && t < m_TypeMetatables.Length)
+				m_TypeMetatables[t] = metatable;
+			else
+				throw new ArgumentException("Specified type not supported : " + type.ToString());
+		}
+
+		/// <summary>
+		/// Gets or sets the debug print handler
+		/// </summary>
+		public Action<string> DebugPrint { get; set; }
+
 	}
 }

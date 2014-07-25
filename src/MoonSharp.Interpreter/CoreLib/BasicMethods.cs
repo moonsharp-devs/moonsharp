@@ -76,11 +76,39 @@ namespace MoonSharp.Interpreter.CoreLib
 		}
 
 
+		// tostring (v)
+		// ----------------------------------------------------------------------------------------------------------------
+		// Receives a value of any type and converts it to a string in a reasonable format. (For complete control of how 
+		// numbers are converted, use string.format.)
+		// 
+		// If the metatable of v has a "__tostring" field, then tostring calls the corresponding value with v as argument, 
+		// and uses the result of the call as its result. 
 		[MoonSharpMethod]
 		public static DynValue tostring(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			DynValue v = args[0];
-			return DynValue.NewString(v.ToPrintString());
+			DynValue tail = executionContext.GetMetamethodTailCall(v, "__tostring", v);
+			
+			if (tail == null || tail.IsNil())
+				return DynValue.NewString(v.ToPrintString());
+
+			tail.TailCallData.Continuation = new CallbackFunction(__tostring_continuation);
+
+			return tail;
+		}
+
+		private static DynValue __tostring_continuation(ScriptExecutionContext executionContext, CallbackArguments args)
+		{
+			DynValue b = args[0].ToScalar();
+
+			if (b.IsNil())
+				return b;
+
+			if (b.Type != DataType.String)
+				throw new ScriptRuntimeException("'tostring' must return a string");
+
+
+			return b;
 		}
 
 
@@ -127,6 +155,114 @@ namespace MoonSharp.Interpreter.CoreLib
 			}
 		}
 
+		[MoonSharpMethod]
+		public static DynValue print(ScriptExecutionContext executionContext, CallbackArguments args)
+		{
+			Table values = new Table(executionContext.GetOwnerScript());
+			bool hasmeta = false;
+
+			for (int i = 0; i < args.Count; i++)
+			{
+				if ((args[i].Type == DataType.Table) && (args[i].Table.MetaTable != null) &&
+					(args[i].Table.MetaTable.RawGet("__tostring") != null))
+				{
+					values[i] = args[i].CloneAsWritable();
+					hasmeta = true;
+				}
+				else
+				{
+					values[i] = DynValue.NewString(args[i].ToPrintString());
+				}
+			}
+
+			values["i"] = DynValue.NewNumber(-1);
+			values["l"] = DynValue.NewNumber(args.Count);
+
+			if (!hasmeta)
+			{
+				DoPrint(values);
+				return DynValue.Nil;
+			}
+
+			executionContext.Closure = values;
+
+			return __print_to_string_loop(executionContext, args);
+		}
+
+		public static DynValue __print_to_string_loop(ScriptExecutionContext executionContext, CallbackArguments args)
+		{
+			Table values = executionContext.Closure;
+			int idx = (int)values["i"].Number;
+			int len = (int)values["l"].Number;
+
+			while(idx < len)
+			{
+				idx++;
+
+				DynValue v = values[idx];
+
+				if (v.Type == DataType.String)
+					continue;
+				else if (v.Type == DataType.Nil)
+					continue;
+
+				values["i"].AssignNumber(idx);
+
+
+				DynValue tail = executionContext.GetMetamethodTailCall(v, "__tostring", v);
+
+				if (tail == null || tail.IsNil())
+					return DynValue.Nil;
+
+				tail.TailCallData.Continuation = new CallbackFunction(__print_tostring_continuation);
+				tail.TailCallData.Continuation.Closure = values;
+
+				return tail;
+			}
+
+			DoPrint(values);
+			return DynValue.Nil;
+		}
+
+		private static DynValue __print_tostring_continuation(ScriptExecutionContext executionContext, CallbackArguments args)
+		{
+			DynValue b = args[0].ToScalar();
+			Table values = executionContext.Closure;
+			int idx = (int)values["i"].Number;
+
+			if (!b.IsNil())
+			{
+				if (b.Type != DataType.String)
+					throw new ScriptRuntimeException("'tostring' must return a string to 'print'");
+			}
+
+			values[idx] = b;
+
+			return __print_to_string_loop(executionContext, args);
+		}
+
+
+		
+		private static void DoPrint(Table t)
+		{
+			StringBuilder sb = new StringBuilder();
+			int len = (int)t["l"].Number;
+
+			for (int i = 0; i < len; i++)
+			{
+				DynValue v = t[i];
+
+				if (v.IsNil())
+					continue;
+
+				if (i != 0)
+					sb.Append('\t');
+
+				sb.Append(v.String);
+			}
+
+			t.OwnerScript.DebugPrint(sb.ToString());
+		}
 
 
 

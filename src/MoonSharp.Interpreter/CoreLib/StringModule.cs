@@ -10,7 +10,16 @@ namespace MoonSharp.Interpreter.CoreLib
 	[MoonSharpModule(Namespace="string")]
 	public class StringModule
 	{
-		[MoonSharpMethod()]
+		public static void MoonSharpInit(Table globalTable, Table stringTable)
+		{
+			Table stringMetatable = new Table(globalTable.OwnerScript);
+			stringMetatable["__index"] = DynValue.NewTable(stringTable);
+			globalTable.OwnerScript.SetTypeMetatable(DataType.String, stringMetatable);
+		}
+
+
+
+		[MoonSharpMethod]
 		public static DynValue match(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			DynValue s = args.AsType(0, "match", DataType.String, false);

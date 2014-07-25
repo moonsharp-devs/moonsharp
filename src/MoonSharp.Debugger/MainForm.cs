@@ -50,12 +50,6 @@ namespace MoonSharp.Debugger
 		Script m_Script;
 		SynchronizationContext m_Ctx;
 
-		DynValue Print(ScriptExecutionContext executionContext, CallbackArguments values)
-		{
-			string prn = string.Join(" ", values.List.Select(v => v.ToPrintString()).ToArray());
-			Console_WriteLine("{0}", prn);
-			return DynValue.Nil;
-		}
 
 		DynValue Assert(ScriptExecutionContext executionContext, CallbackArguments values)
 		{
@@ -91,7 +85,7 @@ namespace MoonSharp.Debugger
 		{
 			m_Script = new Script(CoreModules.Preset_Complete);
 
-			m_Script.Globals["print"] = DynValue.NewCallback(Print);
+			m_Script.DebugPrint = s => { Console_WriteLine("{0}", s); };
 			m_Script.Globals["assert"] = DynValue.NewCallback(Assert);
 			m_Script.Globals["xassert"] = DynValue.NewCallback(XAssert);
 

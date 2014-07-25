@@ -583,7 +583,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			{
 				m_ValueStack.Pop(); // discard tail call request
 
-				TailCallData tcd = (TailCallData)tail.UserObject;
+				TailCallData tcd = tail.TailCallData;
 
 				m_ValueStack.Push(tcd.Function);
 
@@ -1017,16 +1017,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 					{
 						m_ValueStack.Push(DynValue.Nil);
 						return instructionPtr;
-					}
-				}
-				else if (obj.Type == DataType.String)
-				{
-					h = GetMetamethod(obj, "__index");
-
-					if (h == null || h.IsNil())
-					{
-						// by default, bounce to the string table
-						h = m_GlobalTable["string"];
 					}
 				}
 				else

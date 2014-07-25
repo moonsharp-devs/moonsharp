@@ -17,7 +17,11 @@ namespace MoonSharp.Interpreter.Execution
 			m_Callback = callBackFunction;
 		}
 
-		public Table Closure { get { return m_Callback.Closure; } }
+		public Table Closure 
+		{ 
+			get { return m_Callback.Closure; } 
+			set { m_Callback.Closure = value; } 
+		}
 
 
 		public DynValue GetVar(SymbolRef symref)

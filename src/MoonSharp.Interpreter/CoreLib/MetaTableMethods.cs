@@ -40,21 +40,25 @@ namespace MoonSharp.Interpreter.CoreLib
 		public static DynValue getmetatable(ScriptExecutionContext executionContext, CallbackArguments args)  
 		{
 			DynValue obj = args[0];
+			Table meta = null;
 
-			if (obj.Type == DataType.Nil)
-				return DynValue.Nil;
-
-			DynValue curmeta = executionContext.GetMetamethod(obj, "__metatable");
-
-			if (curmeta != null)
+			if (obj.Type.CanHaveTypeMetatables())
 			{
-				return curmeta;
+				meta = executionContext.GetOwnerScript().GetTypeMetatable(obj.Type);
+			}
+			
+			
+			if (obj.Type == DataType.Table)
+			{
+				meta = obj.Table.MetaTable;
 			}
 
-			if (obj.Table.MetaTable != null)
-				return DynValue.NewTable(obj.Table.MetaTable);
-
-			return DynValue.Nil;
+			if (meta == null)
+				return DynValue.Nil;
+			else if (meta.RawGet("__metatable") != null)
+				return meta["__metatable"];
+			else
+				return DynValue.NewTable(meta);
 		}
 
 		// rawget (table, index)

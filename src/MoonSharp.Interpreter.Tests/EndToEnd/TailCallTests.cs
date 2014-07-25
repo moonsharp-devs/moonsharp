@@ -11,33 +11,69 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 	public class TailCallTests
 	{
 		[Test]
-		[Ignore]
 		public void TailCallFromCLR()
 		{
-//			string script = @"
-//				function getResult(x)
-//					return 156*x;  
-//				end
-//
-//				return clrtail(9)";
+			string script = @"
+				function getResult(x)
+					return 156*x;  
+				end
+
+				return clrtail(9)";
 
 
-//			Script S = new Script();
+			Script S = new Script();
 
-//			S.Globals["clrtail"] = DynValue.NewCallback((xc, a) =>
-//			{
-//				SymbolRef lref = SymbolRef.Global("getResult");
-//				DynValue fn = xc.GetVar(lref);
-//				DynValue k3 = DynValue.NewNumber(a[0].Number / 3);
+			S.Globals["clrtail"] = DynValue.NewCallback((xc, a) =>
+			{
+				DynValue fn = S.Globals["getResult"];
+				DynValue k3 = DynValue.NewNumber(a[0].Number / 3);
 
-//				return DynValue.NewTailCallReq(fn, k3);
-//			});
+				return DynValue.NewTailCallReq(fn, k3);
+			});
 
-//			var res = S.DoString(script);
+			var res = S.DoString(script);
 
-//			Assert.AreEqual(DataType.Number, res.Type);
-//			Assert.AreEqual(468, res.Number);
+			Assert.AreEqual(DataType.Number, res.Type);
+			Assert.AreEqual(468, res.Number);
 		}
 
+
+		[Test]
+		public void CheckToString()
+		{
+			string script = @"
+				return tostring(9)";
+
+
+			Script S = new Script();
+			var res = S.DoString(script);
+
+			Assert.AreEqual(DataType.String, res.Type);
+			Assert.AreEqual("9", res.String);
+		}
+
+		[Test]
+		public void CheckToStringMeta()
+		{
+			string script = @"
+				t = {}
+				m = {
+					__tostring = function(v)
+						return 'ciao';
+					end
+				}
+
+				setmetatable(t, m);
+				s = tostring(t);
+
+				return (s);";
+
+
+			Script S = new Script();
+			var res = S.DoString(script);
+
+			Assert.AreEqual(DataType.String, res.Type);
+			Assert.AreEqual("ciao", res.String);
+		}
 	}
 }

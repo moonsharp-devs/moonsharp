@@ -37,11 +37,11 @@ namespace MoonSharp.Interpreter
 			return List.ToArray();
 		}
 
-		public void ThrowBadArgument(int argNum, string funcName, object expected, object got)
+		public void ThrowBadArgument(int argNum, string funcName, object expected, object got, bool allowNil)
 		{
 			// bad argument #1 to 'next' (table expected, got number)
-			throw new ScriptRuntimeException("bad argument #{0} to '{1}' ({2} expected, got {3}",
-				argNum + 1, funcName, expected, got);
+			throw new ScriptRuntimeException("bad argument #{0} to '{1}' ({2}{3} expected, got {4})",
+				argNum + 1, funcName, allowNil ? "nil or " : "", expected.ToString().ToLowerInvariant(), got.ToString().ToLowerInvariant());
 		}
 
 		public DynValue AsType(int argNum, string funcName, DataType type, bool allowNil = false)
@@ -50,7 +50,7 @@ namespace MoonSharp.Interpreter
 				return this[argNum];
 
 			if (this[argNum].Type != type)
-				ThrowBadArgument(argNum, funcName, type, this[argNum].Type);
+				ThrowBadArgument(argNum, funcName, type, this[argNum].Type, allowNil);
 
 			return this[argNum];
 		}

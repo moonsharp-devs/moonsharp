@@ -14,6 +14,7 @@ namespace MoonSharp.Interpreter
 		Number,
 		String,
 		Function,
+
 		Table,
 		Tuple,
 		UserData,
@@ -21,10 +22,18 @@ namespace MoonSharp.Interpreter
 
 		ClrFunction,
 		TailCallRequest,
+
+		MaxMetaTypes = Table
 	}
 
 	public static class LuaTypeExtensions
 	{
+		public static bool CanHaveTypeMetatables(this DataType type)
+		{
+			return (int)type < (int)DataType.MaxMetaTypes;
+		}
+
+
 		public static string ToLuaTypeString(this DataType type)
 		{
 			switch (type)

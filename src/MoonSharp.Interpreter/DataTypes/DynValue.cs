@@ -62,11 +62,17 @@ namespace MoonSharp.Interpreter
 		/// Gets or sets the user object, if this value is userdata
 		/// </summary>
 		public object UserObject { get; set; }
+		/// <summary>
+		/// Gets the tail call data.
+		/// </summary>
+		public TailCallData TailCallData { get { return UserObject as TailCallData; } }
 
 		/// <summary>
 		/// Returns true if this instance is write protected.
 		/// </summary>
 		public bool ReadOnly { get; internal set; }
+
+
 
 
 		/// <summary>

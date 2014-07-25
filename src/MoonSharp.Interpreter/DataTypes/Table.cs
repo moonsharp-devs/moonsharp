@@ -260,5 +260,8 @@ namespace MoonSharp.Interpreter
 		/// Gets the meta-table associated with this instance.
 		/// </summary>
 		public Table MetaTable { get; set; }
+
+
+
 	}
 }

@@ -198,7 +198,6 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
-		[Ignore]
 		public void TestMore_231_metatable()
 		{
 			TapRunner.Run(@"TestMore\231-metatable.t");
@@ -206,7 +205,6 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
-		[Ignore]
 		public void TestMore_232_object()
 		{
 			TapRunner.Run(@"TestMore\232-object.t");

@@ -38,7 +38,7 @@ is(setmetatable(t, t1), t)
 is(getmetatable(t), t1)
 is(setmetatable(t, nil), t)
 error_like(function () setmetatable(t, true) end,
-           "^[^:]+:%d+: bad argument #2 to 'setmetatable' %(nil or table expected%)")
+           "^[^:]+:%d+: bad argument #2 to 'setmetatable' %(nil or table expected.+%)")
 
 mt = {}
 mt.__metatable = "not your business"

@@ -45,23 +45,31 @@ namespace MoonSharp.Interpreter
 		{
 			Table table = CreateModuleNamespace(gtable, t);
 
-			foreach (MethodInfo mi in t.GetMethods(BindingFlags.Static | BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.NonPublic).Where(_mi => _mi.GetCustomAttributes(typeof(MoonSharpMethodAttribute), false).Length > 0))
+			foreach (MethodInfo mi in t.GetMethods(BindingFlags.Static | BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.NonPublic))
 			{
-				MoonSharpMethodAttribute attr = (MoonSharpMethodAttribute)mi.GetCustomAttributes(typeof(MoonSharpMethodAttribute), false).First();
-
-				ParameterInfo[] pi = mi.GetParameters();
-
-				if (pi.Length != 2 || pi[0].ParameterType != typeof(ScriptExecutionContext)
-					|| pi[1].ParameterType != typeof(CallbackArguments) || mi.ReturnType != typeof(DynValue))
+				if (mi.GetCustomAttributes(typeof(MoonSharpMethodAttribute), false).Length > 0)
 				{
-					throw new ArgumentException(string.Format("Method {0} does not have the right signature.", mi.Name));
+					MoonSharpMethodAttribute attr = (MoonSharpMethodAttribute)mi.GetCustomAttributes(typeof(MoonSharpMethodAttribute), false).First();
+
+					ParameterInfo[] pi = mi.GetParameters();
+
+					if (pi.Length != 2 || pi[0].ParameterType != typeof(ScriptExecutionContext)
+						|| pi[1].ParameterType != typeof(CallbackArguments) || mi.ReturnType != typeof(DynValue))
+					{
+						throw new ArgumentException(string.Format("Method {0} does not have the right signature.", mi.Name));
+					}
+
+					Func<ScriptExecutionContext, CallbackArguments, DynValue> func = (Func<ScriptExecutionContext, CallbackArguments, DynValue>)Delegate.CreateDelegate(typeof(Func<ScriptExecutionContext, CallbackArguments, DynValue>), mi);
+
+					string name = (!string.IsNullOrEmpty(attr.Name)) ? attr.Name : mi.Name;
+
+					table[name] = DynValue.NewCallback(func);
 				}
-
-				Func<ScriptExecutionContext, CallbackArguments, DynValue> func = (Func<ScriptExecutionContext, CallbackArguments, DynValue>)Delegate.CreateDelegate(typeof(Func<ScriptExecutionContext, CallbackArguments, DynValue>), mi);
-
-				string name = (!string.IsNullOrEmpty(attr.Name)) ? attr.Name : mi.Name;
-
-				table[name] = DynValue.NewCallback(func);
+				else if (mi.Name == "MoonSharpInit")
+				{
+					object[] args = new object[2] { gtable, table };
+					mi.Invoke(null, args);
+				}
 			}
 
 			foreach (FieldInfo fi in t.GetFields(BindingFlags.Static | BindingFlags.GetField | BindingFlags.Public | BindingFlags.NonPublic).Where(_mi => _mi.GetCustomAttributes(typeof(MoonSharpMethodAttribute), false).Length > 0))
