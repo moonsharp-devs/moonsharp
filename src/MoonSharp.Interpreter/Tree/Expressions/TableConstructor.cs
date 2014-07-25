@@ -60,10 +60,10 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 				bc.Emit_TblInitN();
 			}
 
-			foreach (var v in m_PositionalValues)
+			for (int i = 0; i < m_PositionalValues.Count; i++ )
 			{
-				v.Compile(bc);
-				bc.Emit_TblInitI();
+				m_PositionalValues[i].Compile(bc);
+				bc.Emit_TblInitI(i == m_PositionalValues.Count - 1);
 			}
 		}
 

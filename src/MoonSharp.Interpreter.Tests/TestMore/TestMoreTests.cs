@@ -161,7 +161,6 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
-		[Ignore]
 		public void TestMore_213_closure()
 		{
 			TapRunner.Run(@"TestMore\213-closure.t");
@@ -177,7 +176,6 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
-		[Ignore]
 		public void TestMore_221_table()
 		{
 			TapRunner.Run(@"TestMore\221-table.t");
@@ -185,7 +183,6 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
-		[Ignore]
 		public void TestMore_222_constructor()
 		{
 			TapRunner.Run(@"TestMore\222-constructor.t");
@@ -257,7 +254,6 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
-		[Ignore]
 		public void TestMore_306_math()
 		{
 			TapRunner.Run(@"TestMore\306-math.t");

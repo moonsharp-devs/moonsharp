@@ -175,9 +175,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 						case OpCode.Index:
 							instructionPtr = ExecIndex(i, instructionPtr);
 							break;
-						case OpCode.PushEnv:
-							m_ValueStack.Push(DynValue.NewTable(m_GlobalTable));
-							break;
 						case OpCode.IndexSet:
 							instructionPtr = ExecIndexSet(i, instructionPtr);
 							break;
@@ -536,7 +533,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 					}
 				}
 
-				throw new ScriptRuntimeException("Can't call non function - " + fn.ToString());
+				throw new ScriptRuntimeException("attempt to call a {0} value", fn.ToString());
 			}
 		}
 
@@ -919,7 +916,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			if (tbl.Type != DataType.Table)
 				throw new InternalErrorException("Unexpected type in table ctor : {0}", tbl);
 
-			tbl.Table.InitNextArrayKeys(val);
+			tbl.Table.InitNextArrayKeys(val, i.NumVal != 0);
 		}
 
 		private void ExecTblInitN(Instruction i)

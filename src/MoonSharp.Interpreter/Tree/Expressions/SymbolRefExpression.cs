@@ -26,7 +26,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 			if (!lcontext.Scope.CurrentFunctionHasVarArgs())
 			{
-				throw new SyntaxErrorException("cannot use '...' outside a vararg function");
+				throw new SyntaxErrorException("error:0: cannot use '...' outside a vararg function");
 			}
 		}
 

@@ -51,6 +51,7 @@ namespace MoonSharp.Interpreter
 			m_ByteCode = new ByteCode();
 			m_GlobalTable = new Table(this).RegisterCoreModules(coreModules);
 			m_Coroutines.Add(new Processor(this, m_GlobalTable, m_ByteCode));
+			ReseedRandomGenerator(DateTime.Now.Millisecond);
 		}
 
 
@@ -306,5 +307,19 @@ namespace MoonSharp.Interpreter
 			return func;
 		}
 
+
+		/// <summary>
+		/// Gets the random generator associated with this Script
+		/// </summary>
+		public Random RandomGenerator { get; private set; }
+
+		/// <summary>
+		/// Reseeds the random generator.
+		/// </summary>
+		/// <param name="seed">The seed.</param>
+		public void ReseedRandomGenerator(double seed)
+		{
+			RandomGenerator = new Random();
+		}
 	}
 }

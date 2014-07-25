@@ -404,7 +404,7 @@ namespace MoonSharp.Interpreter
 				case DataType.Boolean:
 					return Boolean.ToString().ToLower();
 				case DataType.Number:
-					return Number.ToString();
+					return Number.ToString(CultureInfo.InvariantCulture);
 				case DataType.String:
 					return "\"" + String + "\"";
 				case DataType.Function:

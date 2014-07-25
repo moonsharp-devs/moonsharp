@@ -243,16 +243,16 @@ namespace MoonSharp.Interpreter
 			}
 		}
 
-		internal void InitNextArrayKeys(DynValue val)
+		internal void InitNextArrayKeys(DynValue val, bool lastpos)
 		{
-			if (val.Type == DataType.Tuple)
+			if (val.Type == DataType.Tuple && lastpos)
 			{
 				foreach (DynValue v in val.Tuple)
-					InitNextArrayKeys(v);
+					InitNextArrayKeys(v, true);
 			}
 			else
 			{
-				this[++m_InitArray] = val;
+				this[++m_InitArray] = val.ToScalar();
 			}
 		}
 

@@ -176,11 +176,13 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		public Instruction Emit_BeginFn(RuntimeScopeFrame m_StackFrame, string funcName)
 		{
-			return AppendInstruction(new Instruction() { OpCode = OpCode.BeginFn, 
-				SymbolList = m_StackFrame.DebugSymbols.ToArray(), 
+			return AppendInstruction(new Instruction()
+			{
+				OpCode = OpCode.BeginFn,
+				SymbolList = m_StackFrame.DebugSymbols.ToArray(),
 				NumVal = m_StackFrame.Count,
 				NumVal2 = m_StackFrame.ToFirstBlock,
-				Name = funcName 
+				Name = funcName
 			});
 		}
 
@@ -232,9 +234,9 @@ namespace MoonSharp.Interpreter.Execution.VM
 			return AppendInstruction(new Instruction() { OpCode = OpCode.TblInitN });
 		}
 
-		public Instruction Emit_TblInitI()
+		public Instruction Emit_TblInitI(bool lastpos)
 		{
-			return AppendInstruction(new Instruction() { OpCode = OpCode.TblInitI });
+			return AppendInstruction(new Instruction() { OpCode = OpCode.TblInitI, NumVal = lastpos ? 1 : 0 });
 		}
 
 		public Instruction Emit_Index(DynValue index = null)

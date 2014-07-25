@@ -10,6 +10,11 @@ namespace MoonSharp.Interpreter
 	[Serializable]
 	public class ScriptRuntimeException : InterpreterException
 	{
+		public ScriptRuntimeException(Exception ex)
+			: base(ex)
+		{
+		}
+
 		public ScriptRuntimeException(string format, params object[] args)
 			: base(format, args)
 		{

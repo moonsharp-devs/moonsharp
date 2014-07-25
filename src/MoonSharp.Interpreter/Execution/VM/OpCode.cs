@@ -24,8 +24,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 		TblInitN,	// Initializes a table named entry
 		TblInitI,	// Initializes a table positional entry
 
-		PushEnv,	// Pushes the current ENV table on the stack
-
 		StoreLcl, Local,
 		StoreUpv, Upvalue,
 		IndexSet, Index,

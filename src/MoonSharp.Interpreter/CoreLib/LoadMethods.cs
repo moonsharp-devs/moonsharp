@@ -34,14 +34,14 @@ namespace MoonSharp.Interpreter.CoreLib
 				DynValue env = args.AsType(3, "load", DataType.Table, true);
 
 				DynValue fn = S.LoadString(ld.String,
-					env != null ? env.Table : null,
-					source != null ? source.String : "=(load)");
+					!env.IsNil() ? env.Table : null,
+					!source.IsNil() ? source.String : "=(load)");
 
 				return fn;
 			}
 			catch (SyntaxErrorException ex)
 			{
-				throw new ScriptRuntimeException("{0}", ex.Message);
+				return DynValue.NewTuple(DynValue.Nil, DynValue.NewString(ex.Message));
 			}
 		}
 
@@ -58,13 +58,13 @@ namespace MoonSharp.Interpreter.CoreLib
 				DynValue filename = args.AsType(0, "loadfile", DataType.String, false);
 				DynValue env = args.AsType(2, "loadfile", DataType.Table, true);
 
-				DynValue fn = S.LoadFile(filename.String, env != null ? env.Table : null);
+				DynValue fn = S.LoadFile(filename.String, env.IsNil() ? null : env.Table);
 
 				return fn;
 			}
 			catch (SyntaxErrorException ex)
 			{
-				throw new ScriptRuntimeException("{0}", ex.Message);
+				return DynValue.NewTuple(DynValue.Nil, DynValue.NewString(ex.Message));
 			}
 		}
 
@@ -87,7 +87,7 @@ namespace MoonSharp.Interpreter.CoreLib
 			}
 			catch (SyntaxErrorException ex)
 			{
-				throw new ScriptRuntimeException("{0}", ex.Message);
+				throw new ScriptRuntimeException(ex);
 			}
 		}
 

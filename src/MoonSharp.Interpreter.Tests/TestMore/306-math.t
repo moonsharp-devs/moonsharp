@@ -107,6 +107,9 @@ like(math.random(9), '^%d$', "function random 1 arg")
 
 like(math.random(10, 19), '^1%d$', "function random 2 arg")
 
+--[[
+Moon# : math.random normalizes inputs, and we are happy with that
+
 if jit then
     todo("LuaJIT intentional. Don't check empty interval.", 2)
 end
@@ -124,6 +127,7 @@ end
 error_like(function () math.random(1, 2, 3) end,
            "^[^:]+:%d+: wrong number of arguments",
            "function random too many arg")
+		   --]]
 
 math.randomseed(12)
 a = math.random()
