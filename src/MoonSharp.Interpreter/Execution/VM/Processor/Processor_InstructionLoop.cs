@@ -88,6 +88,9 @@ namespace MoonSharp.Interpreter.Execution.VM
 						case OpCode.Not:
 							ExecNot(i);
 							break;
+						case OpCode.CNot:
+							ExecCNot(i);
+							break;
 						case OpCode.JfOrPop:
 						case OpCode.JtOrPop:
 							instructionPtr = ExecShortCircuitingOperator(i, instructionPtr);
@@ -222,13 +225,12 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		return_to_native_code:
 
-			if (m_ValueStack.Count == 1)
+			//if (m_ValueStack.Count == 1)
 				return m_ValueStack.Pop();
-			else if (m_ValueStack.Count == 0)
-				return DynValue.Nil;
-			else
-				throw new InternalErrorException("Unexpected value stack count at program end : {0}", m_ValueStack.Count);
-
+			//else if (m_ValueStack.Count == 0)
+			//	return DynValue.Nil;
+			//else
+			//	throw new InternalErrorException("Unexpected value stack count at program end : {0}", m_ValueStack.Count);
 		}
 
 
@@ -412,6 +414,19 @@ namespace MoonSharp.Interpreter.Execution.VM
 		}
 
 
+		private void ExecCNot(Instruction i)
+		{
+			DynValue v = m_ValueStack.Pop();
+			DynValue not = m_ValueStack.Pop();
+
+			if (not.Type != DataType.Boolean)
+				throw new InternalErrorException("CNOT had non-bool arg");
+
+			if (not.CastToBool())
+				m_ValueStack.Push(DynValue.NewBoolean(!(v.CastToBool())));
+			else
+				m_ValueStack.Push(DynValue.NewBoolean(v.CastToBool()));
+		}
 
 		private void ExecNot(Instruction i)
 		{
@@ -838,18 +853,20 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 			if (l.Type == DataType.Number && r.Type == DataType.Number)
 			{
+				m_ValueStack.Push(DynValue.False);
 				m_ValueStack.Push(DynValue.NewBoolean(l.Number <= r.Number));
 			}
 			else if (l.Type == DataType.String && r.Type == DataType.String)
 			{
+				m_ValueStack.Push(DynValue.False);
 				m_ValueStack.Push(DynValue.NewBoolean(l.String.CompareTo(r.String) <= 0));
 			}
 			else
 			{
-				int ip = Internal_InvokeBinaryMetaMethod(l, r, "__le", instructionPtr);
+				int ip = Internal_InvokeBinaryMetaMethod(l, r, "__le", instructionPtr, DynValue.False);
 				if (ip < 0)
 				{
-					ip = Internal_InvokeBinaryMetaMethod(r, l, "__lt", instructionPtr);
+					ip = Internal_InvokeBinaryMetaMethod(r, l, "__lt", instructionPtr, DynValue.True);
 
 					if (ip < 0)
 						throw ScriptRuntimeException.CompareInvalidType(l, r);

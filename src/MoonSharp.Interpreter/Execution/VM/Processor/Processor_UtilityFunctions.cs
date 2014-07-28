@@ -73,12 +73,15 @@ namespace MoonSharp.Interpreter.Execution.VM
 				return -1;
 			}
 		}
-		private int Internal_InvokeBinaryMetaMethod(DynValue l, DynValue r, string eventName, int instructionPtr)
+		private int Internal_InvokeBinaryMetaMethod(DynValue l, DynValue r, string eventName, int instructionPtr, DynValue extraPush = null)
 		{
 			var m = Internal_GetBinHandler(l, r, eventName);
 
 			if (m != null)
 			{
+				if (extraPush != null)
+					m_ValueStack.Push(extraPush);
+
 				m_ValueStack.Push(m);
 				m_ValueStack.Push(l);
 				m_ValueStack.Push(r);

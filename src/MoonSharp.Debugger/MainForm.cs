@@ -162,12 +162,17 @@ namespace MoonSharp.Debugger
 		{
 			try
 			{
-				m_Script.Call(0, m_Script.GetMainChunk());
+				m_Script.Call(m_Script.GetMainChunk());
+			}
+			catch (ScriptRuntimeException ex)
+			{
+				timerFollow.Enabled = false;
+				Console_WriteLine("Guest raised unhandled CLR exception: {0} -@{3:X8} {2}\n{1}\n", ex.GetType(), ex.ToString(), ex.DecoratedMessage, ex.InstructionPtr);
 			}
 			catch (Exception ex)
 			{
 				timerFollow.Enabled = false;
-				Console_WriteLine("Guest raised unhandled CLR exception: {0}\n{1}\n", ex.GetType(), ex.ToString());
+				Console_WriteLine("Guest raised unhandled CLR exception: {0} \n{1}\n", ex.GetType(), ex.ToString());
 			}
 		}
 

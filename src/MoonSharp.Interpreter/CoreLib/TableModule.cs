@@ -54,24 +54,42 @@ namespace MoonSharp.Interpreter.CoreLib
 		[MoonSharpMethod()]
 		public static DynValue concat(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
-			// !INCOMPAT
-
-			// The theory says the method calls __len to get the len in case it's not forced as a param.
-			// But then it uses rawget to access. The only case where we differ if we take the shortcut
-			// of using rawlen is if the first param is passed to force a non-first index and the second 
-			// isn't, or if __len is used to limit the maximum length. Likely an acceptable divergence, 
-			// at least for now. [Note that this behaviour is actually undefined in Lua 5.1, and __len 
-			// usage is documented only for Lua 5.2]
-
 			DynValue vlist = args.AsType(0, "concat", DataType.Table, false);
 			DynValue vsep = args.AsType(1, "concat", DataType.String, true);
 			DynValue vstart = args.AsType(2, "concat", DataType.Number, true);
 			DynValue vend = args.AsType(3, "concat", DataType.Number, true);
 
+
+
 			Table list = vlist.Table;
 			string sep = vsep.IsNil() ? "" : vsep.String;
 			int start = vstart.IsNilOrNan() ? 1 : (int)vstart.Number;
-			int end = vend.IsNilOrNan() ? (int)list.Length : (int)vend.Number;
+			int end; 
+
+			if (vend.IsNilOrNan())
+			{
+				DynValue __len = executionContext.GetMetamethod(vlist, "__len");
+
+				if (__len != null)
+				{
+					DynValue lenv = executionContext.GetOwnerScript().Call(__len, vlist);
+
+					double? len = lenv.CastToNumber();
+
+					if (len == null)
+						throw new ScriptRuntimeException("object length is not a number");
+
+					end = (int)len;
+				}
+				else
+				{
+					end = (int)vlist.Table.Length;
+				}
+			}
+			else 
+			{
+				end = (int)vend.Number;
+			}
 
 			if (end < start)
 				return DynValue.NewString(string.Empty);

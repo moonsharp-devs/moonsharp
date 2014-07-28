@@ -59,6 +59,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 		Len,		// Size operator of the topmost operand on the v-stack
 		Neg,		// Negation (unary minus) operator of the topmost operand on the v-stack
 		Power,		// Power of the two topmost operands on the v-stack
+		CNot,		// Conditional NOT - takes second operand from the v-stack (must be bool), if true execs a NOT otherwise execs a TOBOOL
+
 
 		// Type conversions and manipulations
 		MkTuple,	// Creates a tuple from the topmost n values

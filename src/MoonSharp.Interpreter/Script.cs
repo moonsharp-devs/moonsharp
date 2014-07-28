@@ -21,6 +21,7 @@ namespace MoonSharp.Interpreter
 	/// </summary>
 	public class Script
 	{
+		Processor m_MainRoutine = null;
 		List<Processor> m_Coroutines = new List<Processor>();
 		ByteCode m_ByteCode;
 		List<SourceCode> m_Sources = new List<SourceCode>();
@@ -52,7 +53,7 @@ namespace MoonSharp.Interpreter
 			DebugPrint = s => { Console.WriteLine(s); };
 			m_ByteCode = new ByteCode();
 			m_GlobalTable = new Table(this).RegisterCoreModules(coreModules);
-			m_Coroutines.Add(new Processor(this, m_GlobalTable, m_ByteCode));
+			m_MainRoutine = new Processor(this, m_GlobalTable, m_ByteCode);
 			ReseedRandomGenerator(DateTime.Now.Millisecond);
 		}
 
@@ -173,12 +174,10 @@ namespace MoonSharp.Interpreter
 		/// <returns>
 		/// A DynValue containing the result of the processing of the loaded chunk.
 		/// </returns>
-		public DynValue DoString(string code, Table globalContext = null, int coroutine = -1)
+		public DynValue DoString(string code, Table globalContext = null)
 		{
-			coroutine = FixCoroutineIndex(coroutine);
-
 			DynValue func = LoadString(code, globalContext);
-			return Call(coroutine, func);
+			return Call(func);
 		}
 
 		/// <summary>
@@ -190,12 +189,10 @@ namespace MoonSharp.Interpreter
 		/// <returns>
 		/// A DynValue containing the result of the processing of the loaded chunk.
 		/// </returns>
-		public DynValue DoFile(string filename, Table globalContext = null, int coroutine = -1)
+		public DynValue DoFile(string filename, Table globalContext = null)
 		{
-			coroutine = FixCoroutineIndex(coroutine);
-
 			DynValue func = LoadFile(filename, globalContext);
-			return Call(coroutine, func);
+			return Call(func);
 		}
 
 
@@ -235,17 +232,6 @@ namespace MoonSharp.Interpreter
 			return DynValue.NewClosure(c);
 		}
 
-
-
-		/// <summary>
-		/// Fixes the index of a coroutine translating a -1 parameter.
-		/// </summary>
-		/// <param name="coroutine">The coroutine.</param>
-		private int FixCoroutineIndex(int coroutine)
-		{
-			return (coroutine >= 0) ? coroutine : 0;
-		}
-
 		/// <summary>
 		/// Calls the specified function.
 		/// </summary>
@@ -253,9 +239,9 @@ namespace MoonSharp.Interpreter
 		/// <param name="function">The Lua/Moon# function to be called - callbacks are not supported.</param>
 		/// <param name="args">The arguments to pass to the function.</param>
 		/// <returns></returns>
-		public DynValue Call(int coroutine, DynValue function, params DynValue[] args)
+		public DynValue Call(DynValue function, params DynValue[] args)
 		{
-			return m_Coroutines[coroutine].Call(function, args);
+			return m_MainRoutine.Call(function, args);
 		}
 
 		/// <summary>
@@ -271,22 +257,14 @@ namespace MoonSharp.Interpreter
 		/// Attaches a debugger.
 		/// </summary>
 		/// <param name="debugger">The debugger object.</param>
-		/// <param name="coroutine">
-		/// The coroutine to which the debugger attaches, or -1 to attach it to all coroutines. 
-		/// If -1 is specified, the debugger is also automatically attached to new coroutines.
 		/// </param>
-		public void AttachDebugger(IDebugger debugger, int coroutine = -1)
+		public void AttachDebugger(IDebugger debugger)
 		{
-			if (coroutine < 0)
-			{
-				m_Debugger = debugger;
-				foreach (var C in m_Coroutines)
-					C.AttachDebugger(debugger);
-			}
-			else
-			{
-				m_Coroutines[coroutine].AttachDebugger(debugger);
-			}
+			m_Debugger = debugger;
+			m_MainRoutine.AttachDebugger(debugger);
+
+			foreach (var C in m_Coroutines)
+				C.AttachDebugger(debugger);
 
 			m_Debugger.SetSourceCode(m_ByteCode, null);
 		}

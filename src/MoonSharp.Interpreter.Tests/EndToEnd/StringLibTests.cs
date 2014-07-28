@@ -92,5 +92,74 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			Utils.DynAssert(res, null);
 		}
 
+
+		[Test]
+		public void PrintTest1()
+		{
+			string script = @"
+				print('ciao', 1);
+			";
+			string printed = null;
+
+			Script S = new Script();
+			DynValue main = S.LoadString(script);
+
+			S.DebugPrint = s =>
+			{
+				printed = s;
+			};
+
+			S.Call(main);
+
+			Assert.AreEqual("ciao\t1", printed);
+		}
+
+		[Test]
+		public void PrintTest2()
+		{
+			string script = @"
+				t = {};
+				m = {};
+
+				function m.__tostring()
+					return 'ciao';
+				end
+
+				setmetatable(t, m);
+
+				print(t, 1);
+			";
+			string printed = null;
+
+			Script S = new Script();
+			DynValue main = S.LoadString(script);
+
+			S.DebugPrint = s =>
+			{
+				printed = s;
+			};
+
+			S.Call(main);
+
+			Assert.AreEqual("ciao\t1", printed);
+		}
+
+		[Test]
+		public void ToStringTest()
+		{
+			string script = @"
+				t = {}
+				mt = {}
+				a = nil
+				function mt.__tostring () a = 'yup' end
+				setmetatable(t, mt)
+				return tostring(t), a;
+			";
+			DynValue res = Script.RunString(script);
+			Utils.DynAssert(res, null, "yup");
+
+		}
+
+
 	}
 }

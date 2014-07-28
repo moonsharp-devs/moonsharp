@@ -44,6 +44,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				BasePointer = m_ValueStack.Count,
 				Debug_EntryPoint = function.Function.ByteCodeLocation,
 				ReturnAddress = -1,
+				ClosureScope = function.Function.ClosureContext,
 			});
 
 			return Processing_Loop(function.Function.ByteCodeLocation);

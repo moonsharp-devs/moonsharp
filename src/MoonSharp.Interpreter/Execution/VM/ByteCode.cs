@@ -99,7 +99,10 @@ namespace MoonSharp.Interpreter.Execution.VM
 		{
 			var i = AppendInstruction(new Instruction() { OpCode = opcode });
 
-			if (opcode == OpCode.Eq || opcode == OpCode.Less || opcode == OpCode.LessEq)
+			if (opcode == OpCode.LessEq)
+				AppendInstruction(new Instruction() { OpCode = OpCode.CNot });
+
+			if (opcode == OpCode.Eq || opcode == OpCode.Less)
 				AppendInstruction(new Instruction() { OpCode = OpCode.ToBool });
 
 			return i;
@@ -146,7 +149,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 		{
 			return AppendInstruction(new Instruction() { OpCode = OpCode.ToNum, NumVal = stage });
 		}
-
 
 		public Instruction Emit_Incr(int i)
 		{
