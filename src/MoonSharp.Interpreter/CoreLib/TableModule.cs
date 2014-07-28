@@ -28,7 +28,7 @@ namespace MoonSharp.Interpreter.CoreLib
 		public static DynValue pack(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			DynValue s = args[0];
-			Table t = new Table(executionContext.GetOwnerScript());
+			Table t = new Table(executionContext.GetScript());
 			DynValue v = DynValue.NewTable(t);
 
 			if (s.IsNil())
@@ -47,6 +47,79 @@ namespace MoonSharp.Interpreter.CoreLib
 			return v;
 		}
 
+		[MoonSharpMethod]
+		public static DynValue sort(ScriptExecutionContext executionContext, CallbackArguments args)
+		{
+			DynValue vlist = args.AsType(0, "sort", DataType.Table, false);
+			DynValue lt = args[1];
+
+			if (lt.Type != DataType.Function && lt.Type != DataType.ClrFunction && lt.Type != DataType.Nil)
+				args.AsType(1, "sort", DataType.Function, true); // this throws
+
+			int end = GetTableLength(executionContext, vlist);
+
+			List<DynValue> values = new List<DynValue>();
+
+			for (int i = 1; i < end; i++)
+				values.Add(vlist.Table[i]);
+
+			values.Sort((a, b) => SortComparer(executionContext, a, b, lt));
+
+			for (int i = 0; i < values.Count; i++)
+			{
+				vlist.Table[i + 1] = values[i];
+			}
+
+			return vlist;
+		}
+
+		private static int SortComparer(ScriptExecutionContext executionContext, DynValue a, DynValue b, DynValue lt)
+		{
+			if (lt == null || lt.IsNil())
+			{
+				lt = executionContext.GetBinaryMetamethod(a, b, "__lt");
+
+				if (lt == null || lt.IsNil())
+				{
+					if (a.Type == DataType.Number && b.Type == DataType.Number)
+						return a.Number.CompareTo(b.Number);
+					if (a.Type == DataType.String && b.Type == DataType.String)
+						return a.String.CompareTo(b.String);
+
+					throw ScriptRuntimeException.CompareInvalidType(a, b);
+				}
+				else
+				{
+					return LuaComparerToClrComparer(
+						executionContext.GetScript().Call(lt, a, b),
+						executionContext.GetScript().Call(lt, b, a));
+				}
+			}
+			else
+			{
+				return LuaComparerToClrComparer(
+					executionContext.GetScript().Call(lt, a, b),
+					executionContext.GetScript().Call(lt, b, a));
+			}
+		}
+
+		private static int LuaComparerToClrComparer(DynValue dynValue1, DynValue dynValue2)
+		{
+			bool v1 = dynValue1.CastToBool();
+			bool v2 = dynValue2.CastToBool();
+
+			if (v1 && !v2)
+				return -1;
+			if (v2 && !v1)
+				return 1;
+
+			return 0;
+		}
+
+
+
+
+
 		//table.concat (list [, sep [, i [, j]]])
 		//Given a list where all elements are strings or numbers, returns the string list[i]..sep..list[i+1] (...) sep..list[j]. 
 		//The default value for sep is the empty string, the default for i is 1, and the default for j is #list. If i is greater 
@@ -59,8 +132,6 @@ namespace MoonSharp.Interpreter.CoreLib
 			DynValue vstart = args.AsType(2, "concat", DataType.Number, true);
 			DynValue vend = args.AsType(3, "concat", DataType.Number, true);
 
-
-
 			Table list = vlist.Table;
 			string sep = vsep.IsNil() ? "" : vsep.String;
 			int start = vstart.IsNilOrNan() ? 1 : (int)vstart.Number;
@@ -68,23 +139,7 @@ namespace MoonSharp.Interpreter.CoreLib
 
 			if (vend.IsNilOrNan())
 			{
-				DynValue __len = executionContext.GetMetamethod(vlist, "__len");
-
-				if (__len != null)
-				{
-					DynValue lenv = executionContext.GetOwnerScript().Call(__len, vlist);
-
-					double? len = lenv.CastToNumber();
-
-					if (len == null)
-						throw new ScriptRuntimeException("object length is not a number");
-
-					end = (int)len;
-				}
-				else
-				{
-					end = (int)vlist.Table.Length;
-				}
+				end = GetTableLength(executionContext, vlist);
 			}
 			else 
 			{
@@ -115,6 +170,26 @@ namespace MoonSharp.Interpreter.CoreLib
 			return DynValue.NewString(sb.ToString());
 		}
 
+		private static int GetTableLength(ScriptExecutionContext executionContext, DynValue vlist)
+		{
+			DynValue __len = executionContext.GetMetamethod(vlist, "__len");
+
+			if (__len != null)
+			{
+				DynValue lenv = executionContext.GetScript().Call(__len, vlist);
+
+				double? len = lenv.CastToNumber();
+
+				if (len == null)
+					throw new ScriptRuntimeException("object length is not a number");
+
+				return (int)len;
+			}
+			else
+			{
+				return (int)vlist.Table.Length;
+			}
+		}
 	}
 
 

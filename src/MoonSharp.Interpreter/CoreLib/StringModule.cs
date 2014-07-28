@@ -36,7 +36,7 @@ namespace MoonSharp.Interpreter.CoreLib
 			DynValue s = args.AsType(0, "gmatch", DataType.String, false);
 			DynValue p = args.AsType(1, "gmatch", DataType.String, false);
 
-			return PatternMatching.GMatch(executionContext.GetOwnerScript(), s.String, p.String);
+			return PatternMatching.GMatch(executionContext.GetScript(), s.String, p.String);
 		}
 
 		[MoonSharpMethod()]

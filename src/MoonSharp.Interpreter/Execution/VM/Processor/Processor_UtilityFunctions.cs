@@ -75,7 +75,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 		}
 		private int Internal_InvokeBinaryMetaMethod(DynValue l, DynValue r, string eventName, int instructionPtr, DynValue extraPush = null)
 		{
-			var m = Internal_GetBinHandler(l, r, eventName);
+			var m = GetBinaryMetamethod(l, r, eventName);
 
 			if (m != null)
 			{
@@ -93,25 +93,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			}
 		}
 
-		private DynValue Internal_GetBinHandler(DynValue op1, DynValue op2, string eventName)
-		{
-			var op1_MetaTable = GetMetatable(op1);
-			var op2_MetaTable = GetMetatable(op2);
 
-			if (op1_MetaTable != null)
-			{
-				DynValue meta1 = op1_MetaTable.RawGet(eventName);
-				if (meta1 != null && meta1.Type != DataType.Nil)
-					return meta1;
-			}
-			if (op2_MetaTable != null)
-			{
-				DynValue meta2 = op2_MetaTable.RawGet(eventName);
-				if (meta2 != null && meta2.Type != DataType.Nil)
-					return meta2;
-			}
-			return null;
-		}
 
 
 		private DynValue[] StackTopToArray(int items, bool pop)

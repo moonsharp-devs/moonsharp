@@ -237,7 +237,7 @@ namespace MoonSharp.Interpreter.CoreLib
 		{
 			DynValue m = args.AsType(0, "random", DataType.Number, true);
 			DynValue n = args.AsType(1, "random", DataType.Number, true);
-			Random R = executionContext.GetOwnerScript().RandomGenerator;
+			Random R = executionContext.GetScript().RandomGenerator;
 			double d;
 
 			if (m.IsNil() && n.IsNil())
@@ -262,7 +262,7 @@ namespace MoonSharp.Interpreter.CoreLib
 		public static DynValue randomseed(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			DynValue arg = args.AsType(0, "randomseed", DataType.Number, false);
-			executionContext.GetOwnerScript().ReseedRandomGenerator(arg.Number);
+			executionContext.GetScript().ReseedRandomGenerator(arg.Number);
 			return DynValue.Nil;
 		}
 

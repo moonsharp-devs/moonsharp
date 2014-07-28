@@ -44,7 +44,7 @@ namespace MoonSharp.Interpreter.CoreLib
 
 			if (obj.Type.CanHaveTypeMetatables())
 			{
-				meta = executionContext.GetOwnerScript().GetTypeMetatable(obj.Type);
+				meta = executionContext.GetScript().GetTypeMetatable(obj.Type);
 			}
 			
 			

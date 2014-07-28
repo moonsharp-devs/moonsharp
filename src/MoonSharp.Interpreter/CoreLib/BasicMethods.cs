@@ -168,7 +168,7 @@ namespace MoonSharp.Interpreter.CoreLib
 				if ((args[i].Type == DataType.Table) && (args[i].Table.MetaTable != null) &&
 					(args[i].Table.MetaTable.RawGet("__tostring") != null))
 				{
-					var v = executionContext.GetOwnerScript().Call(args[i].Table.MetaTable.RawGet("__tostring"), args[i]);
+					var v = executionContext.GetScript().Call(args[i].Table.MetaTable.RawGet("__tostring"), args[i]);
 
 					if (v.Type != DataType.String)
 						throw new ScriptRuntimeException("'tostring' must return a string to 'print'");
@@ -181,7 +181,7 @@ namespace MoonSharp.Interpreter.CoreLib
 				}
 			}
 
-			executionContext.GetOwnerScript().DebugPrint(sb.ToString());
+			executionContext.GetScript().DebugPrint(sb.ToString());
 
 			return DynValue.Nil;
 		}

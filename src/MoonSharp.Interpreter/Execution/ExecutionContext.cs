@@ -59,9 +59,14 @@ namespace MoonSharp.Interpreter.Execution
 			return DynValue.NewTailCallReq(meta, args);
 		}
 
-		public Script GetOwnerScript()
+		public DynValue GetBinaryMetamethod(DynValue op1, DynValue op2, string eventName)
 		{
-			return m_Processor.GetOwnerScript();
+			return m_Processor.GetBinaryMetamethod(op1, op2, eventName);
+		}
+
+		public Script GetScript()
+		{
+			return m_Processor.GetScript();
 		}
 
 		private bool CheckUpValue(SymbolRef symref)

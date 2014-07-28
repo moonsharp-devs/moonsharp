@@ -28,7 +28,7 @@ namespace MoonSharp.Interpreter.CoreLib
 		{
 			try
 			{
-				Script S = executionContext.GetOwnerScript();
+				Script S = executionContext.GetScript();
 				DynValue ld = args.AsType(0, "load", DataType.String, false);
 				DynValue source = args.AsType(1, "load", DataType.String, true);
 				DynValue env = args.AsType(3, "load", DataType.Table, true);
@@ -54,7 +54,7 @@ namespace MoonSharp.Interpreter.CoreLib
 		{
 			try
 			{
-				Script S = executionContext.GetOwnerScript();
+				Script S = executionContext.GetScript();
 				DynValue filename = args.AsType(0, "loadfile", DataType.String, false);
 				DynValue env = args.AsType(2, "loadfile", DataType.Table, true);
 
@@ -78,7 +78,7 @@ namespace MoonSharp.Interpreter.CoreLib
 		{
 			try
 			{
-				Script S = executionContext.GetOwnerScript();
+				Script S = executionContext.GetScript();
 				DynValue v = args.AsType(0, "dofile", DataType.String, false);
 
 				DynValue fn = S.LoadFile(v.String);
@@ -115,7 +115,7 @@ namespace MoonSharp.Interpreter.CoreLib
 		[MoonSharpMethod]
 		public static DynValue __require_clr_impl(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
-			Script S = executionContext.GetOwnerScript();
+			Script S = executionContext.GetScript();
 			DynValue v = args.AsType(0, "__require_clr_impl", DataType.String, false);
 
 			DynValue fn = S.RequireModule(v.String);
