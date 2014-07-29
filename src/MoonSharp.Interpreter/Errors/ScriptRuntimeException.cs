@@ -72,6 +72,16 @@ namespace MoonSharp.Interpreter
 			return new ScriptRuntimeException("loop in settable");
 		}
 
+		public static ScriptRuntimeException TableIndexIsNil()
+		{
+			return new ScriptRuntimeException("table index is nil");
+		}
+
+		public static ScriptRuntimeException TableIndexIsNaN()
+		{
+			return new ScriptRuntimeException("table index is NaN");
+		}
+
 		public static ScriptRuntimeException ConvertToNumberFailed(int stage)
 		{
 			switch (stage)

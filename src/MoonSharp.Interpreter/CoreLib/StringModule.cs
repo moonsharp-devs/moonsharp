@@ -17,6 +17,76 @@ namespace MoonSharp.Interpreter.CoreLib
 			globalTable.OwnerScript.SetTypeMetatable(DataType.String, stringMetatable);
 		}
 
+		[MoonSharpMethod]
+		public static DynValue @byte(ScriptExecutionContext executionContext, CallbackArguments args)
+		{
+			DynValue vs = args.AsType(0, "byte", DataType.String, false);
+			DynValue vi = args.AsType(1, "byte", DataType.Number, true);
+			DynValue vj = args.AsType(2, "byte", DataType.Number, true);
+
+			return PerformByteLike(vs, vi, vj,
+				i => Unicode2Ascii(i));
+		}
+
+		[MoonSharpMethod]
+		public static DynValue unicode(ScriptExecutionContext executionContext, CallbackArguments args)
+		{
+			DynValue vs = args.AsType(0, "unicode", DataType.String, false);
+			DynValue vi = args.AsType(1, "unicode", DataType.Number, true);
+			DynValue vj = args.AsType(2, "unicode", DataType.Number, true);
+
+			return PerformByteLike(vs, vi, vj, i => i);
+		}
+
+		private static int Unicode2Ascii(int i)
+		{
+			if (i >= 0 && i < 255)
+				return i;
+
+			return (int)'?';
+		}
+
+		private static DynValue PerformByteLike(DynValue vs, DynValue vi, DynValue vj, Func<int, int> filter)
+		{
+			string s = vs.String;
+			int? i = AdjustIndex(s, vi, 0);
+			int? j = AdjustIndex(s, vj, i ?? 0);
+
+			if (i == null || j == null || i > j)
+				return DynValue.Nil;
+
+			DynValue[] rets = new DynValue[j.Value - i.Value + 1];
+
+			for (int ii = i.Value; ii <= j.Value; ii++)
+				rets[ii] = DynValue.NewNumber(filter((int)s[ii]));
+
+			return DynValue.NewTuple(rets);
+		}
+
+
+		private static int? AdjustIndex(string s, DynValue vi, int defval)
+		{
+			if (vi.IsNil())
+				return defval;
+
+			int i = (int)Math.Round(vi.Number, 0);
+
+			if (i == 0)
+				return null;
+
+			if (i > 0)
+				return i - 1;
+
+			return s.Length - i;
+		}
+
+		[MoonSharpMethod]
+		public static DynValue len(ScriptExecutionContext executionContext, CallbackArguments args)
+		{
+			DynValue vs = args.AsType(0, "len", DataType.String, false);
+			return DynValue.NewNumber(vs.String.Length);
+		}
+
 
 
 		[MoonSharpMethod]

@@ -65,6 +65,8 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			bc.Emit_Incr(1);
 			bc.Emit_Jump(OpCode.Jump, start);
 
+			bc.LoopTracker.Loops.Pop();
+
 			int exitpoint = bc.GetJumpPointForNextInstruction();
 
 			foreach (Instruction i in L.BreakJumps)

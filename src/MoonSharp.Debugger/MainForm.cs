@@ -86,7 +86,7 @@ namespace MoonSharp.Debugger
 			m_Script = new Script(CoreModules.Preset_Complete);
 
 			m_Script.DebugPrint = s => { Console_WriteLine("{0}", s); };
-			m_Script.Globals["assert"] = DynValue.NewCallback(Assert);
+			//m_Script.Globals["assert"] = DynValue.NewCallback(Assert);
 			m_Script.Globals["xassert"] = DynValue.NewCallback(XAssert);
 
 			var L = new ClassicLuaScriptLoader();

@@ -44,6 +44,8 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			bc.Emit_Debug("..end");
 			bc.Emit_Leave(m_StackFrame);
 			bc.Emit_Jump(OpCode.Jump, start);
+			
+			bc.LoopTracker.Loops.Pop();
 
 			int exitpoint = bc.GetJumpPointForNextInstruction();
 

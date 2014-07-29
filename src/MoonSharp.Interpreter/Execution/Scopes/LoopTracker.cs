@@ -10,6 +10,7 @@ namespace MoonSharp.Interpreter.Execution
 	interface ILoop
 	{
 		void CompileBreak(ByteCode bc);
+		bool IsBoundary();
 	}
 
 

@@ -94,6 +94,8 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			bc.Emit_Leave(m_StackFrame);
 			bc.Emit_Jump(OpCode.Jump, start);
 
+			bc.LoopTracker.Loops.Pop();
+
 			int exitpointLoopExit = bc.GetJumpPointForNextInstruction();
 			bc.Emit_Leave(m_StackFrame);
 

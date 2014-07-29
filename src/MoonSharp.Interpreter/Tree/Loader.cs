@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Antlr4.Runtime;
+using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
 using MoonSharp.Interpreter.Diagnostics;
 using MoonSharp.Interpreter.Execution;
@@ -20,45 +21,66 @@ namespace MoonSharp.Interpreter.Tree
 	{
 		internal static int LoadChunkFromICharStream(ICharStream charStream, ByteCode bytecode, string sourceName, int sourceIdx, Table globalContext)
 		{
-			LuaParser parser = CreateParser(charStream, sourceIdx, p => p.chunk());
-
-			ScriptLoadingContext lcontext = CreateLoadingContext(sourceName, sourceIdx);
-			ChunkStatement stat = new ChunkStatement(parser.chunk(), lcontext, globalContext);
-
-			int beginIp = -1;
-
-			using (var _ = new CodeChrono("ChunkStatement.LoadFromICharStream/Compile"))
+			try
 			{
-				bytecode.Emit_Nop(string.Format("Begin chunk {0}", sourceName));
-				beginIp = bytecode.GetJumpPointForLastInstruction();
-				stat.Compile(bytecode);
-				bytecode.Emit_Nop(string.Format("End chunk {0}", sourceName));
+				LuaParser parser = CreateParser(charStream, sourceIdx, p => p.chunk());
 
-				Debug_DumpByteCode(bytecode, sourceIdx);
+				ScriptLoadingContext lcontext = CreateLoadingContext(sourceName, sourceIdx);
+				ChunkStatement stat = new ChunkStatement(parser.chunk(), lcontext, globalContext);
+
+				int beginIp = -1;
+
+				using (var _ = new CodeChrono("ChunkStatement.LoadFromICharStream/Compile"))
+				{
+					bytecode.Emit_Nop(string.Format("Begin chunk {0}", sourceName));
+					beginIp = bytecode.GetJumpPointForLastInstruction();
+					stat.Compile(bytecode);
+					bytecode.Emit_Nop(string.Format("End chunk {0}", sourceName));
+
+					Debug_DumpByteCode(bytecode, sourceIdx);
+				}
+
+				return beginIp;
 			}
-
-			return beginIp;
+			catch (ParseCanceledException ex)
+			{
+				HandleParserError(ex);
+				throw;
+			}
 		}
 
 		internal static int LoadFunctionFromICharStream(ICharStream charStream, ByteCode bytecode, string sourceName, int sourceIdx, Table globalContext)
 		{
-			LuaParser parser = CreateParser(charStream, sourceIdx, p => p.anonfunctiondef());
-
-			ScriptLoadingContext lcontext = CreateLoadingContext(sourceName, sourceIdx);
-			FunctionDefinitionExpression fndef = new FunctionDefinitionExpression(parser.anonfunctiondef(), lcontext, false, globalContext);
-
-			int beginIp = -1;
-
-			using (var _ = new CodeChrono("ChunkStatement.LoadFromICharStream/Compile"))
+			try
 			{
-				bytecode.Emit_Nop(string.Format("Begin function {0}", sourceName));
-				beginIp = fndef.CompileBody(bytecode, sourceName);
-				bytecode.Emit_Nop(string.Format("End function {0}", sourceName));
+				LuaParser parser = CreateParser(charStream, sourceIdx, p => p.anonfunctiondef());
 
-				Debug_DumpByteCode(bytecode, sourceIdx);
+				ScriptLoadingContext lcontext = CreateLoadingContext(sourceName, sourceIdx);
+				FunctionDefinitionExpression fndef = new FunctionDefinitionExpression(parser.anonfunctiondef(), lcontext, false, globalContext);
+
+				int beginIp = -1;
+
+				using (var _ = new CodeChrono("ChunkStatement.LoadFromICharStream/Compile"))
+				{
+					bytecode.Emit_Nop(string.Format("Begin function {0}", sourceName));
+					beginIp = fndef.CompileBody(bytecode, sourceName);
+					bytecode.Emit_Nop(string.Format("End function {0}", sourceName));
+
+					Debug_DumpByteCode(bytecode, sourceIdx);
+				}
+
+				return beginIp;
 			}
+			catch (ParseCanceledException ex)
+			{
+				HandleParserError(ex);
+				throw;
+			}
+		}
 
-			return beginIp;
+		private static void HandleParserError(ParseCanceledException ex)
+		{
+			throw new SyntaxErrorException("{0}", ex.Message);
 		}
 
 
@@ -71,8 +93,12 @@ namespace MoonSharp.Interpreter.Tree
 		[Conditional("DEBUG_COMPILER")]
 		private static void Debug_DumpAst(LuaParser parser, int sourceIdx, Func<LuaParser, IParseTree> dumper)
 		{
-			AstDump astDump = new AstDump();
-			astDump.DumpTree(dumper(parser), string.Format(@"c:\temp\treedump_{0:000}.txt", sourceIdx));
+			try
+			{
+				AstDump astDump = new AstDump();
+				astDump.DumpTree(dumper(parser), string.Format(@"c:\temp\treedump_{0:000}.txt", sourceIdx));
+			}
+			catch { }
 			parser.Reset();
 		}
 
@@ -96,6 +122,7 @@ namespace MoonSharp.Interpreter.Tree
 			{
 				lexer = new LuaLexer(charStream);
 				parser = new LuaParser(new CommonTokenStream(lexer));
+				parser.ErrorHandler = new BailErrorStrategy();
 			}
 
 			Debug_DumpAst(parser, sourceIdx, dumper);

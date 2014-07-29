@@ -71,7 +71,7 @@ namespace MoonSharp.Interpreter.CoreLib
 		[MoonSharpMethod]
 		public static DynValue error(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
-			DynValue message = args.AsType(0, "dofile", DataType.String, false);
+			DynValue message = args.AsType(0, "error", DataType.String, false);
 			throw new ScriptRuntimeException(message.String);
 		}
 

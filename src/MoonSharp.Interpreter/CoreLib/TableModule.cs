@@ -60,7 +60,7 @@ namespace MoonSharp.Interpreter.CoreLib
 
 			List<DynValue> values = new List<DynValue>();
 
-			for (int i = 1; i < end; i++)
+			for (int i = 1; i <= end; i++)
 				values.Add(vlist.Table[i]);
 
 			values.Sort((a, b) => SortComparer(executionContext, a, b, lt));
@@ -116,6 +116,36 @@ namespace MoonSharp.Interpreter.CoreLib
 			return 0;
 		}
 
+		[MoonSharpMethod()]
+		public static DynValue insert(ScriptExecutionContext executionContext, CallbackArguments args)
+		{
+			DynValue vlist = args.AsType(0, "table.insert", DataType.Table, false);
+			DynValue vpos = args[1];
+			DynValue vvalue = args[2];
+
+			int len = GetTableLength(executionContext, vlist);
+			Table list = vlist.Table;
+
+			if (vvalue.IsNil())
+			{
+				vvalue = vpos;
+				vpos = DynValue.NewNumber(len + 1);
+			}
+
+			if (vpos.Type != DataType.Number)
+				args.ThrowBadArgument(1, "table.insert", DataType.Number, vpos.Type, false);
+
+			int pos = (int)vpos.Number;
+
+			for (int i = len; i <= pos; i--)
+			{
+				list[i + 1] = list[i];
+			}
+
+			list[pos] = vvalue;
+
+			return vlist;
+		}
 
 
 

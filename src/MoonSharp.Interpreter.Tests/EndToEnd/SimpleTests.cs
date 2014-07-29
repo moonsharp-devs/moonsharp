@@ -96,7 +96,7 @@ namespace MoonSharp.Interpreter.Tests
 			Assert.AreEqual(DataType.String, res.Tuple[0].Type);
 			Assert.AreEqual(DataType.String, res.Tuple[1].Type);
 			Assert.AreEqual(DataType.String, res.Tuple[2].Type);
-			Assert.AreEqual("\r\n\t\t\t\t\tciao\r\n\t\t\t\t", res.Tuple[0].String);
+			Assert.AreEqual("\t\t\t\t\tciao\r\n\t\t\t\t", res.Tuple[0].String);
 			Assert.AreEqual(" [[uh]] ", res.Tuple[1].String);
 			Assert.AreEqual("[==[[=[[[eheh]]=]=]", res.Tuple[2].String);
 		}
@@ -722,6 +722,22 @@ namespace MoonSharp.Interpreter.Tests
 			Assert.AreEqual(DataType.Number, res.Type);
 			Assert.AreEqual(1, res.Number);
 		}
+
+		[Test]
+		[ExpectedException(ExpectedException=typeof(SyntaxErrorException))]
+		public void HexFloatsReportError()
+		{
+			string script = @"
+					function x(a, b)
+			
+					end
+
+					x(0x0.1E, 0x1E / 0x100);
+								";
+
+			DynValue res = Script.RunString(script);
+		}
+
 
 		[Test]
 		public void ExpressionReducesTuples2()

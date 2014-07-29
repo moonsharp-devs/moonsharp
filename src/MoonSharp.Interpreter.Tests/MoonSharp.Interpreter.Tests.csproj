@@ -182,12 +182,6 @@
     <None Include="TestMore\232-object.t">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="TestMore\241-standalone.t">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="TestMore\242-luac.t">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="TestMore\301-basic.t">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

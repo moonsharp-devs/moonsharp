@@ -65,9 +65,9 @@ namespace MoonSharp.Interpreter
 				if (key.IsNilOrNan())
 				{
 					if (key.IsNil())
-						throw new ScriptRuntimeException("table index is nil");
+						throw ScriptRuntimeException.TableIndexIsNil();
 					else
-						throw new ScriptRuntimeException("table index is NaN");
+						throw ScriptRuntimeException.TableIndexIsNaN();
 				}
 
 				if (key.Type == DataType.String)
@@ -87,6 +87,7 @@ namespace MoonSharp.Interpreter
 					}
 				}
 
+				CheckValueOwner(key);
 				CheckValueOwner(value);
 
 				if (m_ValueMap.Set(key, new TablePair(key, value)))

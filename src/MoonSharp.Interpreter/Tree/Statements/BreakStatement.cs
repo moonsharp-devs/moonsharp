@@ -19,7 +19,15 @@ namespace MoonSharp.Interpreter.Tree.Statements
 
 		public override void Compile(ByteCode bc)
 		{
-			bc.LoopTracker.Loops.Peek().CompileBreak(bc);
+			if (bc.LoopTracker.Loops.Count == 0)
+				throw new SyntaxErrorException("<break> not inside a loop");
+
+			ILoop loop = bc.LoopTracker.Loops.Peek();
+	
+			if (loop.IsBoundary())
+				throw new SyntaxErrorException("<break> not inside a loop");
+
+			loop.CompileBreak(bc);
 		}
 	}
 }

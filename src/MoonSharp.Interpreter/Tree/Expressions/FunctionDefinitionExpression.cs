@@ -106,6 +106,8 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 			bc.Emit_BeginFn(m_StackFrame, friendlyName ?? "<anonymous>");
 
+			bc.LoopTracker.Loops.Push(new LoopBoundary());
+
 			int entryPoint = bc.GetJumpPointForLastInstruction();
 
 			if (m_GlobalEnv != null)
@@ -122,6 +124,8 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 			if (bc.GetLastInstruction().OpCode != OpCode.Ret)
 				bc.Emit_Ret(0);
+
+			bc.LoopTracker.Loops.Pop();
 
 			I.NumVal = bc.GetJumpPointForNextInstruction();
 

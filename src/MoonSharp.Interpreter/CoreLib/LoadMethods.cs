@@ -29,11 +29,33 @@ namespace MoonSharp.Interpreter.CoreLib
 			try
 			{
 				Script S = executionContext.GetScript();
-				DynValue ld = args.AsType(0, "load", DataType.String, false);
+				DynValue ld = args[0];
+				string script = "";
+
+				if (ld.Type == DataType.Function)
+				{
+					while (true)
+					{
+						DynValue ret = executionContext.GetScript().Call(ld);
+						if (ret.Type == DataType.String && ret.String.Length > 0)
+							script += ret.String;
+						else
+							break;
+					}
+				}
+				else if (ld.Type == DataType.String)
+				{
+					script = ld.String;
+				}
+				else
+				{
+					args.AsType(0, "load", DataType.Function, false);
+				}
+
 				DynValue source = args.AsType(1, "load", DataType.String, true);
 				DynValue env = args.AsType(3, "load", DataType.Table, true);
 
-				DynValue fn = S.LoadString(ld.String,
+				DynValue fn = S.LoadString(script,
 					!env.IsNil() ? env.Table : null,
 					!source.IsNil() ? source.String : "=(load)");
 

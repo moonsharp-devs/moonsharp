@@ -139,12 +139,18 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
-		[Ignore]
+		[Ignore] // Failing because of handling of syntax error messages + goto/labels not implemented
 		public void TestMore_203_lexico()
 		{
 			TapRunner.Run(@"TestMore\203-lexico.t");
 		}
 
+		[Test]
+		[Ignore] // Failing because of handling of syntax error messages
+		public void TestMore_204_grammar()
+		{
+			TapRunner.Run(@"TestMore\204-grammar.t");
+		}
 
 		[Test]
 		public void TestMore_211_scope()
@@ -190,7 +196,7 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
-		[Ignore]
+		[Ignore] // Breaks on coroutines
 		public void TestMore_223_iterator()
 		{
 			TapRunner.Run(@"TestMore\223-iterator.t");
@@ -208,14 +214,6 @@ namespace MoonSharp.Interpreter.Tests
 		public void TestMore_232_object()
 		{
 			TapRunner.Run(@"TestMore\232-object.t");
-		}
-
-
-		[Test]
-		[Ignore]
-		public void TestMore_241_standalone()
-		{
-			TapRunner.Run(@"TestMore\241-standalone.t");
 		}
 
 
@@ -244,7 +242,6 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
-		[Ignore]
 		public void TestMore_305_table()
 		{
 			TapRunner.Run(@"TestMore\305-table.t");
@@ -257,28 +254,34 @@ namespace MoonSharp.Interpreter.Tests
 			TapRunner.Run(@"TestMore\306-math.t");
 		}
 
+		[Test]
+		[Ignore]
+		public void TestMore_307_bit()
+		{
+			TapRunner.Run(@"TestMore\307-bit.t");
+		}
 
 		[Test]
 		[Ignore]
-		public void TestMore_307_io()
+		public void TestMore_308_io()
 		{
-			TapRunner.Run(@"TestMore\307-io.t");
+			TapRunner.Run(@"TestMore\308-io.t");
 		}
 
 
 		[Test]
 		[Ignore]
-		public void TestMore_308_os()
+		public void TestMore_307_os()
 		{
-			TapRunner.Run(@"TestMore\308-os.t");
+			TapRunner.Run(@"TestMore\307-os.t");
 		}
 
 
 		[Test]
 		[Ignore]
-		public void TestMore_310_stdin()
+		public void TestMore_310_debug()
 		{
-			TapRunner.Run(@"TestMore\310-stdin.t");
+			TapRunner.Run(@"TestMore\310-debug.t");
 		}
 
 
@@ -288,5 +291,13 @@ namespace MoonSharp.Interpreter.Tests
 		{
 			TapRunner.Run(@"TestMore\314-regex.t");
 		}
+
+		[Test]
+		[Ignore]
+		public void TestMore_320_stdin()
+		{
+			TapRunner.Run(@"TestMore\310-stdin.t");
+		}
+
 	}
 }

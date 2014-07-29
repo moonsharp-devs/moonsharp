@@ -27,15 +27,20 @@ L<http://www.lua.org/manual/5.2/manual.html#6.1>.
 
 --]]
 
+-- Moon# note : THIS SUITE WAS HEAVILY CUT FOR NOT APPLIABLE TESTS
+
+
 require 'Test.More'
 
 plan(168)
 
+--[[
 if jit then
     like(_VERSION, '^Lua 5%.1$', "variable _VERSION")
 else
     like(_VERSION, '^Lua 5%.2$', "variable _VERSION")
 end
+-- ]]
 
 v, msg = assert('text', "assert string")
 is(v, 'text', "function assert")
@@ -55,67 +60,6 @@ error_like(function () assert(false, nil) end,
            "^[^:]+:%d+: assertion failed!",
            "function assert(false, nil)")
 
-is(collectgarbage('stop'), 0, "function collectgarbage 'stop/restart/collect'")
-if jit then
-    skip("LuaJIT. gc isrunning", 1)
-else
-    is(collectgarbage('isrunning'), false)
-end
-is(collectgarbage('step'), false)
-is(collectgarbage('restart'), 0)
-if jit then
-    skip("LuaJIT. gc isrunning", 1)
-else
-    is(collectgarbage('isrunning'), true)
-end
-is(collectgarbage('step'), false)
-is(collectgarbage('collect'), 0)
-is(collectgarbage('setpause', 10), 200)
-is(collectgarbage('setstepmul', 200), 200)
-is(collectgarbage(), 0)
-if jit then
-    skip("LuaJIT. gc mode gen/inc", 4)
-else
-    is(collectgarbage('generational'), 0)
-    is(collectgarbage('step'), false)
-    is(collectgarbage('incremental'), 0)
-    is(collectgarbage('setmajorinc'), 200)
-end
-
-type_ok(collectgarbage('count'), 'number', "function collectgarbage 'count'")
-
-error_like(function () collectgarbage('unknown') end,
-           "^[^:]+:%d+: bad argument #1 to 'collectgarbage' %(invalid option 'unknown'%)",
-           "function collectgarbage (invalid)")
-
-f = io.open('lib1.lua', 'w')
-f:write[[
-function norm (x, y)
-    return (x^2 + y^2)^0.5
-end
-
-function twice (x)
-    return 2*x
-end
-]]
-f:close()
-dofile('lib1.lua')
-n = norm(3.4, 1.0)
-like(twice(n), '^7%.088', "function dofile")
-
-os.remove('lib1.lua') -- clean up
-
-error_like(function () dofile('no_file.lua') end,
-           "cannot open no_file.lua: No such file or directory",
-           "function dofile (no file)")
-
-f = io.open('foo.lua', 'w')
-f:write[[?syntax error?]]
-f:close()
-error_like(function () dofile('foo.lua') end,
-           "^foo%.lua:%d+:",
-           "function dofile (syntax error)")
-os.remove('foo.lua') -- clean up
 
 a = {'a','b','c'}
 local f, v, s = ipairs(a)
@@ -206,61 +150,9 @@ is(env.bar, nil, "function load(str)")
 f()
 is(env.bar('ok'), 'ok')
 
-f, msg = load([[?syntax error?]], "errorchunk")
-is(f, nil, "function load(syntax error)")
-like(msg, "^%[string \"errorchunk\"%]:%d+:")
 
-f, msg = load([[print 'ok']], "chunk txt", 'b')
-like(msg, "attempt to load")
-is(f, nil, "mode")
+-- ...
 
-f, msg = load("\x1bLua", "chunk bin", 't')
-like(msg, "attempt to load")
-is(f, nil, "mode")
-
-f = io.open('foo.lua', 'w')
-f:write'\xEF\xBB\xBF' -- BOM
-f:write[[
-function foo (x)
-    return x
-end
-]]
-f:close()
-f = loadfile('foo.lua')
-is(foo, nil, "function loadfile")
-f()
-is(foo('ok'), 'ok')
-
-f, msg = loadfile('foo.lua', 'b')
-like(msg, "attempt to load")
-is(f, nil, "mode")
-
-env = {}
-f = loadfile('foo.lua', 't', env)
-is(env.foo, nil, "function loadfile")
-f()
-is(env.foo('ok'), 'ok')
-
-os.remove('foo.lua') -- clean up
-
-f, msg = loadfile('no_file.lua')
-is(f, nil, "function loadfile (no file)")
-is(msg, "cannot open no_file.lua: No such file or directory")
-
-f = io.open('foo.lua', 'w')
-f:write[[?syntax error?]]
-f:close()
-f, msg = loadfile('foo.lua')
-is(f, nil, "function loadfile (syntax error)")
-like(msg, '^foo%.lua:%d+:')
-os.remove('foo.lua') -- clean up
-
-if (platform and platform.compat) or jit then
-    ok(loadstring[[i = i + 1]], "function loadstring")
-else
-    is(loadstring, nil, "function loadstring (removed)")
-    loadstring = load
-end
 
 f = loadstring([[i = i + 1]])
 i = 0
