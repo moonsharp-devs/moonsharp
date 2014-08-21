@@ -144,6 +144,8 @@ namespace MoonSharp.Interpreter
 					CollectDeadKeys();
 					m_CachedLength = -1;
 				}
+				else if (value.IsNil())
+					m_CachedLength = -1;
 			}
 		}
 
@@ -228,6 +230,7 @@ namespace MoonSharp.Interpreter
 			return m_StringMap.ContainsKey(symbol);
 		}
 
+
 		public double Length
 		{
 			get 
@@ -236,7 +239,7 @@ namespace MoonSharp.Interpreter
 				{
 					m_CachedLength = 0;
 
-					for (int i = 1; m_ArrayMap.ContainsKey(i); i++)
+					for (int i = 1; m_ArrayMap.ContainsKey(i) && !m_ArrayMap.Find(i).Value.Value.IsNil(); i++)
 						m_CachedLength = i;
 				}
 
@@ -261,6 +264,14 @@ namespace MoonSharp.Interpreter
 		/// Gets the meta-table associated with this instance.
 		/// </summary>
 		public Table MetaTable { get; set; }
+
+
+		
+
+		
+
+
+
 
 
 

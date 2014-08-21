@@ -100,6 +100,7 @@
     <Compile Include="DataStructs\Slice.cs" />
     <Compile Include="DataTypes\IScriptPrivateResource.cs" />
     <Compile Include="DataTypes\TailCallData.cs" />
+    <Compile Include="DataTypes\UserData.cs" />
     <Compile Include="DataTypes\WellKnownSymbols.cs" />
     <Compile Include="Debugging\DebuggerAction.cs" />
     <Compile Include="Debugging\IDebugger.cs" />
@@ -131,6 +132,10 @@
     <Compile Include="Execution\VM\Chunk.cs" />
     <Compile Include="Execution\VM\Processor\Processor_Errors.cs" />
     <Compile Include="Interface\IteratorHelper.cs" />
+    <Compile Include="Interop\Converter.cs" />
+    <Compile Include="Interop\MethodAdapter.cs" />
+    <Compile Include="Interop\MoonSharpInterop.cs" />
+    <Compile Include="Interop\ReflectionMetatableBuilder.cs" />
     <Compile Include="Loaders\ClassicLuaScriptLoader.cs" />
     <Compile Include="Loaders\IScriptLoader.cs" />
     <Compile Include="Execution\Scopes\ClosureContext.cs" />

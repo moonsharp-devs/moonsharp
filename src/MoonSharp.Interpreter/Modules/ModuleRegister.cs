@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Text;
 using MoonSharp.Interpreter.CoreLib;
 using MoonSharp.Interpreter.Execution;
+using MoonSharp.Interpreter.Interop;
 
 namespace MoonSharp.Interpreter
 {
@@ -51,13 +52,8 @@ namespace MoonSharp.Interpreter
 				{
 					MoonSharpMethodAttribute attr = (MoonSharpMethodAttribute)mi.GetCustomAttributes(typeof(MoonSharpMethodAttribute), false).First();
 
-					ParameterInfo[] pi = mi.GetParameters();
-
-					if (pi.Length != 2 || pi[0].ParameterType != typeof(ScriptExecutionContext)
-						|| pi[1].ParameterType != typeof(CallbackArguments) || mi.ReturnType != typeof(DynValue))
-					{
-						throw new ArgumentException(string.Format("Method {0} does not have the right signature.", mi.Name));
-					}
+					if (!Converter.CheckCallbackSignature(mi))
+							throw new ArgumentException(string.Format("Method {0} does not have the right signature.", mi.Name));
 
 					Func<ScriptExecutionContext, CallbackArguments, DynValue> func = (Func<ScriptExecutionContext, CallbackArguments, DynValue>)Delegate.CreateDelegate(typeof(Func<ScriptExecutionContext, CallbackArguments, DynValue>), mi);
 

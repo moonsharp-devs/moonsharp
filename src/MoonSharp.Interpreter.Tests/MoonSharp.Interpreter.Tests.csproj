@@ -86,6 +86,7 @@
     <Compile Include="TestMore\TapRunner.cs" />
     <Compile Include="TestMore\TestMoreTests.cs" />
     <Compile Include="Units\FastStackTests.cs" />
+    <Compile Include="Units\InteropTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MoonSharp.Interpreter\MoonSharp.Interpreter.csproj">

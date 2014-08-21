@@ -181,9 +181,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 						case OpCode.IndexSet:
 							instructionPtr = ExecIndexSet(i, instructionPtr);
 							break;
-						case OpCode.Clone:
-							m_ValueStack.Push(m_ValueStack.Pop().Clone());
-							break;
 						case OpCode.Invalid:
 							throw new NotImplementedException(string.Format("Invalid opcode : {0}", i.Name));
 						default:
@@ -406,7 +403,10 @@ namespace MoonSharp.Interpreter.Execution.VM
 			if (top.ReadOnly)
 			{
 				m_ValueStack.Pop();
-				top = top.CloneAsWritable();
+
+				if (top.ReadOnly)
+					top = top.CloneAsWritable();
+
 				m_ValueStack.Push(top);
 			}
 
@@ -496,6 +496,24 @@ namespace MoonSharp.Interpreter.Execution.VM
 			}
 		}
 
+		private IList<DynValue> ExpandToList(IList<DynValue> args, List<DynValue> target = null)
+		{
+			target = target ?? new List<DynValue>();
+
+			foreach (DynValue v in args)
+			{
+				if (v.Type == DataType.Tuple)
+				{
+					ExpandToList(v.Tuple, target);
+				}
+				else
+				{
+					target.Add(v);
+				}
+			}
+
+			return target;
+		}
 
 
 		private int Internal_ExecCall(int argsCount, int instructionPtr, CallbackFunction handler = null, CallbackFunction continuation = null)
@@ -505,6 +523,13 @@ namespace MoonSharp.Interpreter.Execution.VM
 			if (fn.Type == DataType.ClrFunction)
 			{
 				IList<DynValue> args = new Slice<DynValue>(m_ValueStack, m_ValueStack.Count - argsCount, argsCount, false);
+
+				// we expand tuples before callbacks
+				if (args.Any(v => v.Type == DataType.Tuple))
+				{
+					args = ExpandToList(args);
+				}
+
 				var ret = fn.Callback.Invoke(new ScriptExecutionContext(this, fn.Callback), args);
 				m_ValueStack.RemoveLast(argsCount + 1);
 				m_ValueStack.Push(ret);
@@ -551,6 +576,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 				throw new ScriptRuntimeException("attempt to call a {0} value", fn.ToString());
 			}
 		}
+
+
 
 
 		private int ExecRet(Instruction i)

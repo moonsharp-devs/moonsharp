@@ -171,6 +171,8 @@ for name, line in pairsByKeys(lines, function (a, b) return a < b end) do
 end
 eq_array(output, {'luaH_get', 24, 'luaH_present', 48, 'luaH_set', 10}, "function sort")
 
+--[[ +++ Commented for coroutines
+
 function permgen (a, n)
     n = n or #a
     if n <= 1 then
@@ -241,3 +243,6 @@ eq_array({table.unpack({'a','b','c'},2,4)}, {'b','c'})
 --   fill-column: 100
 -- End:
 -- vim: ft=lua expandtab shiftwidth=4:
+
+
+--]]

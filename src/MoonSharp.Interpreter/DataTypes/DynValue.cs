@@ -16,8 +16,14 @@ namespace MoonSharp.Interpreter
 	public sealed class DynValue
 	{
 		static int s_RefIDCounter = 0;
+
 		private int m_RefID = ++s_RefIDCounter;
 		private int m_HashCode = -1;
+
+		private bool m_ReadOnly;
+		private double m_Number;
+		private object m_Object;
+		private DataType m_Type;
 
 
 		/// <summary>
@@ -28,49 +34,49 @@ namespace MoonSharp.Interpreter
 		/// <summary>
 		/// Gets the type of the value.
 		/// </summary>
-		public DataType Type { get; private set; }
+		public DataType Type { get { return m_Type; } }
 		/// <summary>
 		/// Gets the function (valid only if the <seealso cref="Type"/> is <seealso cref="DataType.Function"/>)
 		/// </summary>
-		public Closure Function { get; private set; }
+		public Closure Function { get { return m_Object as Closure; } }
 		/// <summary>
 		/// Gets the numeric value (valid only if the <seealso cref="Type"/> is <seealso cref="DataType.Number"/>)
 		/// </summary>
-		public double Number { get; private set; }
+		public double Number { get { return m_Number; } }
 		/// <summary>
 		/// Gets the values in the tuple (valid only if the <seealso cref="Type"/> is Tuple).
 		/// This field is currently also used to hold arguments in values whose <seealso cref="Type"/> is <seealso cref="DataType.TailCallRequest"/>.
 		/// </summary>
-		public DynValue[] Tuple { get; private set; }
+		public DynValue[] Tuple { get { return m_Object as DynValue[]; } }
 		/// <summary>
 		/// Gets the table (valid only if the <seealso cref="Type"/> is <seealso cref="DataType.Table"/>)
 		/// </summary>
-		public Table Table { get; private set; }
+		public Table Table { get { return m_Object as Table; } }
 		/// <summary>
 		/// Gets the boolean value (valid only if the <seealso cref="Type"/> is <seealso cref="DataType.Boolean"/>)
 		/// </summary>
-		public bool Boolean { get; private set; }
+		public bool Boolean { get { return Number != 0; } }
 		/// <summary>
 		/// Gets the string value (valid only if the <seealso cref="Type"/> is <seealso cref="DataType.String"/>)
 		/// </summary>
-		public string String { get; private set; }
+		public string String { get { return m_Object as string; } }
 		/// <summary>
 		/// Gets the CLR callback (valid only if the <seealso cref="Type"/> is <seealso cref="DataType.ClrFunction"/>)
 		/// </summary>
-		public CallbackFunction Callback { get; set; }
-		/// <summary>
-		/// Gets or sets the user object, if this value is userdata
-		/// </summary>
-		public object UserObject { get; set; }
+		public CallbackFunction Callback { get { return m_Object as CallbackFunction; } }
 		/// <summary>
 		/// Gets the tail call data.
 		/// </summary>
-		public TailCallData TailCallData { get { return UserObject as TailCallData; } }
+		public TailCallData TailCallData { get { return m_Object as TailCallData; } }
+		/// <summary>
+		/// Gets the tail call data.
+		/// </summary>
+		public UserData UserData { get { return m_Object as UserData; } }
 
 		/// <summary>
 		/// Returns true if this instance is write protected.
 		/// </summary>
-		public bool ReadOnly { get; internal set; }
+		public bool ReadOnly { get { return m_ReadOnly; }}
 
 
 
@@ -90,8 +96,8 @@ namespace MoonSharp.Interpreter
 		{
 			return new DynValue()
 			{
-				Boolean = v,
-				Type = DataType.Boolean,
+				m_Number = v ? 1 : 0,
+				m_Type = DataType.Boolean,
 			};
 		}
 
@@ -102,8 +108,8 @@ namespace MoonSharp.Interpreter
 		{
 			return new DynValue()
 			{
-				Number = num,
-				Type = DataType.Number,
+				m_Number = num,
+				m_Type = DataType.Number,
 				m_HashCode = -1,
 			};
 		}
@@ -115,8 +121,8 @@ namespace MoonSharp.Interpreter
 		{
 			return new DynValue()
 			{
-				String = str,
-				Type = DataType.String,
+				m_Object = str,
+				m_Type = DataType.String,
 			};
 		}
 
@@ -128,8 +134,8 @@ namespace MoonSharp.Interpreter
 		{
 			return new DynValue()
 			{
-				Function = function,
-				Type = DataType.Function,
+				m_Object = function,
+				m_Type = DataType.Function,
 			};
 		}
 
@@ -140,8 +146,8 @@ namespace MoonSharp.Interpreter
 		{
 			return new DynValue()
 			{
-				Callback = new CallbackFunction(callBack),
-				Type = DataType.ClrFunction,
+				m_Object = new CallbackFunction(callBack),
+				m_Type = DataType.ClrFunction,
 			};
 		}
 
@@ -152,8 +158,8 @@ namespace MoonSharp.Interpreter
 		{
 			return new DynValue()
 			{
-				Callback = function,
-				Type = DataType.ClrFunction,
+				m_Object = function,
+				m_Type = DataType.ClrFunction,
 			};
 		}
 
@@ -164,8 +170,8 @@ namespace MoonSharp.Interpreter
 		{
 			return new DynValue()
 			{
-				Table = table,
-				Type = DataType.Table,
+				m_Object = table,
+				m_Type = DataType.Table,
 			};
 		}
 
@@ -191,12 +197,12 @@ namespace MoonSharp.Interpreter
 		{
 			return new DynValue()
 			{
-				UserObject = new TailCallData()
+				m_Object = new TailCallData()
 				{
 					Args = args,
 					Function = tailFn,
 				},
-				Type = DataType.TailCallRequest,
+				m_Type = DataType.TailCallRequest,
 			};
 		}
 
@@ -213,8 +219,8 @@ namespace MoonSharp.Interpreter
 		{
 			return new DynValue()
 			{
-				UserObject = tailCallData,
-				Type = DataType.TailCallRequest,
+				m_Object = tailCallData,
+				m_Type = DataType.TailCallRequest,
 			};
 		}
 
@@ -231,8 +237,8 @@ namespace MoonSharp.Interpreter
 
 			return new DynValue()
 			{
-				Tuple = values,
-				Type = DataType.Tuple,
+				m_Object = values,
+				m_Type = DataType.Tuple,
 			};
 		}
 
@@ -259,39 +265,10 @@ namespace MoonSharp.Interpreter
 
 			return new DynValue()
 			{
-				Tuple = vals.ToArray(),
-				Type = DataType.Tuple,
+				m_Object = vals.ToArray(),
+				m_Type = DataType.Tuple,
 			};
 		}
-
-		/// <summary>
-		/// Creates a new value initialized to the specified coroutine index.
-		/// </summary>
-		internal static DynValue NewCoroutine(int coroutineIdx)
-		{
-			return new DynValue()
-			{
-				Number = coroutineIdx,
-				Type = DataType.Thread
-			};
-		}
-
-
-		/// <summary>
-		///  Creates a new value initialized to the specified CLR object
-		/// </summary>
-		/// <param name="obj">The CLR object.</param>
-		/// <param name="metatable">Optional - the metatable.</param>
-		public static DynValue NewObject(object obj)
-		{
-			return new DynValue()
-			{
-				UserObject = obj,
-				Type = DataType.UserData,
-			};
-		}
-
-
 
 		/// <summary>
 		/// Returns this value as readonly - eventually cloning it in the process if it isn't readonly to start with.
@@ -302,29 +279,23 @@ namespace MoonSharp.Interpreter
 				return this;
 			else
 			{
-				DynValue v = Clone();
-				v.ReadOnly = true;
-				return v;
+				return Clone(true);
 			}
 		}
 
-		/// <summary>
-		/// Clones this instance.
-		/// </summary>
-		/// <exception cref="System.ArgumentException">Can't clone Symbol values</exception>
 		public DynValue Clone()
 		{
+			return Clone(this.ReadOnly);
+		}
+
+		public DynValue Clone(bool readOnly)
+		{
 			DynValue v = new DynValue();
-			v.Boolean = this.Boolean;
-			v.Callback = this.Callback;
-			v.Function = this.Function;
-			v.Number = this.Number;
-			v.ReadOnly = this.ReadOnly;
-			v.String = this.String;
-			v.Table = this.Table;
-			v.Tuple = this.Tuple;
-			v.Type = this.Type;
+			v.m_Object = this.m_Object;
+			v.m_Number = this.m_Number;
 			v.m_HashCode = this.m_HashCode;
+			v.m_Type = this.m_Type;
+			v.m_ReadOnly = readOnly;
 			return v;
 		}
 
@@ -334,18 +305,7 @@ namespace MoonSharp.Interpreter
 		/// <exception cref="System.ArgumentException">Can't clone Symbol values</exception>
 		public DynValue CloneAsWritable()
 		{
-			DynValue v = new DynValue();
-			v.Boolean = this.Boolean;
-			v.Function = this.Function;
-			v.Callback = this.Callback;
-			v.Number = this.Number;
-			v.ReadOnly = false;
-			v.String = this.String;
-			v.Table = this.Table;
-			v.Tuple = this.Tuple;
-			v.Type = this.Type;
-			v.m_HashCode = this.m_HashCode;
-			return v;
+			return Clone(false);
 		}
 
 
@@ -599,15 +559,9 @@ namespace MoonSharp.Interpreter
 			if (this.ReadOnly)
 				throw new ScriptRuntimeException("Assigning on r-value");
 
-			this.Boolean = value.Boolean;
-			this.Callback = value.Callback;
-			this.Function = value.Function;
-			this.Number = value.Number;
-			this.ReadOnly = false;
-			this.String = value.String;
-			this.Table = value.Table;
-			this.Tuple = value.Tuple;
-			this.Type = value.Type;
+			this.m_Number = value.m_Number;
+			this.m_Object = value.m_Object;
+			this.m_Type = value.Type;
 			this.m_HashCode = -1;
 		}
 
@@ -655,7 +609,7 @@ namespace MoonSharp.Interpreter
 			if (this.Type != DataType.Number)
 				throw new InternalErrorException("Can't assign number to type {0}", this.Type);
 
-			this.Number = num;
+			this.m_Number = num;
 		}
 
 	}

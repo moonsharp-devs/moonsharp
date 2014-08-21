@@ -234,7 +234,6 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
-		[Ignore]
 		public void TestMore_304_string()
 		{
 			TapRunner.Run(@"TestMore\304-string.t");

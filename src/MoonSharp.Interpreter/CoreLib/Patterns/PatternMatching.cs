@@ -310,7 +310,7 @@ namespace MoonSharp.Interpreter.CoreLib.Patterns
 									int ep = ClassEnd(ms, p); //points to what is next
 									char previous = (s == ms.SrcInit) ? '\0' : ms.Src[s - 1];
 									if (MatchBreaketClass(ms, previous, p, ep - 1) ||
-										!MatchBreaketClass(ms, ms.Src[s], p, ep - 1)) return -1;
+										(s < ms.Src.Length && !MatchBreaketClass(ms, ms.Src[s], p, ep - 1))) return -1;
 									p = ep; goto init; // else return match( ms, s, ep );
 								}
 							case '0':

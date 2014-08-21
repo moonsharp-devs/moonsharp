@@ -147,7 +147,7 @@ end
 			sw = Stopwatch.StartNew();
 			for (int i = 0; i < ITERATIONS; i++)
 			{
-				script.Call(0, func);
+				script.Call(func);
 			}
 			sw.Stop();
 

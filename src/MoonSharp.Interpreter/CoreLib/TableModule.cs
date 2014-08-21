@@ -10,39 +10,37 @@ namespace MoonSharp.Interpreter.CoreLib
 	[MoonSharpModule(Namespace = "table")]
 	public class TableModule
 	{
-		[MoonSharpMethod()]
+		[MoonSharpMethod]
 		public static DynValue unpack(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			DynValue s = args.AsType(0, "unpack", DataType.Table, false);
+			DynValue vi = args.AsType(1, "unpack", DataType.Number, true);
+			DynValue vj = args.AsType(2, "unpack", DataType.Number, true);
+
+			int ii = vi.IsNil() ? 1 : (int)vi.Number;
+			int ij = vj.IsNil() ? GetTableLength(executionContext, s) : (int)vj.Number;
+
 			Table t = s.Table;
 
-			DynValue[] v = new DynValue[(int)t.Length];
+			DynValue[] v = new DynValue[ij - ii + 1];
 
-			for (int i = 1; i <= v.Length; i++)
-				v[i - 1] = t[i];
+			int tidx = 1;
+			for (int i = ii; i <= ij; i++)
+				v[tidx++] = t[i];
 
 			return DynValue.NewTuple(v);
 		}
 
-		[MoonSharpMethod()]
+		[MoonSharpMethod]
 		public static DynValue pack(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
-			DynValue s = args[0];
 			Table t = new Table(executionContext.GetScript());
 			DynValue v = DynValue.NewTable(t);
 
-			if (s.IsNil())
-				return v;
+			for (int i = 0; i < args.Count; i++)
+				t[i + 1] = args[i];
 
-			if (s.Type == DataType.Tuple)
-			{
-				for (int i = 0; i < s.Tuple.Length; i++)
-					t[i + 1] = s.Tuple[i];
-			}
-			else
-			{
-				t[1] = s;
-			}
+			t["n"] = DynValue.NewNumber(args.Count);
 
 			return v;
 		}
@@ -116,13 +114,16 @@ namespace MoonSharp.Interpreter.CoreLib
 			return 0;
 		}
 
-		[MoonSharpMethod()]
+		[MoonSharpMethod]
 		public static DynValue insert(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			DynValue vlist = args.AsType(0, "table.insert", DataType.Table, false);
 			DynValue vpos = args[1];
 			DynValue vvalue = args[2];
 
+			if (args.Count > 3)
+				throw new ScriptRuntimeException("wrong number of arguments to 'insert'");
+			
 			int len = GetTableLength(executionContext, vlist);
 			Table list = vlist.Table;
 
@@ -137,7 +138,10 @@ namespace MoonSharp.Interpreter.CoreLib
 
 			int pos = (int)vpos.Number;
 
-			for (int i = len; i <= pos; i--)
+			if (pos > len + 1 || pos < 1)
+				throw new ScriptRuntimeException("bad argument #2 to 'insert' (position out of bounds)");
+
+			for (int i = len; i >= pos; i--)
 			{
 				list[i + 1] = list[i];
 			}
@@ -148,13 +152,41 @@ namespace MoonSharp.Interpreter.CoreLib
 		}
 
 
+		[MoonSharpMethod]
+		public static DynValue remove(ScriptExecutionContext executionContext, CallbackArguments args)
+		{
+			DynValue vlist = args.AsType(0, "table.remove", DataType.Table, false);
+			DynValue vpos = args.AsType(1, "table.remove", DataType.Number, true);
+			DynValue ret = DynValue.Nil;
+
+			if (args.Count > 2)
+				throw new ScriptRuntimeException("wrong number of arguments to 'remove'");
+
+			int len = GetTableLength(executionContext, vlist);
+			Table list = vlist.Table;
+
+			int pos = vpos.IsNil() ? len : (int)vpos.Number;
+
+			if (pos >= len + 1 || (pos < 1 && len > 0))
+				throw new ScriptRuntimeException("bad argument #1 to 'remove' (position out of bounds)");
+
+			for (int i = pos; i <= len; i++)
+			{
+				if (i == pos)
+					ret = list[i];
+
+				list[i] = list[i + 1];
+			}
+
+			return ret;
+		}
 
 
 		//table.concat (list [, sep [, i [, j]]])
 		//Given a list where all elements are strings or numbers, returns the string list[i]..sep..list[i+1] (...) sep..list[j]. 
 		//The default value for sep is the empty string, the default for i is 1, and the default for j is #list. If i is greater 
 		//than j, returns the empty string. 
-		[MoonSharpMethod()]
+		[MoonSharpMethod]
 		public static DynValue concat(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			DynValue vlist = args.AsType(0, "concat", DataType.Table, false);
@@ -186,7 +218,7 @@ namespace MoonSharp.Interpreter.CoreLib
 				DynValue v = list[i];
 
 				if (v.Type != DataType.Number && v.Type != DataType.String)
-					throw new ScriptRuntimeException("invalid value (boolean) at index {0} in table for 'concat'", i);
+					throw new ScriptRuntimeException("invalid value ({1}) at index {0} in table for 'concat'", i, v.Type.ToLuaTypeString());
 
 				string s = v.ToPrintString();
 
@@ -226,13 +258,13 @@ namespace MoonSharp.Interpreter.CoreLib
 	[MoonSharpModule]
 	public class TableModule_Globals
 	{
-		[MoonSharpMethod()]
+		[MoonSharpMethod]
 		public static DynValue unpack(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			return TableModule.unpack(executionContext, args);
 		}
 
-		[MoonSharpMethod()]
+		[MoonSharpMethod]
 		public static DynValue pack(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			return TableModule.pack(executionContext, args);
