@@ -79,6 +79,9 @@
     </Compile>
     <Compile Include="EndToEnd\StringLibTests.cs" />
     <Compile Include="EndToEnd\TailCallTests.cs" />
+    <Compile Include="EndToEnd\UserDataPropertiesTests.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="EndToEnd\Utils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="EndToEnd\SimpleTests.cs" />

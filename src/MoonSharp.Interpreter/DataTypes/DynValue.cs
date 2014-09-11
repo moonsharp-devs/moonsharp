@@ -270,6 +270,19 @@ namespace MoonSharp.Interpreter
 			};
 		}
 
+
+		/// <summary>
+		/// Creates a new userdata value
+		/// </summary>
+		public static DynValue NewUserData(UserData userData)
+		{
+			return new DynValue()
+			{
+				m_Object = userData,
+				m_Type = DataType.UserData,
+			};
+		}
+
 		/// <summary>
 		/// Returns this value as readonly - eventually cloning it in the process if it isn't readonly to start with.
 		/// </summary>

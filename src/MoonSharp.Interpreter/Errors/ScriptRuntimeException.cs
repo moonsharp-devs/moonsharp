@@ -57,6 +57,18 @@ namespace MoonSharp.Interpreter
 				return new ScriptRuntimeException("attempt to compare {0} with {1}", l.Type.ToLuaTypeString(), r.Type.ToLuaTypeString());
 		}
 
+		public static ScriptRuntimeException BadArgument(int argNum, string funcName, DataType expected, DataType got, bool allowNil)
+		{
+			return BadArgument(argNum, funcName, expected.ToString().ToLowerInvariant(), got.ToString().ToLowerInvariant(), allowNil);
+		}
+
+		public static ScriptRuntimeException BadArgument(int argNum, string funcName, string expected, string got, bool allowNil)
+		{
+			return new ScriptRuntimeException("bad argument #{0} to '{1}' ({2}{3} expected, got {4})",
+				argNum + 1, funcName, allowNil ? "nil or " : "", expected, got);
+		}
+
+
 		public static ScriptRuntimeException IndexType(DynValue obj)
 		{
 			return new ScriptRuntimeException("attempt to index a {0} value", obj.Type.ToLuaTypeString());
@@ -95,6 +107,26 @@ namespace MoonSharp.Interpreter
 				default:
 					return new ScriptRuntimeException("value must be a number");
 			}
+		}
+
+		public static ScriptRuntimeException ConvertObjectFailed(object obj)
+		{
+			return new ScriptRuntimeException("cannot convert clr type {0}", obj.GetType());
+		}
+
+		public static ScriptRuntimeException ConvertObjectFailed(DataType t)
+		{
+			return new ScriptRuntimeException("cannot convert a {0} to a clr type", t.ToString().ToLowerInvariant());
+		}
+
+		public static ScriptRuntimeException UserDataArgumentTypeMismatch(DataType t, Type clrType)
+		{
+			return new ScriptRuntimeException("cannot find a conversion from a moon# {0} to a clr {1}", t.ToString().ToLowerInvariant(), clrType.FullName);
+		}
+
+		public static ScriptRuntimeException UserDataMissingField(string typename, string fieldname)
+		{
+			return new ScriptRuntimeException("cannot access field {0} of userdata<{1}>", fieldname, typename);
 		}
 	}
 }

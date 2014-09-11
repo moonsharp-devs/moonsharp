@@ -13,7 +13,6 @@ namespace MoonSharp.Interpreter.Interop
 		{
 			typeof(sbyte), 
 			typeof(byte), 
-			//typeof(char),  // should we ?
 			typeof(short), 
 			typeof(ushort), 
 			typeof(int), 
@@ -23,7 +22,7 @@ namespace MoonSharp.Interpreter.Interop
 			typeof(float), 
 			typeof(decimal), 
 			typeof(double)
-		};
+		}; 
 
 		public static bool CheckCallbackSignature(MethodInfo mi)
 		{
@@ -33,40 +32,15 @@ namespace MoonSharp.Interpreter.Interop
 				&& pi[1].ParameterType == typeof(CallbackArguments) && mi.ReturnType == typeof(DynValue));
 		}
 
-		public static DataType? TryGetSimpleScriptTypeForClrType(Type t, out bool nullable)
-		{
-			Type tv = Nullable.GetUnderlyingType(t);
-
-			nullable = false;
-
-			if (tv != null)
-			{
-				nullable = true;
-				t = tv;
-			}
-
-			if (NumericTypes.Contains(t))
-				return DataType.Number;
-
-			if (t == typeof(bool))
-				return DataType.Boolean;
-
-			if (t == typeof(string) || t == typeof(StringBuilder) || t == typeof(char))
-				return DataType.String;
-
-			return null;
-		}
-
-
-
-
-		public static DynValue CreateValueFromSupportedObject(this Script script, object obj)
+		public static DynValue TryClrObjectToSimpleMoonSharpValue(this Script script, object obj)
 		{
 			if (obj == null)
 				return DynValue.Nil;
 
-			if (NumericTypes.Contains(obj.GetType()))
-				return DynValue.NewNumber((double)obj);
+			Type t = obj.GetType();
+
+			if (NumericTypes.Contains(t))
+				return DynValue.NewNumber(TypeToDouble(t, obj));
 
 			if (obj is bool)
 				return DynValue.NewBoolean((bool)obj);
@@ -86,14 +60,102 @@ namespace MoonSharp.Interpreter.Interop
 				MethodInfo mi = d.Method;
 
 				if (CheckCallbackSignature(mi))
-					return DynValue.NewCallback((Func<ScriptExecutionContext, CallbackArguments, DynValue>)d); 
+					return DynValue.NewCallback((Func<ScriptExecutionContext, CallbackArguments, DynValue>)d);
 			}
 
 			return null;
 		}
 
 
+		public static DynValue ClrObjectToComplexMoonSharpValue(this Script script, object obj)
+		{
+			DynValue v = TryClrObjectToSimpleMoonSharpValue(script, obj);
 
+			if (v != null) return v;
 
+			v = script.UserDataRepository.CreateUserData(obj);
+
+			if (v != null) return v;
+
+			if (obj is Type)
+			{
+				v = script.UserDataRepository.CreateStaticUserData(obj as Type);
+			}
+
+			if (obj is System.Collections.IEnumerable)
+			{
+				var enumer = (System.Collections.IEnumerable)obj;
+				return EnumerableIterator.ConvertIterator(script, enumer.GetEnumerator());
+			}
+
+			if (obj is System.Collections.IEnumerator)
+			{
+				var enumer = (System.Collections.IEnumerator)obj;
+				return EnumerableIterator.ConvertIterator(script, enumer);
+			}
+
+			throw ScriptRuntimeException.ConvertObjectFailed(obj);
+		}
+
+		internal static object MoonSharpValueToClrObject(DynValue value)
+		{
+			switch (value.Type)
+			{
+				case DataType.Nil:
+					return null;
+				case DataType.Boolean:
+					return value.Boolean;
+				case DataType.Number:
+					return value.Number;
+				case DataType.String:
+					return value.String;
+				case DataType.Function:
+					return value.Function;
+				case DataType.Table:
+					return value.Table;
+				case DataType.Tuple:
+					return value.Tuple;
+				case DataType.UserData:
+					return value.UserData.Object;
+				case DataType.ClrFunction:
+					return value.Callback;
+				default:
+					throw ScriptRuntimeException.ConvertObjectFailed(value.Type);
+			}
+		}
+
+		public static object DoubleToType(Type type, double d)
+		{
+			type = Nullable.GetUnderlyingType(type) ?? type;
+
+			if (type == typeof(double)) return d;
+			if (type == typeof(sbyte)) return (sbyte)d;
+			if (type == typeof(byte)) return (byte)d;
+			if (type == typeof(short)) return (short)d;
+			if (type == typeof(ushort)) return (ushort)d;
+			if (type == typeof(int)) return (int)d;
+			if (type == typeof(uint)) return (uint)d;
+			if (type == typeof(long)) return (long)d;
+			if (type == typeof(ulong)) return (ulong)d;
+			if (type == typeof(float)) return (float)d;
+			if (type == typeof(decimal)) return (decimal)d;
+			return d;
+		}
+
+		public static double TypeToDouble(Type type, object d)
+		{
+			if (type == typeof(double)) return (double)d;
+			if (type == typeof(sbyte)) return (double)(sbyte)d;
+			if (type == typeof(byte)) return (double)(byte)d;
+			if (type == typeof(short)) return (double)(short)d;
+			if (type == typeof(ushort)) return (double)(ushort)d;
+			if (type == typeof(int)) return (double)(int)d;
+			if (type == typeof(uint)) return (double)(uint)d;
+			if (type == typeof(long)) return (double)(long)d;
+			if (type == typeof(ulong)) return (double)(ulong)d;
+			if (type == typeof(float)) return (double)(float)d;
+			if (type == typeof(decimal)) return (double)(decimal)d;
+			return (double)d;
+		}
 	}
 }

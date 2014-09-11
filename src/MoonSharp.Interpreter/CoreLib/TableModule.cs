@@ -134,7 +134,7 @@ namespace MoonSharp.Interpreter.CoreLib
 			}
 
 			if (vpos.Type != DataType.Number)
-				args.ThrowBadArgument(1, "table.insert", DataType.Number, vpos.Type, false);
+				throw ScriptRuntimeException.BadArgument(1, "table.insert", DataType.Number, vpos.Type, false);
 
 			int pos = (int)vpos.Number;
 

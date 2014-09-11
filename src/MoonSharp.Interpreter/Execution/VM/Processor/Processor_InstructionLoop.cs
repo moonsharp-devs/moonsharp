@@ -1006,6 +1006,16 @@ namespace MoonSharp.Interpreter.Execution.VM
 						return instructionPtr;
 					}
 				}
+				else if (obj.Type == DataType.UserData)
+				{
+					UserData ud = obj.UserData;
+
+					if (idx.Type != DataType.String)
+						throw ScriptRuntimeException.BadArgument(1, string.Format("userdata<{0}>.__newindex", ud.Descriptor.Name), "string", idx.Type.ToLuaTypeString(), false);
+
+					ud.Descriptor.SetIndex(ud.Object, idx.String, value);
+					return instructionPtr;
+				}
 				else
 				{
 					h = GetMetamethod(obj, "__newindex");
@@ -1062,6 +1072,17 @@ namespace MoonSharp.Interpreter.Execution.VM
 						m_ValueStack.Push(DynValue.Nil);
 						return instructionPtr;
 					}
+				}
+				else if (obj.Type == DataType.UserData)
+				{
+					UserData ud = obj.UserData;
+
+					if (idx.Type != DataType.String)
+						throw ScriptRuntimeException.BadArgument(1, string.Format("userdata<{0}>.__index", ud.Descriptor.Name), "string", idx.Type.ToLuaTypeString(), false);
+
+					var v = ud.Descriptor.Index(ud.Object, idx.String);
+					m_ValueStack.Push(v.AsReadOnly());
+					return instructionPtr;
 				}
 				else
 				{

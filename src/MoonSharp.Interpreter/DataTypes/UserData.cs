@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MoonSharp.Interpreter.Interop;
 
 namespace MoonSharp.Interpreter
 {
@@ -9,8 +10,6 @@ namespace MoonSharp.Interpreter
 	{
 		public object Object { get; set; }
 
-		public string Id { get; set;  }
-
-		public Table Metatable { get; set; }
+		public UserDataDescriptor Descriptor { get; set; }
 	}
 }

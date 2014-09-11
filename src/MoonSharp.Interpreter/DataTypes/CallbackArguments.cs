@@ -37,20 +37,13 @@ namespace MoonSharp.Interpreter
 			return List.ToArray();
 		}
 
-		public void ThrowBadArgument(int argNum, string funcName, object expected, object got, bool allowNil)
-		{
-			// bad argument #1 to 'next' (table expected, got number)
-			throw new ScriptRuntimeException("bad argument #{0} to '{1}' ({2}{3} expected, got {4})",
-				argNum + 1, funcName, allowNil ? "nil or " : "", expected.ToString().ToLowerInvariant(), got.ToString().ToLowerInvariant());
-		}
-
 		public DynValue AsType(int argNum, string funcName, DataType type, bool allowNil = false)
 		{
 			if (allowNil && this[argNum].Type == DataType.Nil)
 				return this[argNum];
 
 			if (this[argNum].Type != type)
-				ThrowBadArgument(argNum, funcName, type, this[argNum].Type, allowNil);
+				throw ScriptRuntimeException.BadArgument(argNum, funcName, type, this[argNum].Type, allowNil);
 
 			return this[argNum];
 		}

@@ -8,6 +8,7 @@ using MoonSharp.Interpreter.CoreLib;
 using MoonSharp.Interpreter.Debugging;
 using MoonSharp.Interpreter.Diagnostics;
 using MoonSharp.Interpreter.Execution.VM;
+using MoonSharp.Interpreter.Interop;
 using MoonSharp.Interpreter.Loaders;
 using MoonSharp.Interpreter.Tree;
 using MoonSharp.Interpreter.Tree.Statements;
@@ -52,6 +53,7 @@ namespace MoonSharp.Interpreter
 		{
 			DebugPrint = s => { Console.WriteLine(s); };
 			m_ByteCode = new ByteCode();
+			UserDataRepository = new UserDataRepository(this);
 			m_GlobalTable = new Table(this).RegisterCoreModules(coreModules);
 			m_MainRoutine = new Processor(this, m_GlobalTable, m_ByteCode);
 			ReseedRandomGenerator(DateTime.Now.Millisecond);
@@ -76,6 +78,11 @@ namespace MoonSharp.Interpreter
 		/// ScriptLoader property for all newly created scripts.
 		/// </summary>
 		public static IScriptLoader DefaultScriptLoader { get; set; }
+
+		/// <summary>
+		/// Gets the userdata type repository.
+		/// </summary>
+		public UserDataRepository UserDataRepository { get; private set; }
 
 		/// <summary>
 		/// Gets the default global table for this script. Unless a different table is intentionally passed (or setfenv has been used)

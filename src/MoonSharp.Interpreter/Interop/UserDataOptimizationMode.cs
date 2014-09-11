@@ -5,14 +5,12 @@ using System.Text;
 
 namespace MoonSharp.Interpreter.Interop
 {
-	public static class MoonSharpInterop
+	[Flags]
+	public enum UserDataOptimizationMode
 	{
-
-
-
-
-
-
-
+		None,
+		Lazy,
+		Precomputed,
+		HideMembers
 	}
 }
