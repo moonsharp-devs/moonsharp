@@ -22,30 +22,30 @@ namespace MoonSharp.Interpreter.Tests
 			Script S = new Script();
 
 			var globalCtx = S.Globals;
-			globalCtx[DynValue.NewString("xassert")] =  DynValue.NewCallback(new CallbackFunction(
+			globalCtx.Set(DynValue.NewString("xassert"), DynValue.NewCallback(new CallbackFunction(
 				(x, a) =>
 				{
 					if (!a[1].CastToBool())
 						failedTests.Add(a[0].String);
 
 					return DynValue.Nil;
-				}));
-			globalCtx[DynValue.NewString("assert")] =  DynValue.NewCallback(new CallbackFunction(
-			 (x, a) =>
-			 {
-				 ++i;
-
-				 if (!a[0].CastToBool())
-					 failedTests.Add(string.Format("assert #{0}", i));
-
-				 return DynValue.Nil;
-			 }));
-
-			globalCtx[DynValue.NewString("print")] =  DynValue.NewCallback(new CallbackFunction((x, a) =>
+				})));
+			globalCtx.Set(DynValue.NewString("assert"), DynValue.NewCallback(new CallbackFunction(
+				(x, a) =>
 				{
-					// Debug.WriteLine(string.Join(" ", a.Select(v => v.AsString()).ToArray()));
+					++i;
+
+					if (!a[0].CastToBool())
+						failedTests.Add(string.Format("assert #{0}", i));
+
 					return DynValue.Nil;
-				}));
+				})));
+
+			globalCtx.Set(DynValue.NewString("print"), DynValue.NewCallback(new CallbackFunction((x, a) =>
+			{
+				// Debug.WriteLine(string.Join(" ", a.Select(v => v.AsString()).ToArray()));
+				return DynValue.Nil;
+			})));
 
 
 			DynValue res = S.DoString(script);

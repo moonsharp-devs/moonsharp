@@ -55,7 +55,7 @@ namespace MoonSharp.Interpreter.Interop
 			if (m_Properties.ContainsKey(idxname))
 			{
 				object o = m_Properties[idxname].GetValue(obj);
-				return Converter.ClrObjectToComplexMoonSharpValue(this.Repository.OwnerScript, o);
+				return ConversionHelper.ClrObjectToComplexMoonSharpValue(this.Repository.OwnerScript, o);
 			}
 
 			throw ScriptRuntimeException.UserDataMissingField(this.Name, idxname);
@@ -65,7 +65,7 @@ namespace MoonSharp.Interpreter.Interop
 		{
 			if (m_Properties.ContainsKey(idxname))
 			{
-				object o = Converter.MoonSharpValueToClrObject(value);
+				object o = ConversionHelper.MoonSharpValueToClrObject(value);
 				m_Properties[idxname].SetValue(obj, o, value.Type);
 			}
 			else

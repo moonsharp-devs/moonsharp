@@ -481,9 +481,9 @@ namespace MoonSharp.Interpreter.CoreLib.Patterns
 
 		private static DynValue GmatchAux(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
-			DynValue v_idx = executionContext.Closure["idx"];
-			DynValue v_src = executionContext.Closure["src"];
-			DynValue v_pattern = executionContext.Closure["pattern"];
+			DynValue v_idx = executionContext.Closure.Get("idx");
+			DynValue v_src = executionContext.Closure.Get("src");
+			DynValue v_pattern = executionContext.Closure.Get("pattern");
 
 			MatchState ms = new MatchState();
 			string src = v_src.String;
@@ -501,7 +501,7 @@ namespace MoonSharp.Interpreter.CoreLib.Patterns
 				if (e != -1)
 				{
 					int newStart = (e == 0) ? e + 1 : e;
-					executionContext.Closure["idx"] = DynValue.NewNumber(newStart);
+					executionContext.Closure.Set("idx", DynValue.NewNumber(newStart));
 					return PushCaptures(ms, s, e);
 				}
 			}
@@ -514,9 +514,9 @@ namespace MoonSharp.Interpreter.CoreLib.Patterns
 			DynValue aux = DynValue.NewCallback(GmatchAux);
 
 			aux.Callback.Closure = new Table(script);
-			aux.Callback.Closure["idx"] = DynValue.NewNumber(0);
-			aux.Callback.Closure["src"] = DynValue.NewString(src);
-			aux.Callback.Closure["pattern"] = DynValue.NewString(pattern);
+			aux.Callback.Closure.Set("idx", DynValue.NewNumber(0));
+			aux.Callback.Closure.Set("src", DynValue.NewString(src));
+			aux.Callback.Closure.Set("pattern", DynValue.NewString(pattern));
 
 			return aux;
 		}
@@ -573,7 +573,7 @@ namespace MoonSharp.Interpreter.CoreLib.Patterns
 				case DataType.Table:
 					{
 						var v = PushOneCapture(ms, 0, s, e);
-						result = repl.Table[v];
+						result = repl.Table.Get(v);
 						break;
 					}
 			}

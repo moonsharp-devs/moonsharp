@@ -73,7 +73,7 @@ namespace MoonSharp.Interpreter.CoreLib
 			DynValue index = args.AsType(1, "!!next_i!!", DataType.Number);
 
 			int idx = ((int)index.Number) + 1;
-			DynValue val = table.Table[idx];
+			DynValue val = table.Table.Get(idx);
 			
 			if (val.Type != DataType.Nil)
 			{

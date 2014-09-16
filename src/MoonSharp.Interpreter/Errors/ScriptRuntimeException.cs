@@ -119,6 +119,11 @@ namespace MoonSharp.Interpreter
 			return new ScriptRuntimeException("cannot convert a {0} to a clr type", t.ToString().ToLowerInvariant());
 		}
 
+		public static ScriptRuntimeException ConvertObjectFailed(DataType t, Type t2)
+		{
+			return new ScriptRuntimeException("cannot convert a {0} to a clr type {1}", t.ToString().ToLowerInvariant(), t2.FullName);
+		}
+
 		public static ScriptRuntimeException UserDataArgumentTypeMismatch(DataType t, Type clrType)
 		{
 			return new ScriptRuntimeException("cannot find a conversion from a moon# {0} to a clr {1}", t.ToString().ToLowerInvariant(), clrType.FullName);

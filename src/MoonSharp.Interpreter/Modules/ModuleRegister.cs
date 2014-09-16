@@ -31,11 +31,11 @@ namespace MoonSharp.Interpreter
 
 		public static Table RegisterConstants(this Table table)
 		{
-			table["_G"] = DynValue.NewTable(table);
-			table["_VERSION"] = DynValue.NewString(string.Format("Moon# {0}", 
+			table.Set("_G", DynValue.NewTable(table));
+			table.Set("_VERSION", DynValue.NewString(string.Format("Moon# {0}", 
 				Assembly.GetExecutingAssembly().GetName().Version.Major,
-				Assembly.GetExecutingAssembly().GetName().Version.Minor));
-			table["_MOONSHARP"] = DynValue.NewString(Assembly.GetExecutingAssembly().GetName().Version.ToString());
+				Assembly.GetExecutingAssembly().GetName().Version.Minor)));
+			table.Set("_MOONSHARP", DynValue.NewString(Assembly.GetExecutingAssembly().GetName().Version.ToString()));
 
 			return table;
 		}
@@ -52,14 +52,14 @@ namespace MoonSharp.Interpreter
 				{
 					MoonSharpMethodAttribute attr = (MoonSharpMethodAttribute)mi.GetCustomAttributes(typeof(MoonSharpMethodAttribute), false).First();
 
-					if (!Converter.CheckCallbackSignature(mi))
+					if (!ConversionHelper.CheckCallbackSignature(mi))
 							throw new ArgumentException(string.Format("Method {0} does not have the right signature.", mi.Name));
 
 					Func<ScriptExecutionContext, CallbackArguments, DynValue> func = (Func<ScriptExecutionContext, CallbackArguments, DynValue>)Delegate.CreateDelegate(typeof(Func<ScriptExecutionContext, CallbackArguments, DynValue>), mi);
 
 					string name = (!string.IsNullOrEmpty(attr.Name)) ? attr.Name : mi.Name;
 
-					table[name] = DynValue.NewCallback(func);
+					table.Set(name, DynValue.NewCallback(func));
 				}
 				else if (mi.Name == "MoonSharpInit")
 				{
@@ -91,12 +91,12 @@ namespace MoonSharp.Interpreter
 			if (fi.FieldType == typeof(string))
 			{
 				string val = fi.GetValue(o) as string;
-				table[name] = DynValue.NewString(val);
+				table.Set(name, DynValue.NewString(val));
 			}
 			else if (fi.FieldType == typeof(double))
 			{
 				double val = (double)fi.GetValue(o);
-				table[name] = DynValue.NewNumber(val);
+				table.Set(name, DynValue.NewNumber(val));
 			}
 			else
 			{
@@ -115,7 +115,7 @@ namespace MoonSharp.Interpreter
 
 			DynValue fn = table.OwnerScript.LoadFunction(val, table, name);
 
-			table[name] = fn;
+			table.Set(name, fn);
 		}
 
 
@@ -130,13 +130,13 @@ namespace MoonSharp.Interpreter
 			else
 			{
 				Table table = new Table(gtable.OwnerScript);
-				gtable[attr.Namespace] = DynValue.NewTable(table);
+				gtable.Set(attr.Namespace, DynValue.NewTable(table));
 
 				DynValue package = gtable.RawGet("package");
 
 				if (package == null || package.Type != DataType.Table)
 				{
-					gtable["package"] = package = DynValue.NewTable(gtable.OwnerScript);
+					gtable.Set("package", package = DynValue.NewTable(gtable.OwnerScript));
 				}
 
 
@@ -144,10 +144,10 @@ namespace MoonSharp.Interpreter
 
 				if (loaded == null || loaded.Type != DataType.Table)
 				{
-					package.Table["loaded"] = loaded = DynValue.NewTable(gtable.OwnerScript);
+					package.Table.Set("loaded", loaded = DynValue.NewTable(gtable.OwnerScript));
 				}
 
-				loaded.Table[attr.Namespace] = DynValue.NewTable(table);
+				loaded.Table.Set(attr.Namespace, DynValue.NewTable(table));
 
 				return table;
 			}

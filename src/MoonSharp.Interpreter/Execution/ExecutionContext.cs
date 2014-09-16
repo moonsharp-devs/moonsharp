@@ -27,7 +27,7 @@ namespace MoonSharp.Interpreter.Execution
 		public DynValue GetVar(SymbolRef symref)
 		{
 			if (CheckUpValue(symref))
-				return m_Callback.Closure[symref.Name];
+				return m_Callback.Closure.Get(symref.Name);
 
 			return m_Processor.GetVar(symref);
 		}
@@ -35,7 +35,7 @@ namespace MoonSharp.Interpreter.Execution
 		public void SetVar(SymbolRef symref, DynValue value)
 		{
 			if (CheckUpValue(symref))
-				m_Callback.Closure[symref.Name] = value;
+				m_Callback.Closure.Set(symref.Name, value);
 
 			m_Processor.SetVar(symref, value);
 		}

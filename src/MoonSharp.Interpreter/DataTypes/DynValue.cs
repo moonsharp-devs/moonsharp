@@ -625,6 +625,16 @@ namespace MoonSharp.Interpreter
 			this.m_Number = num;
 		}
 
+
+		public static DynValue FromObject(Script s, object obj)
+		{
+			return MoonSharp.Interpreter.Interop.ConversionHelper.ClrObjectToComplexMoonSharpValue(s, obj);
+		}
+
+		public object ToObject()
+		{
+			return MoonSharp.Interpreter.Interop.ConversionHelper.MoonSharpValueToClrObject(this);
+		}
 	}
 
 

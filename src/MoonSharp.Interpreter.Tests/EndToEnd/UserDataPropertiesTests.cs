@@ -39,7 +39,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			
 			S.UserDataRepository.RegisterType<SomeClass>(opt);
 
-			S.Globals["myobj"] = S.UserDataRepository.CreateUserData(obj);
+			S.Globals.Set("myobj", S.UserDataRepository.CreateUserData(obj));
 
 			DynValue res = S.DoString(script);
 
@@ -61,8 +61,8 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 			S.UserDataRepository.RegisterType<SomeClass>(opt);
 
-			S.Globals["myobj1"] = S.UserDataRepository.CreateUserData(obj1);
-			S.Globals["myobj2"] = S.UserDataRepository.CreateUserData(obj2);
+			S.Globals.Set("myobj1", S.UserDataRepository.CreateUserData(obj1));
+			S.Globals.Set("myobj2", S.UserDataRepository.CreateUserData(obj2));
 
 			DynValue res = S.DoString(script);
 
@@ -87,8 +87,8 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 			S.UserDataRepository.RegisterType<SomeClass>(opt);
 
-			S.Globals["myobj1"] = S.UserDataRepository.CreateUserData(obj1);
-			S.Globals["myobj2"] = S.UserDataRepository.CreateUserData(obj2);
+			S.Globals.Set("myobj1", S.UserDataRepository.CreateUserData(obj1));
+			S.Globals.Set("myobj2", S.UserDataRepository.CreateUserData(obj2));
 
 			DynValue res = S.DoString(script);
 
@@ -112,7 +112,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 			S.UserDataRepository.RegisterType<SomeClass>(opt);
 
-			S.Globals["myobj"] = S.UserDataRepository.CreateUserData(obj);
+			S.Globals.Set("myobj", S.UserDataRepository.CreateUserData(obj));
 
 			Assert.AreEqual(321, obj.IntProp);
 
@@ -134,8 +134,8 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 			S.UserDataRepository.RegisterType<SomeClass>(opt);
 
-			S.Globals["myobj1"] = S.UserDataRepository.CreateUserData(obj1);
-			S.Globals["myobj2"] = S.UserDataRepository.CreateUserData(obj2);
+			S.Globals.Set("myobj1", S.UserDataRepository.CreateUserData(obj1));
+			S.Globals.Set("myobj2", S.UserDataRepository.CreateUserData(obj2));
 
 			Assert.AreEqual(321, obj1.NIntProp);
 			Assert.AreEqual(null, obj2.NIntProp);
@@ -159,8 +159,8 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 			S.UserDataRepository.RegisterType<SomeClass>(opt);
 
-			S.Globals["myobj1"] = S.UserDataRepository.CreateUserData(obj1);
-			S.Globals["myobj2"] = S.UserDataRepository.CreateUserData(obj2);
+			S.Globals.Set("myobj1", S.UserDataRepository.CreateUserData(obj1));
+			S.Globals.Set("myobj2", S.UserDataRepository.CreateUserData(obj2));
 
 			Assert.AreEqual("ciao", obj1.ObjProp);
 			Assert.AreEqual(obj1, obj2.ObjProp);
@@ -182,7 +182,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 			S.UserDataRepository.RegisterType<SomeClass>(opt);
 
-			S.Globals["myobj"] = S.UserDataRepository.CreateUserData(obj);
+			S.Globals.Set("myobj", S.UserDataRepository.CreateUserData(obj));
 
 			Assert.AreEqual(321, obj.IntProp);
 
@@ -202,7 +202,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 			S.UserDataRepository.RegisterType<SomeClass>(opt);
 
-			S.Globals["static"] = S.UserDataRepository.CreateStaticUserData<SomeClass>();
+			S.Globals.Set("static", S.UserDataRepository.CreateStaticUserData<SomeClass>());
 
 			Assert.AreEqual("qweqwe", SomeClass.StaticProp);
 
@@ -227,7 +227,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 			S.UserDataRepository.RegisterType<SomeClass>(opt);
 
-			S.Globals["myobj"] = S.UserDataRepository.CreateUserData(obj);
+			S.Globals.Set("myobj", S.UserDataRepository.CreateUserData(obj));
 
 			DynValue res = S.DoString(script);
 
@@ -402,5 +402,26 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			Test_IteratorPropertyGetter(UserDataOptimizationMode.Precomputed);
 		}
 
+		[Test]
+		public void Interop_IntPropertySetterWithSimplifiedSyntax()
+		{
+			string script = @"    
+				myobj.IntProp = 19;";
+
+			Script S = new Script();
+
+			SomeClass obj = new SomeClass() { IntProp = 321 };
+
+			S.UserDataRepository.RegisterType<SomeClass>();
+
+			S.Globals["myobj"] = obj;
+
+			Assert.AreEqual(321, obj.IntProp);
+
+			DynValue res = S.DoString(script);
+
+			Assert.AreEqual(obj, S.Globals["myobj"]);
+			Assert.AreEqual(19, obj.IntProp);
+		}
 	}
 }

@@ -56,7 +56,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			if (dynValue.Type != DataType.Table)
 				throw new InvalidOperationException(string.Format("_ENV is not a table but a {0}", dynValue.Type));
 
-			return dynValue.Table[name];
+			return dynValue.Table.Get(name);
 		}
 
 		private void SetGlobalSymbol(DynValue dynValue, string name, DynValue value)
@@ -64,7 +64,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			if (dynValue.Type != DataType.Table)
 				throw new InvalidOperationException(string.Format("_ENV is not a table but a {0}", dynValue.Type));
 
-			dynValue.Table[name] = value ?? DynValue.Nil;
+			dynValue.Table.Set(name, value ?? DynValue.Nil);
 		}
 
 

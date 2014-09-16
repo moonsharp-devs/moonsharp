@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,11 +10,11 @@ namespace MoonSharp.Interpreter
 {
 	public class Table : IScriptPrivateResource
 	{
-		LinkedList<TablePair> m_Values;
-		LinkedListIndex<DynValue, TablePair> m_ValueMap;
-		LinkedListIndex<string, TablePair> m_StringMap;
-		LinkedListIndex<int, TablePair> m_ArrayMap;
-		Script m_Owner;
+		readonly LinkedList<TablePair> m_Values;
+		readonly LinkedListIndex<DynValue, TablePair> m_ValueMap;
+		readonly LinkedListIndex<string, TablePair> m_StringMap;
+		readonly LinkedListIndex<int, TablePair> m_ArrayMap;
+		readonly Script m_Owner;
 
 		int m_InitArray = 0;
 		int m_CachedLength = -1;
@@ -26,6 +27,7 @@ namespace MoonSharp.Interpreter
 			m_ValueMap = new LinkedListIndex<DynValue, TablePair>(m_Values);
 			m_Owner = owner;
 		}
+
 		public Script OwnerScript
 		{
 			get { return m_Owner; }
@@ -41,58 +43,84 @@ namespace MoonSharp.Interpreter
 			return -1;
 		}
 
-		public DynValue this[DynValue key]
+		public object this[object key]
 		{
-			get 
+			get
 			{
-				if (key.Type == DataType.Number)
-				{
-					int idx = GetIntegralKey(key.Number);
-					if (idx > 0)
-					{
-						return GetValueOrNil(m_ArrayMap.Find(idx));
-					}
-				}
-				else if (key.Type == DataType.String)
-				{
-					return GetValueOrNil(m_StringMap.Find(key.String));
-				}
-
-				return GetValueOrNil(m_ValueMap.Find(key));
+				if (key is string)
+					return Get((string)key).ToObject();
+				else if (key is int)
+					return Get((int)key).ToObject();
+				
+				DynValue dynkey = DynValue.FromObject(this.OwnerScript, key);
+				return Get(dynkey).ToObject();
 			}
-			set 
-			{
-				if (key.IsNilOrNan())
-				{
-					if (key.IsNil())
-						throw ScriptRuntimeException.TableIndexIsNil();
-					else
-						throw ScriptRuntimeException.TableIndexIsNaN();
-				}
 
-				if (key.Type == DataType.String)
+			set
+			{
+				DynValue dynval = DynValue.FromObject(this.OwnerScript, value);
+
+				if (key is string)
+					Set((string)key, dynval);
+				else if (key is int)
+					Set((int)key, dynval);
+				else
+					Set(DynValue.FromObject(this.OwnerScript, key), dynval);
+			}
+		}
+
+
+
+		public void Set(DynValue key, DynValue value)
+		{
+			if (key.IsNilOrNan())
+			{
+				if (key.IsNil())
+					throw ScriptRuntimeException.TableIndexIsNil();
+				else
+					throw ScriptRuntimeException.TableIndexIsNaN();
+			}
+
+			if (key.Type == DataType.String)
+			{
+				Set(key.String, value);
+				return;
+			}
+
+			if (key.Type == DataType.Number)
+			{
+				int idx = GetIntegralKey(key.Number);
+
+				if (idx > 0)
 				{
-					this[key.String] = value;
+					Set(idx, value);
 					return;
 				}
-
-				if (key.Type == DataType.Number)
-				{
-					int idx = GetIntegralKey(key.Number);
-
-					if (idx > 0)
-					{
-						this[idx] = value;
-						return;
-					}
-				}
-
-				CheckValueOwner(key);
-				CheckValueOwner(value);
-
-				if (m_ValueMap.Set(key, new TablePair(key, value)))
-					CollectDeadKeys();
 			}
+
+			CheckValueOwner(key);
+			CheckValueOwner(value);
+
+			if (m_ValueMap.Set(key, new TablePair(key, value)))
+				CollectDeadKeys();
+		}
+
+		public DynValue Get(DynValue key)
+		{
+			if (key.Type == DataType.Number)
+			{
+				int idx = GetIntegralKey(key.Number);
+				if (idx > 0)
+				{
+					return GetValueOrNil(m_ArrayMap.Find(idx));
+				}
+			}
+			else if (key.Type == DataType.String)
+			{
+				return GetValueOrNil(m_StringMap.Find(key.String));
+			}
+
+			return GetValueOrNil(m_ValueMap.Find(key));
 		}
 
 		private DynValue GetValueOrNil(LinkedListNode<TablePair> linkedListNode)
@@ -103,19 +131,17 @@ namespace MoonSharp.Interpreter
 			return DynValue.Nil;
 		}
 
-		public DynValue this[string key]
+		public void Set(string key, DynValue value)
 		{
-			get
-			{
-				return GetValueOrNil(m_StringMap.Find(key));
-			}
-			set
-			{
-				CheckValueOwner(value);
+			CheckValueOwner(value);
 
-				if (m_StringMap.Set(key, new TablePair(DynValue.NewString(key), value)))
-					CollectDeadKeys();
-			}
+			if (m_StringMap.Set(key, new TablePair(DynValue.NewString(key), value)))
+				CollectDeadKeys();
+		}
+
+		public DynValue Get(string key)
+		{
+			return GetValueOrNil(m_StringMap.Find(key));
 		}
 
 
@@ -129,24 +155,22 @@ namespace MoonSharp.Interpreter
 			return null;
 		}
 
-		public DynValue this[int key]
+		public void Set(int key, DynValue value)
 		{
-			get
-			{
-				return GetValueOrNil(m_ArrayMap.Find(key));
-			}
-			set
-			{
-				CheckValueOwner(value);
+			CheckValueOwner(value);
 
-				if (m_ArrayMap.Set(key, new TablePair(DynValue.NewNumber(key), value)))
-				{
-					CollectDeadKeys();
-					m_CachedLength = -1;
-				}
-				else if (value.IsNil())
-					m_CachedLength = -1;
+			if (m_ArrayMap.Set(key, new TablePair(DynValue.NewNumber(key), value)))
+			{
+				CollectDeadKeys();
+				m_CachedLength = -1;
 			}
+			else if (value.IsNil())
+				m_CachedLength = -1;
+		}
+
+		public DynValue Get(int key)
+		{
+			return GetValueOrNil(m_ArrayMap.Find(key));
 		}
 
 		private void CheckValueOwner(DynValue value)
@@ -231,7 +255,7 @@ namespace MoonSharp.Interpreter
 		}
 
 
-		public double Length
+		public int Length
 		{
 			get 
 			{
@@ -256,7 +280,7 @@ namespace MoonSharp.Interpreter
 			}
 			else
 			{
-				this[++m_InitArray] = val.ToScalar();
+				Set(++m_InitArray, val.ToScalar());
 			}
 		}
 
@@ -266,8 +290,11 @@ namespace MoonSharp.Interpreter
 		public Table MetaTable { get; set; }
 
 
-		
 
+		public IEnumerable<KeyValuePair<DynValue, DynValue>> EnumerateKeyValuePairs()
+		{
+			return m_Values.Select(n => new KeyValuePair<DynValue, DynValue>(n.Key, n.Value));
+		}
 		
 
 

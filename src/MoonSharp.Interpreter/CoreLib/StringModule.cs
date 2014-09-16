@@ -13,7 +13,7 @@ namespace MoonSharp.Interpreter.CoreLib
 		public static void MoonSharpInit(Table globalTable, Table stringTable)
 		{
 			Table stringMetatable = new Table(globalTable.OwnerScript);
-			stringMetatable["__index"] = DynValue.NewTable(stringTable);
+			stringMetatable.Set("__index", DynValue.NewTable(stringTable));
 			globalTable.OwnerScript.SetTypeMetatable(DataType.String, stringMetatable);
 		}
 

@@ -19,11 +19,11 @@ namespace MoonSharp.Interpreter.Tests
 
 			Script S = new Script();
 
-			S.Globals["print"] = DynValue.NewCallback(new CallbackFunction((x, a) => 
+			S.Globals.Set("print", DynValue.NewCallback(new CallbackFunction((x, a) => 
 			{
 				args = a.ToArray();
 				return DynValue.NewNumber(1234.0); 
-			}));
+			})));
 
 			DynValue res = S.DoString(script);
 
@@ -43,7 +43,7 @@ namespace MoonSharp.Interpreter.Tests
 			string script = "local print = print; print(\"hello\", \"world\");";
 
 			var S = new Script();
-			S.Globals["print"] = DynValue.NewCallback(new CallbackFunction((_x, a) => { args = a.ToArray(); return DynValue.NewNumber(1234.0); }));
+			S.Globals.Set("print", DynValue.NewCallback(new CallbackFunction((_x, a) => { args = a.ToArray(); return DynValue.NewNumber(1234.0); })));
 
 			DynValue res = S.DoString(script);
 
@@ -63,7 +63,7 @@ namespace MoonSharp.Interpreter.Tests
 			string script = "return print(\"hello\", \"world\");";
 
 			var S = new Script();
-			S.Globals["print"] = DynValue.NewCallback(new CallbackFunction((_x, a) => { args = a.ToArray(); return DynValue.NewNumber(1234.0); }));
+			S.Globals.Set("print", DynValue.NewCallback(new CallbackFunction((_x, a) => { args = a.ToArray(); return DynValue.NewNumber(1234.0); })));
 
 			DynValue res = S.DoString(script);
 
@@ -122,10 +122,10 @@ namespace MoonSharp.Interpreter.Tests
 			";
 
 			Script S = new Script();
-			S.Globals["crash"] = DynValue.NewCallback(new CallbackFunction((_x, a) =>
+			S.Globals.Set("crash", DynValue.NewCallback(new CallbackFunction((_x, a) =>
 			{
 				throw new Exception("FAIL!");
-			}));
+			})));
 
 			S.DoString(script);
 		}
@@ -936,22 +936,22 @@ namespace MoonSharp.Interpreter.Tests
 
 			Table T = res.Table;
 
-			Assert.AreEqual(DataType.Boolean, T["T1"].Type, "T1-Type");
-			Assert.AreEqual(true, T["T1"].Boolean, "T1-Val");
+			Assert.AreEqual(DataType.Boolean, T.Get("T1").Type, "T1-Type");
+			Assert.AreEqual(true, T.Get("T1").Boolean, "T1-Val");
 
-			Assert.AreEqual(DataType.Boolean, T["T2"].Type, "T2-Type");
-			Assert.AreEqual(true, T["T2"].Boolean, "T2-Val");
+			Assert.AreEqual(DataType.Boolean, T.Get("T2").Type, "T2-Type");
+			Assert.AreEqual(true, T.Get("T2").Boolean, "T2-Val");
 
-			Assert.AreEqual(DataType.Number, T["T3"].Type, "T3-Type");
-			Assert.AreEqual(1, T["T3"].Number, "T3-Val");
+			Assert.AreEqual(DataType.Number, T.Get("T3").Type, "T3-Type");
+			Assert.AreEqual(1, T.Get("T3").Number, "T3-Val");
 
-			Assert.AreEqual(DataType.Nil, T["T4"].Type, "T4");
+			Assert.AreEqual(DataType.Nil, T.Get("T4").Type, "T4");
 
-			Assert.AreEqual(DataType.Number, T["T5"].Type, "T5-Type");
-			Assert.AreEqual(2, T["T5"].Number, "T5-Val");
+			Assert.AreEqual(DataType.Number, T.Get("T5").Type, "T5-Type");
+			Assert.AreEqual(2, T.Get("T5").Number, "T5-Val");
 
-			Assert.AreEqual(DataType.Number, T["T6"].Type, "T6-Type");
-			Assert.AreEqual(3, T["T6"].Number, "T6-Val");
+			Assert.AreEqual(DataType.Number, T.Get("T6").Type, "T6-Type");
+			Assert.AreEqual(3, T.Get("T6").Number, "T6-Val");
 		}
 
 

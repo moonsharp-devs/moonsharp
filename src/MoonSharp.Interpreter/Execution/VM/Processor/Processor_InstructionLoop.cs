@@ -362,20 +362,45 @@ namespace MoonSharp.Interpreter.Execution.VM
 			{
 				v = DynValue.NewTuple(v, DynValue.Nil, DynValue.Nil);
 			}
-			else if (v.Tuple.Length > 3)
+
+			DynValue f = v.Tuple.Length >= 1 ? v.Tuple[0] : DynValue.Nil;
+			DynValue s = v.Tuple.Length >= 2 ? v.Tuple[1] : DynValue.Nil;
+			DynValue var = v.Tuple.Length >= 3 ? v.Tuple[2] : DynValue.Nil;
+
+			// Moon# additions - given f, s, var
+			// 1) if f is not a function and has a __iterator metamethod, call __iterator to get the triplet
+			// 2) if f is a table with no __call metamethod, use a default table iterator
+			// 3) if f is a userdata, call its descriptor Iterate method
+
+			if (f.Type != DataType.Function && f.Type != DataType.ClrFunction)
 			{
-				v = DynValue.NewTuple(v.Tuple[0], v.Tuple[1], v.Tuple[2]);
-			}
-			else if (v.Tuple.Length == 2)
-			{
-				v = DynValue.NewTuple(v.Tuple[0], v.Tuple[1], DynValue.Nil);
-			}
-			else if (v.Tuple.Length == 1)
-			{
-				v = DynValue.NewTuple(v.Tuple[0], DynValue.Nil, DynValue.Nil);
+				DynValue meta = this.GetMetamethod(f, "__iterator");
+
+				if (meta != null && !meta.IsNil())
+				{
+					v = this.GetScript().Call(meta, f, s, var);
+					f = v.Tuple.Length >= 1 ? v.Tuple[0] : DynValue.Nil;
+					s = v.Tuple.Length >= 2 ? v.Tuple[1] : DynValue.Nil;
+					var = v.Tuple.Length >= 3 ? v.Tuple[2] : DynValue.Nil;
+
+					m_ValueStack.Push(DynValue.NewTuple(f, s, var));
+				}
+				else if (f.Type == DataType.Table)
+				{
+					DynValue callmeta = this.GetMetamethod(f, "__call");
+
+					if (callmeta == null || callmeta.IsNil())
+					{
+						m_ValueStack.Push(GetIEnumerableIteratorHelper(f));
+					}
+				}
+				else if (f.Type == DataType.UserData)
+				{
+					m_ValueStack.Push(GetIEnumerableIteratorHelper(f));
+				}
 			}
 
-			m_ValueStack.Push(v);
+			m_ValueStack.Push(DynValue.NewTuple(f, s, var));
 		}
 
 
@@ -973,7 +998,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			if (tbl.Type != DataType.Table)
 				throw new InternalErrorException("Unexpected type in table ctor : {0}", tbl);
 
-			tbl.Table[key] = val.ToScalar();
+			tbl.Table.Set(key, val.ToScalar());
 		}
 
 		private int ExecIndexSet(Instruction i, int instructionPtr)
@@ -992,9 +1017,9 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 				if (obj.Type == DataType.Table)
 				{
-					if (!obj.Table[idx].IsNil())
+					if (!obj.Table.Get(idx).IsNil())
 					{
-						obj.Table[idx] = value;
+						obj.Table.Set(idx, value);
 						return instructionPtr;
 					}
 
@@ -1002,7 +1027,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 					if (h == null || h.IsNil())
 					{
-						obj.Table[idx] = value;
+						obj.Table.Set(idx, value);
 						return instructionPtr;
 					}
 				}
@@ -1057,7 +1082,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 				if (obj.Type == DataType.Table)
 				{
-					var v = obj.Table[idx];
+					var v = obj.Table.Get(idx);
 
 					if (!v.IsNil())
 					{

@@ -26,7 +26,7 @@ namespace MoonSharp.Interpreter.Interop
 
 			while (m_Enumerator.MoveNext())
 			{
-				DynValue v = Converter.ClrObjectToComplexMoonSharpValue(m_Script, m_Enumerator.Current);
+				DynValue v = ConversionHelper.ClrObjectToComplexMoonSharpValue(m_Script, m_Enumerator.Current);
 
 				if (!v.IsNil())
 					return v;

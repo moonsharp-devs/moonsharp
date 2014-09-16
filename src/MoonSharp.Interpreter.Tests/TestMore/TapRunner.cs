@@ -30,7 +30,7 @@ namespace MoonSharp.Interpreter.Tests
 
 			//S.Globals["print"] = DynValue.NewCallback(Print);
 			S.DebugPrint = Print;
-			S.Globals["arg"] = DynValue.NewTable(S);
+			S.Globals.Set("arg", DynValue.NewTable(S));
 
 			var L = new ClassicLuaScriptLoader();
 			L.ModulePaths = L.UnpackStringPaths("TestMore/Modules/?;TestMore/Modules/?.lua");

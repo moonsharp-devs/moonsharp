@@ -40,7 +40,7 @@ namespace MoonSharp
 			{
 				Script script = new Script();
 
-				script.Globals["print"] = DynValue.NewCallback(new CallbackFunction(Print));
+				script.Globals.Set("print", DynValue.NewCallback(new CallbackFunction(Print)));
 
 				script.DoFile(args[0]);
 
@@ -55,7 +55,7 @@ namespace MoonSharp
 
 				Script script = new Script();
 
-				script.Globals["print"] = DynValue.NewCallback(new CallbackFunction(Print));
+				script.Globals.Set("print", DynValue.NewCallback(new CallbackFunction(Print)));
 
 				string cmd = "";
 

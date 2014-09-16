@@ -101,7 +101,7 @@ end
 		{
 			Script script = new Script();
 			Table t = script.Globals;
-			t["print"] = DynValue.NewCallback(Print);
+			t.Set("print", DynValue.NewCallback(Print));
 
 
 			DynValue retVal = script.DoFile("test.lua");
@@ -135,7 +135,7 @@ end
 			sw = Stopwatch.StartNew();
 
 			var script = new Script();
-			script.Globals["print"] = DynValue.NewCallback(new CallbackFunction(Print));
+			script.Globals.Set("print", DynValue.NewCallback(new CallbackFunction(Print)));
 
 			DynValue func = script.LoadString(scriptText);
 

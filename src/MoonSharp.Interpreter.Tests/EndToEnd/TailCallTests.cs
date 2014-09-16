@@ -23,13 +23,13 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 			Script S = new Script();
 
-			S.Globals["clrtail"] = DynValue.NewCallback((xc, a) =>
+			S.Globals.Set("clrtail", DynValue.NewCallback((xc, a) =>
 			{
-				DynValue fn = S.Globals["getResult"];
+				DynValue fn = S.Globals.Get("getResult");
 				DynValue k3 = DynValue.NewNumber(a[0].Number / 3);
 
 				return DynValue.NewTailCallReq(fn, k3);
-			});
+			}));
 
 			var res = S.DoString(script);
 

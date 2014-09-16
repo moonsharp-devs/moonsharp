@@ -11,6 +11,7 @@ namespace MoonSharp.Interpreter.Interop
 		None,
 		Lazy,
 		Precomputed,
-		HideMembers
+		HideMembers,
+		Default
 	}
 }

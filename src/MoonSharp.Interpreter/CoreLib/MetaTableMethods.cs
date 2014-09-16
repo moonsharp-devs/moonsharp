@@ -56,7 +56,7 @@ namespace MoonSharp.Interpreter.CoreLib
 			if (meta == null)
 				return DynValue.Nil;
 			else if (meta.RawGet("__metatable") != null)
-				return meta["__metatable"];
+				return meta.Get("__metatable");
 			else
 				return DynValue.NewTable(meta);
 		}
@@ -70,7 +70,7 @@ namespace MoonSharp.Interpreter.CoreLib
 			DynValue table = args.AsType(0, "rawget", DataType.Table);
 			DynValue index = args[1];
 
-			return table.Table[index];
+			return table.Table.Get(index);
 		}
 
 		// rawset (table, index, value)
@@ -84,7 +84,7 @@ namespace MoonSharp.Interpreter.CoreLib
 			DynValue table = args.AsType(0, "rawset", DataType.Table);
 			DynValue index = args[1];
 
-			table.Table[index] = args[2];
+			table.Table.Set(index, args[2]);
 
 			return table;
 		}

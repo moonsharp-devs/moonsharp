@@ -132,7 +132,7 @@
     <Compile Include="Execution\VM\Chunk.cs" />
     <Compile Include="Execution\VM\Processor\Processor_Errors.cs" />
     <Compile Include="Interface\IteratorHelper.cs" />
-    <Compile Include="Interop\Converter.cs" />
+    <Compile Include="Interop\ConversionHelper.cs" />
     <Compile Include="Interop\EnumerableIterator.cs">
       <SubType>Code</SubType>
     </Compile>

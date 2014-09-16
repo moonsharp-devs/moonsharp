@@ -79,6 +79,7 @@
     </Compile>
     <Compile Include="EndToEnd\StringLibTests.cs" />
     <Compile Include="EndToEnd\TailCallTests.cs" />
+    <Compile Include="EndToEnd\UserDataMethodsTests.cs" />
     <Compile Include="EndToEnd\UserDataPropertiesTests.cs">
       <SubType>Code</SubType>
     </Compile>

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using MoonSharp.Interpreter.DataStructs;
 using MoonSharp.Interpreter.Debugging;
+using MoonSharp.Interpreter.Interop;
 
 namespace MoonSharp.Interpreter.Execution.VM
 {
@@ -140,5 +141,10 @@ namespace MoonSharp.Interpreter.Execution.VM
 			return values;
 		}
 
+
+		private DynValue GetIEnumerableIteratorHelper(DynValue f)
+		{
+			return DynValue.Nil;
+		}
 	}
 }

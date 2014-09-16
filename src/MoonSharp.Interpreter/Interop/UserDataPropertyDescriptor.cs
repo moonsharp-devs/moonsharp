@@ -101,7 +101,7 @@ namespace MoonSharp.Interpreter.Interop
 			try
 			{
 				if (value is double)
-					value = Converter.DoubleToType(PropertyInfo.PropertyType, (double)value);
+					value = ConversionHelper.DoubleToType(PropertyInfo.PropertyType, (double)value);
 
 				if (UserDataDescriptor.OptimizationMode == UserDataOptimizationMode.Lazy && m_OptimizedSetter == null)
 					OptimizeSetter();

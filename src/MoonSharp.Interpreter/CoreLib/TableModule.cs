@@ -26,7 +26,7 @@ namespace MoonSharp.Interpreter.CoreLib
 
 			int tidx = 1;
 			for (int i = ii; i <= ij; i++)
-				v[tidx++] = t[i];
+				v[tidx++] = t.Get(i);
 
 			return DynValue.NewTuple(v);
 		}
@@ -38,9 +38,9 @@ namespace MoonSharp.Interpreter.CoreLib
 			DynValue v = DynValue.NewTable(t);
 
 			for (int i = 0; i < args.Count; i++)
-				t[i + 1] = args[i];
+				t.Set(i + 1, args[i]);
 
-			t["n"] = DynValue.NewNumber(args.Count);
+			t.Set("n", DynValue.NewNumber(args.Count));
 
 			return v;
 		}
@@ -59,13 +59,13 @@ namespace MoonSharp.Interpreter.CoreLib
 			List<DynValue> values = new List<DynValue>();
 
 			for (int i = 1; i <= end; i++)
-				values.Add(vlist.Table[i]);
+				values.Add(vlist.Table.Get(i));
 
 			values.Sort((a, b) => SortComparer(executionContext, a, b, lt));
 
 			for (int i = 0; i < values.Count; i++)
 			{
-				vlist.Table[i + 1] = values[i];
+				vlist.Table.Set(i + 1, values[i]);
 			}
 
 			return vlist;
@@ -143,10 +143,10 @@ namespace MoonSharp.Interpreter.CoreLib
 
 			for (int i = len; i >= pos; i--)
 			{
-				list[i + 1] = list[i];
+				list.Set(i + 1, list.Get(i));
 			}
 
-			list[pos] = vvalue;
+			list.Set(pos, vvalue);
 
 			return vlist;
 		}
@@ -173,9 +173,9 @@ namespace MoonSharp.Interpreter.CoreLib
 			for (int i = pos; i <= len; i++)
 			{
 				if (i == pos)
-					ret = list[i];
+					ret = list.Get(i);
 
-				list[i] = list[i + 1];
+				list.Set(i, list.Get(i + 1));
 			}
 
 			return ret;
@@ -215,7 +215,7 @@ namespace MoonSharp.Interpreter.CoreLib
 
 			for (int i = start; i <= end; i++)
 			{
-				DynValue v = list[i];
+				DynValue v = list.Get(i);
 
 				if (v.Type != DataType.Number && v.Type != DataType.String)
 					throw new ScriptRuntimeException("invalid value ({1}) at index {0} in table for 'concat'", i, v.Type.ToLuaTypeString());
