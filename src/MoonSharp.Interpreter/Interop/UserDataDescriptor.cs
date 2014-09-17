@@ -25,7 +25,7 @@ namespace MoonSharp.Interpreter.Interop
 
 			if (AccessMode != UserDataAccessMode.HideMembers)
 			{
-				foreach (MethodInfo mi in type.GetMethods(BindingFlags.InvokeMethod | BindingFlags.Instance | BindingFlags.Static))
+				foreach (MethodInfo mi in type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.InvokeMethod | BindingFlags.Instance | BindingFlags.Static))
 				{
 					if (CheckVisibility(mi.GetCustomAttributes(true), mi.IsPublic))
 					{
@@ -41,7 +41,7 @@ namespace MoonSharp.Interpreter.Interop
 					}
 				}
 
-				foreach (PropertyInfo pi in type.GetProperties(BindingFlags.Instance | BindingFlags.Static))
+				foreach (PropertyInfo pi in type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
 				{
 					if (CheckVisibility(pi.GetCustomAttributes(true), pi.GetGetMethod().IsPublic || pi.GetSetMethod().IsPublic))
 					{
