@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using MoonSharp.Interpreter.Interop;
 using NUnit.Framework;
 
 namespace MoonSharp.Interpreter.Tests.EndToEnd
@@ -27,7 +26,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			}
 		}
 
-		public void Test_IntPropertyGetter(UserDataOptimizationMode opt)
+		public void Test_IntPropertyGetter(UserDataAccessMode opt)
 		{
 			string script = @"    
 				x = myobj.IntProp;
@@ -37,9 +36,9 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 			SomeClass obj = new SomeClass() {  IntProp = 321 };
 			
-			S.UserDataRepository.RegisterType<SomeClass>(opt);
+			UserData.RegisterType<SomeClass>(opt);
 
-			S.Globals.Set("myobj", S.UserDataRepository.CreateUserData(obj));
+			S.Globals.Set("myobj", UserData.Create(obj));
 
 			DynValue res = S.DoString(script);
 
@@ -47,7 +46,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			Assert.AreEqual(321, res.Number);
 		}
 
-		public void Test_NIntPropertyGetter(UserDataOptimizationMode opt)
+		public void Test_NIntPropertyGetter(UserDataAccessMode opt)
 		{
 			string script = @"    
 				x = myobj1.NIntProp;
@@ -59,10 +58,10 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			SomeClass obj1 = new SomeClass() { NIntProp = 321 };
 			SomeClass obj2 = new SomeClass() { NIntProp = null };
 
-			S.UserDataRepository.RegisterType<SomeClass>(opt);
+			UserData.RegisterType<SomeClass>(opt);
 
-			S.Globals.Set("myobj1", S.UserDataRepository.CreateUserData(obj1));
-			S.Globals.Set("myobj2", S.UserDataRepository.CreateUserData(obj2));
+			S.Globals.Set("myobj1", UserData.Create(obj1));
+			S.Globals.Set("myobj2", UserData.Create(obj2));
 
 			DynValue res = S.DoString(script);
 
@@ -72,7 +71,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			Assert.AreEqual(DataType.Nil, res.Tuple[1].Type);
 		}
 
-		public void Test_ObjPropertyGetter(UserDataOptimizationMode opt)
+		public void Test_ObjPropertyGetter(UserDataAccessMode opt)
 		{
 			string script = @"    
 				x = myobj1.ObjProp;
@@ -85,10 +84,10 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			SomeClass obj1 = new SomeClass() { ObjProp="ciao" };
 			SomeClass obj2 = new SomeClass() { ObjProp = obj1 };
 
-			S.UserDataRepository.RegisterType<SomeClass>(opt);
+			UserData.RegisterType<SomeClass>(opt);
 
-			S.Globals.Set("myobj1", S.UserDataRepository.CreateUserData(obj1));
-			S.Globals.Set("myobj2", S.UserDataRepository.CreateUserData(obj2));
+			S.Globals.Set("myobj1", UserData.Create(obj1));
+			S.Globals.Set("myobj2", UserData.Create(obj2));
 
 			DynValue res = S.DoString(script);
 
@@ -101,7 +100,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			Assert.AreEqual(obj1, res.Tuple[1].UserData.Object);
 		}
 
-		public void Test_IntPropertySetter(UserDataOptimizationMode opt)
+		public void Test_IntPropertySetter(UserDataAccessMode opt)
 		{
 			string script = @"    
 				myobj.IntProp = 19;";
@@ -110,9 +109,9 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 			SomeClass obj = new SomeClass() { IntProp = 321 };
 
-			S.UserDataRepository.RegisterType<SomeClass>(opt);
+			UserData.RegisterType<SomeClass>(opt);
 
-			S.Globals.Set("myobj", S.UserDataRepository.CreateUserData(obj));
+			S.Globals.Set("myobj", UserData.Create(obj));
 
 			Assert.AreEqual(321, obj.IntProp);
 
@@ -121,7 +120,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			Assert.AreEqual(19, obj.IntProp);
 		}
 
-		public void Test_NIntPropertySetter(UserDataOptimizationMode opt)
+		public void Test_NIntPropertySetter(UserDataAccessMode opt)
 		{
 			string script = @"    
 				myobj1.NIntProp = nil;
@@ -132,10 +131,10 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			SomeClass obj1 = new SomeClass() { NIntProp = 321 };
 			SomeClass obj2 = new SomeClass() { NIntProp = null };
 
-			S.UserDataRepository.RegisterType<SomeClass>(opt);
+			UserData.RegisterType<SomeClass>(opt);
 
-			S.Globals.Set("myobj1", S.UserDataRepository.CreateUserData(obj1));
-			S.Globals.Set("myobj2", S.UserDataRepository.CreateUserData(obj2));
+			S.Globals.Set("myobj1", UserData.Create(obj1));
+			S.Globals.Set("myobj2", UserData.Create(obj2));
 
 			Assert.AreEqual(321, obj1.NIntProp);
 			Assert.AreEqual(null, obj2.NIntProp);
@@ -146,7 +145,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			Assert.AreEqual(19, obj2.NIntProp);
 		}
 
-		public void Test_ObjPropertySetter(UserDataOptimizationMode opt)
+		public void Test_ObjPropertySetter(UserDataAccessMode opt)
 		{
 			string script = @"    
 				myobj1.ObjProp = myobj2;
@@ -157,10 +156,10 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			SomeClass obj1 = new SomeClass() { ObjProp = "ciao" };
 			SomeClass obj2 = new SomeClass() { ObjProp = obj1 };
 
-			S.UserDataRepository.RegisterType<SomeClass>(opt);
+			UserData.RegisterType<SomeClass>(opt);
 
-			S.Globals.Set("myobj1", S.UserDataRepository.CreateUserData(obj1));
-			S.Globals.Set("myobj2", S.UserDataRepository.CreateUserData(obj2));
+			S.Globals.Set("myobj1", UserData.Create(obj1));
+			S.Globals.Set("myobj2", UserData.Create(obj2));
 
 			Assert.AreEqual("ciao", obj1.ObjProp);
 			Assert.AreEqual(obj1, obj2.ObjProp);
@@ -171,7 +170,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			Assert.AreEqual("hello", obj2.ObjProp);
 		}
 
-		public void Test_InvalidPropertySetter(UserDataOptimizationMode opt)
+		public void Test_InvalidPropertySetter(UserDataAccessMode opt)
 		{
 			string script = @"    
 				myobj.IntProp = '19';";
@@ -180,9 +179,9 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 			SomeClass obj = new SomeClass() { IntProp = 321 };
 
-			S.UserDataRepository.RegisterType<SomeClass>(opt);
+			UserData.RegisterType<SomeClass>(opt);
 
-			S.Globals.Set("myobj", S.UserDataRepository.CreateUserData(obj));
+			S.Globals.Set("myobj", UserData.Create(obj));
 
 			Assert.AreEqual(321, obj.IntProp);
 
@@ -191,7 +190,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			Assert.AreEqual(19, obj.IntProp);
 		}
 
-		public void Test_StaticPropertyAccess(UserDataOptimizationMode opt)
+		public void Test_StaticPropertyAccess(UserDataAccessMode opt)
 		{
 			string script = @"    
 				static.StaticProp = 'asdasd' .. static.StaticProp;";
@@ -200,9 +199,9 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 			SomeClass.StaticProp = "qweqwe";
 
-			S.UserDataRepository.RegisterType<SomeClass>(opt);
+			UserData.RegisterType<SomeClass>(opt);
 
-			S.Globals.Set("static", S.UserDataRepository.CreateStaticUserData<SomeClass>());
+			S.Globals.Set("static", UserData.CreateStatic<SomeClass>());
 
 			Assert.AreEqual("qweqwe", SomeClass.StaticProp);
 
@@ -211,7 +210,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			Assert.AreEqual("asdasdqweqwe", SomeClass.StaticProp);
 		}
 
-		public void Test_IteratorPropertyGetter(UserDataOptimizationMode opt)
+		public void Test_IteratorPropertyGetter(UserDataAccessMode opt)
 		{
 			string script = @"    
 				x = 0;
@@ -225,9 +224,9 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 			SomeClass obj = new SomeClass();
 
-			S.UserDataRepository.RegisterType<SomeClass>(opt);
+			UserData.RegisterType<SomeClass>(opt);
 
-			S.Globals.Set("myobj", S.UserDataRepository.CreateUserData(obj));
+			S.Globals.Set("myobj", UserData.Create(obj));
 
 			DynValue res = S.DoString(script);
 
@@ -238,109 +237,109 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		[Test]
 		public void Interop_IntPropertyGetter_None()
 		{
-			Test_IntPropertyGetter(UserDataOptimizationMode.None);
+			Test_IntPropertyGetter(UserDataAccessMode.Reflection);
 		}
 
 		[Test]
 		public void Interop_IntPropertyGetter_Lazy()
 		{
-			Test_IntPropertyGetter(UserDataOptimizationMode.Lazy);
+			Test_IntPropertyGetter(UserDataAccessMode.LazyOptimized);
 		}
 
 		[Test]
 		public void Interop_IntPropertyGetter_Precomputed()
 		{
-			Test_IntPropertyGetter(UserDataOptimizationMode.Precomputed);
+			Test_IntPropertyGetter(UserDataAccessMode.Preoptimized);
 		}
 
 		[Test]
 		public void Interop_NIntPropertyGetter_None()
 		{
-			Test_NIntPropertyGetter(UserDataOptimizationMode.None);
+			Test_NIntPropertyGetter(UserDataAccessMode.Reflection);
 		}
 
 		[Test]
 		public void Interop_NIntPropertyGetter_Lazy()
 		{
-			Test_NIntPropertyGetter(UserDataOptimizationMode.Lazy);
+			Test_NIntPropertyGetter(UserDataAccessMode.LazyOptimized);
 		}
 
 		[Test]
 		public void Interop_NIntPropertyGetter_Precomputed()
 		{
-			Test_NIntPropertyGetter(UserDataOptimizationMode.Precomputed);
+			Test_NIntPropertyGetter(UserDataAccessMode.Preoptimized);
 		}
 
 		[Test]
 		public void Interop_ObjPropertyGetter_None()
 		{
-			Test_ObjPropertyGetter(UserDataOptimizationMode.None);
+			Test_ObjPropertyGetter(UserDataAccessMode.Reflection);
 		}
 
 		[Test]
 		public void Interop_ObjPropertyGetter_Lazy()
 		{
-			Test_ObjPropertyGetter(UserDataOptimizationMode.Lazy);
+			Test_ObjPropertyGetter(UserDataAccessMode.LazyOptimized);
 		}
 
 		[Test]
 		public void Interop_ObjPropertyGetter_Precomputed()
 		{
-			Test_ObjPropertyGetter(UserDataOptimizationMode.Precomputed);
+			Test_ObjPropertyGetter(UserDataAccessMode.Preoptimized);
 		}
 
 		[Test]
 		public void Interop_IntPropertySetter_None()
 		{
-			Test_IntPropertySetter(UserDataOptimizationMode.None);
+			Test_IntPropertySetter(UserDataAccessMode.Reflection);
 		}
 
 		[Test]
 		public void Interop_IntPropertySetter_Lazy()
 		{
-			Test_IntPropertySetter(UserDataOptimizationMode.Lazy);
+			Test_IntPropertySetter(UserDataAccessMode.LazyOptimized);
 		}
 
 		[Test]
 		public void Interop_IntPropertySetter_Precomputed()
 		{
-			Test_IntPropertySetter(UserDataOptimizationMode.Precomputed);
+			Test_IntPropertySetter(UserDataAccessMode.Preoptimized);
 		}
 
 		[Test]
 		public void Interop_NIntPropertySetter_None()
 		{
-			Test_NIntPropertySetter(UserDataOptimizationMode.None);
+			Test_NIntPropertySetter(UserDataAccessMode.Reflection);
 		}
 
 		[Test]
 		public void Interop_NIntPropertySetter_Lazy()
 		{
-			Test_NIntPropertySetter(UserDataOptimizationMode.Lazy);
+			Test_NIntPropertySetter(UserDataAccessMode.LazyOptimized);
 		}
 
 		[Test]
 		public void Interop_NIntPropertySetter_Precomputed()
 		{
-			Test_NIntPropertySetter(UserDataOptimizationMode.Precomputed);
+			Test_NIntPropertySetter(UserDataAccessMode.Preoptimized);
 		}
 
 		[Test]
 		public void Interop_ObjPropertySetter_None()
 		{
-			Test_ObjPropertySetter(UserDataOptimizationMode.None);
+			Test_ObjPropertySetter(UserDataAccessMode.Reflection);
 		}
 
 		[Test]
 		public void Interop_ObjPropertySetter_Lazy()
 		{
-			Test_ObjPropertySetter(UserDataOptimizationMode.Lazy);
+			Test_ObjPropertySetter(UserDataAccessMode.LazyOptimized);
 		}
 
 		[Test]
 		public void Interop_ObjPropertySetter_Precomputed()
 		{
-			Test_ObjPropertySetter(UserDataOptimizationMode.Precomputed);
+			Test_ObjPropertySetter(UserDataAccessMode.Preoptimized);
 		}
 
 
@@ -348,58 +347,58 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		[ExpectedException(typeof(ScriptRuntimeException))]
 		public void Interop_InvalidPropertySetter_None()
 		{
-			Test_InvalidPropertySetter(UserDataOptimizationMode.None);
+			Test_InvalidPropertySetter(UserDataAccessMode.Reflection);
 		}
 
 		[Test]
 		[ExpectedException(typeof(ScriptRuntimeException))]
 		public void Interop_InvalidPropertySetter_Lazy()
 		{
-			Test_InvalidPropertySetter(UserDataOptimizationMode.Lazy);
+			Test_InvalidPropertySetter(UserDataAccessMode.LazyOptimized);
 		}
 
 		[Test]
 		[ExpectedException(typeof(ScriptRuntimeException))]
 		public void Interop_InvalidPropertySetter_Precomputed()
 		{
-			Test_InvalidPropertySetter(UserDataOptimizationMode.Precomputed);
+			Test_InvalidPropertySetter(UserDataAccessMode.Preoptimized);
 		}
 
 
 		[Test]
 		public void Interop_StaticPropertyAccess_None()
 		{
-			Test_StaticPropertyAccess(UserDataOptimizationMode.None);
+			Test_StaticPropertyAccess(UserDataAccessMode.Reflection);
 		}
 
 		[Test]
 		public void Interop_StaticPropertyAccess_Lazy()
 		{
-			Test_StaticPropertyAccess(UserDataOptimizationMode.Lazy);
+			Test_StaticPropertyAccess(UserDataAccessMode.LazyOptimized);
 		}
 
 		[Test]
 		public void Interop_StaticPropertyAccess_Precomputed()
 		{
-			Test_StaticPropertyAccess(UserDataOptimizationMode.Precomputed);
+			Test_StaticPropertyAccess(UserDataAccessMode.Preoptimized);
 		}
 
 		[Test]
 		public void Interop_IteratorPropertyGetter_None()
 		{
-			Test_IteratorPropertyGetter(UserDataOptimizationMode.None);
+			Test_IteratorPropertyGetter(UserDataAccessMode.Reflection);
 		}
 
 		[Test]
 		public void Interop_IteratorPropertyGetter_Lazy()
 		{
-			Test_IteratorPropertyGetter(UserDataOptimizationMode.Lazy);
+			Test_IteratorPropertyGetter(UserDataAccessMode.LazyOptimized);
 		}
 
 		[Test]
 		public void Interop_IteratorPropertyGetter_Precomputed()
 		{
-			Test_IteratorPropertyGetter(UserDataOptimizationMode.Precomputed);
+			Test_IteratorPropertyGetter(UserDataAccessMode.Preoptimized);
 		}
 
 		[Test]
@@ -412,7 +411,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 			SomeClass obj = new SomeClass() { IntProp = 321 };
 
-			S.UserDataRepository.RegisterType<SomeClass>();
+			UserData.RegisterType<SomeClass>();
 
 			S.Globals["myobj"] = obj;
 

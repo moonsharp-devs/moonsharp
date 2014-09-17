@@ -100,7 +100,9 @@
     <Compile Include="DataStructs\Slice.cs" />
     <Compile Include="DataTypes\IScriptPrivateResource.cs" />
     <Compile Include="DataTypes\TailCallData.cs" />
-    <Compile Include="DataTypes\UserData.cs" />
+    <Compile Include="DataTypes\UserData.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="DataTypes\WellKnownSymbols.cs" />
     <Compile Include="Debugging\DebuggerAction.cs" />
     <Compile Include="Debugging\IDebugger.cs" />
@@ -133,16 +135,15 @@
     <Compile Include="Execution\VM\Processor\Processor_Errors.cs" />
     <Compile Include="Interface\IteratorHelper.cs" />
     <Compile Include="Interop\ConversionHelper.cs" />
-    <Compile Include="Interop\EnumerableIterator.cs">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="Interop\EnumerableWrapper.cs" />
+    <Compile Include="Interop\MoonSharpUserDataAttribute.cs" />
+    <Compile Include="Interop\MoonSharpVisibleAttribute.cs" />
     <Compile Include="Interop\UserDataDescriptor.cs" />
-    <Compile Include="Interop\UserDataOptimizationMode.cs" />
+    <Compile Include="DataTypes\UserDataAccessMode.cs" />
     <Compile Include="Interop\UserDataMethodDescriptor.cs" />
     <Compile Include="Interop\UserDataPropertyDescriptor.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Interop\UserDataRepository.cs" />
     <Compile Include="Loaders\ClassicLuaScriptLoader.cs" />
     <Compile Include="Loaders\IScriptLoader.cs" />
     <Compile Include="Execution\Scopes\ClosureContext.cs" />

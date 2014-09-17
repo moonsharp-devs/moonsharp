@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using MoonSharp.Interpreter.DataStructs;
 using MoonSharp.Interpreter.Debugging;
+using MoonSharp.Interpreter.Interop;
 
 namespace MoonSharp.Interpreter.Execution.VM
 {
@@ -370,7 +371,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 			// Moon# additions - given f, s, var
 			// 1) if f is not a function and has a __iterator metamethod, call __iterator to get the triplet
 			// 2) if f is a table with no __call metamethod, use a default table iterator
-			// 3) if f is a userdata, call its descriptor Iterate method
 
 			if (f.Type != DataType.Function && f.Type != DataType.ClrFunction)
 			{
@@ -391,12 +391,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 					if (callmeta == null || callmeta.IsNil())
 					{
-						m_ValueStack.Push(GetIEnumerableIteratorHelper(f));
+						m_ValueStack.Push(EnumerableWrapper.ConvertTable(f.Table));
 					}
-				}
-				else if (f.Type == DataType.UserData)
-				{
-					m_ValueStack.Push(GetIEnumerableIteratorHelper(f));
 				}
 			}
 
@@ -1038,7 +1034,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 					if (idx.Type != DataType.String)
 						throw ScriptRuntimeException.BadArgument(1, string.Format("userdata<{0}>.__newindex", ud.Descriptor.Name), "string", idx.Type.ToLuaTypeString(), false);
 
-					ud.Descriptor.SetIndex(ud.Object, idx.String, value);
+					ud.Descriptor.SetIndex(this.GetScript(), ud.Object, idx.String, value);
 					return instructionPtr;
 				}
 				else
@@ -1105,7 +1101,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 					if (idx.Type != DataType.String)
 						throw ScriptRuntimeException.BadArgument(1, string.Format("userdata<{0}>.__index", ud.Descriptor.Name), "string", idx.Type.ToLuaTypeString(), false);
 
-					var v = ud.Descriptor.Index(ud.Object, idx.String);
+					var v = ud.Descriptor.Index(this.GetScript(), ud.Object, idx.String);
 					m_ValueStack.Push(v.AsReadOnly());
 					return instructionPtr;
 				}

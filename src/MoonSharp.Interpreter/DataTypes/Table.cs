@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using MoonSharp.Interpreter.DataStructs;
 using MoonSharp.Interpreter.DataTypes;
+using MoonSharp.Interpreter.Execution;
 
 namespace MoonSharp.Interpreter
 {
@@ -291,14 +292,41 @@ namespace MoonSharp.Interpreter
 
 
 
-		public IEnumerable<KeyValuePair<DynValue, DynValue>> EnumerateKeyValuePairs()
+		/// <summary>
+		/// Enumerates the key value pairs.
+		/// </summary>
+		/// <returns></returns>
+		public IEnumerable<KeyValuePair<DynValue, DynValue>> Pairs
 		{
-			return m_Values.Select(n => new KeyValuePair<DynValue, DynValue>(n.Key, n.Value));
+			get
+			{
+				return m_Values.Select(n => new KeyValuePair<DynValue, DynValue>(n.Key, n.Value));
+			}
 		}
-		
 
+		/// <summary>
+		/// Enumerates the keys.
+		/// </summary>
+		/// <returns></returns>
+		public IEnumerable<DynValue> Keys
+		{
+			get
+			{
+				return m_Values.Select(n => n.Key);
+			}
+		}
 
-
+		/// <summary>
+		/// Enumerates the values
+		/// </summary>
+		/// <returns></returns>
+		public IEnumerable<DynValue> Values
+		{
+			get
+			{
+				return m_Values.Select(n => n.Value);
+			}
+		}
 
 
 

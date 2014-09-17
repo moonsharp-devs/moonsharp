@@ -142,9 +142,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 		}
 
 
-		private DynValue GetIEnumerableIteratorHelper(DynValue f)
-		{
-			return DynValue.Nil;
-		}
+
 	}
 }

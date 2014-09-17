@@ -67,7 +67,7 @@ namespace MoonSharpTests
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine(" failed: {0} ", ex.InnerException.Message);
+				Console.WriteLine(" failed - {0}", ex.InnerException.Message);
 				return false;
 			}
 		}

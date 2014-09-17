@@ -7,13 +7,14 @@ using MoonSharp.Interpreter.Execution;
 
 namespace MoonSharp.Interpreter.Interop
 {
-	public class EnumerableIterator
+	public class EnumerableWrapper
 	{
 		IEnumerator m_Enumerator;
 		Script m_Script;
 		bool m_HasTurnOnce = false;
 
-		private EnumerableIterator(Script script, IEnumerator enumerator)
+
+		private EnumerableWrapper(Script script, IEnumerator enumerator)
 		{
 			m_Script = script;
 			m_Enumerator = enumerator;
@@ -49,13 +50,13 @@ namespace MoonSharp.Interpreter.Interop
 			DynValue prev = args[1];
 
 			UserData ud = userdata.UserData;
-			EnumerableIterator iterator = ud.Object as EnumerableIterator;
+			EnumerableWrapper iterator = ud.Object as EnumerableWrapper;
 
 			if (iterator == null)
 			{
 				throw ScriptRuntimeException.BadArgument(0, "clr_iterator_next",
 					(ud.Object != null) ? ud.Object.GetType().FullName : "null",
-					typeof(EnumerableIterator).FullName,
+					typeof(EnumerableWrapper).FullName,
 					false);
 			}
 
@@ -64,12 +65,17 @@ namespace MoonSharp.Interpreter.Interop
 
 		public static DynValue ConvertIterator(Script script, IEnumerator enumerator)
 		{
-			EnumerableIterator ei = new EnumerableIterator(script, enumerator);
+			EnumerableWrapper ei = new EnumerableWrapper(script, enumerator);
 
 			return DynValue.NewTuple(
 				DynValue.NewCallback(clr_iterator_next),
-				script.UserDataRepository.CreateUserData(ei),
+				UserData.Create(ei),
 				DynValue.Nil);
+		}
+
+		public static DynValue ConvertTable(Table table)
+		{
+			return ConvertIterator(table.OwnerScript, table.Values.GetEnumerator());
 		}
 
 	}

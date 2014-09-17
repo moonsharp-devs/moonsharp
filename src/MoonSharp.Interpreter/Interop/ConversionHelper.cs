@@ -76,29 +76,69 @@ namespace MoonSharp.Interpreter.Interop
 
 			if (v != null) return v;
 
-			v = script.UserDataRepository.CreateUserData(obj);
+			v = UserData.Create(obj);
 
 			if (v != null) return v;
 
 			if (obj is Type)
+				v = UserData.CreateStatic(obj as Type);
+
+			if (v != null) return v;
+
+			if (obj is System.Collections.IList)
 			{
-				v = script.UserDataRepository.CreateStaticUserData(obj as Type);
+				Table t = ConvertIListToTable(script, (System.Collections.IList)obj);
+				return DynValue.NewTable(t);
+			}
+
+			if (obj is System.Collections.IDictionary)
+			{
+				Table t = ConvertIDictionaryToTable(script, (System.Collections.IDictionary)obj);
+				return DynValue.NewTable(t);
 			}
 
 			if (obj is System.Collections.IEnumerable)
 			{
 				var enumer = (System.Collections.IEnumerable)obj;
-				return EnumerableIterator.ConvertIterator(script, enumer.GetEnumerator());
+				return EnumerableWrapper.ConvertIterator(script, enumer.GetEnumerator());
 			}
 
 			if (obj is System.Collections.IEnumerator)
 			{
 				var enumer = (System.Collections.IEnumerator)obj;
-				return EnumerableIterator.ConvertIterator(script, enumer);
+				return EnumerableWrapper.ConvertIterator(script, enumer);
 			}
 
 			throw ScriptRuntimeException.ConvertObjectFailed(obj);
 		}
+
+		private static Table ConvertIDictionaryToTable(Script script, System.Collections.IDictionary dict)
+		{
+			Table t = new Table(script);
+			
+			foreach(System.Collections.DictionaryEntry kvp in dict)
+			{
+				DynValue key = ClrObjectToComplexMoonSharpValue(script, kvp.Key);
+				DynValue val = ClrObjectToComplexMoonSharpValue(script, kvp.Value);
+				t.Set(key, val);
+			}
+
+			return t;
+		}
+
+		private static Table ConvertIListToTable(Script script, System.Collections.IList list)
+		{
+			Table t = new Table(script);
+			for (int i = 0; i < list.Count; i++)
+			{
+				t[i + 1] = ClrObjectToComplexMoonSharpValue(script, list[i]);
+			}
+			return t;
+		}
+
+
+
+
 
 		internal static object MoonSharpValueToClrObject(DynValue value)
 		{
@@ -261,7 +301,7 @@ namespace MoonSharp.Interpreter.Interop
 		{
 			Dictionary<TK, TV> dict = new Dictionary<TK, TV>();
 
-			foreach (var kvp in table.EnumerateKeyValuePairs())
+			foreach (var kvp in table.Pairs)
 			{
 				TK key = keyconverter(kvp.Key);
 				TV val = valconverter(kvp.Value);

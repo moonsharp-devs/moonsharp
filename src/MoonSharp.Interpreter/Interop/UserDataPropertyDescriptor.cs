@@ -7,12 +7,12 @@ using System.Text;
 
 namespace MoonSharp.Interpreter.Interop
 {
-	public class UserDataPropertyDescriptor
+	internal class UserDataPropertyDescriptor
 	{
-		public PropertyInfo PropertyInfo { get; private set; }
-		public UserDataDescriptor UserDataDescriptor { get; private set; }
-		public bool IsStatic { get; private set; }
-		public string Name { get; private set; }
+		internal PropertyInfo PropertyInfo { get; private set; }
+		internal UserDataDescriptor UserDataDescriptor { get; private set; }
+		internal bool IsStatic { get; private set; }
+		internal string Name { get; private set; }
 
 		Func<object, object> m_OptimizedGetter = null;
 		Action<object, object> m_OptimizedSetter = null;
@@ -25,7 +25,7 @@ namespace MoonSharp.Interpreter.Interop
 			this.Name = pi.Name;
 			this.IsStatic = (this.PropertyInfo.GetGetMethod() ?? this.PropertyInfo.GetSetMethod()).IsStatic;
 
-			if (userDataDescriptor.OptimizationMode == UserDataOptimizationMode.Precomputed)
+			if (userDataDescriptor.AccessMode == UserDataAccessMode.Preoptimized)
 			{
 				this.OptimizeGetter();
 				this.OptimizeSetter();
@@ -33,9 +33,9 @@ namespace MoonSharp.Interpreter.Interop
 		}
 
 
-		public object GetValue(object obj)
+		internal object GetValue(object obj)
 		{
-			if (UserDataDescriptor.OptimizationMode == UserDataOptimizationMode.Lazy && m_OptimizedGetter == null)
+			if (UserDataDescriptor.AccessMode == UserDataAccessMode.LazyOptimized && m_OptimizedGetter == null)
 				OptimizeGetter();
 
 			if (m_OptimizedGetter != null)
@@ -96,14 +96,14 @@ namespace MoonSharp.Interpreter.Interop
 			}
 		}
 
-		public void SetValue(object obj, object value, DataType originalType)
+		internal void SetValue(object obj, object value, DataType originalType)
 		{
 			try
 			{
 				if (value is double)
 					value = ConversionHelper.DoubleToType(PropertyInfo.PropertyType, (double)value);
 
-				if (UserDataDescriptor.OptimizationMode == UserDataOptimizationMode.Lazy && m_OptimizedSetter == null)
+				if (UserDataDescriptor.AccessMode == UserDataAccessMode.LazyOptimized && m_OptimizedSetter == null)
 					OptimizeSetter();
 
 				if (m_OptimizedSetter != null)

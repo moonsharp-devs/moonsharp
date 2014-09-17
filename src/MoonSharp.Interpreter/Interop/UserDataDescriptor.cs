@@ -3,65 +3,84 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using MoonSharp.Interpreter.Execution;
 
 namespace MoonSharp.Interpreter.Interop
 {
-	public class UserDataDescriptor
+	internal class UserDataDescriptor
 	{
-		public string Name { get; private set; }
-		public Type Type { get; private set; }
-		public UserDataOptimizationMode OptimizationMode { get; private set; }
-		public UserDataRepository Repository { get; private set; }
+		internal string Name { get; private set; }
+		internal Type Type { get; private set; }
+		internal UserDataAccessMode AccessMode { get; private set; }
 
 		private Dictionary<string, UserDataMethodDescriptor> m_Methods = new Dictionary<string, UserDataMethodDescriptor>();
 		private Dictionary<string, UserDataPropertyDescriptor> m_Properties = new Dictionary<string, UserDataPropertyDescriptor>();
 
-		internal UserDataDescriptor(UserDataRepository repository, Type type, UserDataOptimizationMode optimizationMode)
+		internal UserDataDescriptor(Type type, UserDataAccessMode accessMode)
 		{
-			Repository = repository;
 			Type = type;
 			Name = type.FullName;
-			OptimizationMode = optimizationMode;
+			AccessMode = accessMode;
 
-			if (OptimizationMode != UserDataOptimizationMode.HideMembers)
+			if (AccessMode != UserDataAccessMode.HideMembers)
 			{
-				foreach (MethodInfo mi in type.GetMethods(BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static))
+				foreach (MethodInfo mi in type.GetMethods(BindingFlags.InvokeMethod | BindingFlags.Instance | BindingFlags.Static))
 				{
-					var md = new UserDataMethodDescriptor(mi, this);
+					if (CheckVisibility(mi.GetCustomAttributes(true), mi.IsPublic))
+					{
+						if (mi.IsSpecialName)
+							continue;
 
-					if (m_Methods.ContainsKey(md.Name))
-						throw new ArgumentException(string.Format("{0}.{1} has overloads", Name, md.Name));
+						var md = new UserDataMethodDescriptor(mi, this);
 
-					m_Methods.Add(md.Name, md);
+						if (m_Methods.ContainsKey(md.Name))
+							throw new ArgumentException(string.Format("{0}.{1} has overloads", Name, md.Name));
+
+						m_Methods.Add(md.Name, md);
+					}
 				}
 
-				foreach (PropertyInfo pi in type.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static))
+				foreach (PropertyInfo pi in type.GetProperties(BindingFlags.Instance | BindingFlags.Static))
 				{
-					var pd = new UserDataPropertyDescriptor(pi, this);
-					m_Properties.Add(pd.Name, pd);
+					if (CheckVisibility(pi.GetCustomAttributes(true), pi.GetGetMethod().IsPublic || pi.GetSetMethod().IsPublic))
+					{
+						var pd = new UserDataPropertyDescriptor(pi, this);
+						m_Properties.Add(pd.Name, pd);
+					}
 				}
 			}
 		}
 
+		private bool CheckVisibility(object[] attributes, bool isPublic)
+		{
+			MoonSharpVisibleAttribute va = attributes.OfType<MoonSharpVisibleAttribute>().SingleOrDefault();
 
-		public DynValue Index(object obj, string idxname)
+			if (va != null)
+				return va.Visible;
+			else
+				return isPublic;
+		}
+
+
+
+		internal DynValue Index(Script script, object obj, string idxname)
 		{
 			if (m_Methods.ContainsKey(idxname))
 			{
-				return DynValue.NewCallback(m_Methods[idxname].GetCallback(obj));
+				return DynValue.NewCallback(m_Methods[idxname].GetCallback(script, obj));
 			}
 
 			if (m_Properties.ContainsKey(idxname))
 			{
 				object o = m_Properties[idxname].GetValue(obj);
-				return ConversionHelper.ClrObjectToComplexMoonSharpValue(this.Repository.OwnerScript, o);
+				return ConversionHelper.ClrObjectToComplexMoonSharpValue(script, o);
 			}
 
 			throw ScriptRuntimeException.UserDataMissingField(this.Name, idxname);
 		}
 
-		public void SetIndex(object obj, string idxname, DynValue value)
+		internal void SetIndex(Script script, object obj, string idxname, DynValue value)
 		{
 			if (m_Properties.ContainsKey(idxname))
 			{
