@@ -103,6 +103,11 @@ namespace MoonSharp.Interpreter
 				{
 					UserDataDescriptor udd = new UserDataDescriptor(type, accessMode);
 					s_Registry.Add(udd.Type, udd);
+
+					if (accessMode == UserDataAccessMode.BackgroundOptimized)
+					{
+						ThreadPool.QueueUserWorkItem(o => udd.Optimize());
+					}
 				}
 			}
 			finally

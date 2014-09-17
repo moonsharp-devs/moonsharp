@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using MoonSharp.Interpreter.Execution;
 
 namespace MoonSharp.Interpreter.Interop
@@ -65,7 +66,7 @@ namespace MoonSharp.Interpreter.Interop
 			return ConversionHelper.ClrObjectToComplexMoonSharpValue(script, retv);
 		}
 
-		private void Optimize()
+		internal void Optimize()
 		{
 			var ep = Expression.Parameter(typeof(object[]), "pars");
 			var objinst = Expression.Parameter(typeof(object), "instance");
@@ -94,13 +95,13 @@ namespace MoonSharp.Interpreter.Interop
 			if (MethodInfo.ReturnType == typeof(void))
 			{
 				var lambda = Expression.Lambda<Action<object, object[]>>(fn, objinst, ep);
-				m_OptimizedAction = lambda.Compile();
+				Interlocked.Exchange(ref m_OptimizedAction, lambda.Compile());
 			}
 			else
 			{
 				var fnc = Expression.Convert(fn, typeof(object));
 				var lambda = Expression.Lambda<Func<object, object[], object>>(fnc, objinst, ep);
-				m_OptimizedFunc = lambda.Compile();
+				Interlocked.Exchange(ref m_OptimizedFunc, lambda.Compile());
 			}
 		}
 	}

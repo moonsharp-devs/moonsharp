@@ -92,5 +92,18 @@ namespace MoonSharp.Interpreter.Interop
 				throw ScriptRuntimeException.UserDataMissingField(this.Name, idxname);
 			}
 		}
+
+		internal void Optimize()
+		{
+			foreach (var m in this.m_Methods.Values)
+				m.Optimize();
+			
+			foreach (var m in this.m_Properties.Values)
+			{
+				m.OptimizeGetter();
+				m.OptimizeSetter();
+			}
+
+		}
 	}
 }
