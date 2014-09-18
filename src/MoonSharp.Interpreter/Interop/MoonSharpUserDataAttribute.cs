@@ -8,11 +8,11 @@ namespace MoonSharp.Interpreter.Interop
 	[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
 	public sealed class MoonSharpUserDataAttribute : Attribute
 	{
-		public UserDataAccessMode AccessMode { get; private set; }
+		public InteropAccessMode AccessMode { get; private set; }
 
 		public MoonSharpUserDataAttribute()
 		{
-			AccessMode = UserDataAccessMode.Default;
+			AccessMode = InteropAccessMode.Default;
 		}
 	}
 }

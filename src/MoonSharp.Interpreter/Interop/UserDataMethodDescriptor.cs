@@ -12,7 +12,7 @@ namespace MoonSharp.Interpreter.Interop
 	internal class UserDataMethodDescriptor
 	{
 		internal MethodInfo MethodInfo { get; private set; }
-		internal UserDataDescriptor UserDataDescriptor { get; private set; }
+		internal InteropAccessMode AccessMode { get; private set; }
 		internal bool IsStatic { get; private set; }
 		internal string Name { get; private set; }
 
@@ -21,17 +21,17 @@ namespace MoonSharp.Interpreter.Interop
 		private Func<object, object[], object> m_OptimizedFunc = null;
 		private Action<object, object[]> m_OptimizedAction = null;
 
-		internal UserDataMethodDescriptor(MethodInfo mi, UserDataDescriptor userDataDescriptor)
+		internal UserDataMethodDescriptor(MethodInfo mi, InteropAccessMode accessMode)
 		{
 			this.MethodInfo = mi;
-			this.UserDataDescriptor = userDataDescriptor;
+			this.AccessMode = accessMode;
 			this.Name = mi.Name;
 			this.IsStatic = mi.IsStatic;
 
 			m_Arguments = mi.GetParameters().Select(pi => pi.ParameterType).ToArray();
 			m_Defaults = mi.GetParameters().Select(pi => pi.DefaultValue).ToArray();
 
-			if (userDataDescriptor.AccessMode == UserDataAccessMode.Preoptimized)
+			if (AccessMode == InteropAccessMode.Preoptimized)
 				Optimize();
 		}
 
@@ -42,7 +42,7 @@ namespace MoonSharp.Interpreter.Interop
 
 		DynValue Callback(Script script, object obj, ScriptExecutionContext context, CallbackArguments args)
 		{
-			if (UserDataDescriptor.AccessMode == UserDataAccessMode.LazyOptimized &&
+			if (AccessMode == InteropAccessMode.LazyOptimized &&
 				m_OptimizedFunc == null && m_OptimizedAction == null)
 				Optimize();
 
@@ -70,7 +70,7 @@ namespace MoonSharp.Interpreter.Interop
 		{
 			var ep = Expression.Parameter(typeof(object[]), "pars");
 			var objinst = Expression.Parameter(typeof(object), "instance");
-			var inst = Expression.Convert(objinst, UserDataDescriptor.Type);
+			var inst = Expression.Convert(objinst, MethodInfo.DeclaringType);
 
 			Expression[] args = new Expression[m_Arguments.Length];
 

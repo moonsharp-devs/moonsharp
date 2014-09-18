@@ -19,20 +19,20 @@ namespace MoonSharp.Interpreter
 
 		private static ReaderWriterLockSlim m_Lock = new ReaderWriterLockSlim();
 		private static Dictionary<Type, UserDataDescriptor> s_Registry = new Dictionary<Type, UserDataDescriptor>();
-		private static UserDataAccessMode m_DefaultAccessMode;
+		private static InteropAccessMode m_DefaultAccessMode;
 
 		static UserData()
 		{
-			RegisterType<EnumerableWrapper>(UserDataAccessMode.HideMembers);
-			m_DefaultAccessMode = UserDataAccessMode.LazyOptimized;
+			RegisterType<EnumerableWrapper>(InteropAccessMode.HideMembers);
+			m_DefaultAccessMode = InteropAccessMode.LazyOptimized;
 		}
 
-		public static void RegisterType<T>(UserDataAccessMode accessMode = UserDataAccessMode.Default)
+		public static void RegisterType<T>(InteropAccessMode accessMode = InteropAccessMode.Default)
 		{
 			RegisterType_Impl(typeof(T), accessMode);
 		}
 
-		public static void RegisterType(Type type, UserDataAccessMode accessMode = UserDataAccessMode.Default)
+		public static void RegisterType(Type type, InteropAccessMode accessMode = InteropAccessMode.Default)
 		{
 			RegisterType_Impl(type, accessMode);
 		}
@@ -66,12 +66,12 @@ namespace MoonSharp.Interpreter
 			return CreateStatic(typeof(T));
 		}
 
-		public static UserDataAccessMode DefaultAccessMode
+		public static InteropAccessMode DefaultAccessMode
 		{
 			get { return m_DefaultAccessMode; }
 			set
 			{
-				if (value == UserDataAccessMode.Default)
+				if (value == InteropAccessMode.Default)
 					throw new ArgumentException("DefaultAccessMode");
 
 				m_DefaultAccessMode = value;
@@ -80,9 +80,9 @@ namespace MoonSharp.Interpreter
 
 
 
-		private static void RegisterType_Impl(Type type, UserDataAccessMode accessMode = UserDataAccessMode.Default)
+		private static void RegisterType_Impl(Type type, InteropAccessMode accessMode = InteropAccessMode.Default)
 		{
-			if (accessMode == UserDataAccessMode.Default)
+			if (accessMode == InteropAccessMode.Default)
 			{
 				MoonSharpUserDataAttribute attr = type.GetCustomAttributes(true).OfType<MoonSharpUserDataAttribute>()
 					.SingleOrDefault();
@@ -92,7 +92,7 @@ namespace MoonSharp.Interpreter
 			}
 
 
-			if (accessMode == UserDataAccessMode.Default)
+			if (accessMode == InteropAccessMode.Default)
 				accessMode = m_DefaultAccessMode;
 
 			m_Lock.EnterWriteLock();
@@ -104,7 +104,7 @@ namespace MoonSharp.Interpreter
 					UserDataDescriptor udd = new UserDataDescriptor(type, accessMode);
 					s_Registry.Add(udd.Type, udd);
 
-					if (accessMode == UserDataAccessMode.BackgroundOptimized)
+					if (accessMode == InteropAccessMode.BackgroundOptimized)
 					{
 						ThreadPool.QueueUserWorkItem(o => udd.Optimize());
 					}

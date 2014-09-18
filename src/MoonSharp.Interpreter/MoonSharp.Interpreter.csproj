@@ -138,8 +138,9 @@
     <Compile Include="Interop\EnumerableWrapper.cs" />
     <Compile Include="Interop\MoonSharpUserDataAttribute.cs" />
     <Compile Include="Interop\MoonSharpVisibleAttribute.cs" />
+    <Compile Include="Interop\UserDataDelegateDescriptor.cs" />
     <Compile Include="Interop\UserDataDescriptor.cs" />
-    <Compile Include="DataTypes\UserDataAccessMode.cs" />
+    <Compile Include="DataTypes\InteropAccessMode.cs" />
     <Compile Include="Interop\UserDataMethodDescriptor.cs" />
     <Compile Include="Interop\UserDataPropertyDescriptor.cs">
       <SubType>Code</SubType>

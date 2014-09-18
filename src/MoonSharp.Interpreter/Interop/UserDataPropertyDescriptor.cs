@@ -11,22 +11,22 @@ namespace MoonSharp.Interpreter.Interop
 	internal class UserDataPropertyDescriptor
 	{
 		internal PropertyInfo PropertyInfo { get; private set; }
-		internal UserDataDescriptor UserDataDescriptor { get; private set; }
+		internal InteropAccessMode AccessMode { get; private set; }
 		internal bool IsStatic { get; private set; }
 		internal string Name { get; private set; }
 
 		Func<object, object> m_OptimizedGetter = null;
 		Action<object, object> m_OptimizedSetter = null;
-		
 
-		internal UserDataPropertyDescriptor(PropertyInfo pi, UserDataDescriptor userDataDescriptor)
+
+		internal UserDataPropertyDescriptor(PropertyInfo pi, InteropAccessMode accessMode)
 		{
 			this.PropertyInfo = pi;
-			this.UserDataDescriptor = userDataDescriptor;
+			this.AccessMode = accessMode;
 			this.Name = pi.Name;
 			this.IsStatic = (this.PropertyInfo.GetGetMethod() ?? this.PropertyInfo.GetSetMethod()).IsStatic;
 
-			if (userDataDescriptor.AccessMode == UserDataAccessMode.Preoptimized)
+			if (AccessMode == InteropAccessMode.Preoptimized)
 			{
 				this.OptimizeGetter();
 				this.OptimizeSetter();
@@ -36,7 +36,7 @@ namespace MoonSharp.Interpreter.Interop
 
 		internal object GetValue(object obj)
 		{
-			if (UserDataDescriptor.AccessMode == UserDataAccessMode.LazyOptimized && m_OptimizedGetter == null)
+			if (AccessMode == InteropAccessMode.LazyOptimized && m_OptimizedGetter == null)
 				OptimizeGetter();
 
 			if (m_OptimizedGetter != null)
@@ -60,7 +60,7 @@ namespace MoonSharp.Interpreter.Interop
 				else
 				{
 					var paramExp = Expression.Parameter(typeof(object), "obj");
-					var castParamExp = Expression.Convert(paramExp, this.UserDataDescriptor.Type);
+					var castParamExp = Expression.Convert(paramExp, this.PropertyInfo.DeclaringType);
 					var propAccess = Expression.Property(castParamExp, PropertyInfo);
 					var castPropAccess = Expression.Convert(propAccess, typeof(object));
 					var lambda = Expression.Lambda<Func<object, object>>(castPropAccess, paramExp);
@@ -88,7 +88,7 @@ namespace MoonSharp.Interpreter.Interop
 				{
 					var paramExp = Expression.Parameter(typeof(object), "obj");
 					var paramValExp = Expression.Parameter(typeof(object), "val");
-					var castParamExp = Expression.Convert(paramExp, this.UserDataDescriptor.Type);
+					var castParamExp = Expression.Convert(paramExp, this.PropertyInfo.DeclaringType);
 					var castParamValExp = Expression.Convert(paramValExp, this.PropertyInfo.PropertyType);
 					var callExpression = Expression.Call(castParamExp, setterMethod, castParamValExp);
 					var lambda = Expression.Lambda<Action<object, object>>(callExpression, paramExp, paramValExp);
@@ -104,7 +104,7 @@ namespace MoonSharp.Interpreter.Interop
 				if (value is double)
 					value = ConversionHelper.DoubleToType(PropertyInfo.PropertyType, (double)value);
 
-				if (UserDataDescriptor.AccessMode == UserDataAccessMode.LazyOptimized && m_OptimizedSetter == null)
+				if (AccessMode == InteropAccessMode.LazyOptimized && m_OptimizedSetter == null)
 					OptimizeSetter();
 
 				if (m_OptimizedSetter != null)

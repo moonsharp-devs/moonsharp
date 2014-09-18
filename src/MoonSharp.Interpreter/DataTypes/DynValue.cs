@@ -153,6 +153,7 @@ namespace MoonSharp.Interpreter
 
 		/// <summary>
 		/// Creates a new writable value initialized to the specified CLR callback.
+		/// See also CallbackFunction.FromDelegate and CallbackFunction.FromMethodInfo factory methods.
 		/// </summary>
 		public static DynValue NewCallback(CallbackFunction function)
 		{

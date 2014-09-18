@@ -18,14 +18,14 @@ namespace PerformanceComparison
 #if PROFILER
 		const int ITERATIONS = 10;
 #else
-		const int ITERATIONS = 100;
+		const int ITERATIONS = 1;
 #endif
 
-		static  string scriptText2 = @"
+		static  string scriptText = @"
 			function move(n, src, dst, via)
 				if n > 0 then
 					move(n - 1, src, via, dst)
-					--print(src, 'to', dst)
+					print(src, 'to', dst)
 					move(n - 1, via, dst, src)
 				end
 			end
@@ -34,7 +34,7 @@ namespace PerformanceComparison
 				move(4, 1, 2, 3)
 			end
 			";
-		static  string scriptText = @"
+		static  string scriptText22 = @"
 N = 8
  
 board = {}
@@ -97,15 +97,6 @@ end
 			return DynValue.Nil;
 		}
 
-		private static void Example()
-		{
-			Script script = new Script();
-			Table t = script.Globals;
-			t.Set("print", DynValue.NewCallback(Print));
-
-
-			DynValue retVal = script.DoFile("test.lua");
-		}
 
 		public static void NPrint(params object[] values)
 		{
@@ -114,6 +105,14 @@ end
 				g_NLuaStr.Append(val.ToString());
 			}
 			g_NLuaStr.AppendLine();
+		}
+
+		public static void PrintX(int from, string mid, int to)
+		{
+			g_MoonSharpStr.Append(from);
+			g_MoonSharpStr.Append(mid);
+			g_MoonSharpStr.Append(to);
+			g_MoonSharpStr.AppendLine();
 		}
 
 		static Lua lua = new Lua();
@@ -136,6 +135,10 @@ end
 
 			var script = new Script();
 			script.Globals.Set("print", DynValue.NewCallback(new CallbackFunction(Print)));
+			CallbackFunction.DefaultAccessMode = InteropAccessMode.Preoptimized;
+
+			//script.Globals["print"] = (Action<int, string, int>)PrintX;
+
 
 			DynValue func = script.LoadString(scriptText);
 
@@ -165,7 +168,7 @@ end
 			sw = Stopwatch.StartNew();
 			for (int i = 0; i < ITERATIONS; i++)
 			{
-				fn.Call();
+				//fn.Call();
 			}
 			sw.Stop();
 

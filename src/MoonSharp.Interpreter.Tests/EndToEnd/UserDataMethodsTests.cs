@@ -54,7 +54,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		}
 
 
-		public void Test_ConcatMethodStatic(UserDataAccessMode opt)
+		public void Test_ConcatMethodStatic(InteropAccessMode opt)
 		{
 			string script = @"    
 				t = { 'asd', 'qwe', 'zxc', ['x'] = 'X', ['y'] = 'Y' };
@@ -75,7 +75,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			Assert.AreEqual(DataType.String, res.Type);
 			Assert.AreEqual("eheh1ciao!SOMECLASS!True|asdqwezxc|asdqwezxc|123xy|asdqweXYzxc|!SOMECLASS!1994", res.String);
 		}
-		public void Test_ConcatMethod(UserDataAccessMode opt)
+		public void Test_ConcatMethod(InteropAccessMode opt)
 		{
 			string script = @"    
 				t = { 'asd', 'qwe', 'zxc', ['x'] = 'X', ['y'] = 'Y' };
@@ -96,7 +96,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			Assert.AreEqual("eheh1ciao!SOMECLASS!True|asdqwezxc|asdqwezxc|123xy|asdqweXYzxc|!SOMECLASS!1912", res.String);
 		}
 
-		public void Test_ConcatMethodStaticSimplifiedSyntax(UserDataAccessMode opt)
+		public void Test_ConcatMethodStaticSimplifiedSyntax(InteropAccessMode opt)
 		{
 			string script = @"    
 				t = { 'asd', 'qwe', 'zxc', ['x'] = 'X', ['y'] = 'Y' };
@@ -122,56 +122,56 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		[Test]
 		public void Interpo_ConcatMethod_None()
 		{
-			Test_ConcatMethod(UserDataAccessMode.Reflection);
+			Test_ConcatMethod(InteropAccessMode.Reflection);
 		}
 
 		[Test]
 		public void Interpo_ConcatMethod_Lazy()
 		{
-			Test_ConcatMethod(UserDataAccessMode.LazyOptimized);
+			Test_ConcatMethod(InteropAccessMode.LazyOptimized);
 		}
 
 		[Test]
 		public void Interpo_ConcatMethod_Precomputed()
 		{
-			Test_ConcatMethod(UserDataAccessMode.Preoptimized);
+			Test_ConcatMethod(InteropAccessMode.Preoptimized);
 		}
 
 		[Test]
 		public void Interpo_ConcatMethodStatic_None()
 		{
-			Test_ConcatMethodStatic(UserDataAccessMode.Reflection);
+			Test_ConcatMethodStatic(InteropAccessMode.Reflection);
 		}
 
 		[Test]
 		public void Interpo_ConcatMethodStatic_Lazy()
 		{
-			Test_ConcatMethodStatic(UserDataAccessMode.LazyOptimized);
+			Test_ConcatMethodStatic(InteropAccessMode.LazyOptimized);
 		}
 
 		[Test]
 		public void Interpo_ConcatMethodStatic_Precomputed()
 		{
-			Test_ConcatMethodStatic(UserDataAccessMode.Preoptimized);
+			Test_ConcatMethodStatic(InteropAccessMode.Preoptimized);
 		}
 
 
 		[Test]
 		public void Interpo_ConcatMethodStaticSimplifiedSyntax_None()
 		{
-			Test_ConcatMethodStaticSimplifiedSyntax(UserDataAccessMode.Reflection);
+			Test_ConcatMethodStaticSimplifiedSyntax(InteropAccessMode.Reflection);
 		}
 
 		[Test]
 		public void Interpo_ConcatMethodStaticSimplifiedSyntax_Lazy()
 		{
-			Test_ConcatMethodStaticSimplifiedSyntax(UserDataAccessMode.LazyOptimized);
+			Test_ConcatMethodStaticSimplifiedSyntax(InteropAccessMode.LazyOptimized);
 		}
 
 		[Test]
 		public void Interpo_ConcatMethodStaticSimplifiedSyntax_Precomputed()
 		{
-			Test_ConcatMethodStaticSimplifiedSyntax(UserDataAccessMode.Preoptimized);
+			Test_ConcatMethodStaticSimplifiedSyntax(InteropAccessMode.Preoptimized);
 		}
 	}
 }

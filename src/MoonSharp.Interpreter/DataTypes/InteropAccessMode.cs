@@ -5,8 +5,7 @@ using System.Text;
 
 namespace MoonSharp.Interpreter
 {
-	[Flags]
-	public enum UserDataAccessMode
+	public enum InteropAccessMode
 	{
 		/// <summary>
 		/// Optimization is not performed and reflection is used everytime to access members.
@@ -31,7 +30,7 @@ namespace MoonSharp.Interpreter
 		/// </summary>
 		HideMembers,
 		/// <summary>
-		/// Use the default access mode set in the registry
+		/// Use the default access mode
 		/// </summary>
 		Default
 	}

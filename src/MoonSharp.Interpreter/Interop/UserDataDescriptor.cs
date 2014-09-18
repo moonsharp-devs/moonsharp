@@ -12,18 +12,18 @@ namespace MoonSharp.Interpreter.Interop
 	{
 		internal string Name { get; private set; }
 		internal Type Type { get; private set; }
-		internal UserDataAccessMode AccessMode { get; private set; }
+		internal InteropAccessMode AccessMode { get; private set; }
 
 		private Dictionary<string, UserDataMethodDescriptor> m_Methods = new Dictionary<string, UserDataMethodDescriptor>();
 		private Dictionary<string, UserDataPropertyDescriptor> m_Properties = new Dictionary<string, UserDataPropertyDescriptor>();
 
-		internal UserDataDescriptor(Type type, UserDataAccessMode accessMode)
+		internal UserDataDescriptor(Type type, InteropAccessMode accessMode)
 		{
 			Type = type;
 			Name = type.FullName;
 			AccessMode = accessMode;
 
-			if (AccessMode != UserDataAccessMode.HideMembers)
+			if (AccessMode != InteropAccessMode.HideMembers)
 			{
 				foreach (MethodInfo mi in type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.InvokeMethod | BindingFlags.Instance | BindingFlags.Static))
 				{
@@ -32,7 +32,7 @@ namespace MoonSharp.Interpreter.Interop
 						if (mi.IsSpecialName)
 							continue;
 
-						var md = new UserDataMethodDescriptor(mi, this);
+						var md = new UserDataMethodDescriptor(mi, this.AccessMode);
 
 						if (m_Methods.ContainsKey(md.Name))
 							throw new ArgumentException(string.Format("{0}.{1} has overloads", Name, md.Name));
@@ -45,7 +45,7 @@ namespace MoonSharp.Interpreter.Interop
 				{
 					if (CheckVisibility(pi.GetCustomAttributes(true), pi.GetGetMethod().IsPublic || pi.GetSetMethod().IsPublic))
 					{
-						var pd = new UserDataPropertyDescriptor(pi, this);
+						var pd = new UserDataPropertyDescriptor(pi, this.AccessMode);
 						m_Properties.Add(pd.Name, pd);
 					}
 				}

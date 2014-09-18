@@ -85,6 +85,20 @@ namespace MoonSharp.Interpreter.Interop
 
 			if (v != null) return v;
 
+			if (obj is Delegate)
+				return DynValue.NewCallback(CallbackFunction.FromDelegate(script, (Delegate)obj));
+
+			if (obj is MethodInfo)
+			{
+				MethodInfo mi = (MethodInfo)obj;
+				
+				if (mi.IsStatic)
+				{
+					return DynValue.NewCallback(CallbackFunction.FromMethodInfo(script, mi));
+				}
+			}
+
+
 			if (obj is System.Collections.IList)
 			{
 				Table t = ConvertIListToTable(script, (System.Collections.IList)obj);
