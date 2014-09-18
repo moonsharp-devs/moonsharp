@@ -11,6 +11,12 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 	{
 		public class SomeClass : IComparable
 		{
+			public string ConcatNums(int p1, int p2)
+			{
+				return string.Format("{0}%{1}", p1, p2);
+			}
+
+
 			public static StringBuilder ConcatS(int p1, string p2, IComparable p3, bool p4, List<object> p5, IEnumerable<object> p6, 
 				StringBuilder p7, Dictionary<object, object> p8, SomeClass p9, int p10 = 1994)
 			{
@@ -44,6 +50,14 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			public override string ToString()
 			{
 				return "!SOMECLASS!";
+			}
+
+			public List<int> MkList(int from, int to)
+			{
+				List<int> l = new List<int>();
+				for (int i = from; i <= to; i++)
+					l.Add(i);
+				return l;
 			}
 
 
@@ -118,60 +132,139 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			Assert.AreEqual("eheh1ciao!SOMECLASS!True|asdqwezxc|asdqwezxc|123xy|asdqweXYzxc|!SOMECLASS!1994", res.String);
 		}
 
+		public void Test_DelegateMethod(InteropAccessMode opt)
+		{
+			string script = @"    
+				x = concat(1, 2);
+				return x;";
+
+			Script S = new Script();
+
+			SomeClass obj = new SomeClass();
+
+			S.Globals["concat"] = CallbackFunction.FromDelegate(S, (Func<int, int, string>)obj.ConcatNums, opt);
+
+			DynValue res = S.DoString(script);
+
+			Assert.AreEqual(DataType.String, res.Type);
+			Assert.AreEqual("1%2", res.String);
+		}
+
+		public void Test_ListMethod(InteropAccessMode opt)
+		{
+			string script = @"    
+				x = mklist(1, 4);
+				sum = 0;				
+
+				for _, v in ipairs(x) do
+					sum = sum + v;
+				end
+
+				return sum;";
+
+			Script S = new Script();
+
+			SomeClass obj = new SomeClass();
+
+			S.Globals["mklist"] = CallbackFunction.FromDelegate(S, (Func<int, int, List<int>>)obj.MkList, opt);
+
+			DynValue res = S.DoString(script);
+
+			Assert.AreEqual(DataType.Number, res.Type);
+			Assert.AreEqual(10, res.Number);
+		}
+
 
 		[Test]
-		public void Interpo_ConcatMethod_None()
+		public void Interop_ConcatMethod_None()
 		{
 			Test_ConcatMethod(InteropAccessMode.Reflection);
 		}
 
 		[Test]
-		public void Interpo_ConcatMethod_Lazy()
+		public void Interop_ConcatMethod_Lazy()
 		{
 			Test_ConcatMethod(InteropAccessMode.LazyOptimized);
 		}
 
 		[Test]
-		public void Interpo_ConcatMethod_Precomputed()
+		public void Interop_ConcatMethod_Precomputed()
 		{
 			Test_ConcatMethod(InteropAccessMode.Preoptimized);
 		}
 
 		[Test]
-		public void Interpo_ConcatMethodStatic_None()
+		public void Interop_ConcatMethodStatic_None()
 		{
 			Test_ConcatMethodStatic(InteropAccessMode.Reflection);
 		}
 
 		[Test]
-		public void Interpo_ConcatMethodStatic_Lazy()
+		public void Interop_ConcatMethodStatic_Lazy()
 		{
 			Test_ConcatMethodStatic(InteropAccessMode.LazyOptimized);
 		}
 
 		[Test]
-		public void Interpo_ConcatMethodStatic_Precomputed()
+		public void Interop_ConcatMethodStatic_Precomputed()
 		{
 			Test_ConcatMethodStatic(InteropAccessMode.Preoptimized);
 		}
 
 
 		[Test]
-		public void Interpo_ConcatMethodStaticSimplifiedSyntax_None()
+		public void Interop_ConcatMethodStaticSimplifiedSyntax_None()
 		{
 			Test_ConcatMethodStaticSimplifiedSyntax(InteropAccessMode.Reflection);
 		}
 
 		[Test]
-		public void Interpo_ConcatMethodStaticSimplifiedSyntax_Lazy()
+		public void Interop_ConcatMethodStaticSimplifiedSyntax_Lazy()
 		{
 			Test_ConcatMethodStaticSimplifiedSyntax(InteropAccessMode.LazyOptimized);
 		}
 
 		[Test]
-		public void Interpo_ConcatMethodStaticSimplifiedSyntax_Precomputed()
+		public void Interop_ConcatMethodStaticSimplifiedSyntax_Precomputed()
 		{
 			Test_ConcatMethodStaticSimplifiedSyntax(InteropAccessMode.Preoptimized);
+		}
+
+		[Test]
+		public void Interop_DelegateMethod_None()
+		{
+			Test_DelegateMethod(InteropAccessMode.Reflection);
+		}
+
+		[Test]
+		public void Interop_DelegateMethod_Lazy()
+		{
+			Test_DelegateMethod(InteropAccessMode.LazyOptimized);
+		}
+
+		[Test]
+		public void Interop_DelegateMethod_Precomputed()
+		{
+			Test_DelegateMethod(InteropAccessMode.Preoptimized);
+		}
+
+
+		[Test]
+		public void Interop_ListMethod_None()
+		{
+			Test_ListMethod(InteropAccessMode.Reflection);
+		}
+
+		[Test]
+		public void Interop_ListMethod_Lazy()
+		{
+			Test_ListMethod(InteropAccessMode.LazyOptimized);
+		}
+
+		[Test]
+		public void Interop_ListMethod_Precomputed()
+		{
+			Test_ListMethod(InteropAccessMode.Preoptimized);
 		}
 	}
 }
