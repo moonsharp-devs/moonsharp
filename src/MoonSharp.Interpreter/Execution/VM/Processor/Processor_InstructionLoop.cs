@@ -564,12 +564,12 @@ namespace MoonSharp.Interpreter.Execution.VM
 				{
 					BasePointer = m_ValueStack.Count,
 					ReturnAddress = instructionPtr,
-					Debug_EntryPoint = fn.Function.ByteCodeLocation,
+					Debug_EntryPoint = fn.Function.EntryPointByteCodeLocation,
 					ClosureScope = fn.Function.ClosureContext,
 					ErrorHandler = handler,
 					Continuation = continuation 
 				});
-				return fn.Function.ByteCodeLocation;
+				return fn.Function.EntryPointByteCodeLocation;
 			}
 			else
 			{

@@ -192,7 +192,6 @@
     </Compile>
     <Compile Include="Tree\Expressions\AdjustmentExpression.cs" />
     <Compile Include="Tree\IVariable.cs" />
-    <Compile Include="MoonSharpInterpreter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tree\Expressions\ExprListExpression.cs" />
     <Compile Include="Tree\Expressions\FunctionDefinitionExpression.cs" />

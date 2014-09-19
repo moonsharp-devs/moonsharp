@@ -30,7 +30,7 @@ namespace MoonSharp.Debugger
 		private void MainForm_Load(object sender, EventArgs e)
 		{
 			m_Ctx = SynchronizationContext.Current;
-			MoonSharpInterpreter.WarmUp();
+			Script.WarmUp();
 		}
 
 		private void openToolStripMenuItem_Click(object sender, EventArgs e)
@@ -352,7 +352,7 @@ namespace MoonSharp.Debugger
 			var v = lvVStack.SelectedItems.OfType<ListViewItem>().Select(lvi => lvi.Tag).Cast<DynValue>().FirstOrDefault();
 
 			if (v != null && v.Type == DataType.Function)
-				GotoBytecode(v.Function.ByteCodeLocation);
+				GotoBytecode(v.Function.EntryPointByteCodeLocation);
 		}
 
 		private void toolGoToCodeWatches_Click(object sender, EventArgs e)
@@ -360,7 +360,7 @@ namespace MoonSharp.Debugger
 			var v = lvWatches.SelectedItems.OfType<ListViewItem>().Select(lvi => lvi.Tag).Cast<DynValue>().FirstOrDefault();
 
 			if (v != null && v.Type == DataType.Function)
-				GotoBytecode(v.Function.ByteCodeLocation);
+				GotoBytecode(v.Function.EntryPointByteCodeLocation);
 		}
 		private void toolGoToCodeXStack_Click(object sender, EventArgs e)
 		{

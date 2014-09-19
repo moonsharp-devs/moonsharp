@@ -214,7 +214,7 @@ namespace MoonSharp.Interpreter
 		/// By executing script in this way, a callback function ensures it's not on the stack anymore and thus a number
 		/// of functionality (state savings, coroutines, etc) keeps working at full power.
 		/// </summary>
-		/// <param name="tailFn">The data for the tail call.</param>
+		/// <param name="tailCallData">The data for the tail call.</param>
 		/// <returns></returns>
 		public static DynValue NewTailCallReq(TailCallData tailCallData)
 		{
@@ -388,7 +388,7 @@ namespace MoonSharp.Interpreter
 				case DataType.String:
 					return "\"" + String + "\"";
 				case DataType.Function:
-					return string.Format("(Function {0:X8})", Function.ByteCodeLocation);
+					return string.Format("(Function {0:X8})", Function.EntryPointByteCodeLocation);
 				case DataType.ClrFunction:
 					return string.Format("(Function CLR)", Function);
 				case DataType.Table:
@@ -627,11 +627,20 @@ namespace MoonSharp.Interpreter
 		}
 
 
-		public static DynValue FromObject(Script s, object obj)
+		/// <summary>
+		/// Creates a new DynValue from a CLR object
+		/// </summary>
+		/// <param name="script">The script.</param>
+		/// <param name="obj">The object.</param>
+		/// <returns></returns>
+		public static DynValue FromObject(Script script, object obj)
 		{
-			return MoonSharp.Interpreter.Interop.ConversionHelper.ClrObjectToComplexMoonSharpValue(s, obj);
+			return MoonSharp.Interpreter.Interop.ConversionHelper.ClrObjectToComplexMoonSharpValue(script, obj);
 		}
 
+		/// <summary>
+		/// Converts this Moon# DynValue to a CLR object.
+		/// </summary>
 		public object ToObject()
 		{
 			return MoonSharp.Interpreter.Interop.ConversionHelper.MoonSharpValueToClrObject(this);

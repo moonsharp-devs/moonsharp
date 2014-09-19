@@ -42,12 +42,12 @@ namespace MoonSharp.Interpreter.Execution.VM
 			m_ExecutionStack.Push(new CallStackItem()
 			{
 				BasePointer = m_ValueStack.Count,
-				Debug_EntryPoint = function.Function.ByteCodeLocation,
+				Debug_EntryPoint = function.Function.EntryPointByteCodeLocation,
 				ReturnAddress = -1,
 				ClosureScope = function.Function.ClosureContext,
 			});
 
-			return Processing_Loop(function.Function.ByteCodeLocation);
+			return Processing_Loop(function.Function.EntryPointByteCodeLocation);
 		}
 
 

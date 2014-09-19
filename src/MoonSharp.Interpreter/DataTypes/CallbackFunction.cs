@@ -7,22 +7,41 @@ using MoonSharp.Interpreter.Interop;
 
 namespace MoonSharp.Interpreter
 {
+	/// <summary>
+	/// This class wraps 
+	/// </summary>
 	public sealed class CallbackFunction
 	{
 		Func<ScriptExecutionContext, CallbackArguments, DynValue> m_CallBack;
-		public Table Closure { get; set; }
 		private static InteropAccessMode m_DefaultAccessMode = InteropAccessMode.LazyOptimized;
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="CallbackFunction"/> class.
+		/// </summary>
+		/// <param name="callBack">The callback function to be called.</param>
 		public CallbackFunction(Func<ScriptExecutionContext, CallbackArguments, DynValue> callBack)
 		{
 			m_CallBack = callBack;
 		}
 
+		/// <summary>
+		/// Invokes the callback function
+		/// </summary>
+		/// <param name="executionContext">The execution context.</param>
+		/// <param name="args">The arguments.</param>
+		/// <returns></returns>
 		public DynValue Invoke(ScriptExecutionContext executionContext, IList<DynValue> args)
 		{
 			return m_CallBack(executionContext, new  CallbackArguments(args));
 		}
 
+		/// <summary>
+		/// Gets or sets the default access mode used when marshalling delegates
+		/// </summary>
+		/// <value>
+		/// The default access mode. Default, HideMembers and BackgroundOptimized are NOT supported.
+		/// </value>
+		/// <exception cref="System.ArgumentException">Default, HideMembers and BackgroundOptimized are NOT supported.</exception>
 		public static InteropAccessMode DefaultAccessMode
 		{
 			get { return m_DefaultAccessMode; }
@@ -35,6 +54,13 @@ namespace MoonSharp.Interpreter
 			}
 		}
 
+		/// <summary>
+		/// Creates a CallbackFunction from a delegate.
+		/// </summary>
+		/// <param name="script">The script.</param>
+		/// <param name="del">The delegate.</param>
+		/// <param name="accessMode">The access mode.</param>
+		/// <returns></returns>
 		public static CallbackFunction FromDelegate(Script script, Delegate del, InteropAccessMode accessMode = InteropAccessMode.Default)
 		{
 			if (accessMode == InteropAccessMode.Default)
@@ -45,13 +71,31 @@ namespace MoonSharp.Interpreter
 		}
 
 
+		/// <summary>
+		/// Creates a CallbackFunction from a MethodInfo relative to a static function.
+		/// </summary>
+		/// <param name="script">The script.</param>
+		/// <param name="mi">The MethodInfo object.</param>
+		/// <param name="accessMode">The access mode.</param>
+		/// <returns></returns>
+		/// <exception cref="System.ArgumentException">The method is not static.</exception>
 		public static CallbackFunction FromMethodInfo(Script script, System.Reflection.MethodInfo mi, InteropAccessMode accessMode = InteropAccessMode.Default)
 		{
+			if (!mi.IsStatic)
+				throw new ArgumentException("MethodInfo");
+
+
 			if (accessMode == InteropAccessMode.Default)
 				accessMode = m_DefaultAccessMode;
 
 			UserDataMethodDescriptor descr = new UserDataMethodDescriptor(mi, accessMode);
 			return new CallbackFunction(descr.GetCallback(script, null));
 		}
+
+		/// <summary>
+		/// Gets or sets a Table used as additional data to the callback function (available in the execution context).
+		/// </summary>
+		public Table Closure { get; set; }
+
 	}
 }

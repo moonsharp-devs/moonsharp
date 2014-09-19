@@ -85,6 +85,9 @@ namespace MoonSharp.Interpreter.Interop
 
 			if (v != null) return v;
 
+			if (obj is Closure)
+				return DynValue.NewClosure((Closure)obj);
+
 			if (obj is Delegate)
 				return DynValue.NewCallback(CallbackFunction.FromDelegate(script, (Delegate)obj));
 

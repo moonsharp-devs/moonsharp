@@ -4,11 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using MoonSharp.Interpreter.DataStructs;
-using MoonSharp.Interpreter.DataTypes;
 using MoonSharp.Interpreter.Execution;
 
 namespace MoonSharp.Interpreter
 {
+	/// <summary>
+	/// A class representing a Lua table.
+	/// </summary>
 	public class Table : IScriptPrivateResource
 	{
 		readonly LinkedList<TablePair> m_Values;
@@ -20,6 +22,10 @@ namespace MoonSharp.Interpreter
 		int m_InitArray = 0;
 		int m_CachedLength = -1;
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="Table"/> class.
+		/// </summary>
+		/// <param name="owner">The owner script.</param>
 		public Table(Script owner)
 		{
 			m_Values = new LinkedList<TablePair>();
@@ -29,11 +35,17 @@ namespace MoonSharp.Interpreter
 			m_Owner = owner;
 		}
 
+		/// <summary>
+		/// Gets the script owning this resource.
+		/// </summary>
 		public Script OwnerScript
 		{
 			get { return m_Owner; }
 		}
 
+		/// <summary>
+		/// Gets the integral key from a double.
+		/// </summary>
 		private int GetIntegralKey(double d)
 		{
 			int v = ((int)d);
@@ -44,6 +56,15 @@ namespace MoonSharp.Interpreter
 			return -1;
 		}
 
+		/// <summary>
+		/// Gets or sets the <see cref="System.Object"/> with the specified key.
+		/// This will marshall CLR and Moon# objects in the best possible way.
+		/// </summary>
+		/// <value>
+		/// The <see cref="System.Object"/>.
+		/// </value>
+		/// <param name="key">The key.</param>
+		/// <returns></returns>
 		public object this[object key]
 		{
 			get
@@ -72,6 +93,11 @@ namespace MoonSharp.Interpreter
 
 
 
+		/// <summary>
+		/// Sets the value associated to the specified key.
+		/// </summary>
+		/// <param name="key">The key.</param>
+		/// <param name="value">The value.</param>
 		public void Set(DynValue key, DynValue value)
 		{
 			if (key.IsNilOrNan())
@@ -106,6 +132,11 @@ namespace MoonSharp.Interpreter
 				CollectDeadKeys();
 		}
 
+		/// <summary>
+		/// Gets the value associated with the specified key.
+		/// </summary>
+		/// <param name="key">The key.</param>
+		/// <returns></returns>
 		public DynValue Get(DynValue key)
 		{
 			if (key.Type == DataType.Number)
@@ -132,6 +163,11 @@ namespace MoonSharp.Interpreter
 			return DynValue.Nil;
 		}
 
+		/// <summary>
+		///  Sets the value associated to the specified key.
+		/// </summary>
+		/// <param name="key">The key.</param>
+		/// <param name="value">The value.</param>
 		public void Set(string key, DynValue value)
 		{
 			CheckValueOwner(value);
@@ -140,12 +176,22 @@ namespace MoonSharp.Interpreter
 				CollectDeadKeys();
 		}
 
+		/// <summary>
+		/// Gets the value associated with the specified key.
+		/// </summary>
+		/// <param name="key">The key.</param>
+		/// <returns></returns>
 		public DynValue Get(string key)
 		{
 			return GetValueOrNil(m_StringMap.Find(key));
 		}
 
 
+		/// <summary>
+		/// Gets the value associated with the specified key, without bringing to Nil the non-existant values.
+		/// </summary>
+		/// <param name="key">The key.</param>
+		/// <returns></returns>
 		public DynValue RawGet(string key)
 		{
 			var linkedListNode = m_StringMap.Find(key);
@@ -156,6 +202,11 @@ namespace MoonSharp.Interpreter
 			return null;
 		}
 
+		/// <summary>
+		/// Sets the value associated to the specified key.
+		/// </summary>
+		/// <param name="key">The key.</param>
+		/// <param name="value">The value.</param>
 		public void Set(int key, DynValue value)
 		{
 			CheckValueOwner(value);
@@ -169,6 +220,11 @@ namespace MoonSharp.Interpreter
 				m_CachedLength = -1;
 		}
 
+		/// <summary>
+		/// Gets the value associated with the specified key.
+		/// </summary>
+		/// <param name="key">The key.</param>
+		/// <returns></returns>
 		public DynValue Get(int key)
 		{
 			return GetValueOrNil(m_ArrayMap.Find(key));
@@ -179,6 +235,9 @@ namespace MoonSharp.Interpreter
 			// +++ value.AssertOwner(m_Owner);
 		}
 
+		/// <summary>
+		/// Collects the dead keys.
+		/// </summary>
 		private void CollectDeadKeys()
 		{
 			for (LinkedListNode<TablePair> node = m_Values.First; node != null; node = node.Next)
@@ -207,11 +266,10 @@ namespace MoonSharp.Interpreter
 			}
 		}
 
-		public IEnumerable<TablePair> DebugPairs()
-		{
-			return m_Values;
-		}
 
+		/// <summary>
+		/// Returns the next pair from a value
+		/// </summary>
 		public TablePair NextKey(DynValue v)
 		{
 			if (v.Type == DataType.Nil)
@@ -249,13 +307,11 @@ namespace MoonSharp.Interpreter
 
 			return linkedListNode.Next.Value;
 		}
-		
-		public bool HasStringSymbol(string symbol)
-		{
-			return m_StringMap.ContainsKey(symbol);
-		}
 
 
+		/// <summary>
+		/// Gets the length of the "array part".
+		/// </summary>
 		public int Length
 		{
 			get 
@@ -293,14 +349,14 @@ namespace MoonSharp.Interpreter
 
 
 		/// <summary>
-		/// Enumerates the key value pairs.
+		/// Enumerates the key/value pairs.
 		/// </summary>
 		/// <returns></returns>
-		public IEnumerable<KeyValuePair<DynValue, DynValue>> Pairs
+		public IEnumerable<TablePair> Pairs
 		{
 			get
 			{
-				return m_Values.Select(n => new KeyValuePair<DynValue, DynValue>(n.Key, n.Value));
+				return m_Values.Select(n => new TablePair(n.Key, n.Value));
 			}
 		}
 

@@ -15,7 +15,7 @@
     <!-- SHFB properties -->
     <FrameworkVersion>.NET Framework 3.5</FrameworkVersion>
     <OutputPath>.\Help\</OutputPath>
-    <HtmlHelpName>MoonSharp.Documentation</HtmlHelpName>
+    <HtmlHelpName>MoonSharp.Reference.Documentation</HtmlHelpName>
     <Language>en-US</Language>
     <TransformComponentArguments>
       <Argument Key="logoFile" Value="Help.png" xmlns="" />
@@ -37,6 +37,18 @@
       <DocumentationSource sourceFile="..\MoonSharp.Interpreter\bin\Release\MoonSharp.Interpreter.dll" xmlns="" />
       <DocumentationSource sourceFile="..\MoonSharp.Interpreter\bin\Release\MoonSharp.Interpreter.xml" xmlns="" />
     </DocumentationSources>
+    <MaximumGroupParts>2</MaximumGroupParts>
+    <NamespaceGrouping>False</NamespaceGrouping>
+    <SyntaxFilters>Standard</SyntaxFilters>
+    <SdkLinkTarget>Blank</SdkLinkTarget>
+    <RootNamespaceContainer>False</RootNamespaceContainer>
+    <PresentationStyle>VS2013</PresentationStyle>
+    <Preliminary>False</Preliminary>
+    <NamingMethod>Guid</NamingMethod>
+    <HelpTitle>Moon# Reference Guide</HelpTitle>
+    <ContentPlacement>AboveNamespaces</ContentPlacement>
+    <FeedbackEMailLinkText>info%40moonsharp.org</FeedbackEMailLinkText>
+    <FeedbackEMailAddress>info%40moonsharp.org</FeedbackEMailAddress>
   </PropertyGroup>
   <!-- There are no properties for these groups.  AnyCPU needs to appear in order for Visual Studio to perform
 			 the build.  The others are optional common platform types that may appear. -->
@@ -65,6 +77,7 @@
   <ItemGroup>
     <None Include="Content\VersionHistory\v1.0.0.0.aml" />
     <None Include="Content\VersionHistory\VersionHistory.aml" />
+    <None Include="Content\Walkthrough.aml" />
     <None Include="Content\Welcome.aml" />
   </ItemGroup>
   <ItemGroup>

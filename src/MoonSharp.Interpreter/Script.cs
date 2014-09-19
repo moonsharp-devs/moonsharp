@@ -17,8 +17,7 @@ namespace MoonSharp.Interpreter
 {
 	/// <summary>
 	/// This class implements a Moon# scripting session. Multiple Script objects can coexist in the same program but cannot share
-	/// data among themselves except through the _UNIVERSE table. Data accessed through the _UNIVERSE table is thread safe, so
-	/// Script objects can execute in different threads with no issue, as long as all their callbacks are aware and compatible.
+	/// data among themselves unless some mechanism is put in place.
 	/// </summary>
 	public class Script
 	{
@@ -92,7 +91,10 @@ namespace MoonSharp.Interpreter
 		/// </summary>
 		/// <param name="code">The code.</param>
 		/// <param name="globalTable">The global table to bind to this chunk.</param>
-		/// <returns>A DynValue containing a function which will execute the loaded code.</returns>
+		/// <param name="funcFriendlyName">Name of the function used to report errors, etc.</param>
+		/// <returns>
+		/// A DynValue containing a function which will execute the loaded code.
+		/// </returns>
 		public DynValue LoadFunction(string code, Table globalTable = null, string funcFriendlyName = null)
 		{
 			string chunkName = string.Format("<string:{0:X4}>", m_Sources.Count);
@@ -120,7 +122,10 @@ namespace MoonSharp.Interpreter
 		/// </summary>
 		/// <param name="code">The code.</param>
 		/// <param name="globalTable">The global table to bind to this chunk.</param>
-		/// <returns>A DynValue containing a function which will execute the loaded code.</returns>
+		/// <param name="codeFriendlyName">Name of the code - used to report errors, etc.</param>
+		/// <returns>
+		/// A DynValue containing a function which will execute the loaded code.
+		/// </returns>
 		public DynValue LoadString(string code, Table globalTable = null, string codeFriendlyName = null)
 		{
 			string chunkName = string.Format("<string:{0:X4}>", m_Sources.Count);
@@ -171,7 +176,6 @@ namespace MoonSharp.Interpreter
 		/// </summary>
 		/// <param name="code">The code.</param>
 		/// <param name="globalContext">The global context.</param>
-		/// <param name="coroutine">The coroutine index, or -1 to use the first free (or current) coroutine index.</param>
 		/// <returns>
 		/// A DynValue containing the result of the processing of the loaded chunk.
 		/// </returns>
@@ -186,7 +190,6 @@ namespace MoonSharp.Interpreter
 		/// </summary>
 		/// <param name="filename">The filename.</param>
 		/// <param name="globalContext">The global context.</param>
-		/// <param name="coroutine">The coroutine index, or -1 to use the first free (or current) coroutine index.</param>
 		/// <returns>
 		/// A DynValue containing the result of the processing of the loaded chunk.
 		/// </returns>
@@ -236,13 +239,55 @@ namespace MoonSharp.Interpreter
 		/// <summary>
 		/// Calls the specified function.
 		/// </summary>
-		/// <param name="coroutine">The coroutine on which to execute, or -1 to use the first-free (or current) coroutine.</param>
+		/// <param name="function">The Lua/Moon# function to be called - callbacks are not supported.</param>
+		/// <returns></returns>
+		public DynValue Call(DynValue function)
+		{
+			return m_MainRoutine.Call(function, new DynValue[0]);
+		}
+
+		/// <summary>
+		/// Calls the specified function.
+		/// </summary>
 		/// <param name="function">The Lua/Moon# function to be called - callbacks are not supported.</param>
 		/// <param name="args">The arguments to pass to the function.</param>
 		/// <returns></returns>
 		public DynValue Call(DynValue function, params DynValue[] args)
 		{
 			return m_MainRoutine.Call(function, args);
+		}
+
+		/// <summary>
+		/// Calls the specified function.
+		/// </summary>
+		/// <param name="function">The Lua/Moon# function to be called - callbacks are not supported.</param>
+		/// <param name="args">The arguments to pass to the function.</param>
+		/// <returns></returns>
+		public DynValue Call(DynValue function, params object[] args)
+		{
+			return m_MainRoutine.Call(function, args.Select(v => DynValue.FromObject(this, v)).ToArray());
+		}
+
+
+		/// <summary>
+		/// Calls the specified function.
+		/// </summary>
+		/// <param name="function">The Lua/Moon# function to be called - callbacks are not supported.</param>
+		/// <returns></returns>
+		public DynValue Call(object function)
+		{
+			return Call(DynValue.FromObject(this, function));
+		}
+
+		/// <summary>
+		/// Calls the specified function.
+		/// </summary>
+		/// <param name="function">The Lua/Moon# function to be called - callbacks are not supported.</param>
+		/// <param name="args">The arguments to pass to the function.</param>
+		/// <returns></returns>
+		public DynValue Call(object function, params object[] args)
+		{
+			return Call(DynValue.FromObject(this, function), args);
 		}
 
 		/// <summary>
@@ -258,7 +303,6 @@ namespace MoonSharp.Interpreter
 		/// Attaches a debugger.
 		/// </summary>
 		/// <param name="debugger">The debugger object.</param>
-		/// </param>
 		public void AttachDebugger(IDebugger debugger)
 		{
 			m_Debugger = debugger;
@@ -275,7 +319,9 @@ namespace MoonSharp.Interpreter
 		/// Loads a module as per the "require" Lua function. http://www.lua.org/pil/8.1.html
 		/// </summary>
 		/// <param name="modname">The module name</param>
+		/// <param name="globalContext">The global context.</param>
 		/// <returns></returns>
+		/// <exception cref="ScriptRuntimeException">Raised if module is not found</exception>
 		public DynValue RequireModule(string modname, Table globalContext = null)
 		{
 			Table globals = globalContext ?? m_GlobalTable;
@@ -340,5 +386,14 @@ namespace MoonSharp.Interpreter
 		/// </summary>
 		public Action<string> DebugPrint { get; set; }
 
+
+		/// <summary>
+		/// Warms up the parser/lexer structures so that Moon# operations start faster.
+		/// </summary>
+		public static void WarmUp()
+		{
+			Script s = new Script(CoreModules.Basic);
+			s.LoadString("return 1;");
+		}
 	}
 }

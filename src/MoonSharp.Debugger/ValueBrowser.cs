@@ -132,7 +132,7 @@ namespace MoonSharp.Debugger
 		{
 			var F = V.Function;
 			var C = F.ClosureContext;
-			lvProps.Add("Bytecode Location", F.ByteCodeLocation.ToString("X8"));
+			lvProps.Add("Bytecode Location", F.EntryPointByteCodeLocation.ToString("X8"));
 
 			for (int i = 0; i < C.Count; i++)
 			{
@@ -154,7 +154,7 @@ namespace MoonSharp.Debugger
 		{
 			var T = V.Table;
 
-			foreach (var kvp in T.DebugPairs())
+			foreach (var kvp in T.Pairs)
 			{
 				listView.Add(kvp.Key, kvp.Value).Tag = kvp.Value;
 			}

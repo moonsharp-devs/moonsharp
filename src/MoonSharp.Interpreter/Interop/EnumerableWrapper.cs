@@ -7,7 +7,7 @@ using MoonSharp.Interpreter.Execution;
 
 namespace MoonSharp.Interpreter.Interop
 {
-	public class EnumerableWrapper
+	internal class EnumerableWrapper
 	{
 		IEnumerator m_Enumerator;
 		Script m_Script;
@@ -63,7 +63,7 @@ namespace MoonSharp.Interpreter.Interop
 			return iterator.GetNext(prev);
 		}
 
-		public static DynValue ConvertIterator(Script script, IEnumerator enumerator)
+		internal static DynValue ConvertIterator(Script script, IEnumerator enumerator)
 		{
 			EnumerableWrapper ei = new EnumerableWrapper(script, enumerator);
 
@@ -73,7 +73,7 @@ namespace MoonSharp.Interpreter.Interop
 				DynValue.Nil);
 		}
 
-		public static DynValue ConvertTable(Table table)
+		internal static DynValue ConvertTable(Table table)
 		{
 			return ConvertIterator(table.OwnerScript, table.Values.GetEnumerator());
 		}

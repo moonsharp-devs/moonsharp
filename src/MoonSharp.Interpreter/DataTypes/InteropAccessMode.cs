@@ -5,6 +5,10 @@ using System.Text;
 
 namespace MoonSharp.Interpreter
 {
+	/// <summary>
+	/// Enumerations of the possible strategies to marshal CLR objects to Moon# userdata and functions.
+	/// See also : <seealso cref="CallbackFunction"/> and <seealso cref="UserData"/> .
+	/// </summary>
 	public enum InteropAccessMode
 	{
 		/// <summary>
