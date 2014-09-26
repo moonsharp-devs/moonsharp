@@ -14,42 +14,42 @@ namespace MoonSharp.Interpreter.Execution.VM
 	{
 		internal void AttachDebugger(IDebugger debugger)
 		{
-			m_DebuggerAttached = debugger;
+			m_Debug.DebuggerAttached = debugger;
 		}
 
 		private void ListenDebugger(Instruction instr, int instructionPtr)
 		{
 			if (instr.Breakpoint)
 			{
-				m_DebuggerCurrentAction = DebuggerAction.ActionType.None;
-				m_DebuggerCurrentActionTarget = -1;
+				m_Debug.DebuggerCurrentAction = DebuggerAction.ActionType.None;
+				m_Debug.DebuggerCurrentActionTarget = -1;
 			}
 
-			if (m_DebuggerCurrentAction == DebuggerAction.ActionType.Run)
+			if (m_Debug.DebuggerCurrentAction == DebuggerAction.ActionType.Run)
 				return;
 
-			if (m_DebuggerCurrentAction == DebuggerAction.ActionType.StepOver && m_DebuggerCurrentActionTarget != instructionPtr)
+			if (m_Debug.DebuggerCurrentAction == DebuggerAction.ActionType.StepOver && m_Debug.DebuggerCurrentActionTarget != instructionPtr)
 				return;
 
 			RefreshDebugger();
 
 			while (true)
 			{
-				var action = m_DebuggerAttached.GetAction(instructionPtr);
+				var action = m_Debug.DebuggerAttached.GetAction(instructionPtr);
 
 				switch (action.Action)
 				{
 					case DebuggerAction.ActionType.StepIn:
-						m_DebuggerCurrentAction = DebuggerAction.ActionType.StepIn;
-						m_DebuggerCurrentActionTarget = -1;
+						m_Debug.DebuggerCurrentAction = DebuggerAction.ActionType.StepIn;
+						m_Debug.DebuggerCurrentActionTarget = -1;
 						return;
 					case DebuggerAction.ActionType.StepOver:
-						m_DebuggerCurrentAction = DebuggerAction.ActionType.StepOver;
-						m_DebuggerCurrentActionTarget = instructionPtr + 1;
+						m_Debug.DebuggerCurrentAction = DebuggerAction.ActionType.StepOver;
+						m_Debug.DebuggerCurrentActionTarget = instructionPtr + 1;
 						return;
 					case DebuggerAction.ActionType.Run:
-						m_DebuggerCurrentAction = DebuggerAction.ActionType.Run;
-						m_DebuggerCurrentActionTarget = -1;
+						m_Debug.DebuggerCurrentAction = DebuggerAction.ActionType.Run;
+						m_Debug.DebuggerCurrentActionTarget = -1;
 						return;
 					case DebuggerAction.ActionType.ToggleBreakpoint:
 						m_RootChunk.Code[action.InstructionPtr].Breakpoint = !m_RootChunk.Code[action.InstructionPtr].Breakpoint;
@@ -66,13 +66,13 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		private void RefreshDebugger()
 		{
-			List<string> watchList = m_DebuggerAttached.GetWatchItems();
+			List<string> watchList = m_Debug.DebuggerAttached.GetWatchItems();
 			List<WatchItem> callStack = Debugger_GetCallStack();
 			List<WatchItem> watches = Debugger_RefreshWatches(watchList);
 			List<WatchItem> vstack = Debugger_RefreshVStack();
-			m_DebuggerAttached.Update(WatchType.CallStack, callStack);
-			m_DebuggerAttached.Update(WatchType.Watches, watches);
-			m_DebuggerAttached.Update(WatchType.VStack, vstack);
+			m_Debug.DebuggerAttached.Update(WatchType.CallStack, callStack);
+			m_Debug.DebuggerAttached.Update(WatchType.Watches, watches);
+			m_Debug.DebuggerAttached.Update(WatchType.VStack, vstack);
 		}
 
 		private List<WatchItem> Debugger_RefreshVStack()

@@ -76,6 +76,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CoreLib\CoroutineMethods.cs" />
     <Compile Include="CoreLib\BasicMethods.cs" />
     <Compile Include="CoreLib\ErrorHandling.cs" />
     <Compile Include="CoreLib\LoadMethods.cs" />
@@ -104,6 +105,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DataTypes\WellKnownSymbols.cs" />
+    <Compile Include="DataTypes\YieldRequest.cs" />
     <Compile Include="Debugging\DebuggerAction.cs" />
     <Compile Include="Debugging\IDebugger.cs" />
     <Compile Include="Debugging\SourceCodeType.cs" />
@@ -127,11 +129,15 @@
     </Compile>
     <Compile Include="DataTypes\TablePair.cs" />
     <Compile Include="Execution\FileLoadRequestedEventArgs.cs" />
-    <Compile Include="Execution\ExecutionContext.cs">
+    <Compile Include="Execution\ScriptExecutionContext.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Debugging\SourceCode.cs" />
     <Compile Include="Execution\VM\Chunk.cs" />
+    <Compile Include="Execution\VM\CoroutineState.cs" />
+    <Compile Include="Execution\VM\ExecutionState.cs" />
+    <Compile Include="Execution\VM\Processor\DebugContext.cs" />
+    <Compile Include="Execution\VM\Processor\Processor_Coroutines.cs" />
     <Compile Include="Execution\VM\Processor\Processor_Errors.cs" />
     <Compile Include="Interface\IteratorHelper.cs" />
     <Compile Include="Interop\ConversionHelper.cs" />

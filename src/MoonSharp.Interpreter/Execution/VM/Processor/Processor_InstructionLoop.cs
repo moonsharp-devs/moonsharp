@@ -10,8 +10,13 @@ namespace MoonSharp.Interpreter.Execution.VM
 {
 	sealed partial class Processor
 	{
+		const int YIELD_SPECIAL_TRAP = -99;
+
 		private DynValue Processing_Loop(int instructionPtr)
 		{
+		// This is the main loop of the processor, has a weird control flow and needs to be as fast as possible.
+		// This sentence is just a convoluted way to say "don't complain about gotos".
+
 			repeat_execution:
 
 			try
@@ -20,7 +25,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				{
 					Instruction i = m_RootChunk.Code[instructionPtr];
 
-					if (m_DebuggerAttached != null)
+					if (m_Debug.DebuggerAttached != null)
 					{
 						ListenDebugger(i, instructionPtr);
 					}
@@ -46,42 +51,55 @@ namespace MoonSharp.Interpreter.Execution.VM
 							break;
 						case OpCode.Add:
 							instructionPtr = ExecAdd(i, instructionPtr);
+							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
 							break;
 						case OpCode.Concat:
 							instructionPtr = ExecConcat(i, instructionPtr);
+							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
 							break;
 						case OpCode.Neg:
 							instructionPtr = ExecNeg(i, instructionPtr);
+							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
 							break;
 						case OpCode.Sub:
 							instructionPtr = ExecSub(i, instructionPtr);
+							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
 							break;
 						case OpCode.Mul:
 							instructionPtr = ExecMul(i, instructionPtr);
+							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
 							break;
 						case OpCode.Div:
 							instructionPtr = ExecDiv(i, instructionPtr);
+							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
 							break;
 						case OpCode.Mod:
 							instructionPtr = ExecMod(i, instructionPtr);
+							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
 							break;
 						case OpCode.Power:
 							instructionPtr = ExecPower(i, instructionPtr);
+							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
 							break;
 						case OpCode.Eq:
 							instructionPtr = ExecEq(i, instructionPtr);
+							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
 							break;
 						case OpCode.LessEq:
 							instructionPtr = ExecLessEq(i, instructionPtr);
+							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
 							break;
 						case OpCode.Less:
 							instructionPtr = ExecLess(i, instructionPtr);
+							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
 							break;
 						case OpCode.Len:
 							instructionPtr = ExecLen(i, instructionPtr);
+							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
 							break;
 						case OpCode.Call:
 							instructionPtr = Internal_ExecCall(i.NumVal, instructionPtr);
+							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
 							break;
 						case OpCode.Scalar:
 							m_ValueStack.Push(m_ValueStack.Pop().ToScalar());
@@ -95,6 +113,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 						case OpCode.JfOrPop:
 						case OpCode.JtOrPop:
 							instructionPtr = ExecShortCircuitingOperator(i, instructionPtr);
+							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
 							break;
 						case OpCode.JNil:
 							{
@@ -103,12 +122,15 @@ namespace MoonSharp.Interpreter.Execution.VM
 								if (v.Type == DataType.Nil)
 									instructionPtr = i.NumVal;
 							}
+							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
 							break;
 						case OpCode.Jf:
 							instructionPtr = JumpBool(i, false, instructionPtr);
+							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
 							break;
 						case OpCode.Jump:
 							instructionPtr = i.NumVal;
+							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
 							break;
 						case OpCode.MkTuple:
 							ExecMkTuple(i);
@@ -134,6 +156,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 							break;
 						case OpCode.Ret:
 							instructionPtr = ExecRet(i);
+							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
 							if (instructionPtr < 0)
 								goto return_to_native_code;
 							break;
@@ -145,6 +168,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 							break;
 						case OpCode.JFor:
 							instructionPtr = ExecJFor(i, instructionPtr);
+							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
 							break;
 						case OpCode.NewTable:
 							m_ValueStack.Push(DynValue.NewTable(this.m_Script));
@@ -178,9 +202,11 @@ namespace MoonSharp.Interpreter.Execution.VM
 							break;
 						case OpCode.Index:
 							instructionPtr = ExecIndex(i, instructionPtr);
+							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
 							break;
 						case OpCode.IndexSet:
 							instructionPtr = ExecIndexSet(i, instructionPtr);
+							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
 							break;
 						case OpCode.Invalid:
 							throw new NotImplementedException(string.Format("Invalid opcode : {0}", i.Name));
@@ -222,13 +248,17 @@ namespace MoonSharp.Interpreter.Execution.VM
 			}
 
 		return_to_native_code:
+			return m_ValueStack.Pop();
 
-			//if (m_ValueStack.Count == 1)
-				return m_ValueStack.Pop();
-			//else if (m_ValueStack.Count == 0)
-			//	return DynValue.Nil;
-			//else
-			//	throw new InternalErrorException("Unexpected value stack count at program end : {0}", m_ValueStack.Count);
+		yield_to_calling_coroutine:
+
+			DynValue yieldRequest = m_ValueStack.Pop();
+
+			if (m_CanYield)
+				return yieldRequest;
+			else
+				throw ScriptRuntimeException.CannotYield();
+
 		}
 
 
@@ -327,8 +357,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 			double? v = m_ValueStack.Pop().CastToNumber();
 			if (v.HasValue)
 				m_ValueStack.Push(DynValue.NewNumber(v.Value));
-			else  
-				throw  ScriptRuntimeException.ConvertToNumberFailed(i.NumVal);
+			else
+				throw ScriptRuntimeException.ConvertToNumberFailed(i.NumVal);
 		}
 
 
@@ -517,24 +547,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			}
 		}
 
-		private IList<DynValue> ExpandToList(IList<DynValue> args, List<DynValue> target = null)
-		{
-			target = target ?? new List<DynValue>();
 
-			foreach (DynValue v in args)
-			{
-				if (v.Type == DataType.Tuple)
-				{
-					ExpandToList(v.Tuple, target);
-				}
-				else
-				{
-					target.Add(v);
-				}
-			}
-
-			return target;
-		}
 
 
 		private int Internal_ExecCall(int argsCount, int instructionPtr, CallbackFunction handler = null, CallbackFunction continuation = null)
@@ -548,7 +561,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				// we expand tuples before callbacks
 				if (args.Any(v => v.Type == DataType.Tuple))
 				{
-					args = ExpandToList(args);
+					args = DynValue.ExpandArgumentsToList(args);
 				}
 
 				var ret = fn.Callback.Invoke(new ScriptExecutionContext(this, fn.Callback), args);
@@ -567,7 +580,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 					Debug_EntryPoint = fn.Function.EntryPointByteCodeLocation,
 					ClosureScope = fn.Function.ClosureContext,
 					ErrorHandler = handler,
-					Continuation = continuation 
+					Continuation = continuation
 				});
 				return fn.Function.EntryPointByteCodeLocation;
 			}
@@ -655,6 +668,11 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 				//instructionPtr -= 1;
 				return Internal_ExecCall(tcd.Args.Length, instructionPtr, tcd.ErrorHandler, tcd.Continuation);
+			}
+			else if (tail.Type == DataType.YieldRequest)
+			{
+				tail.YieldRequest.InstructionPtr = instructionPtr;
+				return YIELD_SPECIAL_TRAP;
 			}
 
 
@@ -1000,7 +1018,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 		private int ExecIndexSet(Instruction i, int instructionPtr)
 		{
 			int nestedMetaOps = 100; // sanity check, to avoid potential infinite loop here
-			
+
 			// stack: vals.. - base - index
 			DynValue idx = i.Value ?? m_ValueStack.Pop();
 			DynValue obj = m_ValueStack.Pop();

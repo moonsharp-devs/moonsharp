@@ -13,24 +13,65 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		FastStack<DynValue> m_ValueStack = new FastStack<DynValue>(131072);
 		FastStack<CallStackItem> m_ExecutionStack = new FastStack<CallStackItem>(131072);
+
 		Table m_GlobalTable;
 
-		IDebugger m_DebuggerAttached = null;
-		DebuggerAction.ActionType m_DebuggerCurrentAction = DebuggerAction.ActionType.None;
-		int m_DebuggerCurrentActionTarget = -1;
+
 		Script m_Script;
+		Processor m_Parent = null;
+		List<Processor> m_Coroutines = null;
+		CoroutineState m_State;
+		bool m_CanYield = true;
+		int m_SavedInstructionPtr = -1;
+		DebugContext m_Debug;
 
 		public Processor(Script script, Table globalContext, ByteCode byteCode)
 		{
+			m_Debug = new DebugContext();
 			m_RootChunk = byteCode;
 			m_GlobalTable = globalContext;
 			m_Script = script;
+			m_Coroutines = new List<Processor>();
+			m_State = CoroutineState.Main;
 		}
+
+		private Processor(Processor parentProcessor)
+		{
+			m_Debug = parentProcessor.m_Debug;
+			m_RootChunk = parentProcessor.m_RootChunk;
+			m_GlobalTable = parentProcessor.m_GlobalTable;
+			m_Script = parentProcessor.m_Script;
+			m_Coroutines = parentProcessor.m_Coroutines;
+			m_Parent = parentProcessor;
+			m_State = CoroutineState.NotStarted;
+		}
+
+		
 
 
 		public DynValue Call(DynValue function, DynValue[] args)
 		{
-			m_ValueStack.Push(function);  // func val
+			m_CanYield = false;
+
+			try
+			{
+				int entrypoint = PushClrToScriptStackFrame(function, args);
+				return Processing_Loop(entrypoint);
+			}
+			finally
+			{
+				m_CanYield = true;
+			}
+		}
+
+		// pushes all what's required to perform a clr-to-script function call. function can be null if it's already
+		// at vstack top.
+		private int PushClrToScriptStackFrame(DynValue function, DynValue[] args)
+		{
+			if (function == null) 
+				function = m_ValueStack.Peek();
+			else
+				m_ValueStack.Push(function);  // func val
 
 			args = Internal_AdjustTuple(args);
 
@@ -47,7 +88,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				ClosureScope = function.Function.ClosureContext,
 			});
 
-			return Processing_Loop(function.Function.EntryPointByteCodeLocation);
+			return function.Function.EntryPointByteCodeLocation;
 		}
 
 

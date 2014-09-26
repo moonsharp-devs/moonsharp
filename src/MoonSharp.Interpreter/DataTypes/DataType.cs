@@ -57,11 +57,10 @@ namespace MoonSharp.Interpreter
 		/// A request to execute a tail call
 		/// </summary>
 		TailCallRequest,
-
 		/// <summary>
-		/// Indicates the maximum index of types supporting metatables
+		/// A request to coroutine.yield
 		/// </summary>
-		MaxMetaTypes = Table
+		YieldRequest,
 	}
 
 	/// <summary>
@@ -69,6 +68,8 @@ namespace MoonSharp.Interpreter
 	/// </summary>
 	public static class LuaTypeExtensions
 	{
+		public const DataType MaxMetaTypes = DataType.Table;
+
 		/// <summary>
 		/// Determines whether this data type can have type metatables.
 		/// </summary>
@@ -76,7 +77,7 @@ namespace MoonSharp.Interpreter
 		/// <returns></returns>
 		public static bool CanHaveTypeMetatables(this DataType type)
 		{
-			return (int)type < (int)DataType.MaxMetaTypes;
+			return (int)type < (int)MaxMetaTypes;
 		}
 
 
@@ -110,6 +111,7 @@ namespace MoonSharp.Interpreter
 					return "thread";
 				case DataType.Tuple:
 				case DataType.TailCallRequest:
+				case DataType.YieldRequest:
 				default:
 					throw new ScriptRuntimeException("Unexpected LuaType {0}", type);
 			}

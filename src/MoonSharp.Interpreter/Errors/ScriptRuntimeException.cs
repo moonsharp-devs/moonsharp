@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 
 using Antlr4.Runtime.Tree;
+using MoonSharp.Interpreter.Execution.VM;
 
 namespace MoonSharp.Interpreter
 {
@@ -132,6 +133,19 @@ namespace MoonSharp.Interpreter
 		public static ScriptRuntimeException UserDataMissingField(string typename, string fieldname)
 		{
 			return new ScriptRuntimeException("cannot access field {0} of userdata<{1}>", fieldname, typename);
+		}
+
+		public static ScriptRuntimeException CannotResumeNotSuspended(CoroutineState state)
+		{
+			if (state == CoroutineState.Dead)
+				return new ScriptRuntimeException("cannot resume dead coroutine");
+			else
+				return new ScriptRuntimeException("cannot resume non-suspended coroutine");
+		}
+
+		public static ScriptRuntimeException CannotYield()
+		{
+			return new ScriptRuntimeException("cannot yield to parent coroutine as it would cross a script-clr boundary");
 		}
 	}
 }

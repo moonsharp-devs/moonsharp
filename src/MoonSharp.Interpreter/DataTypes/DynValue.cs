@@ -49,6 +49,10 @@ namespace MoonSharp.Interpreter
 		/// </summary>
 		public DynValue[] Tuple { get { return m_Object as DynValue[]; } }
 		/// <summary>
+		/// Gets the coroutine handle. (valid only if the <seealso cref="Type"/> is Thread).
+		/// </summary>
+		public int CoroutineHandle { get { return (int)m_Object; } }
+		/// <summary>
 		/// Gets the table (valid only if the <seealso cref="Type"/> is <seealso cref="DataType.Table"/>)
 		/// </summary>
 		public Table Table { get { return m_Object as Table; } }
@@ -69,6 +73,10 @@ namespace MoonSharp.Interpreter
 		/// </summary>
 		public TailCallData TailCallData { get { return m_Object as TailCallData; } }
 		/// <summary>
+		/// Gets the yield request data.
+		/// </summary>
+		public YieldRequest YieldRequest { get { return m_Object as YieldRequest; } }
+		/// <summary>
 		/// Gets the tail call data.
 		/// </summary>
 		public UserData UserData { get { return m_Object as UserData; } }
@@ -76,7 +84,7 @@ namespace MoonSharp.Interpreter
 		/// <summary>
 		/// Returns true if this instance is write protected.
 		/// </summary>
-		public bool ReadOnly { get { return m_ReadOnly; }}
+		public bool ReadOnly { get { return m_ReadOnly; } }
 
 
 
@@ -123,6 +131,21 @@ namespace MoonSharp.Interpreter
 			{
 				m_Object = str,
 				m_Type = DataType.String,
+			};
+		}
+
+		/// <summary>
+		/// Creates a new writable value initialized to the specified coroutine.
+		/// Internal use only, for external use, see ExecutionContext.CoroutineCreate
+		/// </summary>
+		/// <param name="coroutineHandle">The coroutine handle.</param>
+		/// <returns></returns>
+		internal static DynValue NewCoroutine(int coroutineHandle)
+		{
+			return new DynValue()
+			{
+				m_Object = coroutineHandle,
+				m_Type = DataType.Thread
 			};
 		}
 
@@ -222,6 +245,22 @@ namespace MoonSharp.Interpreter
 			{
 				m_Object = tailCallData,
 				m_Type = DataType.TailCallRequest,
+			};
+		}
+
+
+
+		/// <summary>
+		/// Creates a new request for a yield of the current coroutine.
+		/// </summary>
+		/// <param name="args">The yield argumenst.</param>
+		/// <returns></returns>
+		public static DynValue NewYieldReq(DynValue[] args)
+		{
+			return new DynValue()
+			{
+				m_Object = new YieldRequest() { ReturnValues = args },
+				m_Type = DataType.YieldRequest,
 			};
 		}
 
@@ -360,6 +399,8 @@ namespace MoonSharp.Interpreter
 					return string.Join("\t", Tuple.Select(t => t.ToPrintString()).ToArray());
 				case DataType.TailCallRequest:
 					return "(TailCallRequest -- INTERNAL!)";
+				case DataType.YieldRequest:
+					return "(YieldRequest -- INTERNAL!)";
 				case DataType.UserData:
 					return "(UserData)";
 				case DataType.Thread:
@@ -626,6 +667,39 @@ namespace MoonSharp.Interpreter
 			this.m_Number = num;
 		}
 
+		/// <summary>
+		/// Expands tuples to a list using functiona arguments logic
+		/// </summary>
+		/// <param name="args">The arguments to expand.</param>
+		/// <param name="target">The target list (if null, a new list is created and returned).</param>
+		/// <returns></returns>
+		public static IList<DynValue> ExpandArgumentsToList(IList<DynValue> args, List<DynValue> target = null)
+		{
+			target = target ?? new List<DynValue>();
+
+			for(int i = 0; i < args.Count; i++)
+			{
+				DynValue v = args[i];
+
+				if (v.Type == DataType.Tuple)
+				{
+					if (i == args.Count - 1)
+					{
+						ExpandArgumentsToList(v.Tuple, target);
+					}
+					else if (v.Tuple.Length > 0)
+					{
+						target.Add(v.Tuple[0]);
+					}
+				}
+				else
+				{
+					target.Add(v);
+				}
+			}
+
+			return target;
+		}
 
 		/// <summary>
 		/// Creates a new DynValue from a CLR object
@@ -645,6 +719,7 @@ namespace MoonSharp.Interpreter
 		{
 			return MoonSharp.Interpreter.Interop.ConversionHelper.MoonSharpValueToClrObject(this);
 		}
+
 	}
 
 

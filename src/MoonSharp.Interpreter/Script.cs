@@ -21,14 +21,13 @@ namespace MoonSharp.Interpreter
 	/// </summary>
 	public class Script
 	{
-		Processor m_MainRoutine = null;
-		List<Processor> m_Coroutines = new List<Processor>();
+		Processor m_MainProcessor = null;
 		ByteCode m_ByteCode;
 		List<SourceCode> m_Sources = new List<SourceCode>();
 		Table m_GlobalTable;
 		IDebugger m_Debugger;
 		IScriptLoader m_ScriptLoader = DefaultScriptLoader;
-		Table[] m_TypeMetatables = new Table[(int)DataType.MaxMetaTypes];
+		Table[] m_TypeMetatables = new Table[(int)LuaTypeExtensions.MaxMetaTypes];
 
 		static Script()
 		{
@@ -53,7 +52,7 @@ namespace MoonSharp.Interpreter
 			DebugPrint = s => { Console.WriteLine(s); };
 			m_ByteCode = new ByteCode();
 			m_GlobalTable = new Table(this).RegisterCoreModules(coreModules);
-			m_MainRoutine = new Processor(this, m_GlobalTable, m_ByteCode);
+			m_MainProcessor = new Processor(this, m_GlobalTable, m_ByteCode);
 			ReseedRandomGenerator(DateTime.Now.Millisecond);
 		}
 
@@ -243,7 +242,7 @@ namespace MoonSharp.Interpreter
 		/// <returns></returns>
 		public DynValue Call(DynValue function)
 		{
-			return m_MainRoutine.Call(function, new DynValue[0]);
+			return m_MainProcessor.Call(function, new DynValue[0]);
 		}
 
 		/// <summary>
@@ -254,7 +253,7 @@ namespace MoonSharp.Interpreter
 		/// <returns></returns>
 		public DynValue Call(DynValue function, params DynValue[] args)
 		{
-			return m_MainRoutine.Call(function, args);
+			return m_MainProcessor.Call(function, args);
 		}
 
 		/// <summary>
@@ -265,7 +264,7 @@ namespace MoonSharp.Interpreter
 		/// <returns></returns>
 		public DynValue Call(DynValue function, params object[] args)
 		{
-			return m_MainRoutine.Call(function, args.Select(v => DynValue.FromObject(this, v)).ToArray());
+			return m_MainProcessor.Call(function, args.Select(v => DynValue.FromObject(this, v)).ToArray());
 		}
 
 
@@ -306,11 +305,7 @@ namespace MoonSharp.Interpreter
 		public void AttachDebugger(IDebugger debugger)
 		{
 			m_Debugger = debugger;
-			m_MainRoutine.AttachDebugger(debugger);
-
-			foreach (var C in m_Coroutines)
-				C.AttachDebugger(debugger);
-
+			m_MainProcessor.AttachDebugger(debugger);
 			m_Debugger.SetSourceCode(m_ByteCode, null);
 		}
 

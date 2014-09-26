@@ -23,6 +23,7 @@ namespace MoonSharp.Interpreter
 			if (modules.Has(CoreModules.Table)) RegisterModuleType<TableModule_Globals>(table);
 			if (modules.Has(CoreModules.ErrorHandling)) RegisterModuleType<ErrorHandling>(table);
 			if (modules.Has(CoreModules.Math)) RegisterModuleType<MathModule>(table);
+			if (modules.Has(CoreModules.Coroutine)) RegisterModuleType<CoroutineMethods>(table);
 
 			return table;
 		}

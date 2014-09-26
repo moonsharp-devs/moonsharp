@@ -80,5 +80,34 @@ namespace MoonSharp.Interpreter.Execution
 			return true;
 		}
 
+		public DynValue CoroutineCreate(Closure closure)
+		{
+			return m_Processor.Coroutine_Create(closure);
+		}
+
+		public DynValue CoroutineResume(DynValue handle, DynValue[] args)
+		{
+			Processor P = m_Processor.Coroutine_Get(handle);
+			return P.Coroutine_Resume(args);
+		}
+
+		public DynValue CoroutineRunning()
+		{
+			return m_Processor.Coroutine_GetRunning();
+		}
+
+		public CoroutineState CoroutineGetState(DynValue handle)
+		{
+			return m_Processor.Coroutine_Get(handle).State;
+		}
+
+		public bool CoroutineIsRunning(DynValue handle)
+		{
+			DynValue running = CoroutineRunning();
+			return (running.CoroutineHandle == handle.CoroutineHandle) ;
+		}
+
+
+
 	}
 }
