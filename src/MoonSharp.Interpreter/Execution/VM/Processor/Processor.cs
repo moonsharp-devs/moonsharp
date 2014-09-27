@@ -24,6 +24,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 		bool m_CanYield = true;
 		int m_SavedInstructionPtr = -1;
 		DebugContext m_Debug;
+		int m_CoroutineIndex = 0;
 
 		public Processor(Script script, Table globalContext, ByteCode byteCode)
 		{
@@ -33,9 +34,11 @@ namespace MoonSharp.Interpreter.Execution.VM
 			m_Script = script;
 			m_Coroutines = new List<Processor>();
 			m_State = CoroutineState.Main;
+			m_CoroutineIndex = 0;
+			m_Coroutines.Add(this);
 		}
 
-		private Processor(Processor parentProcessor)
+		private Processor(Processor parentProcessor, int corIndex)
 		{
 			m_Debug = parentProcessor.m_Debug;
 			m_RootChunk = parentProcessor.m_RootChunk;
@@ -44,6 +47,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			m_Coroutines = parentProcessor.m_Coroutines;
 			m_Parent = parentProcessor;
 			m_State = CoroutineState.NotStarted;
+			m_CoroutineIndex = corIndex;
 		}
 
 		

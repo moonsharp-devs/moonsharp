@@ -15,8 +15,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 		public DynValue Coroutine_Create(Closure closure)
 		{
 			// create a processor instance
-			Processor P = new Processor(this);
 			int coroutineHandle = this.m_Coroutines.Count;
+			Processor P = new Processor(this, coroutineHandle);
 			this.m_Coroutines.Add(P);
 
 			// Put the closure as first value on the stack, for future reference
@@ -54,7 +54,10 @@ namespace MoonSharp.Interpreter.Execution.VM
 			if (m_State == CoroutineState.NotStarted)
 				entrypoint = PushClrToScriptStackFrame(null, args);
 			else
+			{
+				m_ValueStack.Push(DynValue.NewTuple(args));
 				entrypoint = m_SavedInstructionPtr;
+			}
 
 			m_State = CoroutineState.Running;
 			DynValue retVal = Processing_Loop(entrypoint);

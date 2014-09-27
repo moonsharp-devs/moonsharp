@@ -80,6 +80,42 @@ namespace MoonSharp.Interpreter
 			return (int)type < (int)MaxMetaTypes;
 		}
 
+		/// <summary>
+		/// Converts the DataType to the string returned by the "type(...)" Lua function
+		/// </summary>
+		/// <param name="type">The type.</param>
+		/// <returns></returns>
+		/// <exception cref="ScriptRuntimeException">The DataType is not a Lua type</exception>
+		public static string ToErrorTypeString(this DataType type)
+		{
+			switch (type)
+			{
+				case DataType.Nil:
+					return "nil";
+				case DataType.Boolean:
+					return "boolean";
+				case DataType.Number:
+					return "number";
+				case DataType.String:
+					return "string";
+				case DataType.Function:
+					return "function";
+				case DataType.ClrFunction:
+					return "function";
+				case DataType.Table:
+					return "table";
+				case DataType.UserData:
+					return "userdata";
+				case DataType.Thread:
+					return "coroutine";
+				case DataType.Tuple:
+				case DataType.TailCallRequest:
+				case DataType.YieldRequest:
+				default:
+					throw new ScriptRuntimeException("Unexpected LuaType {0}", type);
+			}
+		}
+
 
 		/// <summary>
 		/// Converts the DataType to the string returned by the "type(...)" Lua function

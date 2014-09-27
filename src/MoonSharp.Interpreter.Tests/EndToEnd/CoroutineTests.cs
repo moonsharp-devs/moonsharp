@@ -46,7 +46,45 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 			Assert.AreEqual(DataType.String, res.Type);
 			Assert.AreEqual("1-5;2-6;3-7;4-8;", res.String);
+		}
 
+		[Test]
+		public void Coroutine_Wrap()
+		{
+			string script = @"
+				s = ''
+
+				function foo()
+					for i = 1, 4 do
+						s = s .. i;
+						coroutine.yield();
+					end
+				end
+
+				function bar()
+					for i = 5, 9 do
+						s = s .. i;
+						coroutine.yield();
+					end
+				end
+
+				cf = coroutine.wrap(foo);
+				cb = coroutine.wrap(bar);
+
+				for i = 1, 4 do
+					cf();
+					s = s .. '-';
+					cb();
+					s = s .. ';';
+				end
+
+				return s;
+				";
+
+			DynValue res = Script.RunString(script);
+
+			Assert.AreEqual(DataType.String, res.Type);
+			Assert.AreEqual("1-5;2-6;3-7;4-8;", res.String);
 		}
 
 

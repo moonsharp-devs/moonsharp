@@ -14,15 +14,16 @@ namespace MoonSharp.Interpreter.CoreLib
 		[MoonSharpMethod]
 		public static DynValue create(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
-			DynValue v = args.AsType(0, "coroutine.create", DataType.Function);
+			DynValue v = args.AsType(0, "create", DataType.Function);
 			return executionContext.CoroutineCreate(v.Function);
 		}
 
 		[MoonSharpMethod]
 		public static DynValue wrap(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
-			DynValue v = args.AsType(0, "coroutine.wrap", DataType.Function);
+			DynValue v = create(executionContext, args);
 			DynValue c = DynValue.NewCallback(__wrap_wrapper);
+			c.Callback.Closure = new Table(executionContext.GetScript());
 			c.Callback.Closure.Set("_HANDLE", v);
 			return c;
 		}
@@ -38,7 +39,7 @@ namespace MoonSharp.Interpreter.CoreLib
 		[MoonSharpMethod]
 		public static DynValue resume(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
-			DynValue handle = args.AsType(0, "coroutine.resume", DataType.Thread);
+			DynValue handle = args.AsType(0, "resume", DataType.Thread);
 
 			try
 			{
@@ -84,7 +85,7 @@ namespace MoonSharp.Interpreter.CoreLib
 		[MoonSharpMethod]
 		public static DynValue status(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
-			DynValue handle = args.AsType(0, "coroutine.status", DataType.Thread);
+			DynValue handle = args.AsType(0, "status", DataType.Thread);
 			CoroutineState cs = executionContext.CoroutineGetState(handle);
 
 			switch (cs)

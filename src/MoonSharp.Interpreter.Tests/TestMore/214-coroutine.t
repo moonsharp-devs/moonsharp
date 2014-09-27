@@ -75,10 +75,10 @@ error_like(function () coroutine.create(true) end,
            "^[^:]+:%d+: bad argument #1 to 'create' %(function expected, got boolean%)")
 
 error_like(function () coroutine.resume(true) end,
-           "^[^:]+:%d+: bad argument #1 to 'resume' %(coroutine expected%)")
+           "^[^:]+:%d+: bad argument #1 to 'resume' %(coroutine expected, got boolean%)")
 
 error_like(function () coroutine.status(true) end,
-           "^[^:]+:%d+: bad argument #1 to 'status' %(coroutine expected%)")
+           "^[^:]+:%d+: bad argument #1 to 'status' %(coroutine expected, got boolean%)")
 
 --[[ ]]
 output = {}

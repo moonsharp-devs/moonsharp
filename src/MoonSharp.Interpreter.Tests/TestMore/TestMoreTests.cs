@@ -174,7 +174,6 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
-		[Ignore]
 		public void TestMore_214_coroutine()
 		{
 			TapRunner.Run(@"TestMore\214-coroutine.t");

@@ -60,7 +60,7 @@ namespace MoonSharp.Interpreter
 
 		public static ScriptRuntimeException BadArgument(int argNum, string funcName, DataType expected, DataType got, bool allowNil)
 		{
-			return BadArgument(argNum, funcName, expected.ToString().ToLowerInvariant(), got.ToString().ToLowerInvariant(), allowNil);
+			return BadArgument(argNum, funcName, expected.ToErrorTypeString(), got.ToErrorTypeString(), allowNil);
 		}
 
 		public static ScriptRuntimeException BadArgument(int argNum, string funcName, string expected, string got, bool allowNil)

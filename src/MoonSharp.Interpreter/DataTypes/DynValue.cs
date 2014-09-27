@@ -404,7 +404,7 @@ namespace MoonSharp.Interpreter
 				case DataType.UserData:
 					return "(UserData)";
 				case DataType.Thread:
-					return "(Thread)";
+					return string.Format("thread: 0x{0:X8}", this.CoroutineHandle);
 				default:
 					return ToString();
 			}
@@ -441,7 +441,7 @@ namespace MoonSharp.Interpreter
 				case DataType.UserData:
 					return "(UserData)";
 				case DataType.Thread:
-					return "(Thread)";
+					return string.Format("(Coroutine {0:X8})", this.CoroutineHandle);
 				default:
 					return "(???)";
 			}
