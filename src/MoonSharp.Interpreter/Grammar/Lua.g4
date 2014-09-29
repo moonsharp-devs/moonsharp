@@ -149,6 +149,14 @@ anonfunctiondef
     : 'function' funcbody
     ;
 
+lambdaexp
+	: '[' parlist ':' exp ']'
+	;
+
+lambdastat
+	: '[' parlist ':' 'do' block 'end' ']'
+	;
+
 // A func body from the parlist to end. 
 funcbody
     : '(' parlist? ')' block 'end'

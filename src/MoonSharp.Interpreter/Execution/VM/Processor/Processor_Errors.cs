@@ -39,6 +39,13 @@ namespace MoonSharp.Interpreter.Execution.VM
 		private void FillDebugData(InterpreterException ex, int ip)
 		{
 			ex.DecoratedMessage = "chunk:0: " + ex.Message;
+
+			// adjust IP
+			if (ip == YIELD_SPECIAL_TRAP)
+				ip = m_SavedInstructionPtr;
+			else
+				ip -= 1;
+
 			ex.InstructionPtr = ip;
 			ex.CallStack = GetCallStack(ip);
 		}

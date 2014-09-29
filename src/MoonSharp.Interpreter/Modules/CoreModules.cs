@@ -18,10 +18,11 @@ namespace MoonSharp.Interpreter
 		ErrorHandling = 0x80,
 		Math = 0x100,
 		Coroutine = 0x200,
+		Bit32 = 0x400,
 
 
 
-		Preset_HardSandbox = GlobalConsts | TableIterators | String | Table | Basic | Math,
+		Preset_HardSandbox = GlobalConsts | TableIterators | String | Table | Basic | Math | Bit32,
 		Preset_SoftSandbox = Preset_HardSandbox | Metatables | ErrorHandling | Coroutine,
 		Preset_Default = Preset_SoftSandbox | LoadMethods,
 		Preset_Complete = Preset_Default,

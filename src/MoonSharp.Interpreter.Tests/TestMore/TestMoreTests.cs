@@ -102,19 +102,20 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
-		[Ignore]
 		public void TestMore_107_thread()
 		{
 			TapRunner.Run(@"TestMore\107-thread.t");
 		}
 
 
-		[Test]
-		[Ignore]
-		public void TestMore_108_userdata()
-		{
-			TapRunner.Run(@"TestMore\108-userdata.t");
-		}
+		//[Test]
+		//[Ignore]
+		// It's just a bunch of checks for error messages and nothing more useful. Userdata is tested by standard
+		// end to end tests.
+		//public void TestMore_108_userdata()
+		//{
+		//	TapRunner.Run(@"TestMore\108-userdata.t");
+		//}
 
 
 		[Test]
@@ -195,7 +196,6 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
-		[Ignore] // Breaks on coroutines
 		public void TestMore_223_iterator()
 		{
 			TapRunner.Run(@"TestMore\223-iterator.t");
@@ -217,7 +217,6 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
-		[Ignore]
 		public void TestMore_301_basic()
 		{
 			TapRunner.Run(@"TestMore\301-basic.t");
@@ -253,7 +252,6 @@ namespace MoonSharp.Interpreter.Tests
 		}
 
 		[Test]
-		[Ignore]
 		public void TestMore_307_bit()
 		{
 			TapRunner.Run(@"TestMore\307-bit.t");
@@ -275,12 +273,13 @@ namespace MoonSharp.Interpreter.Tests
 		}
 
 
-		[Test]
-		[Ignore]
-		public void TestMore_310_debug()
-		{
-			TapRunner.Run(@"TestMore\310-debug.t");
-		}
+		// Commented : we will likely NEVER support this!
+		//[Test]
+		//[Ignore]
+		//public void TestMore_310_debug()
+		//{
+		//	TapRunner.Run(@"TestMore\310-debug.t");
+		//}
 
 
 		[Test]

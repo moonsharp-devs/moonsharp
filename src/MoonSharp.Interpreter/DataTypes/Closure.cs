@@ -9,7 +9,7 @@ namespace MoonSharp.Interpreter
 	/// <summary>
 	/// A class representing a script function
 	/// </summary>
-	public class Closure : IScriptPrivateResource
+	public class Closure : RefIdObject, IScriptPrivateResource
 	{
 		/// <summary>
 		/// Gets the entry point location in bytecode .

@@ -79,6 +79,9 @@ namespace MoonSharp.Interpreter
 			if (allowNil && this[argNum].Type == DataType.Nil)
 				return this[argNum];
 
+			if (argNum >= this.Count)
+				throw ScriptRuntimeException.BadArgumentNoValue(argNum, funcName, type);
+
 			if (this[argNum].Type != type)
 				throw ScriptRuntimeException.BadArgument(argNum, funcName, type, this[argNum].Type, allowNil);
 

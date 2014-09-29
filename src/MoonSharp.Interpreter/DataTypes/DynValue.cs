@@ -51,7 +51,7 @@ namespace MoonSharp.Interpreter
 		/// <summary>
 		/// Gets the coroutine handle. (valid only if the <seealso cref="Type"/> is Thread).
 		/// </summary>
-		public int CoroutineHandle { get { return (int)m_Object; } }
+		public Coroutine Coroutine { get { return m_Object as Coroutine; } }
 		/// <summary>
 		/// Gets the table (valid only if the <seealso cref="Type"/> is <seealso cref="DataType.Table"/>)
 		/// </summary>
@@ -136,19 +136,18 @@ namespace MoonSharp.Interpreter
 
 		/// <summary>
 		/// Creates a new writable value initialized to the specified coroutine.
-		/// Internal use only, for external use, see ExecutionContext.CoroutineCreate
+		/// Internal use only, for external use, see Script.CoroutineCreate
 		/// </summary>
 		/// <param name="coroutineHandle">The coroutine handle.</param>
 		/// <returns></returns>
-		internal static DynValue NewCoroutine(int coroutineHandle)
+		public static DynValue NewCoroutine(Coroutine coroutine)
 		{
 			return new DynValue()
 			{
-				m_Object = coroutineHandle,
+				m_Object = coroutine,
 				m_Type = DataType.Thread
 			};
 		}
-
 
 		/// <summary>
 		/// Creates a new writable value initialized to the specified closure (function).
@@ -389,22 +388,22 @@ namespace MoonSharp.Interpreter
 		/// </summary>
 		public string ToPrintString()
 		{
+			if (this.m_Object != null && this.m_Object is RefIdObject)
+			{
+				RefIdObject refid = (RefIdObject)m_Object;
+				return refid.FormatTypeString(this.Type);
+			}
+
 			switch (Type)
 			{
 				case DataType.String:
 					return String;
-				case DataType.Table:
-					return "(Table)";
 				case DataType.Tuple:
 					return string.Join("\t", Tuple.Select(t => t.ToPrintString()).ToArray());
 				case DataType.TailCallRequest:
 					return "(TailCallRequest -- INTERNAL!)";
 				case DataType.YieldRequest:
 					return "(YieldRequest -- INTERNAL!)";
-				case DataType.UserData:
-					return "(UserData)";
-				case DataType.Thread:
-					return string.Format("thread: 0x{0:X8}", this.CoroutineHandle);
 				default:
 					return ToString();
 			}
@@ -441,7 +440,7 @@ namespace MoonSharp.Interpreter
 				case DataType.UserData:
 					return "(UserData)";
 				case DataType.Thread:
-					return string.Format("(Coroutine {0:X8})", this.CoroutineHandle);
+					return string.Format("(Coroutine {0:X8})", this.Coroutine.ReferenceID);
 				default:
 					return "(???)";
 			}
@@ -531,8 +530,27 @@ namespace MoonSharp.Interpreter
 				case DataType.Tuple:
 				case DataType.TailCallRequest:
 					return Tuple == other.Tuple;
-				case DataType.UserData:
 				case DataType.Thread:
+					return Coroutine == other.Coroutine;
+				case DataType.UserData:
+					{
+						UserData ud1 = this.UserData;
+						UserData ud2 = other.UserData;
+
+						if (ud1 == null || ud2 == null)
+							return false;
+
+						if (ud1.Descriptor != ud2.Descriptor)
+							return false;
+
+						if (ud1.Object == null && ud2.Object == null)
+							return true;
+
+						if (ud1.Object != null && ud2.Object != null)
+							return ud1.Object.Equals(ud2.Object);
+
+						return false;
+					}
 				default:
 					return object.ReferenceEquals(this, other);
 			}

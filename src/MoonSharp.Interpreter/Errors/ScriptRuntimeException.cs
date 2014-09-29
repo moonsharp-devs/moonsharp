@@ -69,6 +69,18 @@ namespace MoonSharp.Interpreter
 				argNum + 1, funcName, allowNil ? "nil or " : "", expected, got);
 		}
 
+		public static ScriptRuntimeException BadArgumentNoValue(int argNum, string funcName, DataType expected)
+		{
+			return new ScriptRuntimeException("bad argument #{0} to '{1}' ({2} expected, got no value)",
+				argNum + 1, funcName, expected.ToErrorTypeString());
+		}
+
+		public static ScriptRuntimeException BadArgumentValueExpected(int argNum, string funcName)
+		{
+			return new ScriptRuntimeException("bad argument #{0} to '{1}' (value expected)",
+				argNum + 1, funcName);
+		}
+
 
 		public static ScriptRuntimeException IndexType(DynValue obj)
 		{
@@ -147,5 +159,16 @@ namespace MoonSharp.Interpreter
 		{
 			return new ScriptRuntimeException("cannot yield to parent coroutine as it would cross a script-clr boundary");
 		}
+
+		public static ScriptRuntimeException CannotYieldMain()
+		{
+			return new ScriptRuntimeException("attempt to yield from outside a coroutine");
+		}
+
+		public static ScriptRuntimeException IndexOutOfRange(string funcName, int argIdx)
+		{
+			return new ScriptRuntimeException("bad argument #{0} to '{1}' (index out of range)", argIdx, funcName);
+		}
+
 	}
 }

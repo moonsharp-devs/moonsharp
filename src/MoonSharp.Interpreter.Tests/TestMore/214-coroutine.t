@@ -130,6 +130,7 @@ end)
 eq_array({co("Hello")}, {"Hello"})
 eq_array({co("World")}, {true, "World"})
 
+--[[
 co = coroutine.wrap(function(...)
   function backtrace ()
     return 'not a back trace'
@@ -140,6 +141,7 @@ co = coroutine.wrap(function(...)
 end)
 eq_array({co("Hello")}, {"Hello"})
 eq_array({co("World")}, {true, "World"})
+]]
 
 --[[ ]]
 local output = {}
@@ -168,7 +170,7 @@ error_like(function () coroutine.wrap(true) end,
 
 co = coroutine.wrap(function () error"in coro" end)
 error_like(function () co() end,
-           "^[^:]+:%d+: [^:]+:%d+: in coro$")
+           "^[^:]+:%d+: in coro$")
 
 --[[ ]]
 co = coroutine.create(function ()
@@ -176,7 +178,7 @@ co = coroutine.create(function ()
     end)
 r, msg = coroutine.resume(co)
 is(r, false)
-like(msg, "^[^:]+:%d+: in coro$")
+like(msg, "in coro$")
 
 --[[ ]]
 error_like(function () coroutine.yield() end,

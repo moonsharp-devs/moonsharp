@@ -30,7 +30,7 @@ namespace MoonSharp.Interpreter.Tree
 
 				int beginIp = -1;
 
-				using (var _ = new CodeChrono("ChunkStatement.LoadFromICharStream/Compile"))
+				//using (var _ = new CodeChrono("ChunkStatement.LoadFromICharStream/Compile"))
 				{
 					bytecode.Emit_Nop(string.Format("Begin chunk {0}", sourceName));
 					beginIp = bytecode.GetJumpPointForLastInstruction();
@@ -60,7 +60,7 @@ namespace MoonSharp.Interpreter.Tree
 
 				int beginIp = -1;
 
-				using (var _ = new CodeChrono("ChunkStatement.LoadFromICharStream/Compile"))
+				//using (var _ = new CodeChrono("ChunkStatement.LoadFromICharStream/Compile"))
 				{
 					bytecode.Emit_Nop(string.Format("Begin function {0}", sourceName));
 					beginIp = fndef.CompileBody(bytecode, sourceName);
@@ -118,7 +118,7 @@ namespace MoonSharp.Interpreter.Tree
 			LuaLexer lexer;
 			LuaParser parser;
 
-			using (var _ = new CodeChrono("ChunkStatement.LoadFromICharStream/Parsing"))
+			//using (var _ = new CodeChrono("ChunkStatement.LoadFromICharStream/Parsing"))
 			{
 				lexer = new LuaLexer(charStream);
 				parser = new LuaParser(new CommonTokenStream(lexer));

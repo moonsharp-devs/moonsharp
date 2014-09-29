@@ -39,8 +39,10 @@ namespace MoonSharp.Interpreter.CoreLib
 						DynValue ret = executionContext.GetScript().Call(ld);
 						if (ret.Type == DataType.String && ret.String.Length > 0)
 							script += ret.String;
-						else
+						else if (ret.IsNil())
 							break;
+						else
+							return DynValue.NewTuple(DynValue.Nil, DynValue.NewString("reader function must return a string"));
 					}
 				}
 				else if (ld.Type == DataType.String)

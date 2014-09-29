@@ -130,6 +130,40 @@ namespace MoonSharp.Interpreter.Tests
 			S.DoString(script);
 		}
 
+		[Test]
+		public void FunctionOrOperator()
+		{
+			string script = @"    
+				loadstring = loadstring or load;
+
+				return loadstring;
+			";
+
+			Script S = new Script();
+			DynValue res = S.DoString(script);
+
+			Assert.AreEqual(DataType.ClrFunction, res.Type);
+
+		}
+
+
+		[Test]
+		public void SelectNegativeIndex()
+		{
+			string script = @"    
+				return select(-1,'a','b','c');
+			";
+
+			Script S = new Script();
+			DynValue res = S.DoString(script);
+
+			Assert.AreEqual(DataType.String, res.Type);
+			Assert.AreEqual("c", res.String);
+		}
+
+
+
+
 
 		[Test]
 		public void BoolConversionAndShortCircuit()
@@ -756,6 +790,23 @@ namespace MoonSharp.Interpreter.Tests
 			Assert.AreEqual(4, res.Tuple.Length);
 		}
 
+
+		[Test]
+		public void PCallOnClrFunction()
+		{
+			string script = @"
+				r, msg = pcall(assert, false, 'catched')
+				return r, msg;
+								";
+
+			DynValue res = Script.RunString(script);
+
+			Assert.AreEqual(DataType.Tuple, res.Type);
+			Assert.AreEqual(2, res.Tuple.Length);
+			Assert.AreEqual(DataType.Boolean, res.Tuple[0].Type);
+			Assert.AreEqual(DataType.String, res.Tuple[1].Type);
+			Assert.AreEqual(false, res.Tuple[0].Boolean);
+		}
 
 		[Test]
 		public void ArgsDoNotChange()

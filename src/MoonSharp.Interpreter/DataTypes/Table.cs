@@ -11,7 +11,7 @@ namespace MoonSharp.Interpreter
 	/// <summary>
 	/// A class representing a Lua table.
 	/// </summary>
-	public class Table : IScriptPrivateResource
+	public class Table : RefIdObject, IScriptPrivateResource
 	{
 		readonly LinkedList<TablePair> m_Values;
 		readonly LinkedListIndex<DynValue, TablePair> m_ValueMap;
@@ -73,7 +73,7 @@ namespace MoonSharp.Interpreter
 					return Get((string)key).ToObject();
 				else if (key is int)
 					return Get((int)key).ToObject();
-				
+
 				DynValue dynkey = DynValue.FromObject(this.OwnerScript, key);
 				return Get(dynkey).ToObject();
 			}
@@ -270,7 +270,7 @@ namespace MoonSharp.Interpreter
 		/// <summary>
 		/// Returns the next pair from a value
 		/// </summary>
-		public TablePair NextKey(DynValue v)
+		public TablePair? NextKey(DynValue v)
 		{
 			if (v.Type == DataType.Nil)
 			{
@@ -300,9 +300,12 @@ namespace MoonSharp.Interpreter
 			return GetNextOf(m_ValueMap.Find(v));
 		}
 
-		private TablePair GetNextOf(LinkedListNode<TablePair> linkedListNode)
+		private TablePair? GetNextOf(LinkedListNode<TablePair> linkedListNode)
 		{
-			if (linkedListNode == null || linkedListNode.Next == null)
+			if (linkedListNode == null)
+				return null;
+
+			if (linkedListNode.Next == null)
 				return TablePair.Nil;
 
 			return linkedListNode.Next.Value;
@@ -314,7 +317,7 @@ namespace MoonSharp.Interpreter
 		/// </summary>
 		public int Length
 		{
-			get 
+			get
 			{
 				if (m_CachedLength < 0)
 				{
@@ -324,7 +327,7 @@ namespace MoonSharp.Interpreter
 						m_CachedLength = i;
 				}
 
-				return m_CachedLength; 
+				return m_CachedLength;
 			}
 		}
 

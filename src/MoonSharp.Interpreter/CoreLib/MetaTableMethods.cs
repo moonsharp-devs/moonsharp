@@ -107,6 +107,11 @@ namespace MoonSharp.Interpreter.CoreLib
 		[MoonSharpMethod]
 		public static DynValue rawlen(ScriptExecutionContext executionContext, CallbackArguments args) 
 		{
+			if (args[0].Type != DataType.String && args[0].Type != DataType.Table)
+			{
+				throw ScriptRuntimeException.BadArgument(0, "rawlen", "table or string", args[0].Type.ToErrorTypeString(), false);
+			}
+
 			return args[0].GetLength();
 		}
 

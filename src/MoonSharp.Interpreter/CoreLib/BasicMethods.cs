@@ -17,6 +17,8 @@ namespace MoonSharp.Interpreter.CoreLib
 		[MoonSharpMethod]
 		public static DynValue type(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
+			if (args.Count < 1) throw ScriptRuntimeException.BadArgumentValueExpected(0, "type");
+
 			DynValue v = args[0];
 			return DynValue.NewString(v.Type.ToLuaTypeString());
 		}
@@ -41,7 +43,7 @@ namespace MoonSharp.Interpreter.CoreLib
 					throw new ScriptRuntimeException(message.ToPrintString());
 			}
 
-			return DynValue.Nil;
+			return DynValue.NewTupleNested(args.ToArray());
 		}
 
 		// collectgarbage  ([opt [, arg]])
@@ -86,6 +88,8 @@ namespace MoonSharp.Interpreter.CoreLib
 		[MoonSharpMethod]
 		public static DynValue tostring(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
+			if (args.Count < 1) throw ScriptRuntimeException.BadArgumentValueExpected(0, "tostring");
+
 			DynValue v = args[0];
 			DynValue tail = executionContext.GetMetamethodTailCall(v, "__tostring", v);
 			
@@ -111,6 +115,48 @@ namespace MoonSharp.Interpreter.CoreLib
 			return b;
 		}
 
+		// select (index, ...)
+		// -----------------------------------------------------------------------------
+		// If index is a number, returns all arguments after argument number index; a negative number indexes from 
+		// the end (-1 is the last argument). Otherwise, index must be the string "#", and select returns the total
+		// number of extra arguments it received. 
+		[MoonSharpMethod]
+		public static DynValue select(ScriptExecutionContext executionContext, CallbackArguments args)
+		{
+			
+			if (args[0].Type == DataType.String && args[0].String == "#")
+				return DynValue.NewNumber(args.Count - 1);
+
+			DynValue v_num = args.AsType(0, "select", DataType.Number, false);
+			int num = (int)v_num.Number;
+
+			List<DynValue> values = new List<DynValue>();
+
+			if (num > 0)
+			{
+				for (int i = num; i < args.Count; i++)
+					values.Add(args[i]);
+			}
+			else if (num < 0)
+			{
+				num = args.Count + num;
+
+				if (num < 1)
+					throw ScriptRuntimeException.IndexOutOfRange("select", 1);
+
+				for (int i = num; i < args.Count; i++)
+					values.Add(args[i]);
+			}
+			else
+			{
+				throw ScriptRuntimeException.IndexOutOfRange("select", 1);
+			}
+
+			return DynValue.NewTupleNested(values.ToArray());
+		}
+
+
+
 
 		// tonumber (e [, base])
 		// ----------------------------------------------------------------------------------------------------------------
@@ -125,6 +171,8 @@ namespace MoonSharp.Interpreter.CoreLib
 		[MoonSharpMethod]
 		public static DynValue tonumber(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
+			if (args.Count < 1) throw ScriptRuntimeException.BadArgumentValueExpected(0, "tonumber");
+
 			DynValue e = args[0];
 			DynValue b = args.AsType(1, "tonumber", DataType.Number, true);
 
@@ -146,10 +194,21 @@ namespace MoonSharp.Interpreter.CoreLib
 			else
 			{
 				//!COMPAT: tonumber supports only 2,8,10 or 16 as base
-				DynValue ee = args.AsType(0, "tonumber", DataType.String, false);
+				DynValue ee;
+
+				if (args[0].Type != DataType.Number)
+					ee = args.AsType(0, "tonumber", DataType.String, false);
+				else
+					ee = DynValue.NewString(args[0].Number.ToString(CultureInfo.InvariantCulture)); ;
+
 				int bb = (int)b.Number;
 
-				uint uiv = Convert.ToUInt32(ee.String, bb);
+				if (bb != 2 && bb != 8 && bb != 10 && bb != 16)
+				{
+					throw new ScriptRuntimeException("bad argument #2 to 'tonumber' (base out of range)");
+				}
+
+				uint uiv = Convert.ToUInt32(ee.String.Trim(), bb);
 
 				return DynValue.NewNumber(uiv);
 			}

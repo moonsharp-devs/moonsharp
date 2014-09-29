@@ -385,6 +385,11 @@ namespace MoonSharp.Debugger
 			timerFollow.Start();
 		}
 
+		private void btnFastHack_Click(object sender, EventArgs e)
+		{
+			DebugScript(@"C:\temp\test.lua");
+		}
+
 
 
 	}

@@ -7,7 +7,7 @@ using MoonSharp.Interpreter.Interop;
 
 namespace MoonSharp.Interpreter
 {
-	public class UserData
+	public class UserData : RefIdObject
 	{
 		private UserData()
 		{ 

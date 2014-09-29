@@ -214,10 +214,22 @@ namespace MoonSharp.Interpreter.Execution.VM
 							throw new NotImplementedException(string.Format("Execution for {0} not implented yet!", i.OpCode));
 					}
 				}
+
+			yield_to_calling_coroutine:
+
+				DynValue yieldRequest = m_ValueStack.Pop();
+
+				if (m_CanYield)
+					return yieldRequest;
+				else if (this.State == CoroutineState.Main)
+					throw ScriptRuntimeException.CannotYieldMain();
+				else
+					throw ScriptRuntimeException.CannotYield();
+
 			}
 			catch (InterpreterException ex)
 			{
-				FillDebugData(ex, instructionPtr - 1);
+				FillDebugData(ex, instructionPtr);
 
 
 				if (!(ex is ScriptRuntimeException)) throw;
@@ -232,9 +244,11 @@ namespace MoonSharp.Interpreter.Execution.VM
 						var argscnt = (int)(m_ValueStack.Pop().Number);
 						m_ValueStack.RemoveLast(argscnt + 1);
 
-						// +++ todo: add a *real* call to the error handler
+						var cbargs = new DynValue[] { DynValue.NewString(ex.DecoratedMessage) };
 
-						m_ValueStack.Push(DynValue.NewTuple(DynValue.False, DynValue.NewString(ex.DecoratedMessage)));
+						DynValue handled = csi.ErrorHandler.Invoke(new ScriptExecutionContext(this, csi.ErrorHandler), cbargs);
+
+						m_ValueStack.Push(handled);
 
 						goto repeat_execution;
 					}
@@ -250,14 +264,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 		return_to_native_code:
 			return m_ValueStack.Pop();
 
-		yield_to_calling_coroutine:
-
-			DynValue yieldRequest = m_ValueStack.Pop();
-
-			if (m_CanYield)
-				return yieldRequest;
-			else
-				throw ScriptRuntimeException.CannotYield();
 
 		}
 
@@ -666,12 +672,11 @@ namespace MoonSharp.Interpreter.Execution.VM
 				for (int ii = 0; ii < tcd.Args.Length; ii++)
 					m_ValueStack.Push(tcd.Args[ii]);
 
-				//instructionPtr -= 1;
 				return Internal_ExecCall(tcd.Args.Length, instructionPtr, tcd.ErrorHandler, tcd.Continuation);
 			}
 			else if (tail.Type == DataType.YieldRequest)
 			{
-				tail.YieldRequest.InstructionPtr = instructionPtr;
+				m_SavedInstructionPtr = instructionPtr;
 				return YIELD_SPECIAL_TRAP;
 			}
 

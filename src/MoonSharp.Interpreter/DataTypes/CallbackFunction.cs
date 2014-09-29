@@ -10,7 +10,7 @@ namespace MoonSharp.Interpreter
 	/// <summary>
 	/// This class wraps 
 	/// </summary>
-	public sealed class CallbackFunction
+	public sealed class CallbackFunction : RefIdObject
 	{
 		Func<ScriptExecutionContext, CallbackArguments, DynValue> m_CallBack;
 		private static InteropAccessMode m_DefaultAccessMode = InteropAccessMode.LazyOptimized;

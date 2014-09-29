@@ -7,7 +7,7 @@ using MoonSharp.Interpreter.Execution;
 namespace MoonSharp.Interpreter.CoreLib
 {
 	[MoonSharpModule(Namespace="math")]
-	public class MathModule
+	public class Bit32Module
 	{
 		[MoonSharpConstant]
 		public const double pi = Math.PI;

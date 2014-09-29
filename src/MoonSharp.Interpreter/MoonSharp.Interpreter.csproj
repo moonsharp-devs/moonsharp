@@ -81,6 +81,7 @@
     <Compile Include="CoreLib\BasicMethods.cs" />
     <Compile Include="CoreLib\ErrorHandling.cs" />
     <Compile Include="CoreLib\LoadMethods.cs" />
+    <Compile Include="CoreLib\Bit32Module.cs" />
     <Compile Include="CoreLib\MathModule.cs" />
     <Compile Include="CoreLib\MetaTableMethods.cs" />
     <Compile Include="CoreLib\Patterns\CaptureInfo.cs">
@@ -92,6 +93,7 @@
     <Compile Include="CoreLib\Patterns\PatternMatching.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="CoreLib\Patterns\StringRange.cs" />
     <Compile Include="CoreLib\StringModule.cs" />
     <Compile Include="CoreLib\TableIterators.cs" />
     <Compile Include="CoreLib\TableModule.cs" />
@@ -100,7 +102,9 @@
     <Compile Include="DataStructs\ITrackableReference.cs" />
     <Compile Include="DataStructs\LinkedListIndex.cs" />
     <Compile Include="DataStructs\Slice.cs" />
+    <Compile Include="DataTypes\Coroutine.cs" />
     <Compile Include="DataTypes\IScriptPrivateResource.cs" />
+    <Compile Include="DataTypes\RefIdObject.cs" />
     <Compile Include="DataTypes\TailCallData.cs" />
     <Compile Include="DataTypes\UserData.cs">
       <SubType>Code</SubType>

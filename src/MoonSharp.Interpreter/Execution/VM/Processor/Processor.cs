@@ -15,16 +15,12 @@ namespace MoonSharp.Interpreter.Execution.VM
 		FastStack<CallStackItem> m_ExecutionStack = new FastStack<CallStackItem>(131072);
 
 		Table m_GlobalTable;
-
-
 		Script m_Script;
 		Processor m_Parent = null;
-		List<Processor> m_Coroutines = null;
 		CoroutineState m_State;
 		bool m_CanYield = true;
 		int m_SavedInstructionPtr = -1;
 		DebugContext m_Debug;
-		int m_CoroutineIndex = 0;
 
 		public Processor(Script script, Table globalContext, ByteCode byteCode)
 		{
@@ -32,26 +28,20 @@ namespace MoonSharp.Interpreter.Execution.VM
 			m_RootChunk = byteCode;
 			m_GlobalTable = globalContext;
 			m_Script = script;
-			m_Coroutines = new List<Processor>();
 			m_State = CoroutineState.Main;
-			m_CoroutineIndex = 0;
-			m_Coroutines.Add(this);
+			DynValue.NewCoroutine(new Coroutine(this)); // creates an associated coroutine for the main processor
 		}
 
-		private Processor(Processor parentProcessor, int corIndex)
+		private Processor(Processor parentProcessor)
 		{
 			m_Debug = parentProcessor.m_Debug;
 			m_RootChunk = parentProcessor.m_RootChunk;
 			m_GlobalTable = parentProcessor.m_GlobalTable;
 			m_Script = parentProcessor.m_Script;
-			m_Coroutines = parentProcessor.m_Coroutines;
 			m_Parent = parentProcessor;
 			m_State = CoroutineState.NotStarted;
-			m_CoroutineIndex = corIndex;
 		}
-
-		
-
+	
 
 		public DynValue Call(DynValue function, DynValue[] args)
 		{

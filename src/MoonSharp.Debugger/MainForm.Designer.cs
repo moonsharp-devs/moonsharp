@@ -102,6 +102,8 @@
 			this.codeView = new MoonSharp.Debugger.SourceCodeDebugControl();
 			this.txtOutput = new System.Windows.Forms.TextBox();
 			this.timerFollow = new System.Windows.Forms.Timer(this.components);
+			this.btnFastHack = new System.Windows.Forms.ToolStripButton();
+			this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
 			this.menuStrip1.SuspendLayout();
 			this.toolStrip1.SuspendLayout();
 			this.splitContainer1.Panel1.SuspendLayout();
@@ -283,7 +285,9 @@
             this.toolStepIN,
             this.toolStripSeparator3,
             this.toolStripButton5,
-            this.btnFollow});
+            this.btnFollow,
+            this.toolStripSeparator5,
+            this.btnFastHack});
 			this.toolStrip1.Location = new System.Drawing.Point(0, 24);
 			this.toolStrip1.Name = "toolStrip1";
 			this.toolStrip1.Size = new System.Drawing.Size(1094, 25);
@@ -808,6 +812,21 @@
 			this.timerFollow.Interval = 15;
 			this.timerFollow.Tick += new System.EventHandler(this.timerFollow_Tick);
 			// 
+			// btnFastHack
+			// 
+			this.btnFastHack.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.btnFastHack.Image = ((System.Drawing.Image)(resources.GetObject("btnFastHack.Image")));
+			this.btnFastHack.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.btnFastHack.Name = "btnFastHack";
+			this.btnFastHack.Size = new System.Drawing.Size(130, 22);
+			this.btnFastHack.Text = "Open C:\\temp\\test.lua";
+			this.btnFastHack.Click += new System.EventHandler(this.btnFastHack_Click);
+			// 
+			// toolStripSeparator5
+			// 
+			this.toolStripSeparator5.Name = "toolStripSeparator5";
+			this.toolStripSeparator5.Size = new System.Drawing.Size(6, 25);
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -929,6 +948,8 @@
 		private System.Windows.Forms.ToolStripButton toolGoToCodeXStack;
 		private System.Windows.Forms.ToolStripButton btnFollow;
 		private System.Windows.Forms.Timer timerFollow;
+		private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
+		private System.Windows.Forms.ToolStripButton btnFastHack;
 
 
 	}

@@ -59,9 +59,12 @@ namespace MoonSharp.Interpreter.CoreLib
 			DynValue table = args.AsType(0, "next", DataType.Table);
 			DynValue index = args[1];
 
-			TablePair pair = table.Table.NextKey(index);
+			TablePair? pair = table.Table.NextKey(index);
 
-			return DynValue.NewTuple(pair.Key, pair.Value);
+			if (pair.HasValue)
+				return DynValue.NewTuple(pair.Value.Key, pair.Value.Value);
+			else
+				throw new ScriptRuntimeException("invalid key to 'next'");
 		}
 
 		// __next_i (table [, index])

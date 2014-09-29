@@ -239,9 +239,15 @@ namespace MoonSharp.Interpreter
 		/// Calls the specified function.
 		/// </summary>
 		/// <param name="function">The Lua/Moon# function to be called - callbacks are not supported.</param>
-		/// <returns></returns>
+		/// <returns>
+		/// The return value(s) of the function call.
+		/// </returns>
+		/// <exception cref="System.ArgumentException">Thrown if function is not of DataType.Function</exception>
 		public DynValue Call(DynValue function)
 		{
+			if (function.Type != DataType.Function)
+				throw new ArgumentException("function is not of DataType.Function");
+
 			return m_MainProcessor.Call(function, new DynValue[0]);
 		}
 
@@ -250,9 +256,15 @@ namespace MoonSharp.Interpreter
 		/// </summary>
 		/// <param name="function">The Lua/Moon# function to be called - callbacks are not supported.</param>
 		/// <param name="args">The arguments to pass to the function.</param>
-		/// <returns></returns>
+		/// <returns>
+		/// The return value(s) of the function call.
+		/// </returns>
+		/// <exception cref="System.ArgumentException">Thrown if function is not of DataType.Function</exception>
 		public DynValue Call(DynValue function, params DynValue[] args)
 		{
+			if (function.Type != DataType.Function)
+				throw new ArgumentException("function is not of DataType.Function");
+
 			return m_MainProcessor.Call(function, args);
 		}
 
@@ -261,18 +273,24 @@ namespace MoonSharp.Interpreter
 		/// </summary>
 		/// <param name="function">The Lua/Moon# function to be called - callbacks are not supported.</param>
 		/// <param name="args">The arguments to pass to the function.</param>
-		/// <returns></returns>
+		/// <returns>
+		/// The return value(s) of the function call.
+		/// </returns>
+		/// <exception cref="System.ArgumentException">Thrown if function is not of DataType.Function</exception>
 		public DynValue Call(DynValue function, params object[] args)
 		{
+			if (function.Type != DataType.Function)
+				throw new ArgumentException("function is not of DataType.Function");
+
 			return m_MainProcessor.Call(function, args.Select(v => DynValue.FromObject(this, v)).ToArray());
 		}
-
 
 		/// <summary>
 		/// Calls the specified function.
 		/// </summary>
 		/// <param name="function">The Lua/Moon# function to be called - callbacks are not supported.</param>
 		/// <returns></returns>
+		/// <exception cref="System.ArgumentException">Thrown if function is not of DataType.Function</exception>
 		public DynValue Call(object function)
 		{
 			return Call(DynValue.FromObject(this, function));
@@ -284,10 +302,43 @@ namespace MoonSharp.Interpreter
 		/// <param name="function">The Lua/Moon# function to be called - callbacks are not supported.</param>
 		/// <param name="args">The arguments to pass to the function.</param>
 		/// <returns></returns>
+		/// <exception cref="System.ArgumentException">Thrown if function is not of DataType.Function</exception>
 		public DynValue Call(object function, params object[] args)
 		{
 			return Call(DynValue.FromObject(this, function), args);
 		}
+
+		/// <summary>
+		/// Creates a coroutine pointing at the specified function.
+		/// </summary>
+		/// <param name="function">The function.</param>
+		/// <returns>
+		/// The coroutine handle.
+		/// </returns>
+		/// <exception cref="System.ArgumentException">Thrown if function is not of DataType.Function or DataType.ClrFunction</exception>
+		public DynValue CreateCoroutine(DynValue function)
+		{
+			if (function.Type == DataType.Function)
+				return m_MainProcessor.Coroutine_Create(function.Function);
+			else if (function.Type == DataType.ClrFunction)
+				return DynValue.NewCoroutine(new Coroutine(function.Callback));
+			else
+				throw new ArgumentException("function is not of DataType.Function or DataType.ClrFunction");
+		}
+
+		/// <summary>
+		/// Creates a coroutine pointing at the specified function.
+		/// </summary>
+		/// <param name="function">The function.</param>
+		/// <returns>
+		/// The coroutine handle.
+		/// </returns>
+		/// <exception cref="System.ArgumentException">Thrown if function is not of DataType.Function or DataType.ClrFunction</exception>
+		public DynValue CreateCoroutine(object function)
+		{
+			return CreateCoroutine(DynValue.FromObject(this, function));
+		}
+
 
 		/// <summary>
 		/// Gets the main chunk function.

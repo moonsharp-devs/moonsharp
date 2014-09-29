@@ -14,13 +14,18 @@ namespace MoonSharp.Interpreter.CoreLib
 		[MoonSharpMethod]
 		public static DynValue create(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
-			DynValue v = args.AsType(0, "create", DataType.Function);
-			return executionContext.CoroutineCreate(v.Function);
+			if (args[0].Type != DataType.Function && args[0].Type != DataType.ClrFunction)
+				args.AsType(0, "create", DataType.Function); // this throws
+
+			return executionContext.GetScript().CreateCoroutine(args[0]);
 		}
 
 		[MoonSharpMethod]
 		public static DynValue wrap(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
+			if (args[0].Type != DataType.Function && args[0].Type != DataType.ClrFunction)
+				args.AsType(0, "wrap", DataType.Function); // this throws
+
 			DynValue v = create(executionContext, args);
 			DynValue c = DynValue.NewCallback(__wrap_wrapper);
 			c.Callback.Closure = new Table(executionContext.GetScript());
@@ -28,13 +33,11 @@ namespace MoonSharp.Interpreter.CoreLib
 			return c;
 		}
 
-
 		public static DynValue __wrap_wrapper(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			DynValue handle = executionContext.Closure.Get("_HANDLE");
-			return executionContext.CoroutineResume(handle, args.List.ToArray());
+			return handle.Coroutine.Resume(args.List.ToArray());
 		}
-
 
 		[MoonSharpMethod]
 		public static DynValue resume(ScriptExecutionContext executionContext, CallbackArguments args)
@@ -43,7 +46,7 @@ namespace MoonSharp.Interpreter.CoreLib
 
 			try
 			{
-				DynValue ret = executionContext.CoroutineResume(handle, args.List.Skip(1).ToArray());
+				DynValue ret = handle.Coroutine.Resume(args.List.Skip(1).ToArray());
 
 				List<DynValue> retval = new List<DynValue>();
 				retval.Add(DynValue.True);
@@ -74,25 +77,22 @@ namespace MoonSharp.Interpreter.CoreLib
 		[MoonSharpMethod]
 		public static DynValue running(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
-			DynValue handle = executionContext.CoroutineRunning();
-			CoroutineState cs = executionContext.CoroutineGetState(handle);
-
-			return DynValue.NewTuple(
-				handle,
-				DynValue.NewBoolean(cs == CoroutineState.Main));
+			Coroutine C = executionContext.GetCallingCoroutine();
+			return DynValue.NewTuple(DynValue.NewCoroutine(C), DynValue.NewBoolean(C.State == CoroutineState.Main));
 		}
 
 		[MoonSharpMethod]
 		public static DynValue status(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			DynValue handle = args.AsType(0, "status", DataType.Thread);
-			CoroutineState cs = executionContext.CoroutineGetState(handle);
+			Coroutine running = executionContext.GetCallingCoroutine();
+			CoroutineState cs = handle.Coroutine.State;
 
 			switch (cs)
 			{
 				case CoroutineState.Main:
 				case CoroutineState.Running:
-					return (executionContext.CoroutineIsRunning(handle)) ?
+					return (handle.Coroutine == running) ?
 						DynValue.NewString("running") :
 						DynValue.NewString("normal");
 				case CoroutineState.NotStarted:
