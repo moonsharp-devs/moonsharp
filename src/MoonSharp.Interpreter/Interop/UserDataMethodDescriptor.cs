@@ -48,9 +48,21 @@ namespace MoonSharp.Interpreter.Interop
 
 			object[] pars = new object[m_Arguments.Length];
 
-			for (int i = 0; i < pars.Length; i++)
+			for (int i = 0, j = 0; i < pars.Length; i++)
 			{
-				pars[i] = ConversionHelper.MoonSharpValueToObjectOfType(args[i], m_Arguments[i], m_Defaults[i]);
+				if (m_Arguments[i] == typeof(Script))
+				{
+					pars[i] = script;
+				}
+				else if (m_Arguments[i] == typeof(ScriptExecutionContext))
+				{
+					pars[i] = context;
+				}
+				else
+				{
+					pars[i] = ConversionHelper.MoonSharpValueToObjectOfType(args[j], m_Arguments[i], m_Defaults[i]);
+					j++;
+				}
 			}
 
 

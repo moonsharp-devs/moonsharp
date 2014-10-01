@@ -422,5 +422,15 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			Assert.AreEqual(obj, S.Globals["myobj"]);
 			Assert.AreEqual(19, obj.IntProp);
 		}
+
+		[Test]
+		public void Interop_Boh()
+		{
+			Script s = new Script();
+			long big = long.MaxValue;
+			var v = DynValue.FromObject(s, big);
+			int a = 3;
+		}
+
 	}
 }

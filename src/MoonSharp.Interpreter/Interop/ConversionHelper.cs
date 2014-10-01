@@ -153,10 +153,6 @@ namespace MoonSharp.Interpreter.Interop
 			return t;
 		}
 
-
-
-
-
 		internal static object MoonSharpValueToClrObject(DynValue value)
 		{
 			switch (value.Type)
@@ -176,7 +172,12 @@ namespace MoonSharp.Interpreter.Interop
 				case DataType.Tuple:
 					return value.Tuple;
 				case DataType.UserData:
-					return value.UserData.Object;
+					if (value.UserData.Object != null)
+						return value.UserData.Object;
+					else if (value.UserData.Descriptor != null)
+						return value.UserData.Descriptor.Type;
+					else
+						return null;
 				case DataType.ClrFunction:
 					return value.Callback;
 				default:
@@ -184,36 +185,43 @@ namespace MoonSharp.Interpreter.Interop
 			}
 		}
 
-		internal static object MoonSharpValueToObjectOfType(DynValue value, Type t, object defaultValue)
+		internal static object MoonSharpValueToObjectOfType(DynValue value, Type desiredType, object defaultValue)
 		{
-			if (t == typeof(DynValue))
+			if (desiredType == typeof(DynValue))
 				return value;
 
-			if (t == typeof(object))
+			if (desiredType == typeof(object))
 				return value.ToObject();
 
 			bool isString = false;
 			bool isStringBuilder = false;
 			bool isChar = false;
 
-			if (t == typeof(string))
+			if (desiredType == typeof(string))
 				isString = true;
-			else if (t == typeof(StringBuilder))
+			else if (desiredType == typeof(StringBuilder))
 				isStringBuilder = true;
-			else if (t == typeof(char) && value.String.Length > 0)
+			else if (desiredType == typeof(char) && value.String.Length > 0)
 				isChar = true;
 
 			bool isAnyString = isString || isStringBuilder || isChar;
 			string str = null;
 
+			Type nt = Nullable.GetUnderlyingType(desiredType);
+			Type nullableType = null;
+
+			if (nt != null)
+			{
+				nullableType = desiredType;
+				desiredType = nt;
+			}
+
 			switch (value.Type)
 			{
 				case DataType.Nil:
-					if (t.IsValueType)
+					if (desiredType.IsValueType)
 					{
-						Type nt = Nullable.GetUnderlyingType(t);
-						
-						if (nt != null)
+						if (nullableType != null)
 							return null;
 
 						if (defaultValue != null)
@@ -225,14 +233,14 @@ namespace MoonSharp.Interpreter.Interop
 					}
 					break;
 				case DataType.Boolean:
-					if (t == typeof(bool))
+					if (desiredType == typeof(bool))
 						return value.Boolean;
 					if (isAnyString)
 						str = value.Boolean.ToString();
 					break;
 				case DataType.Number:
-					if (NumericTypes.Contains(t))
-						return DoubleToType(t, value.Number);
+					if (NumericTypes.Contains(desiredType))
+						return DoubleToType(desiredType, value.Number);
 					if (isAnyString)
 						str = value.Number.ToString();
 					break;
@@ -241,26 +249,26 @@ namespace MoonSharp.Interpreter.Interop
 						str = value.String;
 					break;
 				case DataType.Function:
-					if (t == typeof(Closure)) return value.Function;
+					if (desiredType == typeof(Closure)) return value.Function;
 					break;
 				case DataType.ClrFunction:
-					if (t == typeof(CallbackFunction)) return value.Callback;
+					if (desiredType == typeof(CallbackFunction)) return value.Callback;
 					break;
 				case DataType.UserData:
 					if (value.UserData.Object != null)
 					{
-						if (t.IsInstanceOfType(value.UserData.Object))
+						if (desiredType.IsInstanceOfType(value.UserData.Object))
 							return value.UserData.Object;
 						if (isAnyString)
 							str = value.UserData.Object.ToString();
 					}
 					break;
 				case DataType.Table:
-					if (t == typeof(Table) || t.IsAssignableFrom(typeof(Table)))
+					if (desiredType == typeof(Table) || desiredType.IsAssignableFrom(typeof(Table)))
 						return value.Table;
 					else
 					{
-						object o = ConvertTableToType(value.Table, t);
+						object o = ConvertTableToType(value.Table, desiredType);
 						if (o != null)
 							return o;
 					}
@@ -279,7 +287,7 @@ namespace MoonSharp.Interpreter.Interop
 					return str[0];
 			}
 
-			throw ScriptRuntimeException.ConvertObjectFailed(value.Type, t);
+			throw ScriptRuntimeException.ConvertObjectFailed(value.Type, desiredType);
 		}
 
 		private static object ConvertTableToType(Table table, Type t)

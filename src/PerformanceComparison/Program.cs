@@ -25,7 +25,7 @@ namespace PerformanceComparison
 			function move(n, src, dst, via)
 				if n > 0 then
 					move(n - 1, src, via, dst)
-					print(src, 'to', dst)
+					--print(src, 'to', dst)
 					move(n - 1, via, dst, src)
 				end
 			end
@@ -168,7 +168,7 @@ end
 			sw = Stopwatch.StartNew();
 			for (int i = 0; i < ITERATIONS; i++)
 			{
-				//fn.Call();
+				fn.Call();
 			}
 			sw.Stop();
 
@@ -178,11 +178,11 @@ end
 
 			Console.WriteLine("M# == NL ? {0}", g_MoonSharpStr.ToString() == g_NLuaStr.ToString());
 
-			//Console.WriteLine("=== Moon# ===");
-			//Console.WriteLine(g_MoonSharpStr.ToString());
-			//Console.WriteLine("");
-			//Console.WriteLine("=== NLua  ===");
-			//Console.WriteLine(g_NLuaStr.ToString());
+			Console.WriteLine("=== Moon# ===");
+			Console.WriteLine(g_MoonSharpStr.ToString());
+			Console.WriteLine("");
+			Console.WriteLine("=== NLua  ===");
+			Console.WriteLine(g_NLuaStr.ToString());
 
 			Console.ReadKey();
 		}

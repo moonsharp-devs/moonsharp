@@ -134,6 +134,9 @@ namespace MoonSharp.Interpreter.Execution.VM
 				return SymbolRef.Global(name, env);
 			}
 
+			// reminder: good code never reaches here, except when debugger peeks others' affairs
+			// +++
+
 			return null;
 		}
 

@@ -102,6 +102,27 @@ namespace MoonSharp.Interpreter.Tests
 		}
 
 		[Test]
+		public void FunctionCallWrappers()
+		{
+			string script = @"    
+				function boh(x) 
+					return 1912 + x;
+				end
+			";
+
+			Script s = new Script();
+			s.DoString(script);
+
+			DynValue res = s.Globals.Get("boh").Function.Call(82);
+
+			Assert.AreEqual(DataType.Number, res.Type);
+			Assert.AreEqual(1994, res.Number);
+		}
+
+
+
+
+		[Test]
 		public void OperatorSimple()
 		{
 			string script = @"return 6*7";

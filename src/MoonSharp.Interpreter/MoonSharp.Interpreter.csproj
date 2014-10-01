@@ -147,6 +147,7 @@
     <Compile Include="Interface\IteratorHelper.cs" />
     <Compile Include="Interop\ConversionHelper.cs" />
     <Compile Include="Interop\EnumerableWrapper.cs" />
+    <Compile Include="Interop\LinqHelpers.cs" />
     <Compile Include="Interop\MoonSharpUserDataAttribute.cs" />
     <Compile Include="Interop\MoonSharpVisibleAttribute.cs" />
     <Compile Include="Interop\UserDataDelegateDescriptor.cs" />

@@ -738,6 +738,14 @@ namespace MoonSharp.Interpreter
 			return MoonSharp.Interpreter.Interop.ConversionHelper.MoonSharpValueToClrObject(this);
 		}
 
+		/// <summary>
+		/// Converts this Moon# DynValue to a CLR object of the specified type.
+		/// </summary>
+		public T ToObject<T>()
+		{
+			return (T)MoonSharp.Interpreter.Interop.ConversionHelper.MoonSharpValueToObjectOfType(this, typeof(T), null);
+		}
+
 	}
 
 

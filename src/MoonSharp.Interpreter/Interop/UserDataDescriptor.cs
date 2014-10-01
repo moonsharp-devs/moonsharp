@@ -84,7 +84,7 @@ namespace MoonSharp.Interpreter.Interop
 		{
 			if (m_Properties.ContainsKey(idxname))
 			{
-				object o = ConversionHelper.MoonSharpValueToClrObject(value);
+				object o = ConversionHelper.MoonSharpValueToObjectOfType(value, m_Properties[idxname].PropertyInfo.PropertyType, null);
 				m_Properties[idxname].SetValue(obj, o, value.Type);
 			}
 			else

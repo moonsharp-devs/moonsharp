@@ -41,9 +41,10 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 				return p7;
 			}
 
-			public StringBuilder ConcatI(int p1, string p2, IComparable p3, bool p4, List<object> p5, IEnumerable<object> p6,
+			public StringBuilder ConcatI(Script s, int p1, string p2, IComparable p3, bool p4, List<object> p5, IEnumerable<object> p6,
 				StringBuilder p7, Dictionary<object, object> p8, SomeClass p9, int p10 = 1912)
 			{
+				Assert.IsNotNull(s);
 				return ConcatS(p1, p2, p3, p4, p5, p6, p7, p8, this, p10);
 			}
 
