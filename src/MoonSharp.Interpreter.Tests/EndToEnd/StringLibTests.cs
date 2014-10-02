@@ -91,6 +91,41 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			DynValue res = Script.RunString(script);
 			Utils.DynAssert(res, null);
 		}
+		[Test]
+		public void String_Find_9()
+		{
+			string script = @"
+				s = 'Deadline is 30/05/1999, firm'
+				date = '%d%d/%d%d/%d%d%d%d';
+				return s:sub(s:find(date));
+			";
+			DynValue res = Script.RunString(script);
+			Utils.DynAssert(res, "30/05/1999");
+		}
+
+		[Test]
+		public void String_Find_10()
+		{
+			string script = @"
+				s = 'Deadline is 30/05/1999, firm'
+				date = '%f[%S]%d%d/%d%d/%d%d%d%d';
+				return s:sub(s:find(date));
+			";
+			DynValue res = Script.RunString(script);
+			Utils.DynAssert(res, "30/05/1999");
+		}
+
+		[Test]
+		public void String_Find_11()
+		{
+			string script = @"
+				s = 'Deadline is 30/05/1999, firm'
+				date = '%f[%s]%d%d/%d%d/%d%d%d%d';
+				return s:sub(s:find(date));
+			";
+			DynValue res = Script.RunString(script);
+			Assert.IsTrue(res.IsNil());
+		}
 
 
 		[Test]

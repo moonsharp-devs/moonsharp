@@ -18,6 +18,37 @@ namespace MoonSharp.Interpreter.CoreLib
 		}
 
 		[MoonSharpMethod]
+		public static DynValue @char(ScriptExecutionContext executionContext, CallbackArguments args)
+		{
+			StringBuilder sb = new StringBuilder(args.Count);
+
+			for (int i = 0; i < args.Count; i++)
+			{
+				DynValue v = args[i];
+				double d = 0d;
+
+				if (v.Type == DataType.String)
+				{
+					double? nd = v.CastToNumber();
+					if (nd == null)
+						args.AsType(i, "char", DataType.Number, false);
+					else
+						d = nd.Value;
+				}
+				else
+				{
+					args.AsType(i, "char", DataType.Number, false);
+					d = v.Number;
+				}
+
+				sb.Append((char)(d));
+			}
+
+			return DynValue.NewString(sb.ToString());
+		}
+
+
+		[MoonSharpMethod]
 		public static DynValue @byte(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			DynValue vs = args.AsType(0, "byte", DataType.String, false);
@@ -48,22 +79,15 @@ namespace MoonSharp.Interpreter.CoreLib
 
 		private static DynValue PerformByteLike(DynValue vs, DynValue vi, DynValue vj, Func<int, int> filter)
 		{
-			string s = vs.String;
-            int conv_i = vi.IsNil() ? 1 : (int)vi.Number;
-            int conv_j = vj.IsNil() ? conv_i : (int)vj.Number;
+            StringRange range = StringRange.FromLuaRange(vi, vj, null);
+            string s = range.ApplyToString(vs.String);
 
-            StringRange range = StringRange.FromLuaRange(conv_i, conv_j);
-            range.MapToString(vs.String);
-
-            if ((range.Start >= vs.String.Length) || (range.End < range.Start))
-                return DynValue.Nil;
-
-            int length = range.Length();
+            int length = s.Length;
 			DynValue[] rets = new DynValue[length];
 
             for (int i = 0; i < length; ++i)
             {
-                rets[i] = DynValue.NewNumber(filter((int)s[range.Start + i]));
+                rets[i] = DynValue.NewNumber(filter((int)s[i]));
             }
 
 			return DynValue.NewTuple(rets);
@@ -134,26 +158,13 @@ namespace MoonSharp.Interpreter.CoreLib
 			DynValue v_i = args.AsType(2, "find", DataType.Number, true);
 			DynValue v_plain = args.AsType(3, "find", DataType.Boolean, true);
 
-			int i = v_i.IsNilOrNan() ? int.MinValue : (int)v_i.Number;
+			int i = v_i.IsNilOrNan() ? 1 : (int)v_i.Number;
 
 			bool plain = v_plain.CastToBool();
 
 			return PatternMatching.Str_Find(v_s.String, v_p.String, i, plain);
 		}
 
-        [MoonSharpMethod]
-        public static DynValue @char(ScriptExecutionContext executionContext, CallbackArguments args)
-        {
-            StringBuilder result = new StringBuilder(args.Count);
-
-            for (int i = 0; i < args.Count; ++i)
-            {
-                DynValue value = args.AsType(i, "char", DataType.Number, false);
-                result.Append((char)value.Number);
-            }
-
-            return DynValue.NewString(result.ToString());
-        }
 
         [MoonSharpMethod]
         public static DynValue lower(ScriptExecutionContext executionContext, CallbackArguments args)
@@ -226,14 +237,9 @@ namespace MoonSharp.Interpreter.CoreLib
             DynValue arg_j = args.AsType(2, "sub", DataType.Number, true);
 
 			StringRange range = StringRange.FromLuaRange(arg_i, arg_j, -1);
-            range.MapToString(arg_s.String);
+            string s = range.ApplyToString(arg_s.String);
 
-            if ((range.Start >= arg_s.String.Length) || (range.End < range.Start))
-            {
-                return DynValue.NewString("");
-            }
-
-            return DynValue.NewString(arg_s.String.Substring(range.Start, range.Length()));
+            return DynValue.NewString(s);
         }
 	}
 

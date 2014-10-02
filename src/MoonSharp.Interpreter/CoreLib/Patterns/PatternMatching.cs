@@ -105,6 +105,14 @@ namespace MoonSharp.Interpreter.CoreLib.Patterns
 		private static bool MatchClass(char c, char cl)
 		{
 			bool res;
+			bool reverse = false;
+
+			if (char.IsUpper(cl))
+			{
+				cl = char.ToLower(cl);
+				reverse = true;
+			}
+
 			switch (cl)
 			{
 				case 'a': res = Char.IsLetter(c); break;
@@ -120,7 +128,9 @@ namespace MoonSharp.Interpreter.CoreLib.Patterns
 				case 'z': res = (c == '\0'); break;  /* deprecated option */
 				default: return (cl == c);
 			}
-			return res;
+
+			if (reverse) return !res;
+			else return res;
 		}
 
 		private static bool MatchBreaketClass(MatchState ms, char c, int p, int ec)
@@ -305,7 +315,7 @@ namespace MoonSharp.Interpreter.CoreLib.Patterns
 							case 'f': // frontier?
 								{
 									p += 2;
-									if (ms.Pattern[p] != '[')
+									if (p >= ms.Pattern.Length || ms.Pattern[p] != '[')
 										throw new ScriptRuntimeException("missing '[' after '%f' in pattern");
 									int ep = ClassEnd(ms, p); //points to what is next
 									char previous = (s == ms.SrcInit) ? '\0' : ms.Src[s - 1];

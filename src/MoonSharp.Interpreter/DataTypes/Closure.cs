@@ -52,6 +52,15 @@ namespace MoonSharp.Interpreter
 				ClosureContext = emptyClosure;
 		}
 
+		/// <summary>
+		/// Calls this function with the specified args
+		/// </summary>
+		/// <returns></returns>
+		/// <exception cref="System.ArgumentException">Thrown if function is not of DataType.Function</exception>
+		public DynValue Call()
+		{
+			return OwnerScript.Call(this);
+		}
 
 		/// <summary>
 		/// Calls this function with the specified args
