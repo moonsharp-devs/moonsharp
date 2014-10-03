@@ -10,7 +10,7 @@ All rights reserved.
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
 are met:
-
+ 
 1. Redistributions of source code must retain the above copyright
    notice, this list of conditions and the following disclaimer.
 2. Redistributions in binary form must reproduce the above copyright
@@ -80,6 +80,7 @@ label
     : '::' NAME '::'
     ;
 
+// this is an addition
 funcnametableaccessor 
 	: ('.' NAME);
 
@@ -99,21 +100,47 @@ explist
     : exp (',' exp)*
     ;
 
-exp
-    : 'nil' | 'false' | 'true' | number | string		
+expterm 
+	: 'nil' | 'false' | 'true' | number | string		
 	| vararg
 	| anonfunctiondef								
-    | prefixexp										
-	| tableconstructor								
-	| <assoc=right> exp operatorPower exp			
-	| operatorUnary exp								
-	| exp operatorMulDivMod exp		
-	| exp operatorAddSub exp						
-	| <assoc=right> exp operatorStrcat exp			
-	| exp operatorComparison exp					
-	| exp operatorAnd exp							
-	| exp operatorOr exp	
+    | prefixexp										 
+	| tableconstructor
 	;
+	
+powerExp 
+	: expterm 													#exp_powerfallback
+	| expterm operatorPower powerExp							#exp_power
+	;
+unaryExp 
+	: powerExp 													#exp_unaryfallback
+	| operatorUnary unaryExp									#exp_unary
+	;
+muldivExp 
+	: unaryExp 													#exp_muldivfallback
+	| unaryExp operatorMulDivMod muldivExp						#exp_muldiv
+	;
+addsubExp 
+	: muldivExp 												#exp_addsubfallback
+	| muldivExp operatorAddSub addsubExp						#exp_addsub
+	;
+strcatExp 	
+	: addsubExp 												#exp_strcastfallback
+	| addsubExp operatorStrcat strcatExp						#exp_strcat
+	;
+compareExp 
+	: strcatExp 												#exp_comparefallback
+	| strcatExp operatorComparison compareExp                   #exp_compare
+	;
+logicAndExp 
+	: compareExp 												#exp_logicAndfallback
+	| compareExp operatorAnd logicAndExp                        #exp_logicAnd
+	;
+exp 
+	: logicAndExp 												#exp_logicOrfallback
+	| logicAndExp operatorOr exp								#exp_logicOr
+	;
+
 
 var
     : (NAME | '(' exp ')' varSuffix) varSuffix*
@@ -149,13 +176,13 @@ anonfunctiondef
     : 'function' funcbody
     ;
 
-lambdaexp
-	: '[' parlist ':' exp ']'
-	;
+//lambdaexp
+//	: '[' parlist ':' exp ']'
+//	;
 
-lambdastat
-	: '[' parlist ':' 'do' block 'end' ']'
-	;
+//lambdastat
+//	: '[' parlist ':' 'do' block 'end' ']'
+//	;
 
 // A func body from the parlist to end. 
 funcbody

@@ -25,7 +25,7 @@ namespace PerformanceComparison
 			function move(n, src, dst, via)
 				if n > 0 then
 					move(n - 1, src, via, dst)
-					--print(src, 'to', dst)
+					print(src, 'to', dst)
 					move(n - 1, via, dst, src)
 				end
 			end
@@ -81,7 +81,7 @@ if Find_Solution( 1 ) then
 else
     --print( 'NO!' )
 end
- 
+  
 			";
 		static StringBuilder g_MoonSharpStr = new StringBuilder();
 		static StringBuilder g_NLuaStr = new StringBuilder();
@@ -118,7 +118,7 @@ end
 		static Lua lua = new Lua();
 		static string testString = "world";
 
-		static void Main(string[] args)
+		static void xxMain(string[] args)
 		{
 			Stopwatch sw;
 
@@ -179,10 +179,10 @@ end
 			Console.WriteLine("M# == NL ? {0}", g_MoonSharpStr.ToString() == g_NLuaStr.ToString());
 
 			Console.WriteLine("=== Moon# ===");
-			Console.WriteLine(g_MoonSharpStr.ToString());
+			//Console.WriteLine(g_MoonSharpStr.ToString());
 			Console.WriteLine("");
 			Console.WriteLine("=== NLua  ===");
-			Console.WriteLine(g_NLuaStr.ToString());
+			//Console.WriteLine(g_NLuaStr.ToString());
 
 			Console.ReadKey();
 		}

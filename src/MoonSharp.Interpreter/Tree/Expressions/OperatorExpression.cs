@@ -24,6 +24,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 		}
 
 		static HashSet<Type> s_OperatorTypes = new HashSet<Type>();
+		static HashSet<Type> s_LeftAssocOperatorTypes = new HashSet<Type>();
 
 		static OperatorExpression()
 		{
@@ -35,28 +36,71 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			s_OperatorTypes.Add(typeof(LuaParser.OperatorMulDivModContext));
 			s_OperatorTypes.Add(typeof(LuaParser.OperatorUnaryContext));
 			s_OperatorTypes.Add(typeof(LuaParser.OperatorPowerContext));
+
+			s_LeftAssocOperatorTypes.Add(typeof(LuaParser.Exp_logicOrContext));
+			s_LeftAssocOperatorTypes.Add(typeof(LuaParser.Exp_logicAndContext));
+			s_LeftAssocOperatorTypes.Add(typeof(LuaParser.Exp_compareContext));
+			s_LeftAssocOperatorTypes.Add(typeof(LuaParser.Exp_addsubContext));
+			s_LeftAssocOperatorTypes.Add(typeof(LuaParser.Exp_muldivContext));
 		}
 
+		bool m_IsUnary = false;
 		Operator m_Operator;
-		Expression m_Exp1 = null;
-		Expression m_Exp2 = null;
+		Expression m_Exp1;
+		Expression m_Exp2;
+		List<Expression> m_Exps;
+		List<Operator> m_Ops;
 
-		public OperatorExpression(LuaParser.ExpContext tree, ScriptLoadingContext lcontext)
+		public OperatorExpression(IParseTree tree, ScriptLoadingContext lcontext)
 			: base(tree, lcontext)
 		{
-			if (s_OperatorTypes.Contains(tree.GetChild(0).GetType()))
+			var child0 = tree.GetChild(0);
+
+			if (s_OperatorTypes.Contains(child0.GetType()))
 			{
 				// unary op
 				SyntaxAssert(tree.ChildCount == 2, "Unexpected node found");
-				m_Operator = ParseUnaryOperator(tree.GetChild(0));
+				m_Operator = ParseUnaryOperator(child0);
 				m_Exp1 = NodeFactory.CreateExpression(tree.GetChild(1), lcontext);
+				m_IsUnary = true;
+			}
+			else if (s_LeftAssocOperatorTypes.Contains(tree.GetType()))
+			{
+				// binary right associative op or simple left associative
+				IParseTree child2 = tree.GetChild(2);
+
+				if(child2.GetType() == tree.GetType())
+				{
+					m_Exps = new List<Expression>();
+					m_Ops = new List<Operator>();
+
+					m_Operator = ParseBinaryOperator(tree.GetChild(1));
+
+					while (child2.GetType() == tree.GetType())
+					{
+						m_Exps.Add(NodeFactory.CreateExpression(child2.GetChild(0), lcontext));
+						m_Ops.Add(m_Operator);
+						m_Operator = ParseBinaryOperator(child2.GetChild(1));
+						child2 = child2.GetChild(2);
+					}
+
+					m_Exp1 = NodeFactory.CreateExpression(child0, lcontext);
+					m_Exp2 = NodeFactory.CreateExpression(child2, lcontext);
+				}
+				else
+				{
+					SyntaxAssert(tree.ChildCount == 3, "Unexpected node found");
+					m_Operator = ParseBinaryOperator(tree.GetChild(1));
+					m_Exp1 = NodeFactory.CreateExpression(child0, lcontext);
+					m_Exp2 = NodeFactory.CreateExpression(child2, lcontext);
+				}
 			}
 			else
 			{
-				// binary op
+				// binary right associative op or simple left associative
 				SyntaxAssert(tree.ChildCount == 3, "Unexpected node found");
 				m_Operator = ParseBinaryOperator(tree.GetChild(1));
-				m_Exp1 = NodeFactory.CreateExpression(tree.GetChild(0), lcontext);
+				m_Exp1 = NodeFactory.CreateExpression(child0, lcontext);
 				m_Exp2 = NodeFactory.CreateExpression(tree.GetChild(2), lcontext);
 			}
 
@@ -131,33 +175,51 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 		{
 			m_Exp1.Compile(bc);
 
-			if (m_Operator == Operator.Or)
+			if (m_Exps != null)
+			{
+				for (int i = 0; i < m_Ops.Count; i++)
+				{
+					CompileOp(bc, m_Ops[i], m_Exps[i]);
+				}
+			}
+
+			{
+				CompileOp(bc, m_Operator, m_Exp2);
+			}
+
+		}
+
+		private void CompileOp(Execution.VM.ByteCode bc, Operator op, Expression exp)
+		{
+			if (op == Operator.Or)
 			{
 				Instruction i = bc.Emit_Jump(OpCode.JtOrPop, -1);
-				m_Exp2.Compile(bc);
+				exp.Compile(bc);
 				i.NumVal = bc.GetJumpPointForNextInstruction();
 				return;
 			}
 
-			if (m_Operator == Operator.And)
+			if (op == Operator.And)
 			{
 				Instruction i = bc.Emit_Jump(OpCode.JfOrPop, -1);
-				m_Exp2.Compile(bc);
+				exp.Compile(bc);
 				i.NumVal = bc.GetJumpPointForNextInstruction();
 				return;
 			}
-			
 
-			if (m_Exp2 != null)
+
+			if (exp != null)
 			{
-				m_Exp2.Compile(bc);
+				exp.Compile(bc);
 			}
 
-			bc.Emit_Operator(OperatorToOpCode(m_Operator));
+			bc.Emit_Operator(OperatorToOpCode(op));
 
-			if (ShouldInvertBoolean(m_Operator))
+			if (ShouldInvertBoolean(op))
 				bc.Emit_Operator(OpCode.Not);
 		}
+
+
 
 		private bool ShouldInvertBoolean(Operator op)
 		{

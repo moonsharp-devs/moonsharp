@@ -1,4 +1,4 @@
-﻿#define DEBUG_COMPILER
+﻿//#define DEBUG_COMPILER
 
 using System;
 using System.Collections.Generic;
@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Antlr4.Runtime;
+using Antlr4.Runtime.Atn;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
 using MoonSharp.Interpreter.Diagnostics;
@@ -87,19 +88,19 @@ namespace MoonSharp.Interpreter.Tree
 		[Conditional("DEBUG_COMPILER")]
 		private static void Debug_DumpByteCode(ByteCode bytecode, int sourceIdx)
 		{
-			bytecode.Dump(string.Format(@"c:\temp\codedump_{0}.txt", sourceIdx));
+			//bytecode.Dump(string.Format(@"c:\temp\codedump_{0}.txt", sourceIdx));
 		}
 
 		[Conditional("DEBUG_COMPILER")]
 		private static void Debug_DumpAst(LuaParser parser, int sourceIdx, Func<LuaParser, IParseTree> dumper)
 		{
-			try
-			{
-				AstDump astDump = new AstDump();
-				astDump.DumpTree(dumper(parser), string.Format(@"c:\temp\treedump_{0:000}.txt", sourceIdx));
-			}
-			catch { }
-			parser.Reset();
+			//try
+			//{
+			//	AstDump astDump = new AstDump();
+			//	astDump.DumpTree(dumper(parser), string.Format(@"c:\temp\treedump_{0:000}.txt", sourceIdx));
+			//}
+			//catch { }
+			//parser.Reset();
 		}
 
 
@@ -121,11 +122,16 @@ namespace MoonSharp.Interpreter.Tree
 			//using (var _ = new CodeChrono("ChunkStatement.LoadFromICharStream/Parsing"))
 			{
 				lexer = new LuaLexer(charStream);
-				parser = new LuaParser(new CommonTokenStream(lexer));
-				parser.ErrorHandler = new BailErrorStrategy();
+				parser = new LuaParser(new CommonTokenStream(lexer))
+				{
+					ErrorHandler = new BailErrorStrategy(),
+				};
+
+				parser.Interpreter.PredictionMode = PredictionMode.Sll;
 			}
 
-			Debug_DumpAst(parser, sourceIdx, dumper);
+			//Debug_DumpAst(parser, sourceIdx, dumper);
+
 
 			return parser;
 		}

@@ -246,6 +246,7 @@
       <CustomToolNamespace>MoonSharp.Interpreter.Grammar</CustomToolNamespace>
       <Listener>False</Listener>
       <Visitor>False</Visitor>
+      <ForceAtn>False</ForceAtn>
     </Antlr4>
   </ItemGroup>
   <ItemGroup>

@@ -75,28 +75,32 @@ namespace MoonSharp.Interpreter.Tree
 
 
 
-		private static Expression CreateFromExpContext(LuaParser.ExpContext tree, ScriptLoadingContext lcontext)
+		public static Expression CreateExpression(IParseTree tree, ScriptLoadingContext lcontext)
 		{
-			if (OperatorExpression.IsOperatorExpression(tree))
+			// flatten tree for operators precedence 
+			if (tree is LuaParser.Exp_logicOrfallbackContext) tree = ((LuaParser.Exp_logicOrfallbackContext)tree).logicAndExp();
+			if (tree is LuaParser.Exp_logicAndfallbackContext) tree = ((LuaParser.Exp_logicAndfallbackContext)tree).compareExp();
+			if (tree is LuaParser.Exp_comparefallbackContext) tree = ((LuaParser.Exp_comparefallbackContext)tree).strcatExp();
+			if (tree is LuaParser.Exp_strcastfallbackContext) tree = ((LuaParser.Exp_strcastfallbackContext)tree).addsubExp();
+			if (tree is LuaParser.Exp_addsubfallbackContext) tree = ((LuaParser.Exp_addsubfallbackContext)tree).muldivExp();
+			if (tree is LuaParser.Exp_muldivfallbackContext) tree = ((LuaParser.Exp_muldivfallbackContext)tree).unaryExp();
+			if (tree is LuaParser.Exp_unaryfallbackContext) tree = ((LuaParser.Exp_unaryfallbackContext)tree).powerExp();
+			if (tree is LuaParser.Exp_powerfallbackContext) tree = ((LuaParser.Exp_powerfallbackContext)tree).expterm();
+			if (tree is LuaParser.ExptermContext) tree = tree.GetChild(0);
+
+			if (tree is LuaParser.Exp_addsubContext ||
+				tree is LuaParser.Exp_compareContext ||
+				tree is LuaParser.Exp_logicAndContext ||
+				tree is LuaParser.Exp_logicOrContext ||
+				tree is LuaParser.Exp_muldivContext ||
+				tree is LuaParser.Exp_powerContext ||
+				tree is LuaParser.Exp_strcatContext ||
+				tree is LuaParser.Exp_unaryContext)
 			{
 				return new OperatorExpression(tree, lcontext);
 			}
-			else if (tree.ChildCount > 1)
-			{
-				throw new NotImplementedException();
-			}
-			else
-			{
-				return CreateExpression(tree.GetChild(0), lcontext);
-			}
-		}
 
 
-
-
-
-		public static Expression CreateExpression(IParseTree tree, ScriptLoadingContext lcontext)
-		{
 			if (tree is LuaParser.VarOrExpContext)
 			{
 				// this whole rubbish just to detect adjustments to 1 arg of tuples
@@ -141,9 +145,6 @@ namespace MoonSharp.Interpreter.Tree
 
 			if (tree is LuaParser.AnonfunctiondefContext)
 				return new FunctionDefinitionExpression((LuaParser.AnonfunctiondefContext)tree, lcontext);
-
-			if (tree is LuaParser.ExpContext)
-				return CreateFromExpContext((LuaParser.ExpContext)tree, lcontext);
 
 			if (tree is LuaParser.StringContext)
 				return new LiteralExpression((LuaParser.StringContext)tree, lcontext);

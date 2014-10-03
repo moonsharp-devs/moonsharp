@@ -8,6 +8,8 @@ namespace MoonSharp.Interpreter
 	[Flags]
 	public enum CoreModules
 	{
+		None = 0,
+
 		Basic = 0x40,
 		GlobalConsts = 0x1,
 		TableIterators = 0x2,

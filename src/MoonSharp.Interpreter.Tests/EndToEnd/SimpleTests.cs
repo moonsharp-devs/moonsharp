@@ -464,6 +464,65 @@ namespace MoonSharp.Interpreter.Tests
 		}
 
 		[Test]
+		public void OperatorPrecedence1()
+		{
+			string script = @"return 1+2*3";
+
+			DynValue res = Script.RunString(script);
+
+			Assert.AreEqual(DataType.Number, res.Type);
+			Assert.AreEqual(7, res.Number);
+		}
+		[Test]
+		public void OperatorPrecedence2()
+		{
+			string script = @"return 2*3+1";
+
+			DynValue res = Script.RunString(script);
+
+			Assert.AreEqual(DataType.Number, res.Type);
+			Assert.AreEqual(7, res.Number);
+		}
+
+		[Test]
+		public void OperatorAssociativity()
+		{
+			string script = @"return 2^3^2";
+
+			DynValue res = Script.RunString(script);
+
+			Assert.AreEqual(DataType.Number, res.Type);
+			Assert.AreEqual(512, res.Number);
+		}
+
+		[Test]
+		public void OperatorPrecedence3()
+		{
+			string script = @"return 5-3-2";
+			Script S = new Script(CoreModules.None);
+
+			DynValue res = S.DoString(script);
+
+			Assert.AreEqual(DataType.Number, res.Type);
+			Assert.AreEqual(0, res.Number);
+		}
+
+		[Test]
+		public void OperatorPrecedence4()
+		{
+			string script = @"return 3 + -1";
+			Script S = new Script(CoreModules.None);
+
+			DynValue res = S.DoString(script);
+
+			Assert.AreEqual(DataType.Number, res.Type);
+			Assert.AreEqual(2, res.Number);
+		}
+
+
+
+
+		[Test]
 		public void OperatorPrecedenceAndAssociativity()
 		{
 			string script = @"return 5+3*7-2*5+2^3^2";
