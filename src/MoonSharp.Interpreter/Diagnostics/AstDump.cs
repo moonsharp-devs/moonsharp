@@ -13,19 +13,28 @@ namespace MoonSharp.Interpreter.Diagnostics
 
 		public void DumpTree(IParseTree tree, string filename)
 		{
-			DumpTree(tree, 0);
+			DumpTree(true, tree, 0);
 			File.WriteAllText(filename, m_TreeDump.ToString());
 		}
 
-		private void DumpTree(IParseTree tree, int depth = 0)
+		public void WalkTreeForWaste(IParseTree tree)
 		{
-			string tabs = new string(' ', depth * 4);
+			DumpTree(false, tree, 0);
+		}
 
-			m_TreeDump.AppendFormat("{0}{1} : {2}\n", tabs, Purify(tree.GetType()), tree.GetText());
+		private void DumpTree(bool dooutput, IParseTree tree, int depth = 0)
+		{
+			string tabs;
+
+			if (dooutput)
+			{
+				tabs = new string(' ', depth * 4);
+				m_TreeDump.AppendFormat("{0}{1} : {2}\n", tabs, Purify(tree.GetType()), tree.GetText());
+			}
 
 			for (int i = 0; i < tree.ChildCount; i++)
 			{
-				DumpTree(tree.GetChild(i), depth + 1);
+				DumpTree(dooutput, tree.GetChild(i), depth + 1);
 			}
 		}
 

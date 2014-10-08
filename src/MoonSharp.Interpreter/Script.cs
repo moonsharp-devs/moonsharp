@@ -29,6 +29,7 @@ namespace MoonSharp.Interpreter
 		IScriptLoader m_ScriptLoader = DefaultScriptLoader;
 		Table[] m_TypeMetatables = new Table[(int)LuaTypeExtensions.MaxMetaTypes];
 
+	
 		static Script()
 		{
 			DefaultScriptLoader = new ClassicLuaScriptLoader();
@@ -49,6 +50,8 @@ namespace MoonSharp.Interpreter
 		/// <param name="coreModules">The core modules to be pre-registered in the default global table.</param>
 		public Script(CoreModules coreModules)
 		{
+			PerformanceStats = new PerformanceStatistics();
+
 			DebugPrint = s => { Console.WriteLine(s); };
 			m_ByteCode = new ByteCode();
 			m_GlobalTable = new Table(this).RegisterCoreModules(coreModules);
@@ -77,6 +80,11 @@ namespace MoonSharp.Interpreter
 		public static IScriptLoader DefaultScriptLoader { get; set; }
 
 		/// <summary>
+		/// Gets access to performance statistics.
+		/// </summary>
+		public PerformanceStatistics PerformanceStats { get; private set; }
+
+		/// <summary>
 		/// Gets the default global table for this script. Unless a different table is intentionally passed (or setfenv has been used)
 		/// execution uses this table.
 		/// </summary>
@@ -102,7 +110,8 @@ namespace MoonSharp.Interpreter
 
 			m_Sources.Add(source);
 
-			int address = Loader.LoadFunctionFromICharStream(new AntlrInputStream(code),
+			int address = Loader_Antlr.LoadFunction(this, 
+				code,
 				m_ByteCode,
 				funcFriendlyName ?? chunkName,
 				m_Sources.Count - 1,
@@ -133,7 +142,8 @@ namespace MoonSharp.Interpreter
 
 			m_Sources.Add(source);
 
-			int address = Loader.LoadChunkFromICharStream(new AntlrInputStream(code),
+			int address = Loader_Antlr.LoadChunk(this,
+				code,
 				m_ByteCode,
 				codeFriendlyName ?? chunkName,
 				m_Sources.Count - 1,
@@ -441,5 +451,10 @@ namespace MoonSharp.Interpreter
 			Script s = new Script(CoreModules.Basic);
 			s.LoadString("return 1;");
 		}
+
+
+
+
+
 	}
 }

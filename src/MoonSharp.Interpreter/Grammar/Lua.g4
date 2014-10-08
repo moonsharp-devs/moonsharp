@@ -1,55 +1,10 @@
-/*
-BSD License
-
-Copyright (c) 2014, Marco Mastropaolo
-Copyright (c) 2013, Kazunori Sakamoto
-
-
-All rights reserved.   
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions
-are met:
- 
-1. Redistributions of source code must retain the above copyright
-   notice, this list of conditions and the following disclaimer.
-2. Redistributions in binary form must reproduce the above copyright
-   notice, this list of conditions and the following disclaimer in the
-   documentation and/or other materials provided with the distribution.
-3. Neither the NAME of Rainer Schuster nor the NAMEs of its contributors
-   may be used to endorse or promote products derived from this software
-   without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-This grammar file derived from:
-
-    Lua 5.2 Reference Manual
-    http://www.lua.org/manual/5.2/manual.html
-
-    Lua 5.1 grammar written by Nicolai Mainiero
-    http://www.antlr3.org/grammar/1178608849736/Lua.g
-
-I tested my grammar with Test suite for Lua 5.2 (http://www.lua.org/tests/5.2/)
-*/
-
-grammar Lua; 
+grammar Lua;
 
 chunk
     : block EOF
     ;
 
-block 
+block
     : stat* retstat?
     ;
 
@@ -81,7 +36,7 @@ label
     ;
 
 // this is an addition
-funcnametableaccessor 
+funcnametableaccessor
 	: ('.' NAME);
 
 funcname
@@ -94,53 +49,26 @@ varlist
 
 namelist
     : NAME (',' NAME)*
-    ;
+    ; 
 
 explist
     : exp (',' exp)*
     ;
 
-expterm 
-	: 'nil' | 'false' | 'true' | number | string		
-	| vararg
-	| anonfunctiondef								
-    | prefixexp										 
-	| tableconstructor
+exp
+    : NIL												#exp_nil
+	| FALSE												#exp_false
+	| TRUE												#exp_true
+	| number											#exp_number
+	| string											#exp_string
+	| vararg											#exp_varargs
+	| FUNCTION funcbody									#exp_anonfunc
+    | prefixexp											#exp_prefixexp
+	| tableconstructor									#exp_tabctor
+	| <assoc=right> exp '^' exp							#exp_power
+	| operatorunary exp									#exp_unary
+	| exp operatorbinary exp							#exp_binary
 	;
-	
-powerExp 
-	: expterm 													#exp_powerfallback
-	| expterm operatorPower powerExp							#exp_power
-	;
-unaryExp 
-	: powerExp 													#exp_unaryfallback
-	| operatorUnary unaryExp									#exp_unary
-	;
-muldivExp 
-	: unaryExp 													#exp_muldivfallback
-	| unaryExp operatorMulDivMod muldivExp						#exp_muldiv
-	;
-addsubExp 
-	: muldivExp 												#exp_addsubfallback
-	| muldivExp operatorAddSub addsubExp						#exp_addsub
-	;
-strcatExp 	
-	: addsubExp 												#exp_strcastfallback
-	| addsubExp operatorStrcat strcatExp						#exp_strcat
-	;
-compareExp 
-	: strcatExp 												#exp_comparefallback
-	| strcatExp operatorComparison compareExp                   #exp_compare
-	;
-logicAndExp 
-	: compareExp 												#exp_logicAndfallback
-	| compareExp operatorAnd logicAndExp                        #exp_logicAnd
-	;
-exp 
-	: logicAndExp 												#exp_logicOrfallback
-	| logicAndExp operatorOr exp								#exp_logicOr
-	;
-
 
 var
     : (NAME | '(' exp ')' varSuffix) varSuffix*
@@ -150,10 +78,11 @@ prefixexp
     : varOrExp nameAndArgs*
     ;
 
-// 
+//
 varOrExp
     : var | '(' exp ')'
     ;
+
 
 nameAndArgs
     : (':' NAME)? args
@@ -184,7 +113,7 @@ anonfunctiondef
 //	: '[' parlist ':' 'do' block 'end' ']'
 //	;
 
-// A func body from the parlist to end. 
+// A func body from the parlist to end.
 funcbody
     : '(' parlist? ')' block 'end'
     ;
@@ -218,29 +147,6 @@ fieldsep
     : ',' | ';'
     ;
 
-operatorOr 
-	: 'or';
-
-operatorAnd 
-	: 'and';
-
-operatorComparison 
-	: '<' | '>' | '<=' | '>=' | '~=' | '==';
-
-operatorStrcat
-	: '..';
-
-operatorAddSub
-	: '+' | '-';
-
-operatorMulDivMod
-	: '*' | '/' | '%';
-
-operatorUnary
-    : 'not' | '#' | '-';
-
-operatorPower
-    : '^';
 
 number
     : INT | HEX | FLOAT | HEX_FLOAT
@@ -255,6 +161,36 @@ vararg
 	;
 
 // LEXER
+AND : 'and';
+BREAK : 'break';
+DO : 'do';
+ELSE : 'else';
+ELSEIF : 'elseif';
+END : 'end';
+FALSE : 'false';
+FOR : 'for';
+FUNCTION : 'function';
+GOTO : 'goto';
+IF : 'if';
+IN : 'in';
+LOCAL : 'local';
+NIL : 'nil';
+NOT : 'not';
+OR : 'or';
+REPEAT : 'repeat';
+RETURN : 'return';
+THEN : 'then';
+TRUE : 'true';
+UNTIL : 'until';
+WHILE : 'while';
+
+
+operatorbinary 
+	: OR | AND | '<' | '>' | '<=' | '>=' | '~=' | '==' | '..' | '+' | '-' | '*' | '/' | '%' ;
+
+operatorunary
+    : NOT | '#' | '-';
+
 
 NAME
     : [a-zA-Z_][a-zA-Z_0-9]*

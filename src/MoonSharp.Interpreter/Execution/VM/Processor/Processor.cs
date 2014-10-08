@@ -45,6 +45,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		public DynValue Call(DynValue function, DynValue[] args)
 		{
+			var stopwatch = this.m_Script.PerformanceStats.StartStopwatch(Diagnostics.PerformanceCounter.Execution);
+
 			m_CanYield = false;
 
 			try
@@ -55,6 +57,9 @@ namespace MoonSharp.Interpreter.Execution.VM
 			finally
 			{
 				m_CanYield = true;
+
+				if (stopwatch != null)
+					stopwatch.Dispose();
 			}
 		}
 

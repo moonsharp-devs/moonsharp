@@ -16,8 +16,8 @@ namespace MoonSharp.Interpreter.Tree
 		public static Statement CreateStatement(IParseTree tree, ScriptLoadingContext lcontext)
 		{
 			if (tree is Antlr4.Runtime.Tree.TerminalNodeImpl)
-			{ } 
-			
+			{ }
+
 			if (tree is LuaParser.BlockContext)
 				return new CompositeStatement((LuaParser.BlockContext)tree, lcontext);
 
@@ -77,54 +77,79 @@ namespace MoonSharp.Interpreter.Tree
 
 		public static Expression CreateExpression(IParseTree tree, ScriptLoadingContext lcontext)
 		{
-			// flatten tree for operators precedence 
-			if (tree is LuaParser.Exp_logicOrfallbackContext) tree = ((LuaParser.Exp_logicOrfallbackContext)tree).logicAndExp();
-			if (tree is LuaParser.Exp_logicAndfallbackContext) tree = ((LuaParser.Exp_logicAndfallbackContext)tree).compareExp();
-			if (tree is LuaParser.Exp_comparefallbackContext) tree = ((LuaParser.Exp_comparefallbackContext)tree).strcatExp();
-			if (tree is LuaParser.Exp_strcastfallbackContext) tree = ((LuaParser.Exp_strcastfallbackContext)tree).addsubExp();
-			if (tree is LuaParser.Exp_addsubfallbackContext) tree = ((LuaParser.Exp_addsubfallbackContext)tree).muldivExp();
-			if (tree is LuaParser.Exp_muldivfallbackContext) tree = ((LuaParser.Exp_muldivfallbackContext)tree).unaryExp();
-			if (tree is LuaParser.Exp_unaryfallbackContext) tree = ((LuaParser.Exp_unaryfallbackContext)tree).powerExp();
-			if (tree is LuaParser.Exp_powerfallbackContext) tree = ((LuaParser.Exp_powerfallbackContext)tree).expterm();
-			if (tree is LuaParser.ExptermContext) tree = tree.GetChild(0);
+			IParseTree originalTree = tree;
 
-			if (tree is LuaParser.Exp_addsubContext ||
-				tree is LuaParser.Exp_compareContext ||
-				tree is LuaParser.Exp_logicAndContext ||
-				tree is LuaParser.Exp_logicOrContext ||
-				tree is LuaParser.Exp_muldivContext ||
-				tree is LuaParser.Exp_powerContext ||
-				tree is LuaParser.Exp_strcatContext ||
-				tree is LuaParser.Exp_unaryContext)
+			// prune dummy tree nodes 
+			while (true)
 			{
-				return new OperatorExpression(tree, lcontext);
-			}
-
-
-			if (tree is LuaParser.VarOrExpContext)
-			{
-				// this whole rubbish just to detect adjustments to 1 arg of tuples
-				if ((tree.ChildCount > 0))
+				//if (tree is LuaParser.Exp_logicOrfallbackContext) tree = ((LuaParser.Exp_logicOrfallbackContext)tree).logicAndExp();
+				//else if (tree is LuaParser.Exp_logicAndfallbackContext) tree = ((LuaParser.Exp_logicAndfallbackContext)tree).compareExp();
+				//else if (tree is LuaParser.Exp_comparefallbackContext) tree = ((LuaParser.Exp_comparefallbackContext)tree).strcatExp();
+				//else if (tree is LuaParser.Exp_strcastfallbackContext) tree = ((LuaParser.Exp_strcastfallbackContext)tree).addsubExp();
+				//else if (tree is LuaParser.Exp_addsubfallbackContext) tree = ((LuaParser.Exp_addsubfallbackContext)tree).muldivExp();
+				//else if (tree is LuaParser.Exp_muldivfallbackContext) tree = ((LuaParser.Exp_muldivfallbackContext)tree).unaryExp();
+				//else if (tree is LuaParser.Exp_unaryfallbackContext) tree = ((LuaParser.Exp_unaryfallbackContext)tree).powerExp();
+				//else if (tree is LuaParser.Exp_powerfallbackContext) tree = ((LuaParser.Exp_powerfallbackContext)tree).expterm();
+				//else if (tree is LuaParser.ExptermContext) tree = tree.GetChild(0);
+				//else 
+				if (tree is LuaParser.VarOrExpContext)
 				{
-					Antlr4.Runtime.Tree.TerminalNodeImpl token = tree.GetChild(0) as Antlr4.Runtime.Tree.TerminalNodeImpl;
-
-					if (token != null && token.GetText() == "(")
+					// this whole rubbish just to detect adjustments to 1 arg of tuples
+					if ((tree.ChildCount > 0))
 					{
-						var subTree = tree.EnumChilds().Single(t => !(t is Antlr4.Runtime.Tree.TerminalNodeImpl));
-						return new AdjustmentExpression(tree, lcontext, subTree);
-					}
-				}
+						Antlr4.Runtime.Tree.TerminalNodeImpl token = tree.GetChild(0) as Antlr4.Runtime.Tree.TerminalNodeImpl;
 
-				tree = tree.EnumChilds().Single(t => !(t is Antlr4.Runtime.Tree.TerminalNodeImpl));
+						if (token != null && token.GetText() == "(")
+						{
+							var subTree = tree.EnumChilds().Single(t => !(t is Antlr4.Runtime.Tree.TerminalNodeImpl));
+							return new AdjustmentExpression(tree, lcontext, subTree);
+						}
+					}
+
+					tree = tree.EnumChilds().Single(t => !(t is Antlr4.Runtime.Tree.TerminalNodeImpl));
+				}
+				else break;
 			}
+
+			//if (tree is LuaParser.ParenthesizedExpressionContext)
+			//{
+			//	return new AdjustmentExpression(tree, lcontext, ((LuaParser.ParenthesizedExpressionContext)tree).exp());
+			//}
+
+			//if (tree is LuaParser.Exp_addsubContext ||
+			//	tree is LuaParser.Exp_compareContext ||
+			//	tree is LuaParser.Exp_logicAndContext ||
+			//	tree is LuaParser.Exp_logicOrContext ||
+			//	tree is LuaParser.Exp_muldivContext ||
+			//	tree is LuaParser.Exp_powerContext ||
+			//	tree is LuaParser.Exp_strcatContext ||
+			//	tree is LuaParser.Exp_unaryContext)
+			//{
+			//	return new OperatorExpression(tree, lcontext);
+			//}
+
+			if (tree is LuaParser.Exp_nilContext) return new LiteralExpression(tree, lcontext, DynValue.Nil);
+			if (tree is LuaParser.Exp_trueContext) return new LiteralExpression(tree, lcontext, DynValue.True);
+			if (tree is LuaParser.Exp_falseContext) return new LiteralExpression(tree, lcontext, DynValue.False);
+
+			if (tree is LuaParser.Exp_numberContext) tree = ((LuaParser.Exp_numberContext)tree).number();
+			if (tree is LuaParser.Exp_stringContext) tree = ((LuaParser.Exp_stringContext)tree).@string();
+			if (tree is LuaParser.Exp_varargsContext) tree = ((LuaParser.Exp_varargsContext)tree).vararg();
+
+			if (tree is LuaParser.Exp_anonfuncContext) return new FunctionDefinitionExpression(((LuaParser.Exp_anonfuncContext)tree).funcbody(), lcontext);
+			if (tree is LuaParser.Exp_prefixexpContext) tree = ((LuaParser.Exp_prefixexpContext)tree).prefixexp();
+			if (tree is LuaParser.Exp_tabctorContext) tree = ((LuaParser.Exp_tabctorContext)tree).tableconstructor();
+			if (tree is LuaParser.Exp_powerContext) return new PowerOperatorExpression(tree, lcontext);
+			if (tree is LuaParser.Exp_unaryContext) return new UnaryOperatorExpression(tree, lcontext);
+			if (tree is LuaParser.Exp_binaryContext) return BinaryOperatorExpression.CreateSubTree(tree, lcontext);
 
 			if (tree is Antlr4.Runtime.Tree.TerminalNodeImpl)
 			{
 				string txt = tree.GetText();
 				if (txt == null) return null;
-				else if (txt == "nil") return new LiteralExpression(tree, lcontext, DynValue.Nil);
-				else if (txt == "false") return new LiteralExpression(tree, lcontext, DynValue.False);
-				else if (txt == "true") return new LiteralExpression(tree, lcontext, DynValue.True);
+				//else if (txt == "nil") return new LiteralExpression(tree, lcontext, DynValue.Nil);
+				//else if (txt == "false") return new LiteralExpression(tree, lcontext, DynValue.False);
+				//else if (txt == "true") return new LiteralExpression(tree, lcontext, DynValue.True);
 				else return null;
 			}
 
@@ -181,7 +206,7 @@ namespace MoonSharp.Interpreter.Tree
 				var exp = suffix.exp();
 				var suff_NAME = suffix.NAME();
 				Expression indexExp;
-				if (exp != null) 
+				if (exp != null)
 					indexExp = CreateExpression(exp, lcontext);
 				else
 					indexExp = new LiteralExpression(suff_NAME, lcontext, DynValue.NewString(suff_NAME.GetText()));

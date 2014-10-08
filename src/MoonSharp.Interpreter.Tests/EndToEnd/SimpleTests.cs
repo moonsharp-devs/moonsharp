@@ -464,11 +464,23 @@ namespace MoonSharp.Interpreter.Tests
 		}
 
 		[Test]
+		public void VeryBasic()
+		{
+			string script = @"return 7";
+
+			DynValue res = Script.RunString(script);
+
+			Assert.AreEqual(DataType.Number, res.Type);
+			Assert.AreEqual(7, res.Number);
+		}
+
+		[Test]
 		public void OperatorPrecedence1()
 		{
 			string script = @"return 1+2*3";
 
-			DynValue res = Script.RunString(script);
+			Script s = new Script(CoreModules.None);
+			DynValue res = s.DoString(script);
 
 			Assert.AreEqual(DataType.Number, res.Type);
 			Assert.AreEqual(7, res.Number);
@@ -519,6 +531,17 @@ namespace MoonSharp.Interpreter.Tests
 			Assert.AreEqual(2, res.Number);
 		}
 
+		[Test]
+		public void OperatorPrecedence5()
+		{
+			string script = @"return 3 * -1 + 5 * 3";
+			Script S = new Script(CoreModules.None);
+
+			DynValue res = S.DoString(script);
+
+			Assert.AreEqual(DataType.Number, res.Type);
+			Assert.AreEqual(12, res.Number);
+		}
 
 
 
@@ -615,7 +638,8 @@ namespace MoonSharp.Interpreter.Tests
     
 				return fact(5)";
 
-			DynValue res = Script.RunString(script);
+			Script s = new Script(CoreModules.None);
+			DynValue res = s.DoString(script);
 
 			Assert.AreEqual(DataType.Number, res.Type);
 			Assert.AreEqual(120.0, res.Number);
@@ -831,7 +855,7 @@ namespace MoonSharp.Interpreter.Tests
 					do return x(); end
 								";
 
-			DynValue res = Script.RunString(script);
+			DynValue res = (new Script(CoreModules.None)).DoString(script);
 
 			Assert.AreEqual(DataType.Number, res.Type);
 			Assert.AreEqual(1, res.Number);

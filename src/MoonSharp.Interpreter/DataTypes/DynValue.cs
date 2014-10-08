@@ -138,7 +138,7 @@ namespace MoonSharp.Interpreter
 		/// Creates a new writable value initialized to the specified coroutine.
 		/// Internal use only, for external use, see Script.CoroutineCreate
 		/// </summary>
-		/// <param name="coroutineHandle">The coroutine handle.</param>
+		/// <param name="coroutine">The coroutine object.</param>
 		/// <returns></returns>
 		public static DynValue NewCoroutine(Coroutine coroutine)
 		{

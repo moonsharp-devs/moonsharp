@@ -103,7 +103,7 @@ mt = {
   end,
 }
 setmetatable(t, mt)
-is(t .. t .. t .. 4 ..'end', "t|t|t|4end", "__concat")
+is(t .. t .. t .. 4 ..'end', "t|t|t|4end", "__concatx")
 
 
 --[[ Cplx ]]

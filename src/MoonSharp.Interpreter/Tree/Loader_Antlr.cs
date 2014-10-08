@@ -18,28 +18,31 @@ using MoonSharp.Interpreter.Tree.Statements;
 
 namespace MoonSharp.Interpreter.Tree
 {
-	internal static class Loader
+	internal static class Loader_Antlr
 	{
-		internal static int LoadChunkFromICharStream(ICharStream charStream, ByteCode bytecode, string sourceName, int sourceIdx, Table globalContext)
+		internal static int LoadChunk(Script script, string code, ByteCode bytecode, string sourceName, int sourceIdx, Table globalContext)
 		{
 			try
 			{
-				LuaParser parser = CreateParser(charStream, sourceIdx, p => p.chunk());
+				LuaParser parser = CreateParser(script, new AntlrInputStream(code), sourceIdx, p => p.chunk());
 
 				ScriptLoadingContext lcontext = CreateLoadingContext(sourceName, sourceIdx);
-				ChunkStatement stat = new ChunkStatement(parser.chunk(), lcontext, globalContext);
+				ChunkStatement stat;
+
+				using (script.PerformanceStats.StartStopwatch(Diagnostics.PerformanceCounter.AstCreation))
+					stat = new ChunkStatement(parser.chunk(), lcontext, globalContext);
 
 				int beginIp = -1;
 
-				//using (var _ = new CodeChrono("ChunkStatement.LoadFromICharStream/Compile"))
+				using (script.PerformanceStats.StartStopwatch(Diagnostics.PerformanceCounter.Compilation))
 				{
 					bytecode.Emit_Nop(string.Format("Begin chunk {0}", sourceName));
 					beginIp = bytecode.GetJumpPointForLastInstruction();
 					stat.Compile(bytecode);
 					bytecode.Emit_Nop(string.Format("End chunk {0}", sourceName));
-
-					Debug_DumpByteCode(bytecode, sourceIdx);
 				}
+
+				Debug_DumpByteCode(bytecode, sourceIdx);
 
 				return beginIp;
 			}
@@ -50,18 +53,21 @@ namespace MoonSharp.Interpreter.Tree
 			}
 		}
 
-		internal static int LoadFunctionFromICharStream(ICharStream charStream, ByteCode bytecode, string sourceName, int sourceIdx, Table globalContext)
+		internal static int LoadFunction(Script script, string code, ByteCode bytecode, string sourceName, int sourceIdx, Table globalContext)
 		{
 			try
 			{
-				LuaParser parser = CreateParser(charStream, sourceIdx, p => p.anonfunctiondef());
+				LuaParser parser = CreateParser(script, new AntlrInputStream(code), sourceIdx, p => p.anonfunctiondef());
 
 				ScriptLoadingContext lcontext = CreateLoadingContext(sourceName, sourceIdx);
-				FunctionDefinitionExpression fndef = new FunctionDefinitionExpression(parser.anonfunctiondef(), lcontext, false, globalContext);
+				FunctionDefinitionExpression fndef;
+
+				using (script.PerformanceStats.StartStopwatch(Diagnostics.PerformanceCounter.AstCreation))
+					fndef = new FunctionDefinitionExpression(parser.anonfunctiondef(), lcontext, false, globalContext);
 
 				int beginIp = -1;
 
-				//using (var _ = new CodeChrono("ChunkStatement.LoadFromICharStream/Compile"))
+				using (script.PerformanceStats.StartStopwatch(Diagnostics.PerformanceCounter.Compilation))
 				{
 					bytecode.Emit_Nop(string.Format("Begin function {0}", sourceName));
 					beginIp = fndef.CompileBody(bytecode, sourceName);
@@ -91,16 +97,17 @@ namespace MoonSharp.Interpreter.Tree
 			//bytecode.Dump(string.Format(@"c:\temp\codedump_{0}.txt", sourceIdx));
 		}
 
-		[Conditional("DEBUG_COMPILER")]
+		//[Conditional("DEBUG_COMPILER")]
 		private static void Debug_DumpAst(LuaParser parser, int sourceIdx, Func<LuaParser, IParseTree> dumper)
 		{
-			//try
-			//{
-			//	AstDump astDump = new AstDump();
-			//	astDump.DumpTree(dumper(parser), string.Format(@"c:\temp\treedump_{0:000}.txt", sourceIdx));
-			//}
-			//catch { }
-			//parser.Reset();
+			try
+			{
+				AstDump astDump = new AstDump();
+				// astDump.DumpTree(dumper(parser), string.Format(@"c:\temp\treedump_{0:000}.txt", sourceIdx));
+				astDump.WalkTreeForWaste(dumper(parser));
+			}
+			catch { }
+			parser.Reset();
 		}
 
 
@@ -114,12 +121,12 @@ namespace MoonSharp.Interpreter.Tree
 			};
 		}
 
-		private static LuaParser CreateParser(ICharStream charStream, int sourceIdx, Func<LuaParser, IParseTree> dumper)
+		private static LuaParser CreateParser(Script script, ICharStream charStream, int sourceIdx, Func<LuaParser, IParseTree> dumper)
 		{
 			LuaLexer lexer;
 			LuaParser parser;
 
-			//using (var _ = new CodeChrono("ChunkStatement.LoadFromICharStream/Parsing"))
+			using (script.PerformanceStats.StartStopwatch(Diagnostics.PerformanceCounter.Parsing))
 			{
 				lexer = new LuaLexer(charStream);
 				parser = new LuaParser(new CommonTokenStream(lexer))
@@ -128,9 +135,8 @@ namespace MoonSharp.Interpreter.Tree
 				};
 
 				parser.Interpreter.PredictionMode = PredictionMode.Sll;
+				Debug_DumpAst(parser, sourceIdx, dumper);
 			}
-
-			//Debug_DumpAst(parser, sourceIdx, dumper);
 
 
 			return parser;

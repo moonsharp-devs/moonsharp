@@ -429,7 +429,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			Script s = new Script();
 			long big = long.MaxValue;
 			var v = DynValue.FromObject(s, big);
-			int a = 3;
+			Assert.IsNotNull(v);
 		}
 
 	}

@@ -41,7 +41,6 @@ namespace MoonSharp.Interpreter.Tree.Statements
 
 			m_Block.Compile(bc);
 			bc.Emit_Ret(0);
-			//bc.Leave(m_StackFrame);
 		}
 
 		public SymbolRef CreateUpvalue(BuildTimeScope scope, SymbolRef symbol)

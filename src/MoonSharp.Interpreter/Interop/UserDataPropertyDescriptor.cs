@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using MoonSharp.Interpreter.Diagnostics;
 
 namespace MoonSharp.Interpreter.Interop
 {
@@ -47,52 +48,58 @@ namespace MoonSharp.Interpreter.Interop
 
 		internal void OptimizeGetter()
 		{
-			if (PropertyInfo.CanRead)
+			using (PerformanceStatistics.StartGlobalStopwatch(PerformanceCounter.AdaptersCompilation))
 			{
-				if (IsStatic)
+				if (PropertyInfo.CanRead)
 				{
-					var paramExp = Expression.Parameter(typeof(object), "dummy");
-					var propAccess = Expression.Property(null, PropertyInfo);
-					var castPropAccess = Expression.Convert(propAccess, typeof(object));
-					var lambda = Expression.Lambda<Func<object, object>>(castPropAccess, paramExp);
-					Interlocked.Exchange(ref m_OptimizedGetter, lambda.Compile());
-				}
-				else
-				{
-					var paramExp = Expression.Parameter(typeof(object), "obj");
-					var castParamExp = Expression.Convert(paramExp, this.PropertyInfo.DeclaringType);
-					var propAccess = Expression.Property(castParamExp, PropertyInfo);
-					var castPropAccess = Expression.Convert(propAccess, typeof(object));
-					var lambda = Expression.Lambda<Func<object, object>>(castPropAccess, paramExp);
-					Interlocked.Exchange(ref m_OptimizedGetter, lambda.Compile());
+					if (IsStatic)
+					{
+						var paramExp = Expression.Parameter(typeof(object), "dummy");
+						var propAccess = Expression.Property(null, PropertyInfo);
+						var castPropAccess = Expression.Convert(propAccess, typeof(object));
+						var lambda = Expression.Lambda<Func<object, object>>(castPropAccess, paramExp);
+						Interlocked.Exchange(ref m_OptimizedGetter, lambda.Compile());
+					}
+					else
+					{
+						var paramExp = Expression.Parameter(typeof(object), "obj");
+						var castParamExp = Expression.Convert(paramExp, this.PropertyInfo.DeclaringType);
+						var propAccess = Expression.Property(castParamExp, PropertyInfo);
+						var castPropAccess = Expression.Convert(propAccess, typeof(object));
+						var lambda = Expression.Lambda<Func<object, object>>(castPropAccess, paramExp);
+						Interlocked.Exchange(ref m_OptimizedGetter, lambda.Compile());
+					}
 				}
 			}
 		}
 
 		internal void OptimizeSetter()
 		{
-			if (PropertyInfo.CanWrite)
+			using (PerformanceStatistics.StartGlobalStopwatch(PerformanceCounter.AdaptersCompilation))
 			{
-				MethodInfo setterMethod = PropertyInfo.GetSetMethod();
+				if (PropertyInfo.CanWrite)
+				{
+					MethodInfo setterMethod = PropertyInfo.GetSetMethod();
 
-				if (IsStatic)
-				{
-					var paramExp = Expression.Parameter(typeof(object), "dummy");
-					var paramValExp = Expression.Parameter(typeof(object), "val");
-					var castParamValExp = Expression.Convert(paramValExp, this.PropertyInfo.PropertyType);
-					var callExpression = Expression.Call(setterMethod, castParamValExp);
-					var lambda = Expression.Lambda<Action<object, object>>(callExpression, paramExp, paramValExp);
-					Interlocked.Exchange(ref m_OptimizedSetter, lambda.Compile());
-				}
-				else
-				{
-					var paramExp = Expression.Parameter(typeof(object), "obj");
-					var paramValExp = Expression.Parameter(typeof(object), "val");
-					var castParamExp = Expression.Convert(paramExp, this.PropertyInfo.DeclaringType);
-					var castParamValExp = Expression.Convert(paramValExp, this.PropertyInfo.PropertyType);
-					var callExpression = Expression.Call(castParamExp, setterMethod, castParamValExp);
-					var lambda = Expression.Lambda<Action<object, object>>(callExpression, paramExp, paramValExp);
-					Interlocked.Exchange(ref m_OptimizedSetter, lambda.Compile());
+					if (IsStatic)
+					{
+						var paramExp = Expression.Parameter(typeof(object), "dummy");
+						var paramValExp = Expression.Parameter(typeof(object), "val");
+						var castParamValExp = Expression.Convert(paramValExp, this.PropertyInfo.PropertyType);
+						var callExpression = Expression.Call(setterMethod, castParamValExp);
+						var lambda = Expression.Lambda<Action<object, object>>(callExpression, paramExp, paramValExp);
+						Interlocked.Exchange(ref m_OptimizedSetter, lambda.Compile());
+					}
+					else
+					{
+						var paramExp = Expression.Parameter(typeof(object), "obj");
+						var paramValExp = Expression.Parameter(typeof(object), "val");
+						var castParamExp = Expression.Convert(paramExp, this.PropertyInfo.DeclaringType);
+						var castParamValExp = Expression.Convert(paramValExp, this.PropertyInfo.PropertyType);
+						var callExpression = Expression.Call(castParamExp, setterMethod, castParamValExp);
+						var lambda = Expression.Lambda<Action<object, object>>(callExpression, paramExp, paramValExp);
+						Interlocked.Exchange(ref m_OptimizedSetter, lambda.Compile());
+					}
 				}
 			}
 		}

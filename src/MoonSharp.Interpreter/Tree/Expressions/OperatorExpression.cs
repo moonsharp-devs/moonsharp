@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if false
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -221,7 +223,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 
 
-		private bool ShouldInvertBoolean(Operator op)
+		private static bool ShouldInvertBoolean(Operator op)
 		{
 			return (op == Operator.NotEqual)
 				|| (op == Operator.GreaterOrEqual)
@@ -229,7 +231,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 		}
 
 
-		private OpCode OperatorToOpCode(Operator op)
+		private static OpCode OperatorToOpCode(Operator op)
 		{
 			switch (op)
 			{
@@ -263,8 +265,13 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 				case Operator.Power:
 					return OpCode.Power;
 				default:
-					throw new InternalErrorException("Unsupported operator {0}", m_Operator);
+					throw new InternalErrorException("Unsupported operator {0}", op);
 			}
 		}
 	}
 }
+
+
+
+
+#endif
