@@ -1,7 +1,7 @@
 grammar Lua;
 
 chunk
-    : block EOF
+    : block (EOF)
     ;
 
 block
@@ -13,22 +13,22 @@ stat
     | varlist '=' explist															#stat_assignment
     | varOrExp nameAndArgs+															#stat_functioncall
     | label																			#stat_label
-    | 'break'																		#stat_break
-    | 'goto' NAME																	#stat_goto
-    | 'do' block 'end'																#stat_doblock
-    | 'while' exp 'do' block 'end'													#stat_whiledoloop
-    | 'repeat' block 'until' exp													#stat_repeatuntilloop
-    | 'if' exp 'then' block ('elseif' exp 'then' block)* ('else' block)? 'end'		#stat_ifblock
-    | 'for' NAME '=' exp ',' exp (',' exp)? 'do' block 'end'						#stat_forloop
-    | 'for' namelist 'in' explist 'do' block 'end'									#stat_foreachloop
-    | 'function' funcname funcbody													#stat_funcdef
-    | 'local' 'function' NAME funcbody												#stat_localfuncdef
-    | 'local' namelist ('=' explist)?												#stat_localassignment
+    | BREAK																			#stat_break
+    | GOTO NAME																		#stat_goto
+    | DO block END																	#stat_doblock
+    | WHILE exp DO block END														#stat_whiledoloop
+    | REPEAT block UNTIL exp														#stat_repeatuntilloop
+    | IF exp THEN block (ELSEIF exp THEN block)* (ELSE block)? END					#stat_ifblock
+    | FOR NAME '=' exp ',' exp (',' exp)? DO block END								#stat_forloop
+    | FOR namelist IN explist DO block END											#stat_foreachloop
+    | FUNCTION funcname funcbody													#stat_funcdef
+    | LOCAL FUNCTION NAME funcbody													#stat_localfuncdef
+    | LOCAL namelist ('=' explist)?													#stat_localassignment
     ;
 
 
 retstat
-    : 'return' explist? ';'?
+    : RETURN explist? ';'?
     ;
 
 label
@@ -282,7 +282,7 @@ LINE_COMMENT
     : '--'
     (                                               // --
     | '[' '='*                                      // --[==
-    | '[' '='* ~('='|'['|'\r'|'\n') ~('\r'|'\n')*   // --[==AA
+    | '[' '='* ~('='|'['|'\r'|'\n') ~('\r'|'\n')*   // --[==AA 
     | ~('['|'\r'|'\n') ~('\r'|'\n')*                // --AAA
     ) ('\r\n'|'\r'|'\n'|EOF)
     -> channel(HIDDEN)
@@ -295,3 +295,7 @@ WS
 SHEBANG
     : '#' '!' ~('\n'|'\r')* -> channel(HIDDEN)
     ;
+
+
+
+

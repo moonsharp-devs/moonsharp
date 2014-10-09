@@ -37,6 +37,10 @@ namespace MoonSharp.Interpreter.CoreLib
 							ErrorHandler = new CallbackFunction(pcall_onerror)
 						});
 					}
+					else if (ret.Type == DataType.YieldRequest)
+					{
+						throw new ScriptRuntimeException("the function passed to pcall cannot be called directly by pcall. wrap in a script function instead.");
+					}
 					else
 					{
 						return DynValue.NewTupleNested(DynValue.True, ret);
@@ -81,7 +85,7 @@ namespace MoonSharp.Interpreter.CoreLib
 					a.Add(args[i]);
 			}
 
-			return pcall(executionContext, new CallbackArguments(a));
+			return pcall(executionContext, new CallbackArguments(a, false));
 		}
 
 	}

@@ -49,7 +49,9 @@ namespace MoonSharp.Interpreter.Interop
 
 			object[] pars = new object[m_Arguments.Length];
 
-			for (int i = 0, j = 0; i < pars.Length; i++)
+			int j = args.IsMethodCall ? 1 : 0;
+
+			for (int i = 0; i < pars.Length; i++)
 			{
 				if (m_Arguments[i] == typeof(Script))
 				{

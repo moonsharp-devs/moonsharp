@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MoonSharp.Interpreter.Execution;
 
 namespace MoonSharp.Interpreter
 {
@@ -13,12 +14,14 @@ namespace MoonSharp.Interpreter
 		IList<DynValue> m_Args;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="CallbackArguments"/> class.
+		/// Initializes a new instance of the <see cref="CallbackArguments" /> class.
 		/// </summary>
 		/// <param name="args">The arguments.</param>
-		public CallbackArguments(IList<DynValue> args)
+		/// <param name="isMethodCall">if set to <c>true</c> [is method call].</param>
+		public CallbackArguments(IList<DynValue> args, bool isMethodCall)
 		{
 			m_Args = args;
+			IsMethodCall = isMethodCall;
 		}
 
 		/// <summary>
@@ -28,6 +31,12 @@ namespace MoonSharp.Interpreter
 		{
 			get { return m_Args.Count; }
 		}
+
+		/// <summary>
+		/// Gets or sets a value indicating whether this is a method call.
+		/// </summary>
+		public bool IsMethodCall { get; private set; }
+
 
 		/// <summary>
 		/// Gets the <see cref="DynValue"/> at the specified index, or Nil if not found (mimicing Lua behavior)
@@ -89,6 +98,45 @@ namespace MoonSharp.Interpreter
 		}
 
 
+		public double AsDouble(int argNum, string funcName)
+		{
+			if (this[argNum].Type == DataType.Nil)
+				throw ScriptRuntimeException.BadArgumentNoValue(argNum, funcName, DataType.Number);
+
+			if (this[argNum].Type != DataType.Number)
+			{
+				double? val = this[argNum].CastToNumber();
+				throw ScriptRuntimeException.BadArgument(argNum, funcName, DataType.Number, this[argNum].Type, false);
+			}
+			else
+			{
+				return this[argNum].Number;
+			}
+		}
+
+		public int AsInt(int argNum, string funcName)
+		{
+			double d = AsDouble(argNum, funcName);
+			return (int)d;
+		}
+
+		public string AsStringUsingMeta(ScriptExecutionContext executionContext, int i, string funcName)
+		{
+			if ((this[i].Type == DataType.Table) && (this[i].Table.MetaTable != null) &&
+				(this[i].Table.MetaTable.RawGet("__tostring") != null))
+			{
+				var v = executionContext.GetScript().Call(this[i].Table.MetaTable.RawGet("__tostring"), this[i]);
+
+				if (v.Type != DataType.String)
+					throw new ScriptRuntimeException("'tostring' must return a string to '{0}'", funcName);
+
+				return v.ToPrintString();
+			}
+			else
+			{
+				return (this[i].ToPrintString());
+			}
+		}
 
 	}
 }

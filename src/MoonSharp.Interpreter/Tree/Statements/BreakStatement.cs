@@ -13,6 +13,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		public BreakStatement(LuaParser.Stat_breakContext context, ScriptLoadingContext lcontext)
 			: base(context, lcontext)
 		{
+			
 		}
 
 

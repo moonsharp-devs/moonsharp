@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using MoonSharp.Interpreter.Interop;
@@ -10,7 +11,7 @@ namespace MoonSharp.Interpreter
 	public class UserData : RefIdObject
 	{
 		private UserData()
-		{ 
+		{
 			// This type can only be instantiated using one of the Create methods
 		}
 
@@ -36,6 +37,25 @@ namespace MoonSharp.Interpreter
 		{
 			RegisterType_Impl(type, accessMode);
 		}
+
+		public static void RegisterAssembly(Assembly asm = null)
+		{
+			asm = asm ?? Assembly.GetCallingAssembly();
+
+			var userDataTypes = from t in asm.GetTypes()
+				let attributes = t.GetCustomAttributes(typeof(MoonSharpUserDataAttribute), true)
+				where attributes != null && attributes.Length > 0
+				select new { Attributes = attributes, DataType = t };
+
+			foreach (var userDataType in userDataTypes)
+			{
+				UserData.RegisterType(userDataType.DataType, userDataType.Attributes
+					.OfType<MoonSharpUserDataAttribute>()
+					.First()
+					.AccessMode);
+			}
+		}
+
 
 		public static DynValue Create(object o)
 		{

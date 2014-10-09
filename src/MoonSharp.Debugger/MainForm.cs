@@ -73,7 +73,7 @@ namespace MoonSharp.Debugger
 
 			m_Ctx.Post(str =>
 			{
-				txtOutput.Text = txtOutput.Text + fmt.ToString() + "\n";
+				txtOutput.Text = txtOutput.Text + fmt.ToString().Replace("\n", "\r\n") + "\r\n";
 				txtOutput.SelectionStart = txtOutput.Text.Length - 1;
 				txtOutput.SelectionLength = 0;
 				txtOutput.ScrollToCaret();
@@ -93,7 +93,16 @@ namespace MoonSharp.Debugger
 			L.ModulePaths = L.UnpackStringPaths("Modules/?;Modules/?.lua");
 			m_Script.ScriptLoader = L;
 
-			m_Script.LoadFile(filename);
+			try
+			{
+				m_Script.LoadFile(filename);
+			}
+			catch (Exception ex)
+			{
+				txtOutput.Text = "";
+				Console_WriteLine("{0}", ex.Message);
+				return;
+			}
 
 			m_Script.AttachDebugger(this);
 

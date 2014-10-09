@@ -315,5 +315,30 @@ namespace MoonSharp.Interpreter.Tests
 			Assert.AreEqual(6, res.Tuple[0].Number);
 			Assert.AreEqual(12, res.Tuple[1].Number);
 		}
+
+		[Test]
+		public void TestLoadSyntaxError()
+		{
+			string script = @"    
+			function reader ()
+				i = i + 1
+				return t[i]
+			end
+
+
+			t = { [[?syntax error?]] }
+			i = 0
+			f, msg = load(reader, 'errorchunk')
+
+			return f, msg;
+		";
+
+			DynValue res = Script.RunString(script);
+
+			Assert.AreEqual(DataType.Tuple, res.Type);
+			Assert.AreEqual(2, res.Tuple.Length);
+			Assert.AreEqual(DataType.Nil, res.Tuple[0].Type);
+			Assert.AreEqual(DataType.String, res.Tuple[1].Type);
+		}
 	}
 }

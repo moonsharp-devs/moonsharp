@@ -98,7 +98,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
 							break;
 						case OpCode.Call:
-							instructionPtr = Internal_ExecCall(i.NumVal, instructionPtr);
+						case OpCode.ThisCall:
+							instructionPtr = Internal_ExecCall(i.NumVal, instructionPtr, null, null, i.OpCode == OpCode.ThisCall, i.Name);
 							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
 							break;
 						case OpCode.Scalar:
@@ -556,7 +557,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 
 
-		private int Internal_ExecCall(int argsCount, int instructionPtr, CallbackFunction handler = null, CallbackFunction continuation = null)
+		private int Internal_ExecCall(int argsCount, int instructionPtr, CallbackFunction handler = null, CallbackFunction continuation = null, bool thisCall = false, string debugText = null)
 		{
 			DynValue fn = m_ValueStack.Peek(argsCount);
 
@@ -570,7 +571,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 					args = DynValue.ExpandArgumentsToList(args);
 				}
 
-				var ret = fn.Callback.Invoke(new ScriptExecutionContext(this, fn.Callback), args);
+				var ret = fn.Callback.Invoke(new ScriptExecutionContext(this, fn.Callback), args, isMethodCall:thisCall);
 				m_ValueStack.RemoveLast(argsCount + 1);
 				m_ValueStack.Push(ret);
 
@@ -613,7 +614,10 @@ namespace MoonSharp.Interpreter.Execution.VM
 					}
 				}
 
-				throw new ScriptRuntimeException("attempt to call a {0} value", fn.ToString());
+				if (debugText != null)
+					throw new ScriptRuntimeException("attempt to call a {0} value near '{1}'", fn.ToString(), debugText);
+				else
+					throw new ScriptRuntimeException("attempt to call a {0} value", fn.ToString());
 			}
 		}
 

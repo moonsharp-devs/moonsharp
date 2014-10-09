@@ -84,6 +84,8 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 					if (val.Length == 0 && !hex)
 					{
 						if (c == 'a') { sb.Append('\a'); escape = false; zmode = false; }
+						else if (c == '\r') { }  // this makes \\r\n -> \\n
+						else if (c == '\n') { sb.Append('\n'); escape = false; }  
 						else if (c == 'b') { sb.Append('\b'); escape = false; }
 						else if (c == 'f') { sb.Append('\f'); escape = false; }
 						else if (c == 'n') { sb.Append('\n'); escape = false; }

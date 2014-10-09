@@ -147,7 +147,7 @@ namespace MoonSharp.Interpreter.CoreLib
 			DynValue v_i = args.AsType(3, "gsub", DataType.Number, true);
 			int? i = v_i.IsNilOrNan() ? (int?)null : (int)v_i.Number;
 
-			return PatternMatching.Str_Gsub(s.String, p.String, args[2], i);
+			return PatternMatching.Str_Gsub(executionContext, s.String, p.String, args[2], i);
 		}
 
 		[MoonSharpMethod]
@@ -207,8 +207,8 @@ namespace MoonSharp.Interpreter.CoreLib
 		[MoonSharpMethod]
 		public static DynValue format(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
-			// temporary stub
-			return args[0];
+			string str = PatternMatching.Str_Format(executionContext, args);
+			return DynValue.NewString(str);
 		}
 
 

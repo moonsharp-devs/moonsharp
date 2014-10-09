@@ -16,6 +16,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using MoonSharp.Interpreter.Execution;
@@ -559,7 +560,7 @@ namespace MoonSharp.Interpreter.CoreLib.Patterns
 		}
 
 
-		private static void Add_Value(MatchState ms, StringBuilder b, int s, int e, DynValue repl)
+		private static void Add_Value(ScriptExecutionContext executionContext, MatchState ms, StringBuilder b, int s, int e, DynValue repl)
 		{
 			var result = DynValue.Nil;
 
@@ -573,12 +574,19 @@ namespace MoonSharp.Interpreter.CoreLib.Patterns
 					}
 				case DataType.Function:
 					{
-						//int n;
-						//lua.PushValue(3);
-						//n = PushCaptures(lua, ms, s, e);
-						//lua.Call(n, 1);
-						throw new NotImplementedException("TO DO! - GSub over function");
-						//break;
+						DynValue tuple = PushCaptures(ms, s, e);
+						result = repl.Function.Call(tuple.Tuple);
+						break;
+					}
+				case DataType.ClrFunction:
+					{
+						DynValue tuple = PushCaptures(ms, s, e);
+						result = repl.Callback.Invoke(executionContext, tuple.Tuple);
+
+						if (result.Type == DataType.TailCallRequest || result.Type == DataType.YieldRequest)
+							throw new ScriptRuntimeException("the function passed cannot be called directly as it contains a tail or yield request. wrap in a script function instead.");
+
+						break;
 					}
 				case DataType.Table:
 					{
@@ -597,7 +605,7 @@ namespace MoonSharp.Interpreter.CoreLib.Patterns
 				b.Append(result.CastToString());
 		}
 
-		public static DynValue Str_Gsub(string src, string p, DynValue repl, int? max_s_n)
+		public static DynValue Str_Gsub(ScriptExecutionContext executionContext, string src, string p, DynValue repl, int? max_s_n)
 		{
 			int srcl = src.Length;
 			DataType tr = repl.Type;
@@ -613,7 +621,7 @@ namespace MoonSharp.Interpreter.CoreLib.Patterns
 			MatchState ms = new MatchState();
 			StringBuilder b = new StringBuilder(srcl);
 
-			if (tr != DataType.Number && tr != DataType.String && tr != DataType.Function && tr != DataType.Table)
+			if (tr != DataType.Number && tr != DataType.String && tr != DataType.Function && tr != DataType.Table && tr != DataType.ClrFunction)
 				throw new ScriptRuntimeException("string/function/table expected");
 
 			ms.Src = src;
@@ -629,7 +637,7 @@ namespace MoonSharp.Interpreter.CoreLib.Patterns
 				if (e != -1)
 				{
 					n++;
-					Add_Value(ms, b, s, e, repl);
+					Add_Value(executionContext, ms, b, s, e, repl);
 				}
 				if ((e != -1) && e > s) /* non empty match? */
 					s = e;  /* skip it */
@@ -649,6 +657,171 @@ namespace MoonSharp.Interpreter.CoreLib.Patterns
 				DynValue.NewNumber(n)
 				);
 		}
+
+		private static int ScanFormat(string format, int s, out string form)
+		{
+			int p = s;
+			// skip flags
+			while (p < format.Length && format[p] != '\0' && FLAGS.IndexOf(format[p]) != -1)
+				p++;
+			if (p - s > FLAGS.Length)
+				throw new ScriptRuntimeException("invalid format (repeat flags)");
+			if (Char.IsDigit(format[p])) p++; // skip width
+			if (Char.IsDigit(format[p])) p++; // (2 digits at most)
+			if (format[p] == '.')
+			{
+				p++;
+				if (Char.IsDigit(format[p])) p++; // skip precision
+				if (Char.IsDigit(format[p])) p++; // (2 digits at most)
+			}
+			if (Char.IsDigit(format[p]))
+				throw new ScriptRuntimeException("invalid format (width of precision too long)");
+			form = "%" + format.Substring(s, (p - s + 1));
+			return p;
+		}
+
+		internal static string Str_Format(ScriptExecutionContext executionContext, CallbackArguments args)
+		{
+			const string FUNCNAME = "format";
+			string format = args.AsType(0, FUNCNAME, DataType.String, false).String;
+
+			StringBuilder sb = new StringBuilder();
+			int argidx = 0;
+			int top = args.Count;
+			int s = 0;
+			int e = format.Length;
+			while (s < e)
+			{
+				if (format[s] != L_ESC)
+				{
+					sb.Append(format[s++]);
+					continue;
+				}
+
+				if (format[++s] == L_ESC)
+				{
+					sb.Append(format[s++]);
+					continue;
+				}
+
+				++argidx;
+
+				string form;
+				s = ScanFormat(format, s, out form);
+				switch (format[s++]) // TODO: properly handle form
+				{
+					case 'c':
+						{
+							sb.Append((char)args.AsInt(argidx, FUNCNAME));
+							break;
+						}
+					case 'd':
+					case 'i':
+						{
+							int n = args.AsInt(argidx, FUNCNAME);
+							sb.Append(n.ToString(CultureInfo.InvariantCulture));
+							break;
+						}
+					case 'u':
+						{
+							int n = args.AsInt(argidx, FUNCNAME);
+							if (n < 0) throw ScriptRuntimeException.BadArgumentNoNegativeNumbers(argidx, FUNCNAME);
+							sb.Append(n.ToString(CultureInfo.InvariantCulture));
+							break;
+						}
+					case 'o':
+						{
+							int n = args.AsInt(argidx, FUNCNAME);
+							if (n < 0) throw ScriptRuntimeException.BadArgumentNoNegativeNumbers(argidx, FUNCNAME);
+							sb.Append(Convert.ToString(n, 8));
+							break;
+						}
+					case 'x':
+						{
+							int n = args.AsInt(argidx, FUNCNAME);
+							if (n < 0) throw ScriptRuntimeException.BadArgumentNoNegativeNumbers(argidx, FUNCNAME);
+							// sb.Append( string.Format("{0:x}", n) );
+							sb.AppendFormat("{0:x}", n);
+							break;
+						}
+					case 'X':
+						{
+							int n = args.AsInt(argidx, FUNCNAME);
+							if (n < 0) throw ScriptRuntimeException.BadArgumentNoNegativeNumbers(argidx, FUNCNAME);
+							// sb.Append( string.Format("{0:X}", n) );
+							sb.AppendFormat("{0:X}", n);
+							break;
+						}
+					case 'e':
+					case 'E':
+						{
+							sb.AppendFormat("{0:E}", args.AsDouble(argidx, FUNCNAME));
+							break;
+						}
+					case 'f':
+						{
+							sb.AppendFormat("{0:F}", args.AsDouble(argidx, FUNCNAME));
+							break;
+						}
+#if LUA_USE_AFORMAT
+					case 'a': case 'A':
+#endif
+					case 'g':
+					case 'G':
+						{
+							sb.AppendFormat("{0:G}", args.AsDouble(argidx, FUNCNAME));
+							break;
+						}
+					case 'q':
+						{
+							AddQuoted(sb, args.AsStringUsingMeta(executionContext, argidx, FUNCNAME));
+							break;
+						}
+					case 's':
+						{
+							sb.Append(args.AsStringUsingMeta(executionContext, argidx, FUNCNAME));
+							break;
+						}
+					default: // also treat cases `pnLlh'
+						{
+							throw new ScriptRuntimeException("invalid option '{0}' to 'format'",
+								format[s - 1]);
+						}
+				}
+			}
+			
+			return sb.ToString();
+		}
+
+		private static void AddQuoted(StringBuilder sb, string s)
+		{
+			sb.Append('"');
+			for (var i = 0; i < s.Length; ++i)
+			{
+				var c = s[i];
+				if (c == '"' || c == '\\' || c == '\n' || c == '\r')
+				{
+					sb.Append('\\').Append(c);
+				}
+				else if (c == '\0' || Char.IsControl(c))
+				{
+					if (i + 1 >= s.Length || !Char.IsDigit(s[i + 1]))
+					{
+						sb.AppendFormat("\\{0:D}", (int)c);
+					}
+					else
+					{
+						sb.AppendFormat("\\{0:D3}", (int)c);
+					}
+				}
+				else
+				{
+					sb.Append(c);
+				}
+			}
+			sb.Append('"');
+		}
+
 
 	}
 

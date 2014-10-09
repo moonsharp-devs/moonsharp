@@ -73,9 +73,9 @@ namespace MoonSharp
 					if (cmd.Length == 0)
 						continue;
 
-					Console.WriteLine("=====");
-					Console.WriteLine("{0}", cmd);
-					Console.WriteLine("=====");
+					//Console.WriteLine("=====");
+					//Console.WriteLine("{0}", cmd);
+					//Console.WriteLine("=====");
 
 					if (cmd == "exit")
 						return;
@@ -86,7 +86,7 @@ namespace MoonSharp
 					}
 					catch (Exception ex)
 					{
-						Console.WriteLine("Error: {0}", ex.Message);
+						Console.WriteLine("{0}", ex.Message);
 					}
 
 					cmd = "";

@@ -16,6 +16,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		IVariable[] m_NameExps;
 		Expression m_RValues;
 		Statement m_Block;
+		string m_DebugText;
 
 
 		public ForEachLoopStatement(LuaParser.Stat_foreachloopContext context, ScriptLoadingContext lcontext)
@@ -43,6 +44,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			m_Block = NodeFactory.CreateStatement(context.block(), lcontext);
 
 			m_StackFrame = lcontext.Scope.PopBlock();
+			m_DebugText = context.GetText();
 		}
 
 		public override void Compile(ByteCode bc)
@@ -69,7 +71,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			bc.Emit_ExpTuple(0);  
 
 			// calls f(s, var) - stack : iterator-tuple, iteration result
-			bc.Emit_Call(2);
+			bc.Emit_Call(2, m_DebugText);
 
 			// perform assignment of iteration result- stack : iterator-tuple, iteration result
 			for (int i = 0; i < m_NameExps.Length; i++)

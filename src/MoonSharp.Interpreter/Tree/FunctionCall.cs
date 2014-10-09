@@ -14,6 +14,7 @@ namespace MoonSharp.Interpreter.Tree
 	{
 		Expression[] m_Arguments;
 		string m_Name;
+		string m_DebugErr;
 
 		public FunctionCall(LuaParser.NameAndArgsContext nameAndArgs, ScriptLoadingContext lcontext)
 			: base(nameAndArgs, lcontext)
@@ -21,6 +22,7 @@ namespace MoonSharp.Interpreter.Tree
 			var name = nameAndArgs.NAME();
 			m_Name = name != null ? name.GetText().Trim() : null;
 			m_Arguments = nameAndArgs.args().children.SelectMany(t => NodeFactory.CreateExpressions(t, lcontext)).Where(t => t != null).ToArray();
+			m_DebugErr = nameAndArgs.Parent.GetText();
 		}
 
 		public override void Compile(Execution.VM.ByteCode bc)
@@ -39,7 +41,14 @@ namespace MoonSharp.Interpreter.Tree
 			for (int i = 0; i < m_Arguments.Length; i++)
 				m_Arguments[i].Compile(bc);
 
-			bc.Emit_Call(argslen);
+			if (!string.IsNullOrEmpty(m_Name))
+			{
+				bc.Emit_ThisCall(argslen, m_DebugErr);
+			}
+			else
+			{
+				bc.Emit_Call(argslen, m_DebugErr);
+			}
 		}
 	}
 }

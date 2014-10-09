@@ -75,6 +75,12 @@ namespace MoonSharp.Interpreter
 				argNum + 1, funcName, expected.ToErrorTypeString());
 		}
 
+		public static ScriptRuntimeException BadArgumentNoNegativeNumbers(int argNum, string funcName)
+		{
+			return new ScriptRuntimeException("bad argument #{0} to '{1}' (not a non-negative number in proper range)",
+				argNum + 1, funcName);
+		}
+
 		public static ScriptRuntimeException BadArgumentValueExpected(int argNum, string funcName)
 		{
 			return new ScriptRuntimeException("bad argument #{0} to '{1}' (value expected)",

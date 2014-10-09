@@ -1,11 +1,17 @@
 rem I know this works only on my machine. Sue me.
 
 md c:\temp\moonsharp_release
+del /Q c:\temp\moonsharp_release\*.*
 md c:\temp\moonsharp_release\tests
+del /Q c:\temp\moonsharp_release\tests\*.*
 md c:\temp\moonsharp_release\repl
+del /Q c:\temp\moonsharp_release\repl\*.*
 md c:\temp\moonsharp_release\debugger
+del /Q c:\temp\moonsharp_release\debugger\*.*
 md c:\temp\moonsharp_release\help
+del /Q c:\temp\moonsharp_release\help\*.*
 md c:\temp\moonsharp_release\library
+del /Q c:\temp\moonsharp_release\library\*.*
 
 robocopy /E C:\git\moonsharp\src\MoonSharpTests\bin\Release c:\temp\moonsharp_release\tests
 robocopy /E C:\git\moonsharp\src\MoonSharp\bin\Release c:\temp\moonsharp_release\repl

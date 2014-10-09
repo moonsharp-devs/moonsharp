@@ -16,6 +16,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 		public List<Instruction> Code = new List<Instruction>();
 		internal LoopTracker LoopTracker = new LoopTracker();
 
+
 		#region ITrackableReference
 
 		static int s_RefIDCounter = 0;
@@ -74,11 +75,15 @@ namespace MoonSharp.Interpreter.Execution.VM
 			return AppendInstruction(new Instruction() { OpCode = OpCode.Pop, NumVal = num });
 		}
 
-		public void Emit_Call(int argCount)
+		public void Emit_Call(int argCount, string debugName)
 		{
-			AppendInstruction(new Instruction() { OpCode = OpCode.Call, NumVal = argCount });
+			AppendInstruction(new Instruction() { OpCode = OpCode.Call, NumVal = argCount, Name = debugName });
 		}
 
+		public void Emit_ThisCall(int argCount, string debugName)
+		{
+			AppendInstruction(new Instruction() { OpCode = OpCode.ThisCall, NumVal = argCount, Name = debugName });
+		}
 
 		public Instruction Emit_Literal(DynValue value)
 		{

@@ -224,20 +224,7 @@ namespace MoonSharp.Interpreter.CoreLib
 				if (i != 0)
 					sb.Append('\t');
 
-				if ((args[i].Type == DataType.Table) && (args[i].Table.MetaTable != null) &&
-					(args[i].Table.MetaTable.RawGet("__tostring") != null))
-				{
-					var v = executionContext.GetScript().Call(args[i].Table.MetaTable.RawGet("__tostring"), args[i]);
-
-					if (v.Type != DataType.String)
-						throw new ScriptRuntimeException("'tostring' must return a string to 'print'");
-
-					sb.Append(v.ToPrintString());
-				}
-				else
-				{
-					sb.Append(args[i].ToPrintString());
-				}
+				sb.Append(args.AsStringUsingMeta(executionContext, i, "print"));
 			}
 
 			executionContext.GetScript().DebugPrint(sb.ToString());

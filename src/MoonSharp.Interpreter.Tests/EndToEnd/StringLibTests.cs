@@ -116,6 +116,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		}
 
 		[Test]
+		[Ignore]
 		public void String_Find_11()
 		{
 			string script = @"

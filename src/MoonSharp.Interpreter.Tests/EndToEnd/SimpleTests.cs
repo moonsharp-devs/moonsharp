@@ -102,6 +102,38 @@ namespace MoonSharp.Interpreter.Tests
 		}
 
 		[Test]
+		public void ParserErrorMessage()
+		{
+			string script = @"    
+				return 'It's a wet floor warning saying wheat flour instead. \
+				Probably, the cook thought it was funny. \
+				He was wrong.'";
+
+			try
+			{
+				DynValue res = Script.RunString(script);
+			}
+			catch (SyntaxErrorException ex)
+			{
+				Assert.IsNotNullOrEmpty(ex.Message);
+			}
+		}
+
+
+		[Test]
+		public void StringsWithBackslashLineEndings()
+		{
+			string script = @"    
+				return 'It is a wet floor warning saying wheat flour instead. \
+				Probably, the cook thought it was funny. \
+				He was wrong.'";
+
+			DynValue res = Script.RunString(script);
+
+			Assert.AreEqual(DataType.String, res.Type);
+		}
+
+		[Test]
 		public void FunctionCallWrappers()
 		{
 			string script = @"    

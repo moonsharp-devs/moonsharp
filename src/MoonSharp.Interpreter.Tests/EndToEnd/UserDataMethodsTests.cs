@@ -110,6 +110,26 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			Assert.AreEqual(DataType.String, res.Type);
 			Assert.AreEqual("eheh1ciao!SOMECLASS!True|asdqwezxc|asdqwezxc|123xy|asdqweXYzxc|!SOMECLASS!1912", res.String);
 		}
+		public void Test_ConcatMethodSemicolon(InteropAccessMode opt)
+		{
+			string script = @"    
+				t = { 'asd', 'qwe', 'zxc', ['x'] = 'X', ['y'] = 'Y' };
+				x = myobj:ConcatI(1, 'ciao', myobj, true, t, t, 'eheh', t, myobj);
+				return x;";
+
+			Script S = new Script();
+
+			SomeClass obj = new SomeClass();
+
+			UserData.RegisterType<SomeClass>(opt);
+
+			S.Globals.Set("myobj", UserData.Create(obj));
+
+			DynValue res = S.DoString(script);
+
+			Assert.AreEqual(DataType.String, res.Type);
+			Assert.AreEqual("eheh1ciao!SOMECLASS!True|asdqwezxc|asdqwezxc|123xy|asdqweXYzxc|!SOMECLASS!1912", res.String);
+		}
 
 		public void Test_ConcatMethodStaticSimplifiedSyntax(InteropAccessMode opt)
 		{
@@ -192,6 +212,24 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		public void Interop_ConcatMethod_Precomputed()
 		{
 			Test_ConcatMethod(InteropAccessMode.Preoptimized);
+		}
+
+		[Test]
+		public void Interop_ConcatMethodSemicolon_None()
+		{
+			Test_ConcatMethodSemicolon(InteropAccessMode.Reflection);
+		}
+
+		[Test]
+		public void Interop_ConcatMethodSemicolon_Lazy()
+		{
+			Test_ConcatMethodSemicolon(InteropAccessMode.LazyOptimized);
+		}
+
+		[Test]
+		public void Interop_ConcatMethodSemicolon_Precomputed()
+		{
+			Test_ConcatMethodSemicolon(InteropAccessMode.Preoptimized);
 		}
 
 		[Test]

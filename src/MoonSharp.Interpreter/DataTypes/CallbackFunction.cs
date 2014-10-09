@@ -30,9 +30,9 @@ namespace MoonSharp.Interpreter
 		/// <param name="executionContext">The execution context.</param>
 		/// <param name="args">The arguments.</param>
 		/// <returns></returns>
-		public DynValue Invoke(ScriptExecutionContext executionContext, IList<DynValue> args)
+		public DynValue Invoke(ScriptExecutionContext executionContext, IList<DynValue> args, bool isMethodCall = false)
 		{
-			return m_CallBack(executionContext, new  CallbackArguments(args));
+			return m_CallBack(executionContext, new CallbackArguments(args, isMethodCall));
 		}
 
 		/// <summary>
