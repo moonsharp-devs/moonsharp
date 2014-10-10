@@ -292,7 +292,12 @@ namespace MoonSharp.Interpreter
 			if (function.Type != DataType.Function)
 				throw new ArgumentException("function is not of DataType.Function");
 
-			return m_MainProcessor.Call(function, args.Select(v => DynValue.FromObject(this, v)).ToArray());
+			DynValue[] dargs = new DynValue[args.Length];
+
+			for (int i = 0; i < dargs.Length; i++)
+				dargs[i] = DynValue.FromObject(this, args[i]);
+
+			return m_MainProcessor.Call(function, dargs);
 		}
 
 		/// <summary>

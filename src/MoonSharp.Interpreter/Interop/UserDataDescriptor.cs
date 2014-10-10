@@ -66,14 +66,16 @@ namespace MoonSharp.Interpreter.Interop
 
 		internal DynValue Index(Script script, object obj, string idxname)
 		{
-			if (m_Methods.ContainsKey(idxname))
-			{
-				return DynValue.NewCallback(m_Methods[idxname].GetCallback(script, obj));
-			}
+			UserDataMethodDescriptor mdesc;
 
-			if (m_Properties.ContainsKey(idxname))
+			if (m_Methods.TryGetValue(idxname, out mdesc))
+				return DynValue.NewCallback(mdesc.GetCallback(script, obj));
+
+			UserDataPropertyDescriptor pdesc;
+
+			if (m_Properties.TryGetValue(idxname, out pdesc))
 			{
-				object o = m_Properties[idxname].GetValue(obj);
+				object o = pdesc.GetValue(obj);
 				return ConversionHelper.ClrObjectToComplexMoonSharpValue(script, o);
 			}
 
@@ -82,10 +84,12 @@ namespace MoonSharp.Interpreter.Interop
 
 		internal void SetIndex(Script script, object obj, string idxname, DynValue value)
 		{
-			if (m_Properties.ContainsKey(idxname))
+			UserDataPropertyDescriptor pdesc;
+
+			if (m_Properties.TryGetValue(idxname, out pdesc))
 			{
-				object o = ConversionHelper.MoonSharpValueToObjectOfType(value, m_Properties[idxname].PropertyInfo.PropertyType, null);
-				m_Properties[idxname].SetValue(obj, o, value.Type);
+				object o = ConversionHelper.MoonSharpValueToObjectOfType(value, pdesc.PropertyInfo.PropertyType, null);
+				pdesc.SetValue(obj, o, value.Type);
 			}
 			else
 			{

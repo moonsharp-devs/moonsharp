@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MoonSharp.Interpreter.Interop
+namespace MoonSharp.Interpreter
 {
 	[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
 	public sealed class MoonSharpUserDataAttribute : Attribute

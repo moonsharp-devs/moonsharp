@@ -85,6 +85,7 @@
     <Compile Include="CoreLib\Bit32Module.cs" />
     <Compile Include="CoreLib\MathModule.cs" />
     <Compile Include="CoreLib\MetaTableMethods.cs" />
+    <Compile Include="CoreLib\OsMethods.cs" />
     <Compile Include="CoreLib\Patterns\CaptureInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -95,6 +96,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="CoreLib\Patterns\StringRange.cs" />
+    <Compile Include="CoreLib\Patterns\Tools.cs" />
     <Compile Include="CoreLib\StringModule.cs" />
     <Compile Include="CoreLib\TableIterators.cs" />
     <Compile Include="CoreLib\TableModule.cs" />
@@ -118,6 +120,7 @@
     <Compile Include="Debugging\SourceRef.cs" />
     <Compile Include="Debugging\WatchItem.cs" />
     <Compile Include="Debugging\WatchType.cs" />
+    <Compile Include="Diagnostics\PerformanceCounters\DummyPerformanceStopwatch.cs" />
     <Compile Include="Diagnostics\PerformanceCounters\IPerformanceStopwatch.cs" />
     <Compile Include="Diagnostics\PerformanceCounter.cs" />
     <Compile Include="Diagnostics\PerformanceCounters\GlobalPerformanceStopwatch.cs" />

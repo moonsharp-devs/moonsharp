@@ -9,7 +9,7 @@ namespace MoonSharp.Interpreter.Interop
 {
 	internal static class ConversionHelper
 	{
-		static readonly Type[] NumericTypes = 
+		static readonly HashSet<Type> NumericTypes = new HashSet<Type>()
 		{
 			typeof(sbyte), 
 			typeof(byte), 
@@ -23,6 +23,7 @@ namespace MoonSharp.Interpreter.Interop
 			typeof(decimal), 
 			typeof(double)
 		};
+
 
 		internal static bool CheckCallbackSignature(MethodInfo mi)
 		{
@@ -42,14 +43,17 @@ namespace MoonSharp.Interpreter.Interop
 
 			Type t = obj.GetType();
 
-			if (NumericTypes.Contains(t))
-				return DynValue.NewNumber(TypeToDouble(t, obj));
-
 			if (obj is bool)
 				return DynValue.NewBoolean((bool)obj);
 
 			if (obj is string || obj is StringBuilder || obj is char)
 				return DynValue.NewString(obj.ToString());
+
+			if (obj is Closure)
+				return DynValue.NewClosure((Closure)obj);
+
+			if (NumericTypes.Contains(t))
+				return DynValue.NewNumber(TypeToDouble(t, obj));
 
 			if (obj is Table)
 				return DynValue.NewTable((Table)obj);
@@ -84,9 +88,6 @@ namespace MoonSharp.Interpreter.Interop
 				v = UserData.CreateStatic(obj as Type);
 
 			if (v != null) return v;
-
-			if (obj is Closure)
-				return DynValue.NewClosure((Closure)obj);
 
 			if (obj is Delegate)
 				return DynValue.NewCallback(CallbackFunction.FromDelegate(script, (Delegate)obj));

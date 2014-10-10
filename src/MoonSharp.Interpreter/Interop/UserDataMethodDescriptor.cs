@@ -30,7 +30,7 @@ namespace MoonSharp.Interpreter.Interop
 			this.IsStatic = mi.IsStatic;
 
 			m_Arguments = mi.GetParameters().Select(pi => pi.ParameterType).ToArray();
-			m_Defaults = mi.GetParameters().Select(pi => pi.DefaultValue).ToArray();
+			m_Defaults = mi.GetParameters().Select(pi => pi.DefaultValue).ToArray(); 
 
 			if (AccessMode == InteropAccessMode.Preoptimized)
 				Optimize();
@@ -72,11 +72,17 @@ namespace MoonSharp.Interpreter.Interop
 			object retv = null;
 
 			if (m_OptimizedFunc != null)
+			{
 				retv = m_OptimizedFunc(obj, pars);
+			}
 			else if (m_OptimizedAction != null)
+			{
 				m_OptimizedAction(obj, pars);
+			}
 			else
+			{
 				retv = MethodInfo.Invoke(obj, pars);
+			}
 
 			return ConversionHelper.ClrObjectToComplexMoonSharpValue(script, retv);
 		}

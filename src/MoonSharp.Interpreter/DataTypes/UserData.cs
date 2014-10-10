@@ -18,7 +18,11 @@ namespace MoonSharp.Interpreter
 		public object Object { get; set; }
 		internal UserDataDescriptor Descriptor { get; set; }
 
+#if USE_RW_LOCK
 		private static ReaderWriterLockSlim m_Lock = new ReaderWriterLockSlim();
+#else
+		private static object m_Lock = new object();
+#endif
 		private static Dictionary<Type, UserDataDescriptor> s_Registry = new Dictionary<Type, UserDataDescriptor>();
 		private static InteropAccessMode m_DefaultAccessMode;
 
@@ -115,7 +119,11 @@ namespace MoonSharp.Interpreter
 			if (accessMode == InteropAccessMode.Default)
 				accessMode = m_DefaultAccessMode;
 
+#if USE_RW_LOCK
 			m_Lock.EnterWriteLock();
+#else
+			Monitor.Enter(m_Lock);
+#endif
 
 			try
 			{
@@ -132,7 +140,11 @@ namespace MoonSharp.Interpreter
 			}
 			finally
 			{
+#if USE_RW_LOCK
 				m_Lock.ExitWriteLock();
+#else
+				Monitor.Exit(m_Lock);
+#endif
 			}
 		}
 
@@ -143,7 +155,11 @@ namespace MoonSharp.Interpreter
 
 		private static UserDataDescriptor GetDescriptorForType(Type type, bool deepSearch = true)
 		{
+#if USE_RW_LOCK
 			m_Lock.EnterReadLock();
+#else
+			Monitor.Enter(m_Lock);
+#endif
 
 			try
 			{
@@ -152,8 +168,10 @@ namespace MoonSharp.Interpreter
 
 				for (Type t = type; t != typeof(object); t = t.BaseType)
 				{
-					if (s_Registry.ContainsKey(t))
-						return s_Registry[t];
+					UserDataDescriptor u;
+
+					if (s_Registry.TryGetValue(t, out u))
+						return u;
 				}
 
 				foreach (Type t in type.GetInterfaces())
@@ -167,7 +185,11 @@ namespace MoonSharp.Interpreter
 			}
 			finally
 			{
+#if USE_RW_LOCK
 				m_Lock.ExitReadLock();
+#else
+				Monitor.Exit(m_Lock);
+#endif
 			}
 
 			return null;
