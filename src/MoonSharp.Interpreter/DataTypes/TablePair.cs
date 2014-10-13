@@ -28,7 +28,7 @@ namespace MoonSharp.Interpreter
 		public DynValue Value
 		{
 			get { return value; }
-			set { if (key.Type != DataType.Nil) Value = value; }
+			set { if (key.IsNotNil()) Value = value; }
 		}
 
 

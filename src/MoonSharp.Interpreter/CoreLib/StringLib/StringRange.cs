@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MoonSharp.Interpreter.CoreLib.Patterns
+namespace MoonSharp.Interpreter.CoreLib.StringLib
 {
 	internal class StringRange
 	{

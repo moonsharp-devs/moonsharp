@@ -27,7 +27,7 @@ namespace MoonSharp.Interpreter.Tests
 
 			DynValue res = S.DoString(script);
 
-			Assert.AreEqual(DataType.Nil, res.Type);
+			Assert.AreEqual(DataType.Void, res.Type);
 			Assert.AreEqual(2, args.Count);
 			Assert.AreEqual(DataType.String, args[0].Type);
 			Assert.AreEqual("hello", args[0].String);
@@ -52,7 +52,7 @@ namespace MoonSharp.Interpreter.Tests
 			Assert.AreEqual("hello", args[0].String);
 			Assert.AreEqual(DataType.String, args[1].Type);
 			Assert.AreEqual("world", args[1].String);
-			Assert.AreEqual(DataType.Nil, res.Type);
+			Assert.AreEqual(DataType.Void, res.Type);
 		}
 
 		[Test]

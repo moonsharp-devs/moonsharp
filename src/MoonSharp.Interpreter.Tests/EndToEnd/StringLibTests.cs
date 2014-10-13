@@ -192,7 +192,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 				return tostring(t), a;
 			";
 			DynValue res = Script.RunString(script);
-			Utils.DynAssert(res, null, "yup");
+			Utils.DynAssert(res, DataType.Void, "yup");
 
 		}
 

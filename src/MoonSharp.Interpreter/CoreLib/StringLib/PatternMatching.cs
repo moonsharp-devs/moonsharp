@@ -1,4 +1,5 @@
-﻿// This portion of code is taken from UniLua: https://github.com/xebecnan/UniLua
+﻿#if true
+// This portion of code is taken from UniLua: https://github.com/xebecnan/UniLua
 //
 // Copyright (C) 2013 Sheng Lunan
 //
@@ -21,7 +22,7 @@ using System.Linq;
 using System.Text;
 using MoonSharp.Interpreter.Execution;
 
-namespace MoonSharp.Interpreter.CoreLib.Patterns
+namespace MoonSharp.Interpreter.CoreLib.StringLib
 {
 	static class PatternMatching
 	{
@@ -492,9 +493,9 @@ namespace MoonSharp.Interpreter.CoreLib.Patterns
 
 		private static DynValue GmatchAux(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
-			DynValue v_idx = executionContext.Closure.Get("idx");
-			DynValue v_src = executionContext.Closure.Get("src");
-			DynValue v_pattern = executionContext.Closure.Get("pattern");
+			DynValue v_idx = GetClosure(executionContext).Get("idx");
+			DynValue v_src = GetClosure(executionContext).Get("src");
+			DynValue v_pattern = GetClosure(executionContext).Get("pattern");
 
 			MatchState ms = new MatchState();
 			string src = v_src.String;
@@ -512,7 +513,7 @@ namespace MoonSharp.Interpreter.CoreLib.Patterns
 				if (e != -1)
 				{
 					int newStart = (e == 0) ? e + 1 : e;
-					executionContext.Closure.Set("idx", DynValue.NewNumber(newStart));
+					GetClosure(executionContext).Set("idx", DynValue.NewNumber(newStart));
 					return PushCaptures(ms, s, e);
 				}
 			}
@@ -520,14 +521,20 @@ namespace MoonSharp.Interpreter.CoreLib.Patterns
 			return DynValue.Nil;
 		}
 
+		private static Table GetClosure(ScriptExecutionContext executionContext)
+		{
+			return executionContext.AdditionalData as Table;
+		}
+
 		public static DynValue GMatch(Script script, string src, string pattern)
 		{
 			DynValue aux = DynValue.NewCallback(GmatchAux);
 
-			aux.Callback.Closure = new Table(script);
-			aux.Callback.Closure.Set("idx", DynValue.NewNumber(0));
-			aux.Callback.Closure.Set("src", DynValue.NewString(src));
-			aux.Callback.Closure.Set("pattern", DynValue.NewString(pattern));
+			var t = new Table(script);
+			t.Set("idx", DynValue.NewNumber(0));
+			t.Set("src", DynValue.NewString(src));
+			t.Set("pattern", DynValue.NewString(pattern));
+			aux.Callback.AdditionalData = t;
 
 			return aux;
 		}
@@ -826,3 +833,4 @@ namespace MoonSharp.Interpreter.CoreLib.Patterns
 	}
 
 }
+#endif

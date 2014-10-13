@@ -85,23 +85,17 @@ namespace MoonSharp.Interpreter
 		/// <returns></returns>
 		public DynValue AsType(int argNum, string funcName, DataType type, bool allowNil = false)
 		{
-			if (allowNil && this[argNum].Type == DataType.Nil)
-				return this[argNum];
-
-			if (argNum >= this.Count)
-				throw ScriptRuntimeException.BadArgumentNoValue(argNum, funcName, type);
-
-			if (this[argNum].Type != type)
-				throw ScriptRuntimeException.BadArgument(argNum, funcName, type, this[argNum].Type, allowNil);
-
-			return this[argNum];
+			return this[argNum].CheckType(funcName, type, argNum, allowNil ? TypeValidationFlags.AllowNil | TypeValidationFlags.AutoConvert : TypeValidationFlags.AutoConvert);
 		}
+
 
 
 		public double AsDouble(int argNum, string funcName)
 		{
-			if (this[argNum].Type == DataType.Nil)
-				throw ScriptRuntimeException.BadArgumentNoValue(argNum, funcName, DataType.Number);
+			if (this[argNum].IsNil())
+			{
+					throw ScriptRuntimeException.BadArgumentNoValue(argNum, funcName, DataType.Number);
+			}
 
 			if (this[argNum].Type != DataType.Number)
 			{
@@ -118,6 +112,24 @@ namespace MoonSharp.Interpreter
 		{
 			double d = AsDouble(argNum, funcName);
 			return (int)d;
+		}
+
+		public string AsString(ScriptExecutionContext executionContext, int argNum, string funcName, bool allowNil = false)
+		{
+			if (this[argNum].IsNil())
+			{
+				if (allowNil)
+					return null;
+				else
+					throw ScriptRuntimeException.BadArgumentNoValue(argNum, funcName, DataType.String);
+			}
+
+			string str = this[argNum].CastToString();
+
+			if (str != null)
+				return str;
+
+			throw ScriptRuntimeException.BadArgument(argNum, funcName, DataType.String, this[argNum].Type, allowNil);
 		}
 
 		public string AsStringUsingMeta(ScriptExecutionContext executionContext, int i, string funcName)

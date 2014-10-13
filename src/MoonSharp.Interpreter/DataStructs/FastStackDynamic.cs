@@ -1,19 +1,20 @@
-﻿#if USE_DYNAMIC_STACKS
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
 namespace MoonSharp.Interpreter.DataStructs
 {
-	public class FastStack<T> : List<T>
+#if USE_DYNAMIC_STACKS
+	public class FastStack<T> : FastStackDynamic<T>
+#endif
+
+	public class FastStackDynamic<T> : List<T>
 	{
-		public FastStack(int maxCapacity)
-			: base(maxCapacity)
+			public FastStackDynamic(int startingCapacity)
+			: base(startingCapacity)
 		{
 		}
-
 
 		public T Push(T item)
 		{
@@ -64,4 +65,3 @@ namespace MoonSharp.Interpreter.DataStructs
 }
 
 
-#endif

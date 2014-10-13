@@ -158,6 +158,7 @@ namespace MoonSharp.Interpreter.Interop
 		{
 			switch (value.Type)
 			{
+				case DataType.Void:
 				case DataType.Nil:
 					return null;
 				case DataType.Boolean:
@@ -219,6 +220,20 @@ namespace MoonSharp.Interpreter.Interop
 
 			switch (value.Type)
 			{
+				case DataType.Void:
+					if (desiredType.IsValueType)
+					{
+						if (defaultValue != null)
+							return defaultValue;
+
+						if (nullableType != null)
+							return null;
+					}
+					else
+					{
+						return defaultValue;
+					}
+					break;
 				case DataType.Nil:
 					if (desiredType.IsValueType)
 					{

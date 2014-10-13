@@ -11,7 +11,8 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		public static void DynAssert(DynValue result, params object[] args)
 		{
 			if (args == null)
-				args = new object[1] { null };
+				args = new object[1] { DataType.Void };
+
 
 			if (args.Length == 1)
 			{
@@ -29,7 +30,11 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 		private static void DynAssertValue(object reference, DynValue dynValue)
 		{
-			if (reference == null)
+			if (reference == (object)DataType.Void)
+			{
+				Assert.AreEqual(DataType.Void, dynValue.Type);
+			}
+			else if (reference == null)
 			{
 				Assert.AreEqual(DataType.Nil, dynValue.Type);
 			}

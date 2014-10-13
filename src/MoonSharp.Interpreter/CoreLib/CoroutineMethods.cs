@@ -28,14 +28,13 @@ namespace MoonSharp.Interpreter.CoreLib
 
 			DynValue v = create(executionContext, args);
 			DynValue c = DynValue.NewCallback(__wrap_wrapper);
-			c.Callback.Closure = new Table(executionContext.GetScript());
-			c.Callback.Closure.Set("_HANDLE", v);
+			c.Callback.AdditionalData = v;
 			return c;
 		}
 
 		public static DynValue __wrap_wrapper(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
-			DynValue handle = executionContext.Closure.Get("_HANDLE");
+			DynValue handle = (DynValue)executionContext.AdditionalData;
 			return handle.Coroutine.Resume(args.List.ToArray());
 		}
 

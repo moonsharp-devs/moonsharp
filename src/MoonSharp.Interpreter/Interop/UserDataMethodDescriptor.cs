@@ -21,6 +21,7 @@ namespace MoonSharp.Interpreter.Interop
 		private object[] m_Defaults;
 		private Func<object, object[], object> m_OptimizedFunc = null;
 		private Action<object, object[]> m_OptimizedAction = null;
+		private bool m_IsAction = false;
 
 		internal UserDataMethodDescriptor(MethodInfo mi, InteropAccessMode accessMode)
 		{
@@ -28,6 +29,8 @@ namespace MoonSharp.Interpreter.Interop
 			this.AccessMode = accessMode;
 			this.Name = mi.Name;
 			this.IsStatic = mi.IsStatic;
+
+			m_IsAction = mi.ReturnType == typeof(void);
 
 			m_Arguments = mi.GetParameters().Select(pi => pi.ParameterType).ToArray();
 			m_Defaults = mi.GetParameters().Select(pi => pi.DefaultValue).ToArray(); 
@@ -78,6 +81,12 @@ namespace MoonSharp.Interpreter.Interop
 			else if (m_OptimizedAction != null)
 			{
 				m_OptimizedAction(obj, pars);
+				retv = DynValue.Void;
+			}
+			else if (m_IsAction)
+			{
+				MethodInfo.Invoke(obj, pars);
+				retv = DynValue.Void;
 			}
 			else
 			{

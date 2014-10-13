@@ -62,7 +62,7 @@ namespace PerformanceComparison
 
 			var championProperties = new ChampionPropertiesComponent();
 			championProperties.SetFirstName("John");
-			championProperties.SetLastName("Smith");
+			championProperties.SetLastName("Smith"); 
 
 			//var nLuaFunction = (LuaFunction)nLuaState["onUpdate"];
 			var moonSharpFunction = (Closure)moonSharpState.Globals["onUpdate"];
@@ -78,7 +78,7 @@ namespace PerformanceComparison
 			// Test MoonSharp
 			startTime = Environment.TickCount;
 			//DynValue v = DynValue.FromObject(moonSharpState, championProperties.ToInterface());
-			for (int i = 0; i < 100000; i++) moonSharpFunction.Call(championProperties.ToInterface());
+			for (int i = 0; i < 2000000; i++) moonSharpFunction.Call(championProperties.ToInterface());
 			endTime = Environment.TickCount;
 			Console.WriteLine("MoonSharp : {0}", endTime - startTime);
 		}

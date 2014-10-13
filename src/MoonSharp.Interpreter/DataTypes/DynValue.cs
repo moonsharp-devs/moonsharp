@@ -362,6 +362,10 @@ namespace MoonSharp.Interpreter
 
 
 		/// <summary>
+		/// A preinitialized, readonly instance, equaling Void
+		/// </summary>
+		public static DynValue Void { get; private set; }
+		/// <summary>
 		/// A preinitialized, readonly instance, equaling Nil
 		/// </summary>
 		public static DynValue Nil { get; private set; }
@@ -377,7 +381,8 @@ namespace MoonSharp.Interpreter
 
 		static DynValue()
 		{
-			Nil = new DynValue().AsReadOnly();
+			Nil = new DynValue() { m_Type = DataType.Nil }.AsReadOnly();
+			Void = new DynValue() { m_Type = DataType.Void }.AsReadOnly();
 			True = DynValue.NewBoolean(true).AsReadOnly();
 			False = DynValue.NewBoolean(false).AsReadOnly();
 		}
@@ -419,6 +424,8 @@ namespace MoonSharp.Interpreter
 		{
 			switch (Type)
 			{
+				case DataType.Void:
+					return "void";
 				case DataType.Nil:
 					return "nil";
 				case DataType.Boolean:
@@ -461,6 +468,7 @@ namespace MoonSharp.Interpreter
 
 			switch (Type)
 			{
+				case DataType.Void:
 				case DataType.Nil:
 					m_HashCode = 0;
 					break;
@@ -508,11 +516,17 @@ namespace MoonSharp.Interpreter
 			DynValue other = obj as DynValue;
 
 			if (other == null) return false;
+
+			if ((other.Type == DataType.Nil && this.Type == DataType.Void)
+				|| (other.Type == DataType.Void && this.Type == DataType.Nil))
+				return true;
+
 			if (other.Type != this.Type) return false;
 
 
 			switch (Type)
 			{
+				case DataType.Void:
 				case DataType.Nil:
 					return true;
 				case DataType.Boolean:
@@ -605,7 +619,7 @@ namespace MoonSharp.Interpreter
 			DynValue rv = ToScalar();
 			if (rv.Type == DataType.Boolean)
 				return rv.Boolean;
-			else return (rv.Type != DataType.Nil);
+			else return (rv.Type != DataType.Nil && rv.Type != DataType.Void);
 		}
 
 		/// <summary>
@@ -617,7 +631,7 @@ namespace MoonSharp.Interpreter
 				return this;
 
 			if (Tuple.Length == 0)
-				return DynValue.Nil;
+				return DynValue.Void;
 
 			return Tuple[0].ToScalar();
 		}
@@ -656,19 +670,43 @@ namespace MoonSharp.Interpreter
 		}
 
 		/// <summary>
-		/// Determines whether this instance is nil.
+		/// Determines whether this instance is nil or void
 		/// </summary>
 		public bool IsNil()
 		{
-			return this.Type == DataType.Nil;
+			return this.Type == DataType.Nil || this.Type == DataType.Void;
 		}
 
 		/// <summary>
-		/// Determines whether is nil or NaN (and thus unsuitable for using as a table key).
+		/// Determines whether this instance is not nil or void
+		/// </summary>
+		public bool IsNotNil()
+		{
+			return this.Type != DataType.Nil && this.Type != DataType.Void;
+		}
+
+		/// <summary>
+		/// Determines whether this instance is void
+		/// </summary>
+		public bool IsVoid()
+		{
+			return this.Type == DataType.Void;
+		}
+
+		/// <summary>
+		/// Determines whether this instance is not void
+		/// </summary>
+		public bool IsNotVoid()
+		{
+			return this.Type != DataType.Void;
+		}
+
+		/// <summary>
+		/// Determines whether is nil, void or NaN (and thus unsuitable for using as a table key).
 		/// </summary>
 		public bool IsNilOrNan()
 		{
-			return (this.Type == DataType.Nil) || (this.Type == DataType.Number && double.IsNaN(this.Number));
+			return (this.Type == DataType.Nil) || (this.Type == DataType.Void) || (this.Type == DataType.Number && double.IsNaN(this.Number));
 		}
 
 		/// <summary>
@@ -689,31 +727,64 @@ namespace MoonSharp.Interpreter
 		/// Expands tuples to a list using functiona arguments logic
 		/// </summary>
 		/// <param name="args">The arguments to expand.</param>
-		/// <param name="target">The target list (if null, a new list is created and returned).</param>
+		/// <param name="target">The target list (if null, a new list is created and returned, if needed).</param>
 		/// <returns></returns>
-		public static IList<DynValue> ExpandArgumentsToList(IList<DynValue> args, List<DynValue> target = null)
+		public static IList<DynValue> ExpandArgumentsToList(IList<DynValue> args, IList<DynValue> target = null)
 		{
-			target = target ?? new List<DynValue>();
+			int lastValueIndex = -1;
+			bool hasTuples = (target != null);
 
-			for(int i = 0; i < args.Count; i++)
+			if (target == null)
 			{
-				DynValue v = args[i];
+				for (int i = 0; i < args.Count; i++)
+				{
+					DynValue v = args[i];
 
-				if (v.Type == DataType.Tuple)
-				{
-					if (i == args.Count - 1)
-					{
-						ExpandArgumentsToList(v.Tuple, target);
-					}
-					else if (v.Tuple.Length > 0)
-					{
-						target.Add(v.Tuple[0]);
-					}
+					if (v.Type == DataType.Tuple)
+						hasTuples = true;
+
+					if (v.Type != DataType.Void)
+						lastValueIndex = i;
 				}
+
+				if (hasTuples)
+					target = new List<DynValue>();
 				else
+					target = args;
+			}
+
+			if (hasTuples)
+			{
+				for (int i = 0; i < args.Count; i++)
 				{
-					target.Add(v);
+					DynValue v = args[i];
+
+					if (v.Type == DataType.Tuple)
+					{
+						if (i == args.Count - 1)
+						{
+							ExpandArgumentsToList(v.Tuple, target);
+						}
+						else if (v.Tuple.Length > 0)
+						{
+							target.Add(v.Tuple[0]);
+						}
+					}
+					else
+					{
+						target.Add(v);
+						if (v.Type != DataType.Void)
+							lastValueIndex = i;
+					}
 				}
+			}
+
+
+			// all non-last voids become nils
+			for (int i = 0; i < lastValueIndex; i++)
+			{
+				if (target[i].Type == DataType.Void)
+					target[i] = DynValue.Nil;
 			}
 
 			return target;
@@ -745,6 +816,54 @@ namespace MoonSharp.Interpreter
 		{
 			return (T)MoonSharp.Interpreter.Interop.ConversionHelper.MoonSharpValueToObjectOfType(this, typeof(T), null);
 		}
+
+		/// <summary>
+		/// Checks the type of this value corresponds to the desired type.
+		/// </summary>
+		/// <param name="funcName">Name of the function.</param>
+		/// <param name="desiredType">Type of the desired.</param>
+		/// <param name="argNum">The argument number.</param>
+		/// <param name="flags">The flags.</param>
+		/// <returns></returns>
+		public DynValue CheckType(string funcName, DataType desiredType, int argNum = -1, TypeValidationFlags flags = TypeValidationFlags.Default)
+		{
+			if (this.Type == desiredType)
+				return this;
+
+			bool allowNil = ((int)(flags & TypeValidationFlags.AllowNil) != 0);
+
+			if (allowNil && this.IsNil())
+				return this;
+
+			bool autoConvert = ((int)(flags & TypeValidationFlags.AutoConvert) != 0);
+
+			if (autoConvert)
+			{
+				if (desiredType == DataType.Boolean)
+					return DynValue.NewBoolean(this.CastToBool());
+
+				if (desiredType == DataType.Number)
+				{
+					double? v = this.CastToNumber();
+					if (v.HasValue)
+						return DynValue.NewNumber(v.Value);
+				}
+
+				if (desiredType == DataType.String)
+				{
+					string v = this.CastToString();
+					if (v != null)
+						return DynValue.NewString(v);
+				}
+			}
+
+
+			if (this.IsNil())
+				throw ScriptRuntimeException.BadArgumentNoValue(argNum, funcName, desiredType);
+
+			throw ScriptRuntimeException.BadArgument(argNum, funcName, desiredType, this.Type, allowNil);
+		}
+
 
 	}
 

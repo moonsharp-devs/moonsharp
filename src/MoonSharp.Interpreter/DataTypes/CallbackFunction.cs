@@ -29,6 +29,7 @@ namespace MoonSharp.Interpreter
 		/// </summary>
 		/// <param name="executionContext">The execution context.</param>
 		/// <param name="args">The arguments.</param>
+		/// <param name="isMethodCall">if set to <c>true</c> this is a method call.</param>
 		/// <returns></returns>
 		public DynValue Invoke(ScriptExecutionContext executionContext, IList<DynValue> args, bool isMethodCall = false)
 		{
@@ -93,9 +94,9 @@ namespace MoonSharp.Interpreter
 		}
 
 		/// <summary>
-		/// Gets or sets a Table used as additional data to the callback function (available in the execution context).
+		/// Gets or sets an object used as additional data to the callback function (available in the execution context).
 		/// </summary>
-		public Table Closure { get; set; }
+		public object AdditionalData { get; set; }
 
 	}
 }

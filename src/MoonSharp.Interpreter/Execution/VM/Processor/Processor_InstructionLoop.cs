@@ -120,7 +120,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 							{
 								DynValue v = m_ValueStack.Pop();
 
-								if (v.Type == DataType.Nil)
+								if (v.Type == DataType.Nil || v.Type == DataType.Void)
 									instructionPtr = i.NumVal;
 							}
 							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
@@ -566,10 +566,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				IList<DynValue> args = new Slice<DynValue>(m_ValueStack, m_ValueStack.Count - argsCount, argsCount, false);
 
 				// we expand tuples before callbacks
-				if (args.Any(v => v.Type == DataType.Tuple))
-				{
-					args = DynValue.ExpandArgumentsToList(args);
-				}
+				args = DynValue.ExpandArgumentsToList(args);
 
 				var ret = fn.Callback.Invoke(new ScriptExecutionContext(this, fn.Callback), args, isMethodCall:thisCall);
 				m_ValueStack.RemoveLast(argsCount + 1);
@@ -599,7 +596,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				{
 					var m = metatable.RawGet("__call");
 
-					if (m != null && m.Type != DataType.Nil)
+					if (m != null && m.IsNotNil())
 					{
 						DynValue[] tmp = new DynValue[argsCount + 1];
 						for (int i = 0; i < argsCount + 1; i++)
@@ -635,7 +632,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				retpoint = csi.ReturnAddress;
 				var argscnt = (int)(m_ValueStack.Pop().Number);
 				m_ValueStack.RemoveLast(argscnt + 1);
-				m_ValueStack.Push(DynValue.Nil);
+				m_ValueStack.Push(DynValue.Void);
 			}
 			else if (i.NumVal == 1)
 			{
@@ -877,7 +874,11 @@ namespace MoonSharp.Interpreter.Execution.VM
 			}
 			else if (r.Type != l.Type)
 			{
-				m_ValueStack.Push(DynValue.False);
+				if ((l.Type == DataType.Nil && r.Type == DataType.Void)
+					|| (l.Type == DataType.Void && r.Type == DataType.Nil))
+					m_ValueStack.Push(DynValue.True);
+				else
+					m_ValueStack.Push(DynValue.False);
 			}
 			else if ((l.Type == DataType.Table || l.Type == DataType.UserData) && (GetMetatable(l) != null) && (GetMetatable(l) == GetMetatable(r)))
 			{

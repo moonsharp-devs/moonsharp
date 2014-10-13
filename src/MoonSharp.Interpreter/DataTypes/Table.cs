@@ -242,7 +242,7 @@ namespace MoonSharp.Interpreter
 		{
 			for (LinkedListNode<TablePair> node = m_Values.First; node != null; node = node.Next)
 			{
-				if (node.Value.Value.Type == DataType.Nil)
+				if (node.Value.Value.IsNil())
 				{
 					if (node.Value.Key.Type == DataType.Number)
 					{
@@ -272,7 +272,7 @@ namespace MoonSharp.Interpreter
 		/// </summary>
 		public TablePair? NextKey(DynValue v)
 		{
-			if (v.Type == DataType.Nil)
+			if (v.IsNil())
 			{
 				LinkedListNode<TablePair> node = m_Values.First;
 

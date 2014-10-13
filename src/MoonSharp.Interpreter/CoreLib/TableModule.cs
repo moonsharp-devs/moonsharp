@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using MoonSharp.Interpreter.CoreLib.Patterns;
+using MoonSharp.Interpreter.CoreLib.StringLib;
 using MoonSharp.Interpreter.Execution;
 
 namespace MoonSharp.Interpreter.CoreLib
@@ -51,7 +51,7 @@ namespace MoonSharp.Interpreter.CoreLib
 			DynValue vlist = args.AsType(0, "sort", DataType.Table, false);
 			DynValue lt = args[1];
 
-			if (lt.Type != DataType.Function && lt.Type != DataType.ClrFunction && lt.Type != DataType.Nil)
+			if (lt.Type != DataType.Function && lt.Type != DataType.ClrFunction && lt.IsNotNil())
 				args.AsType(1, "sort", DataType.Function, true); // this throws
 
 			int end = GetTableLength(executionContext, vlist);

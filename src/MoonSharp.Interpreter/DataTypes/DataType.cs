@@ -16,6 +16,10 @@ namespace MoonSharp.Interpreter
 		/// </summary>
 		Nil,
 		/// <summary>
+		/// A place holder for no value
+		/// </summary>
+		Void,
+		/// <summary>
 		/// A Lua boolean
 		/// </summary>
 		Boolean,
@@ -90,6 +94,8 @@ namespace MoonSharp.Interpreter
 		{
 			switch (type)
 			{
+				case DataType.Void:
+					return "no value";
 				case DataType.Nil:
 					return "nil";
 				case DataType.Boolean:
@@ -127,6 +133,7 @@ namespace MoonSharp.Interpreter
 		{
 			switch (type)
 			{
+				case DataType.Void:
 				case DataType.Nil:
 					return "nil";
 				case DataType.Boolean:

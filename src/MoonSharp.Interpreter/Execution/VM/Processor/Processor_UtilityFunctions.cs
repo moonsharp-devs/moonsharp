@@ -59,7 +59,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			if (op1_MetaTable != null)
 			{
 				DynValue meta1 = op1_MetaTable.RawGet(eventName);
-				if (meta1 != null && meta1.Type != DataType.Nil)
+				if (meta1 != null && meta1.IsNotNil())
 					m = meta1;
 			}
 

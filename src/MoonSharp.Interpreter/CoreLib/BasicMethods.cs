@@ -221,6 +221,9 @@ namespace MoonSharp.Interpreter.CoreLib
 
 			for (int i = 0; i < args.Count; i++)
 			{
+				if (args[i].IsVoid())
+					break;
+
 				if (i != 0)
 					sb.Append('\t');
 

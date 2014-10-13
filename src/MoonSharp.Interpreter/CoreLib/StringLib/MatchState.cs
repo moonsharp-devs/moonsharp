@@ -1,4 +1,6 @@
-﻿// This portion of code is taken from UniLua: https://github.com/xebecnan/UniLua
+﻿#if true
+
+// This portion of code is taken from UniLua: https://github.com/xebecnan/UniLua
 //
 // Copyright (C) 2013 Sheng Lunan
 //
@@ -19,7 +21,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MoonSharp.Interpreter.CoreLib.Patterns
+namespace MoonSharp.Interpreter.CoreLib.StringLib
 {
 	class MatchState
 	{
@@ -42,3 +44,6 @@ namespace MoonSharp.Interpreter.CoreLib.Patterns
 		}
 	}
 }
+
+
+#endif

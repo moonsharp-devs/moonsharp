@@ -42,13 +42,13 @@ namespace MoonSharp.Interpreter.Execution.VM
 			if (op1_MetaTable != null)
 			{
 				DynValue meta1 = op1_MetaTable.RawGet(eventName);
-				if (meta1 != null && meta1.Type != DataType.Nil)
+				if (meta1 != null && meta1.IsNotNil())
 					return meta1;
 			}
 			if (op2_MetaTable != null)
 			{
 				DynValue meta2 = op2_MetaTable.RawGet(eventName);
-				if (meta2 != null && meta2.Type != DataType.Nil)
+				if (meta2 != null && meta2.IsNotNil())
 					return meta2;
 			}
 			return null;
@@ -63,7 +63,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 			var metameth = metatable.RawGet(metamethod);
 			
-			if (metameth == null || metameth.Type == DataType.Nil)
+			if (metameth == null || metameth.IsNil())
 				return null;
 
 			return metameth;

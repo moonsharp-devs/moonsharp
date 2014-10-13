@@ -86,17 +86,21 @@
     <Compile Include="CoreLib\MathModule.cs" />
     <Compile Include="CoreLib\MetaTableMethods.cs" />
     <Compile Include="CoreLib\OsMethods.cs" />
-    <Compile Include="CoreLib\Patterns\CaptureInfo.cs">
+    <Compile Include="CoreLib\StringLib\CaptureInfo.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="CoreLib\Patterns\MatchState.cs">
+    <Compile Include="CoreLib\StringLib\KopiLua_StrLib.cs" />
+    <Compile Include="DataTypes\TypeValidationFlags.cs" />
+    <Compile Include="Interop\LuaStateInterop\CharPtr.cs" />
+    <Compile Include="Interop\LuaStateInterop\LuaBase.cs" />
+    <Compile Include="CoreLib\StringLib\MatchState.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="CoreLib\Patterns\PatternMatching.cs">
+    <Compile Include="CoreLib\StringLib\PatternMatching.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="CoreLib\Patterns\StringRange.cs" />
-    <Compile Include="CoreLib\Patterns\Tools.cs" />
+    <Compile Include="CoreLib\StringLib\StringRange.cs" />
+    <Compile Include="CoreLib\StringLib\Tools.cs" />
     <Compile Include="CoreLib\StringModule.cs" />
     <Compile Include="CoreLib\TableIterators.cs" />
     <Compile Include="CoreLib\TableModule.cs" />
@@ -158,6 +162,8 @@
     <Compile Include="Interop\ConversionHelper.cs" />
     <Compile Include="Interop\EnumerableWrapper.cs" />
     <Compile Include="Interop\LinqHelpers.cs" />
+    <Compile Include="Interop\LuaStateInterop\LuaLBuffer.cs" />
+    <Compile Include="Interop\LuaStateInterop\LuaState.cs" />
     <Compile Include="Interop\MoonSharpUserDataAttribute.cs" />
     <Compile Include="Interop\MoonSharpVisibleAttribute.cs" />
     <Compile Include="Interop\UserDataDelegateDescriptor.cs" />
