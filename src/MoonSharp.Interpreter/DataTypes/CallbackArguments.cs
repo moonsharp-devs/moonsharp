@@ -45,7 +45,7 @@ namespace MoonSharp.Interpreter
 		{
 			get
 			{
-				return RawGet(index) ?? DynValue.Nil;
+				return RawGet(index) ?? DynValue.Void;
 			}
 		}
 

@@ -858,7 +858,7 @@ namespace MoonSharp.Interpreter
 			}
 
 
-			if (this.IsNil())
+			if (this.IsVoid())
 				throw ScriptRuntimeException.BadArgumentNoValue(argNum, funcName, desiredType);
 
 			throw ScriptRuntimeException.BadArgument(argNum, funcName, desiredType, this.Type, allowNil);
