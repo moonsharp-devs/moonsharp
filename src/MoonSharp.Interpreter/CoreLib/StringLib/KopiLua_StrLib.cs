@@ -1,5 +1,4 @@
-﻿#if false
-//
+﻿//
 // This part taken from KopiLua - https://github.com/NLua/KopiLua
 //
 // =========================================================================================================
@@ -60,8 +59,7 @@ using MoonSharp.Interpreter.Execution;
 
 namespace MoonSharp.Interpreter.CoreLib.StringLib
 {
-
-	public class Lua : LuaBase
+	public class KopiLua_StringLib : LuaBase
 	{
 		public const int LUA_MAXCAPTURES = 32;
 
@@ -169,26 +167,26 @@ namespace MoonSharp.Interpreter.CoreLib.StringLib
 		private static int match_class(char c, char cl)
 		{
 			bool res;
-			switch (Char.ToLowerInvariant(cl))
+			switch (tolower(cl))
 			{
-				case 'a': res = Char.IsLetter(c); break;
-				case 'c': res = Char.IsControl(c); break;
-				case 'd': res = Char.IsDigit(c); break;
-				case 'l': res = Char.IsLower(c); break;
-				case 'p': res = Char.IsPunctuation(c); break;
-				case 's': res = Char.IsWhiteSpace(c); break;
-				case 'u': res = Char.IsUpper(c); break;
-				case 'w': res = Char.IsLetterOrDigit(c); break;
+				case 'a': res = isalpha(c); break;
+				case 'c': res = iscntrl(c); break;
+				case 'd': res = isdigit(c); break;
+				case 'l': res = islower(c); break;
+				case 'p': res = ispunct(c); break;
+				case 's': res = isspace(c); break;
+				case 'u': res = isupper(c); break;
+				case 'w': res = isalnum(c); break;
 				case 'x': res = isxdigit((char)c); break;
 				case 'z': res = (c == 0); break;
 				default: return (cl == c) ? 1 : 0;
 			}
-			return (Char.IsLower(cl) ? (res ? 1 : 0) : ((!res) ? 1 : 0));
+			return (islower(cl) ? (res ? 1 : 0) : ((!res) ? 1 : 0));
 		}
 
-		private static bool isxdigit(char p)
+		protected static bool isxdigit(char p)
 		{
-			return Char.IsDigit(p) ||
+			return isdigit(p) ||
 				p == 'a' || p == 'A' ||
 				p == 'b' || p == 'B' ||
 				p == 'c' || p == 'C' ||
@@ -379,7 +377,7 @@ namespace MoonSharp.Interpreter.CoreLib.StringLib
 								}
 							default:
 								{
-									if (Char.IsDigit((char)(p[1])))
+									if (isdigit((char)(p[1])))
 									{  /* capture results (%0-%9)? */
 										s = match_capture(ms, s, (byte)(p[1]));
 										if (s == null) return null;
@@ -645,8 +643,8 @@ namespace MoonSharp.Interpreter.CoreLib.StringLib
 		private static int gmatch(LuaState L)
 		{
 			CallbackFunction C = new CallbackFunction(gmatch_aux_2);
-			string s = L.Args.AsString(L.ExecutionContext, 1, "gmatch", false);
-			string p = L.Args.AsString(L.ExecutionContext, 1, "gmatch", false);
+			string s = ArgAsType(L, 1, DataType.String, false).String;
+			string p = ArgAsType(L, 2, DataType.String, false).String;
 
 
 			C.AdditionalData = new GMatchAuxData()
@@ -657,7 +655,7 @@ namespace MoonSharp.Interpreter.CoreLib.StringLib
 				POS = 0
 			};
 
-			L.ReturnValues.Add(DynValue.NewCallback(C));
+			L.Push(DynValue.NewCallback(C));
 
 			return 1;
 		}
@@ -682,7 +680,7 @@ namespace MoonSharp.Interpreter.CoreLib.StringLib
 				else
 				{
 					i++;  /* skip ESC */
-					if (!Char.IsDigit((char)(news[i])))
+					if (!isdigit((char)(news[i])))
 						LuaLAddChar(b, news[i]);
 					else if (news[i] == '0')
 						LuaLAddLString(b, s, (uint)(e - s));
@@ -734,10 +732,9 @@ namespace MoonSharp.Interpreter.CoreLib.StringLib
 			}
 			else if (LuaIsString(L, -1) == 0)
 				LuaLError(L, "invalid replacement value (a %s)", LuaLTypeName(L, -1));
+
 			LuaLAddValue(b);  /* add result to accumulator */
 		}
-
-
 
 		private static int str_gsub(LuaState L)
 		{
@@ -791,6 +788,7 @@ namespace MoonSharp.Interpreter.CoreLib.StringLib
 			LuaPushInteger(L, n);  /* number of substitutions */
 			return 2;
 		}
+
 
 		/* }====================================================== */
 
@@ -984,4 +982,3 @@ namespace MoonSharp.Interpreter.CoreLib.StringLib
 
 	}
 }
-#endif

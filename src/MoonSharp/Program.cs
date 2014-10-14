@@ -13,7 +13,7 @@ namespace MoonSharp
 	{
 		static DynValue Print(ScriptExecutionContext executionContext, CallbackArguments values)
 		{
-			string prn = string.Join(" ", values.List.Select(v => v.ToPrintString()).ToArray());
+			string prn = string.Join(" ", values.GetArray().Where(v => v.IsNotVoid()).Select(v => v.ToPrintString()).ToArray());
 			Console.WriteLine("{0}", prn);
 			return DynValue.Nil;
 		}

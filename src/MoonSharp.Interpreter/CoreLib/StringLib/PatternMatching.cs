@@ -762,12 +762,12 @@ namespace MoonSharp.Interpreter.CoreLib.StringLib
 					case 'e':
 					case 'E':
 						{
-							sb.AppendFormat("{0:E}", args.AsDouble(argidx, FUNCNAME));
+							sb.AppendFormat("{0:E}", args.AsType(argidx, FUNCNAME, DataType.Number).Number);
 							break;
 						}
 					case 'f':
 						{
-							sb.AppendFormat("{0:F}", args.AsDouble(argidx, FUNCNAME));
+							sb.AppendFormat("{0:F}", args.AsType(argidx, FUNCNAME, DataType.Number).Number);
 							break;
 						}
 #if LUA_USE_AFORMAT
@@ -776,7 +776,7 @@ namespace MoonSharp.Interpreter.CoreLib.StringLib
 					case 'g':
 					case 'G':
 						{
-							sb.AppendFormat("{0:G}", args.AsDouble(argidx, FUNCNAME));
+							sb.AppendFormat("{0:G}", args.AsType(argidx, FUNCNAME, DataType.Number).Number);
 							break;
 						}
 					case 'q':

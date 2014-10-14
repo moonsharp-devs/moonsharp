@@ -12,6 +12,8 @@ namespace MoonSharp.Interpreter
 	public class CallbackArguments
 	{
 		IList<DynValue> m_Args;
+		int m_Count;
+		bool m_LastIsTuple = false;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="CallbackArguments" /> class.
@@ -21,6 +23,30 @@ namespace MoonSharp.Interpreter
 		public CallbackArguments(IList<DynValue> args, bool isMethodCall)
 		{
 			m_Args = args;
+
+			if (m_Args.Count > 0)
+			{
+				var last = m_Args[m_Args.Count - 1];
+
+				if (last.Type == DataType.Tuple)
+				{
+					m_Count = last.Tuple.Length - 1 + m_Args.Count;
+					m_LastIsTuple = true;
+				}
+				else if (last.Type == DataType.Void)
+				{
+					m_Count = m_Args.Count - 1;
+				}
+				else
+				{
+					m_Count = m_Args.Count;
+				}
+			}
+			else
+			{
+				m_Count = 0;
+			}
+
 			IsMethodCall = isMethodCall;
 		}
 
@@ -29,7 +55,7 @@ namespace MoonSharp.Interpreter
 		/// </summary>
 		public int Count
 		{
-			get { return m_Args.Count; }
+			get { return m_Count; }
 		}
 
 		/// <summary>
@@ -45,33 +71,61 @@ namespace MoonSharp.Interpreter
 		{
 			get
 			{
-				return RawGet(index) ?? DynValue.Void;
+				return RawGet(index, true) ?? DynValue.Void;
 			}
 		}
 
 		/// <summary>
-		/// Gets the <see cref="DynValue"/> at the specified index, or null.
+		/// Gets the <see cref="DynValue" /> at the specified index, or null.
 		/// </summary>
-		public DynValue RawGet(int index)
+		/// <param name="index">The index.</param>
+		/// <param name="translateVoids">if set to <c>true</c> all voids are translated to nils.</param>
+		/// <returns></returns>
+		public DynValue RawGet(int index, bool translateVoids)
 		{
-			if (index < m_Args.Count)
-				return m_Args[index];
+			DynValue v;
 
-			return null;
+			if (index >= m_Count)
+				return null;
+
+			if (!m_LastIsTuple || index < m_Args.Count - 1)
+				v = m_Args[index];
+			else
+				v = m_Args[m_Args.Count - 1].Tuple[index - (m_Args.Count - 1)];
+
+			if (v.Type == DataType.Tuple)
+			{
+				if (v.Tuple.Length > 0)
+					v = v.Tuple[0];
+				else
+					v = DynValue.Nil;
+			}
+
+			if (translateVoids && v.Type == DataType.Void)
+			{
+				v = DynValue.Nil;
+			}
+
+			return v;
 		}
 
 
 		/// <summary>
-		/// Gets the list of arguments
-		/// </summary>
-		public IList<DynValue> List { get { return m_Args; } }
-
-		/// <summary>
 		/// Converts the arguments to an array
 		/// </summary>
-		public DynValue[] ToArray()
+		/// <param name="skip">The number of elements to skip (default= 0).</param>
+		/// <returns></returns>
+		public DynValue[] GetArray(int skip = 0)
 		{
-			return List.ToArray();
+			if (skip >= m_Count)
+				return new DynValue[0];
+
+			DynValue[] vals = new DynValue[m_Count - skip];
+
+			for (int i = skip; i < m_Count; i++)
+				vals[i - skip] = this[i];
+
+			return vals;
 		}
 
 		/// <summary>
@@ -88,56 +142,35 @@ namespace MoonSharp.Interpreter
 			return this[argNum].CheckType(funcName, type, argNum, allowNil ? TypeValidationFlags.AllowNil | TypeValidationFlags.AutoConvert : TypeValidationFlags.AutoConvert);
 		}
 
-
-
-		public double AsDouble(int argNum, string funcName)
-		{
-			if (this[argNum].IsNil())
-			{
-					throw ScriptRuntimeException.BadArgumentNoValue(argNum, funcName, DataType.Number);
-			}
-
-			if (this[argNum].Type != DataType.Number)
-			{
-				double? val = this[argNum].CastToNumber();
-				throw ScriptRuntimeException.BadArgument(argNum, funcName, DataType.Number, this[argNum].Type, false);
-			}
-			else
-			{
-				return this[argNum].Number;
-			}
-		}
-
+		/// <summary>
+		/// Gets the specified argument as an integer
+		/// </summary>
+		/// <param name="argNum">The argument number.</param>
+		/// <param name="funcName">Name of the function.</param>
+		/// <returns></returns>
 		public int AsInt(int argNum, string funcName)
 		{
-			double d = AsDouble(argNum, funcName);
+			DynValue v = AsType(argNum, funcName, DataType.Number, false);
+			double d = v.Number;
 			return (int)d;
 		}
 
-		public string AsString(ScriptExecutionContext executionContext, int argNum, string funcName, bool allowNil = false)
+
+		/// <summary>
+		/// Gets the specified argument as a string, calling the __tostring metamethod if needed, in a NON
+		/// yield-compatible way.
+		/// </summary>
+		/// <param name="executionContext">The execution context.</param>
+		/// <param name="argNum">The argument number.</param>
+		/// <param name="funcName">Name of the function.</param>
+		/// <returns></returns>
+		/// <exception cref="ScriptRuntimeException">'tostring' must return a string to '{0}'</exception>
+		public string AsStringUsingMeta(ScriptExecutionContext executionContext, int argNum, string funcName)
 		{
-			if (this[argNum].IsNil())
+			if ((this[argNum].Type == DataType.Table) && (this[argNum].Table.MetaTable != null) &&
+				(this[argNum].Table.MetaTable.RawGet("__tostring") != null))
 			{
-				if (allowNil)
-					return null;
-				else
-					throw ScriptRuntimeException.BadArgumentNoValue(argNum, funcName, DataType.String);
-			}
-
-			string str = this[argNum].CastToString();
-
-			if (str != null)
-				return str;
-
-			throw ScriptRuntimeException.BadArgument(argNum, funcName, DataType.String, this[argNum].Type, allowNil);
-		}
-
-		public string AsStringUsingMeta(ScriptExecutionContext executionContext, int i, string funcName)
-		{
-			if ((this[i].Type == DataType.Table) && (this[i].Table.MetaTable != null) &&
-				(this[i].Table.MetaTable.RawGet("__tostring") != null))
-			{
-				var v = executionContext.GetScript().Call(this[i].Table.MetaTable.RawGet("__tostring"), this[i]);
+				var v = executionContext.GetScript().Call(this[argNum].Table.MetaTable.RawGet("__tostring"), this[argNum]);
 
 				if (v.Type != DataType.String)
 					throw new ScriptRuntimeException("'tostring' must return a string to '{0}'", funcName);
@@ -146,7 +179,7 @@ namespace MoonSharp.Interpreter
 			}
 			else
 			{
-				return (this[i].ToPrintString());
+				return (this[argNum].ToPrintString());
 			}
 		}
 

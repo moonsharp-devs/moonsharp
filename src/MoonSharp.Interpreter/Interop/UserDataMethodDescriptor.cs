@@ -66,7 +66,8 @@ namespace MoonSharp.Interpreter.Interop
 				}
 				else
 				{
-					pars[i] = ConversionHelper.MoonSharpValueToObjectOfType(args[j], m_Arguments[i], m_Defaults[i]);
+					var arg = args.RawGet(j, false) ?? DynValue.Void;
+					pars[i] = ConversionHelper.MoonSharpValueToObjectOfType(arg, m_Arguments[i], m_Defaults[i]);
 					j++;
 				}
 			}

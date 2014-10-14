@@ -1,5 +1,4 @@
-﻿#if false
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,11 +6,21 @@ using ptrdiff_t = System.Int32;
 using lua_Integer = System.Int32;
 using LUA_INTFRM_T = System.Int64;
 using UNSIGNED_LUA_INTFRM_T = System.UInt64;
-using LuaLBuffer = System.Text.StringBuilder;
 
 namespace MoonSharp.Interpreter.Interop.LuaStateInterop
 {
-	public class LuaBase
+	/// <summary>
+	/// Classes using the classic interface should inherit from this class.
+	/// This class defines only static methods and is really meant to be used only
+	/// from C# and not other .NET languages. 
+	/// 
+	/// For easier operation they should also define:
+	///		using ptrdiff_t = System.Int32;
+	///		using lua_Integer = System.Int32;
+	///		using LUA_INTFRM_T = System.Int64;
+	///		using UNSIGNED_LUA_INTFRM_T = System.UInt64;
+	/// </summary>
+	public partial class LuaBase
 	{
 		protected const int LUA_TNONE = -1;
 		protected const int LUA_TNIL = 0;
@@ -24,14 +33,24 @@ namespace MoonSharp.Interpreter.Interop.LuaStateInterop
 		protected const int LUA_TUSERDATA = 7;
 		protected const int LUA_TTHREAD = 8;
 
+		protected const string LUA_INTFRMLEN = "l";
+
+		protected static DynValue GetArgument(LuaState L, lua_Integer pos)
+		{
+			return L.At(pos);
+		}
+
+		protected static DynValue ArgAsType(LuaState L, lua_Integer pos, DataType type, bool allowNil = false)
+		{
+			return GetArgument(L, pos).CheckType(L.FunctionName, type, pos, allowNil ? TypeValidationFlags.AllowNil | TypeValidationFlags.AutoConvert : TypeValidationFlags.AutoConvert);
+		}
 
 		protected static lua_Integer LuaType(LuaState L, lua_Integer p)
 		{
-			if (p > L.Args.Count || p <= 0)
-				return LUA_TNONE;
-
-			switch (L.Args[p].Type)
+			switch (GetArgument(L, p).Type)
 			{
+				case DataType.Void:
+					return LUA_TNONE;
 				case DataType.Nil:
 					return LUA_TNIL;
 				case DataType.Boolean:
@@ -60,19 +79,19 @@ namespace MoonSharp.Interpreter.Interop.LuaStateInterop
 
 		protected static string LuaLCheckLString(LuaState L, lua_Integer argNum, out uint l)
 		{
-			string str = L.Args.AsString(L.ExecutionContext, argNum, L.FunctionName);
+			string str = ArgAsType(L, argNum, DataType.String, false).String;
 			l = (uint)str.Length;
 			return str;
 		}
 
 		protected static void LuaPushInteger(LuaState L, lua_Integer val)
 		{
-			L.Stack.Push(DynValue.NewNumber(val));
+			L.Push(DynValue.NewNumber(val));
 		}
 
 		protected static lua_Integer LuaToBoolean(LuaState L, lua_Integer p)
 		{
-			return L.Args[p].CastToBool() ? 1 : 0;
+			return GetArgument(L, p).CastToBool() ? 1 : 0;
 		}
 
 		protected static string LuaToLString(LuaState luaState, lua_Integer p, out uint l)
@@ -88,7 +107,7 @@ namespace MoonSharp.Interpreter.Interop.LuaStateInterop
 
 		protected static void LuaLAddValue(LuaLBuffer b)
 		{
-			b.StringBuilder.Append(b.LuaState.Stack.Pop().ToPrintString());
+			b.StringBuilder.Append(b.LuaState.Pop().ToPrintString());
 		}
 
 		protected static void LuaLAddLString(LuaLBuffer b, CharPtr s, uint p)
@@ -98,12 +117,18 @@ namespace MoonSharp.Interpreter.Interop.LuaStateInterop
 
 		protected static lua_Integer LuaLOptInteger(LuaState L, lua_Integer pos, lua_Integer def)
 		{
-			return L.Args.AsInt(pos, L.FunctionName, true) ?? def;
+			DynValue v = ArgAsType(L, pos, DataType.Number, true);
+
+			if (v.IsNil())
+				return def;
+			else
+				return (int)v.Number;
 		}
 
 		protected static lua_Integer LuaLCheckInteger(LuaState L, lua_Integer pos)
 		{
-			return L.Args.AsInt(pos, L.FunctionName).Value;
+			DynValue v = ArgAsType(L, pos, DataType.Number, false);
+			return (int)v.Number;
 		}
 
 		protected static void LuaLArgCheck(LuaState L, bool condition, lua_Integer argNum, string message)
@@ -119,7 +144,7 @@ namespace MoonSharp.Interpreter.Interop.LuaStateInterop
 
 		protected static lua_Integer LuaGetTop(LuaState L)
 		{
-			return L.Args.Count;
+			return L.Count;
 		}
 
 		protected static lua_Integer LuaLError(LuaState luaState, string message, params object[] args)
@@ -138,7 +163,7 @@ namespace MoonSharp.Interpreter.Interop.LuaStateInterop
 
 		protected static void LuaPushLiteral(LuaState L, string literalString)
 		{
-			L.Stack.Push(DynValue.NewString(literalString));
+			L.Push(DynValue.NewString(literalString));
 		}
 
 		protected static void LuaLPushResult(LuaLBuffer b)
@@ -148,14 +173,14 @@ namespace MoonSharp.Interpreter.Interop.LuaStateInterop
 
 		protected static void LuaPushLString(LuaState L, CharPtr s, uint len)
 		{
-			throw new NotImplementedException();
+			string ss = s.ToString((int)len);
+			L.Push(DynValue.NewString(ss));
 		}
 
 		protected static void LuaLCheckStack(LuaState L, lua_Integer n, string message)
 		{
-			//throw new NotImplementedException();
+			// nop ?
 		}
-
 
 		protected static string LUA_QL(string p)
 		{
@@ -163,44 +188,9 @@ namespace MoonSharp.Interpreter.Interop.LuaStateInterop
 		}
 
 
-		protected static lua_Integer memcmp(CharPtr ptr1, CharPtr ptr2, uint size)
-		{
-			return memcmp(ptr1, ptr2, (int)size);
-		}
-
-		protected static int memcmp(CharPtr ptr1, CharPtr ptr2, int size)
-		{
-			for (int i = 0; i < size; i++)
-				if (ptr1[i] != ptr2[i])
-				{
-					if (ptr1[i] < ptr2[i])
-						return -1;
-					else
-						return 1;
-				}
-			return 0;
-		}
-
-		protected static CharPtr memchr(CharPtr ptr, char c, uint count)
-		{
-			for (uint i = 0; i < count; i++)
-				if (ptr[i] == c)
-					return new CharPtr(ptr.chars, (int)(ptr.index + i));
-			return null;
-		}
-
-		protected static CharPtr strpbrk(CharPtr str, CharPtr charset)
-		{
-			for (int i = 0; str[i] != '\0'; i++)
-				for (int j = 0; charset[j] != '\0'; j++)
-					if (str[i] == charset[j])
-						return new CharPtr(str.chars, str.index + i);
-			return null;
-		}
-
 		protected static void LuaPushNil(LuaState L)
 		{
-			L.Stack.Push(DynValue.Nil);
+			L.Push(DynValue.Nil);
 		}
 
 		protected static void LuaAssert(bool p)
@@ -209,10 +199,62 @@ namespace MoonSharp.Interpreter.Interop.LuaStateInterop
 				throw new InternalErrorException("LuaAssert failed!");
 		}
 
+		protected static string LuaLTypeName(LuaState L, lua_Integer p)
+		{
+			return L.At(p).Type.ToErrorTypeString();
+		}
 
+		protected static lua_Integer LuaIsString(LuaState L, lua_Integer p)
+		{
+			var v = L.At(p);
+			return (v.Type == DataType.String || v.Type == DataType.Number) ? 1 : 0;
+		}
 
+		protected static void LuaPop(LuaState L, lua_Integer p)
+		{
+			for (int i = 0; i < p; i++)
+				L.Pop();
+		}
 
+		protected static void LuaGetTable(LuaState L, lua_Integer p)
+		{
+			// DEBT: this should call metamethods, now it performs raw access
+			DynValue key = L.Pop();
+			DynValue table = L.At(p);
+
+			if (table.Type != DataType.Table)
+				throw new NotImplementedException();
+
+			var v = table.Table.Get(key);
+			L.Push(v);
+		}
+
+		protected static int LuaLOptInt(LuaState L, lua_Integer pos, lua_Integer def)
+		{
+			return LuaLOptInteger(L, pos, def);
+		}
+
+		protected static CharPtr LuaLCheckString(LuaState L, lua_Integer p)
+		{
+			uint dummy;
+			return LuaLCheckLString(L, p, out dummy);
+		}
+
+		protected static void LuaLArgError(LuaState L, lua_Integer arg, string p)
+		{
+			throw new ScriptRuntimeException(p);
+		}
+
+		protected static double LuaLCheckNumber(LuaState L, lua_Integer pos)
+		{
+			DynValue v = ArgAsType(L, pos, DataType.Number, false);
+			return v.Number;
+		}
+
+		protected static void LuaPushValue(LuaState L, lua_Integer arg)
+		{
+			DynValue v = L.At(arg);
+			L.Push(v);
+		}
 	}
 }
-
-#endif

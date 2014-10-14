@@ -88,7 +88,7 @@ end
 
 		public static DynValue Print(ScriptExecutionContext executionContext, CallbackArguments values)
 		{
-			foreach (var val in values.List)
+			foreach (var val in values.GetArray())
 			{
 				g_MoonSharpStr.Append(val.ToPrintString());
 			}

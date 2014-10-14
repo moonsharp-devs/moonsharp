@@ -35,7 +35,7 @@ namespace MoonSharp.Interpreter.CoreLib
 		public static DynValue __wrap_wrapper(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			DynValue handle = (DynValue)executionContext.AdditionalData;
-			return handle.Coroutine.Resume(args.List.ToArray());
+			return handle.Coroutine.Resume(args.GetArray());
 		}
 
 		[MoonSharpMethod]
@@ -45,15 +45,30 @@ namespace MoonSharp.Interpreter.CoreLib
 
 			try
 			{
-				DynValue ret = handle.Coroutine.Resume(args.List.Skip(1).ToArray());
+				DynValue ret = handle.Coroutine.Resume(args.GetArray(1));
 
 				List<DynValue> retval = new List<DynValue>();
 				retval.Add(DynValue.True);
 
 				if (ret.Type == DataType.Tuple)
-					DynValue.ExpandArgumentsToList(ret.Tuple, retval);
+				{
+					for (int i = 0; i < ret.Tuple.Length; i++)
+					{
+						var v = ret.Tuple[i];
+						if ((i == ret.Tuple.Length - 1) && (v.Type == DataType.Tuple))
+						{
+							retval.AddRange(v.Tuple);
+						}
+						else
+						{
+							retval.Add(v);
+						}
+					}
+				}
 				else
+				{
 					retval.Add(ret);
+				}
 
 				return DynValue.NewTuple(retval.ToArray());
 			}
@@ -68,7 +83,7 @@ namespace MoonSharp.Interpreter.CoreLib
 		[MoonSharpMethod]
 		public static DynValue yield(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
-			return DynValue.NewYieldReq(args.List.ToArray());
+			return DynValue.NewYieldReq(args.GetArray());
 		}
 
 

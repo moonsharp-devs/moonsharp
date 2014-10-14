@@ -724,73 +724,6 @@ namespace MoonSharp.Interpreter
 		}
 
 		/// <summary>
-		/// Expands tuples to a list using functiona arguments logic
-		/// </summary>
-		/// <param name="args">The arguments to expand.</param>
-		/// <param name="target">The target list (if null, a new list is created and returned, if needed).</param>
-		/// <returns></returns>
-		public static IList<DynValue> ExpandArgumentsToList(IList<DynValue> args, IList<DynValue> target = null)
-		{
-			int lastValueIndex = -1;
-			bool hasTuples = (target != null);
-
-			if (target == null)
-			{
-				for (int i = 0; i < args.Count; i++)
-				{
-					DynValue v = args[i];
-
-					if (v.Type == DataType.Tuple)
-						hasTuples = true;
-
-					if (v.Type != DataType.Void)
-						lastValueIndex = i;
-				}
-
-				if (hasTuples)
-					target = new List<DynValue>();
-				else
-					target = args;
-			}
-
-			if (hasTuples)
-			{
-				for (int i = 0; i < args.Count; i++)
-				{
-					DynValue v = args[i];
-
-					if (v.Type == DataType.Tuple)
-					{
-						if (i == args.Count - 1)
-						{
-							ExpandArgumentsToList(v.Tuple, target);
-						}
-						else if (v.Tuple.Length > 0)
-						{
-							target.Add(v.Tuple[0]);
-						}
-					}
-					else
-					{
-						target.Add(v);
-						if (v.Type != DataType.Void)
-							lastValueIndex = i;
-					}
-				}
-			}
-
-
-			// all non-last voids become nils
-			for (int i = 0; i < lastValueIndex; i++)
-			{
-				if (target[i].Type == DataType.Void)
-					target[i] = DynValue.Nil;
-			}
-
-			return target;
-		}
-
-		/// <summary>
 		/// Creates a new DynValue from a CLR object
 		/// </summary>
 		/// <param name="script">The script.</param>
@@ -818,13 +751,18 @@ namespace MoonSharp.Interpreter
 		}
 
 		/// <summary>
-		/// Checks the type of this value corresponds to the desired type.
+		/// Checks the type of this value corresponds to the desired type. A propert ScriptRuntimeException is thrown
+		/// if the value is not of the specified type or - considering the TypeValidationFlags - is not convertible
+		/// to the specified type.
 		/// </summary>
-		/// <param name="funcName">Name of the function.</param>
-		/// <param name="desiredType">Type of the desired.</param>
-		/// <param name="argNum">The argument number.</param>
-		/// <param name="flags">The flags.</param>
+		/// <param name="funcName">Name of the function requesting the value, for error message purposes.</param>
+		/// <param name="desiredType">The desired data type.</param>
+		/// <param name="argNum">The argument number, for error message purposes.</param>
+		/// <param name="flags">The TypeValidationFlags.</param>
 		/// <returns></returns>
+		/// <exception cref="ScriptRuntimeException">Thrown
+		/// if the value is not of the specified type or - considering the TypeValidationFlags - is not convertible
+		/// to the specified type.</exception>
 		public DynValue CheckType(string funcName, DataType desiredType, int argNum = -1, TypeValidationFlags flags = TypeValidationFlags.Default)
 		{
 			if (this.Type == desiredType)
@@ -856,7 +794,6 @@ namespace MoonSharp.Interpreter
 						return DynValue.NewString(v);
 				}
 			}
-
 
 			if (this.IsVoid())
 				throw ScriptRuntimeException.BadArgumentNoValue(argNum, funcName, desiredType);

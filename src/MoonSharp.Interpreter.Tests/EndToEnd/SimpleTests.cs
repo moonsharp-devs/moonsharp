@@ -21,7 +21,7 @@ namespace MoonSharp.Interpreter.Tests
 
 			S.Globals.Set("print", DynValue.NewCallback(new CallbackFunction((x, a) => 
 			{
-				args = a.ToArray();
+				args = a.GetArray();
 				return DynValue.NewNumber(1234.0); 
 			})));
 
@@ -43,7 +43,7 @@ namespace MoonSharp.Interpreter.Tests
 			string script = "local print = print; print(\"hello\", \"world\");";
 
 			var S = new Script();
-			S.Globals.Set("print", DynValue.NewCallback(new CallbackFunction((_x, a) => { args = a.ToArray(); return DynValue.NewNumber(1234.0); })));
+			S.Globals.Set("print", DynValue.NewCallback(new CallbackFunction((_x, a) => { args = a.GetArray(); return DynValue.NewNumber(1234.0); })));
 
 			DynValue res = S.DoString(script);
 
@@ -63,7 +63,7 @@ namespace MoonSharp.Interpreter.Tests
 			string script = "return print(\"hello\", \"world\");";
 
 			var S = new Script();
-			S.Globals.Set("print", DynValue.NewCallback(new CallbackFunction((_x, a) => { args = a.ToArray(); return DynValue.NewNumber(1234.0); })));
+			S.Globals.Set("print", DynValue.NewCallback(new CallbackFunction((_x, a) => { args = a.GetArray(); return DynValue.NewNumber(1234.0); })));
 
 			DynValue res = S.DoString(script);
 

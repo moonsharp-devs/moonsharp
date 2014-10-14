@@ -55,9 +55,9 @@ using System.Globalization;
 
 #endregion
 
-namespace AT.MIN
+namespace MoonSharp.Interpreter.Interop.LuaStateInterop
 {
-	public static class Tools
+	internal static class Tools
 	{
 		#region Public Methods
 		#region IsNumericType

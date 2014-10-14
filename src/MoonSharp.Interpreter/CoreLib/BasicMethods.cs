@@ -43,7 +43,7 @@ namespace MoonSharp.Interpreter.CoreLib
 					throw new ScriptRuntimeException(message.ToPrintString());
 			}
 
-			return DynValue.NewTupleNested(args.ToArray());
+			return DynValue.NewTupleNested(args.GetArray());
 		}
 
 		// collectgarbage  ([opt [, arg]])

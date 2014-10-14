@@ -100,7 +100,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="CoreLib\StringLib\StringRange.cs" />
-    <Compile Include="CoreLib\StringLib\Tools.cs" />
+    <Compile Include="Interop\LuaStateInterop\Tools.cs" />
     <Compile Include="CoreLib\StringModule.cs" />
     <Compile Include="CoreLib\TableIterators.cs" />
     <Compile Include="CoreLib\TableModule.cs" />
@@ -162,6 +162,7 @@
     <Compile Include="Interop\ConversionHelper.cs" />
     <Compile Include="Interop\EnumerableWrapper.cs" />
     <Compile Include="Interop\LinqHelpers.cs" />
+    <Compile Include="Interop\LuaStateInterop\LuaBase_CLib.cs" />
     <Compile Include="Interop\LuaStateInterop\LuaLBuffer.cs" />
     <Compile Include="Interop\LuaStateInterop\LuaState.cs" />
     <Compile Include="Interop\MoonSharpUserDataAttribute.cs" />
