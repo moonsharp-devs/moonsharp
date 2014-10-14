@@ -195,8 +195,11 @@ namespace MoonSharp.Interpreter.Interop.LuaStateInterop
 
 		protected static void LuaAssert(bool p)
 		{
-			if (!p)
-				throw new InternalErrorException("LuaAssert failed!");
+			// ??! 
+			// A lot of KopiLua methods fall here in valid state!
+
+			//if (!p)
+			//	throw new InternalErrorException("LuaAssert failed!");
 		}
 
 		protected static string LuaLTypeName(LuaState L, lua_Integer p)

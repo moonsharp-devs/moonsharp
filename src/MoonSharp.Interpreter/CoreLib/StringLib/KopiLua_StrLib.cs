@@ -368,7 +368,7 @@ namespace MoonSharp.Interpreter.CoreLib.StringLib
 									p += 2;
 									if (p[0] != '[')
 										LuaLError(ms.L, "missing " + LUA_QL("[") + " after " +
-														   LUA_QL("%%f") + " in pattern");
+														   LUA_QL("%f") + " in pattern");
 									ep = classend(ms, p);  /* points to what is next */
 									previous = (s == ms.src_init) ? '\0' : s[-1];
 									if ((matchbracketclass((byte)(previous), p, ep - 1) != 0) ||
@@ -583,13 +583,13 @@ namespace MoonSharp.Interpreter.CoreLib.StringLib
 		}
 
 
-		private static int str_find(LuaState L)
+		public static int str_find(LuaState L)
 		{
 			return str_find_aux(L, 1);
 		}
 
 
-		private static int str_match(LuaState L)
+		public static int str_match(LuaState L)
 		{
 			return str_find_aux(L, 0);
 		}
@@ -640,7 +640,7 @@ namespace MoonSharp.Interpreter.CoreLib.StringLib
 		}
 
 
-		private static int gmatch(LuaState L)
+		public static int str_gmatch(LuaState L)
 		{
 			CallbackFunction C = new CallbackFunction(gmatch_aux_2);
 			string s = ArgAsType(L, 1, DataType.String, false).String;
@@ -736,7 +736,7 @@ namespace MoonSharp.Interpreter.CoreLib.StringLib
 			LuaLAddValue(b);  /* add result to accumulator */
 		}
 
-		private static int str_gsub(LuaState L)
+		public static int str_gsub(LuaState L)
 		{
 			uint srcl;
 			CharPtr src = LuaLCheckLString(L, 1, out srcl);
@@ -877,7 +877,7 @@ namespace MoonSharp.Interpreter.CoreLib.StringLib
 		}
 
 
-		private static int str_format(LuaState L)
+		public static int str_format(LuaState L)
 		{
 			int top = LuaGetTop(L);
 			int arg = 1;

@@ -35,6 +35,9 @@ namespace MoonSharp.Interpreter.Interop.LuaStateInterop
 
 		public DynValue At(int pos)
 		{
+			if (pos > m_Stack.Count)
+				return DynValue.Void;
+
 			return m_Stack[pos - 1];
 		}
 

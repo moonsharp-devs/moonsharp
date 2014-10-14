@@ -73,7 +73,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		{
 			string script = @"return string.find('Hello Lua user', '%su');";
 			DynValue res = Script.RunString(script);
-			Utils.DynAssert(res, 10, 11, null);
+			Utils.DynAssert(res, 10, 11);
 		}
 
 		[Test]
@@ -81,7 +81,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		{
 			string script = @"return string.find('Hello Lua user', '%su', 1);";
 			DynValue res = Script.RunString(script);
-			Utils.DynAssert(res, 10, 11, null);
+			Utils.DynAssert(res, 10, 11);
 		}
 
 		[Test]
@@ -116,13 +116,12 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		}
 
 		[Test]
-		[Ignore]
 		public void String_Find_11()
 		{
 			string script = @"
 				s = 'Deadline is 30/05/1999, firm'
 				date = '%f[%s]%d%d/%d%d/%d%d%d%d';
-				return s:sub(s:find(date));
+				return s:find(date);
 			";
 			DynValue res = Script.RunString(script);
 			Assert.IsTrue(res.IsNil());

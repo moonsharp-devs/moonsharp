@@ -122,47 +122,27 @@ namespace MoonSharp.Interpreter.CoreLib
 		[MoonSharpMethod]
 		public static DynValue match(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
-			DynValue s = args.AsType(0, "match", DataType.String, false);
-			DynValue p = args.AsType(1, "match", DataType.String, false);
-			DynValue i = args.AsType(2, "match", DataType.Number, true);
-
-			return PatternMatching.Match(s.String, p.String, i.IsNilOrNan() ? 1 : (int)i.Number);
+			return executionContext.EmulateClassicCall(args, "match", KopiLua_StringLib.str_match);
 		}
 
 
 		[MoonSharpMethod]
 		public static DynValue gmatch(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
-			DynValue s = args.AsType(0, "gmatch", DataType.String, false);
-			DynValue p = args.AsType(1, "gmatch", DataType.String, false);
-
-			return PatternMatching.GMatch(executionContext.GetScript(), s.String, p.String);
+			return executionContext.EmulateClassicCall(args, "gmatch", KopiLua_StringLib.str_gmatch);
 		}
 
 		[MoonSharpMethod]
 		public static DynValue gsub(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
-			DynValue s = args.AsType(0, "gsub", DataType.String, false);
-			DynValue p = args.AsType(1, "gsub", DataType.String, false);
-			DynValue v_i = args.AsType(3, "gsub", DataType.Number, true);
-			int? i = v_i.IsNilOrNan() ? (int?)null : (int)v_i.Number;
-
-			return PatternMatching.Str_Gsub(executionContext, s.String, p.String, args[2], i);
+			return executionContext.EmulateClassicCall(args, "gsub", KopiLua_StringLib.str_gsub);
 		}
 
 		[MoonSharpMethod]
 		public static DynValue find(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
-			DynValue v_s = args.AsType(0, "find", DataType.String, false);
-			DynValue v_p = args.AsType(1, "find", DataType.String, false);
-			DynValue v_i = args.AsType(2, "find", DataType.Number, true);
-			DynValue v_plain = args.AsType(3, "find", DataType.Boolean, true);
-
-			int i = v_i.IsNilOrNan() ? 1 : (int)v_i.Number;
-
-			bool plain = v_plain.CastToBool();
-
-			return PatternMatching.Str_Find(v_s.String, v_p.String, i, plain);
+			return executionContext.EmulateClassicCall(args, "find",
+				KopiLua_StringLib.str_find);
 		}
 
 
@@ -170,7 +150,6 @@ namespace MoonSharp.Interpreter.CoreLib
         public static DynValue lower(ScriptExecutionContext executionContext, CallbackArguments args)
         {
             DynValue arg_s = args.AsType(0, "lower", DataType.String, false);
-
             return DynValue.NewString(arg_s.String.ToLower());
         }
 
@@ -178,7 +157,6 @@ namespace MoonSharp.Interpreter.CoreLib
         public static DynValue upper(ScriptExecutionContext executionContext, CallbackArguments args)
         {
             DynValue arg_s = args.AsType(0, "upper", DataType.String, false);
-
             return DynValue.NewString(arg_s.String.ToUpper());
         }
 
@@ -207,8 +185,7 @@ namespace MoonSharp.Interpreter.CoreLib
 		[MoonSharpMethod]
 		public static DynValue format(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
-			string str = PatternMatching.Str_Format(executionContext, args);
-			return DynValue.NewString(str);
+			return executionContext.EmulateClassicCall(args, "format", KopiLua_StringLib.str_format);
 		}
 
 

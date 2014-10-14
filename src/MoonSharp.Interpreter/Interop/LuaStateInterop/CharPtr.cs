@@ -212,7 +212,7 @@ namespace MoonSharp.Interpreter.Interop.LuaStateInterop
 		public string ToString(int length)
 		{
 			System.Text.StringBuilder result = new System.Text.StringBuilder();
-			for (int i = index; (i < chars.Length) && i < length; i++)
+			for (int i = index; (i < chars.Length) && i < (length + index); i++)
 				result.Append(chars[i]);
 			return result.ToString();
 		}
