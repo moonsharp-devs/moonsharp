@@ -1141,6 +1141,39 @@ namespace MoonSharp.Interpreter.Tests
 			Assert.AreEqual(3, T.Get("T6").Number, "T6-Val");
 		}
 
+		[Test]
+		public void TupleToOperator()
+		{
+			string script = @"    
+				function x()
+					return 3, 'xx';
+				end
+
+				return x() == 3;	
+			";
+
+			Script S = new Script(CoreModules.None);
+			DynValue res = S.DoString(script);
+
+			Assert.AreEqual(DataType.Boolean, res.Type);
+			Assert.AreEqual(true, res.Boolean);
+		}
+
+
+		[Test]
+		public void LiteralExpands()
+		{
+			string script = @"    
+				x = 'a\65\66\67z';
+				return x;	
+			";
+
+			Script S = new Script(CoreModules.None);
+			DynValue res = S.DoString(script);
+
+			Assert.AreEqual(DataType.String, res.Type);
+			Assert.AreEqual("aABCz", res.String);
+		}
 
 
 	}

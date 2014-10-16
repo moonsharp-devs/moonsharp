@@ -118,7 +118,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 							break;
 						case OpCode.JNil:
 							{
-								DynValue v = m_ValueStack.Pop();
+								DynValue v = m_ValueStack.Pop().ToScalar();
 
 								if (v.Type == DataType.Nil || v.Type == DataType.Void)
 									instructionPtr = i.NumVal;
@@ -150,7 +150,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 							ExecBeginFn(i);
 							break;
 						case OpCode.ToBool:
-							m_ValueStack.Push(DynValue.NewBoolean(m_ValueStack.Pop().CastToBool()));
+							m_ValueStack.Push(DynValue.NewBoolean(m_ValueStack.Pop().ToScalar().CastToBool()));
 							break;
 						case OpCode.Args:
 							ExecArgs(i);
@@ -218,7 +218,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 			yield_to_calling_coroutine:
 
-				DynValue yieldRequest = m_ValueStack.Pop();
+				DynValue yieldRequest = m_ValueStack.Pop().ToScalar();
 
 				if (m_CanYield)
 					return yieldRequest;
@@ -361,7 +361,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		private void ExecToNum(Instruction i)
 		{
-			double? v = m_ValueStack.Pop().CastToNumber();
+			double? v = m_ValueStack.Pop().ToScalar().CastToNumber();
 			if (v.HasValue)
 				m_ValueStack.Push(DynValue.NewNumber(v.Value));
 			else
@@ -474,8 +474,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		private void ExecCNot(Instruction i)
 		{
-			DynValue v = m_ValueStack.Pop();
-			DynValue not = m_ValueStack.Pop();
+			DynValue v = m_ValueStack.Pop().ToScalar();
+			DynValue not = m_ValueStack.Pop().ToScalar();
 
 			if (not.Type != DataType.Boolean)
 				throw new InternalErrorException("CNOT had non-bool arg");
@@ -488,7 +488,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		private void ExecNot(Instruction i)
 		{
-			DynValue v = m_ValueStack.Pop();
+			DynValue v = m_ValueStack.Pop().ToScalar();
 			m_ValueStack.Push(DynValue.NewBoolean(!(v.CastToBool())));
 		}
 
@@ -611,10 +611,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 					}
 				}
 
-				if (debugText != null)
-					throw new ScriptRuntimeException("attempt to call a {0} value near '{1}'", fn.ToString(), debugText);
-				else
-					throw new ScriptRuntimeException("attempt to call a {0} value", fn.ToString());
+				throw ScriptRuntimeException.AttemptToCallNonFunc(fn.Type, debugText);
 			}
 		}
 
@@ -689,7 +686,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		private int JumpBool(Instruction i, bool expectedValueForJump, int instructionPtr)
 		{
-			DynValue op = m_ValueStack.Pop();
+			DynValue op = m_ValueStack.Pop().ToScalar();
 
 			if (op.CastToBool() == expectedValueForJump)
 				return i.NumVal;
@@ -701,7 +698,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 		{
 			bool expectedValToShortCircuit = i.OpCode == OpCode.JtOrPop;
 
-			DynValue op = m_ValueStack.Peek();
+			DynValue op = m_ValueStack.Peek().ToScalar();
 
 			if (op.CastToBool() == expectedValToShortCircuit)
 			{
@@ -717,8 +714,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		private int ExecAdd(Instruction i, int instructionPtr)
 		{
-			DynValue r = m_ValueStack.Pop();
-			DynValue l = m_ValueStack.Pop();
+			DynValue r = m_ValueStack.Pop().ToScalar();
+			DynValue l = m_ValueStack.Pop().ToScalar();
 
 			double? rn = r.CastToNumber();
 			double? ln = l.CastToNumber();
@@ -738,8 +735,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		private int ExecSub(Instruction i, int instructionPtr)
 		{
-			DynValue r = m_ValueStack.Pop();
-			DynValue l = m_ValueStack.Pop();
+			DynValue r = m_ValueStack.Pop().ToScalar();
+			DynValue l = m_ValueStack.Pop().ToScalar();
 
 			double? rn = r.CastToNumber();
 			double? ln = l.CastToNumber();
@@ -760,8 +757,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		private int ExecMul(Instruction i, int instructionPtr)
 		{
-			DynValue r = m_ValueStack.Pop();
-			DynValue l = m_ValueStack.Pop();
+			DynValue r = m_ValueStack.Pop().ToScalar();
+			DynValue l = m_ValueStack.Pop().ToScalar();
 
 			double? rn = r.CastToNumber();
 			double? ln = l.CastToNumber();
@@ -781,8 +778,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		private int ExecMod(Instruction i, int instructionPtr)
 		{
-			DynValue r = m_ValueStack.Pop();
-			DynValue l = m_ValueStack.Pop();
+			DynValue r = m_ValueStack.Pop().ToScalar();
+			DynValue l = m_ValueStack.Pop().ToScalar();
 
 			double? rn = r.CastToNumber();
 			double? ln = l.CastToNumber();
@@ -804,8 +801,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		private int ExecDiv(Instruction i, int instructionPtr)
 		{
-			DynValue r = m_ValueStack.Pop();
-			DynValue l = m_ValueStack.Pop();
+			DynValue r = m_ValueStack.Pop().ToScalar();
+			DynValue l = m_ValueStack.Pop().ToScalar();
 
 			double? rn = r.CastToNumber();
 			double? ln = l.CastToNumber();
@@ -824,8 +821,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 		}
 		private int ExecPower(Instruction i, int instructionPtr)
 		{
-			DynValue r = m_ValueStack.Pop();
-			DynValue l = m_ValueStack.Pop();
+			DynValue r = m_ValueStack.Pop().ToScalar();
+			DynValue l = m_ValueStack.Pop().ToScalar();
 
 			double? rn = r.CastToNumber();
 			double? ln = l.CastToNumber();
@@ -846,7 +843,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		private int ExecNeg(Instruction i, int instructionPtr)
 		{
-			DynValue r = m_ValueStack.Pop();
+			DynValue r = m_ValueStack.Pop().ToScalar(); 
 			double? rn = r.CastToNumber();
 
 			if (rn.HasValue)
@@ -865,8 +862,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		private int ExecEq(Instruction i, int instructionPtr)
 		{
-			DynValue r = m_ValueStack.Pop();
-			DynValue l = m_ValueStack.Pop();
+			DynValue r = m_ValueStack.Pop().ToScalar();
+			DynValue l = m_ValueStack.Pop().ToScalar();
 
 			if (object.ReferenceEquals(r, l))
 			{
@@ -898,8 +895,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		private int ExecLess(Instruction i, int instructionPtr)
 		{
-			DynValue r = m_ValueStack.Pop();
-			DynValue l = m_ValueStack.Pop();
+			DynValue r = m_ValueStack.Pop().ToScalar();
+			DynValue l = m_ValueStack.Pop().ToScalar();
 
 			if (l.Type == DataType.Number && r.Type == DataType.Number)
 			{
@@ -924,8 +921,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		private int ExecLessEq(Instruction i, int instructionPtr)
 		{
-			DynValue r = m_ValueStack.Pop();
-			DynValue l = m_ValueStack.Pop();
+			DynValue r = m_ValueStack.Pop().ToScalar();
+			DynValue l = m_ValueStack.Pop().ToScalar();
 
 			if (l.Type == DataType.Number && r.Type == DataType.Number)
 			{
@@ -958,7 +955,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		private int ExecLen(Instruction i, int instructionPtr)
 		{
-			DynValue r = m_ValueStack.Pop();
+			DynValue r = m_ValueStack.Pop().ToScalar();
 
 			if (r.Type == DataType.String)
 				m_ValueStack.Push(DynValue.NewNumber(r.String.Length));
@@ -979,8 +976,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		private int ExecConcat(Instruction i, int instructionPtr)
 		{
-			DynValue r = m_ValueStack.Pop();
-			DynValue l = m_ValueStack.Pop();
+			DynValue r = m_ValueStack.Pop().ToScalar();
+			DynValue l = m_ValueStack.Pop().ToScalar();
 
 			string rs = r.CastToString();
 			string ls = l.CastToString();
@@ -1030,8 +1027,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 			int nestedMetaOps = 100; // sanity check, to avoid potential infinite loop here
 
 			// stack: vals.. - base - index
-			DynValue idx = i.Value ?? m_ValueStack.Pop();
-			DynValue obj = m_ValueStack.Pop();
+			DynValue idx = i.Value ?? m_ValueStack.Pop().ToScalar();
+			DynValue obj = m_ValueStack.Pop().ToScalar();
 			var value = GetStoreValue(i);
 			DynValue h = null;
 
@@ -1095,8 +1092,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 			int nestedMetaOps = 100; // sanity check, to avoid potential infinite loop here
 
 			// stack: base - index
-			DynValue idx = i.Value ?? m_ValueStack.Pop();
-			DynValue obj = m_ValueStack.Pop();
+			DynValue idx = i.Value ?? m_ValueStack.Pop().ToScalar();
+			DynValue obj = m_ValueStack.Pop().ToScalar();
 
 			DynValue h = null;
 

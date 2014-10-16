@@ -35,6 +35,9 @@ namespace MoonSharp.Interpreter.Interop.LuaStateInterop
 
 		public DynValue At(int pos)
 		{
+			if (pos < 0)
+				pos = m_Stack.Count + pos + 1;
+
 			if (pos > m_Stack.Count)
 				return DynValue.Void;
 
@@ -58,6 +61,17 @@ namespace MoonSharp.Interpreter.Interop.LuaStateInterop
 			return v;
 		}
 
+		public DynValue[] GetTopArray(int num)
+		{
+			DynValue[] rets = new DynValue[num];
+
+			for (int i = 0; i < num; i++)
+				rets[num - i - 1] = Top(i);
+
+			return rets;
+		}
+
+
 		public DynValue GetReturnValue(int retvals)
 		{
 			if (retvals == 0)
@@ -66,15 +80,17 @@ namespace MoonSharp.Interpreter.Interop.LuaStateInterop
 				return Top();
 			else
 			{
-				DynValue[] rets = new DynValue[retvals];
-
-				for (int i = 0; i < retvals; i++)
-					rets[retvals - i - 1] = Top(i);
-
+				DynValue[] rets = GetTopArray(retvals);
 				return DynValue.NewTupleNested(rets);
 			}
 		}
 
 
+
+		public void Discard(int nargs)
+		{
+			for(int i = 0; i < nargs; i++)
+				m_Stack.RemoveAt(m_Stack.Count - 1);
+		}
 	}
 }

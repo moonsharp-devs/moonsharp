@@ -67,6 +67,11 @@
 			this.splitContainer2 = new System.Windows.Forms.SplitContainer();
 			this.tabControl2 = new System.Windows.Forms.TabControl();
 			this.tabPage3 = new System.Windows.Forms.TabPage();
+			this.lvWatches = new MoonSharp.Debugger.DoubleBufferedListView();
+			this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.toolStrip2 = new System.Windows.Forms.ToolStrip();
 			this.btnAddWatch = new System.Windows.Forms.ToolStripButton();
 			this.btnRemoveWatch = new System.Windows.Forms.ToolStripButton();
@@ -75,6 +80,10 @@
 			this.toolGoToCodeWatches = new System.Windows.Forms.ToolStripButton();
 			this.label3 = new System.Windows.Forms.Label();
 			this.tabPage4 = new System.Windows.Forms.TabPage();
+			this.lvVStack = new MoonSharp.Debugger.DoubleBufferedListView();
+			this.columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.columnHeader6 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.columnHeader7 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.toolStrip3 = new System.Windows.Forms.ToolStrip();
 			this.btnViewVStk = new System.Windows.Forms.ToolStripButton();
 			this.toolGoToCodeVStack = new System.Windows.Forms.ToolStripButton();
@@ -82,28 +91,19 @@
 			this.imageList1 = new System.Windows.Forms.ImageList(this.components);
 			this.tabControl1 = new System.Windows.Forms.TabControl();
 			this.tabPage1 = new System.Windows.Forms.TabPage();
-			this.toolStrip4 = new System.Windows.Forms.ToolStrip();
-			this.toolGoToCodeXStack = new System.Windows.Forms.ToolStripButton();
-			this.tabPage2 = new System.Windows.Forms.TabPage();
-			this.label1 = new System.Windows.Forms.Label();
-			this.splitContainer3 = new System.Windows.Forms.SplitContainer();
-			this.txtOutput = new System.Windows.Forms.TextBox();
-			this.timerFollow = new System.Windows.Forms.Timer(this.components);
-			this.lvWatches = new MoonSharp.Debugger.DoubleBufferedListView();
-			this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-			this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-			this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-			this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-			this.lvVStack = new MoonSharp.Debugger.DoubleBufferedListView();
-			this.columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-			this.columnHeader6 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-			this.columnHeader7 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.lvCallStack = new MoonSharp.Debugger.DoubleBufferedListView();
 			this.colAddress = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.colName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.colReturn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.colBP = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.toolStrip4 = new System.Windows.Forms.ToolStrip();
+			this.toolGoToCodeXStack = new System.Windows.Forms.ToolStripButton();
+			this.tabPage2 = new System.Windows.Forms.TabPage();
+			this.label1 = new System.Windows.Forms.Label();
+			this.splitContainer3 = new System.Windows.Forms.SplitContainer();
 			this.codeView = new MoonSharp.Debugger.SourceCodeDebugControl();
+			this.txtOutput = new System.Windows.Forms.TextBox();
+			this.timerFollow = new System.Windows.Forms.Timer(this.components);
 			this.menuStrip1.SuspendLayout();
 			this.toolStrip1.SuspendLayout();
 			this.splitContainer1.Panel1.SuspendLayout();
@@ -189,7 +189,7 @@
 			// scriptCodeToolStripMenuItem
 			// 
 			this.scriptCodeToolStripMenuItem.Name = "scriptCodeToolStripMenuItem";
-			this.scriptCodeToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
+			this.scriptCodeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.scriptCodeToolStripMenuItem.Text = "Script code";
 			// 
 			// bytecodeToolStripMenuItem
@@ -197,7 +197,7 @@
 			this.bytecodeToolStripMenuItem.Checked = true;
 			this.bytecodeToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
 			this.bytecodeToolStripMenuItem.Name = "bytecodeToolStripMenuItem";
-			this.bytecodeToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
+			this.bytecodeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.bytecodeToolStripMenuItem.Text = "Bytecode";
 			// 
 			// debugToolStripMenuItem
@@ -471,6 +471,45 @@
 			this.tabPage3.Text = "Watches";
 			this.tabPage3.UseVisualStyleBackColor = true;
 			// 
+			// lvWatches
+			// 
+			this.lvWatches.BackColor = System.Drawing.SystemColors.Window;
+			this.lvWatches.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnHeader1,
+            this.columnHeader2,
+            this.columnHeader3,
+            this.columnHeader4});
+			this.lvWatches.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.lvWatches.FullRowSelect = true;
+			this.lvWatches.GridLines = true;
+			this.lvWatches.Location = new System.Drawing.Point(3, 28);
+			this.lvWatches.Name = "lvWatches";
+			this.lvWatches.Size = new System.Drawing.Size(350, 249);
+			this.lvWatches.TabIndex = 4;
+			this.lvWatches.UseCompatibleStateImageBehavior = false;
+			this.lvWatches.View = System.Windows.Forms.View.Details;
+			this.lvWatches.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.lvWatches_MouseDoubleClick);
+			// 
+			// columnHeader1
+			// 
+			this.columnHeader1.Text = "Name";
+			this.columnHeader1.Width = 72;
+			// 
+			// columnHeader2
+			// 
+			this.columnHeader2.Text = "Type";
+			this.columnHeader2.Width = 57;
+			// 
+			// columnHeader3
+			// 
+			this.columnHeader3.Text = "Value";
+			this.columnHeader3.Width = 111;
+			// 
+			// columnHeader4
+			// 
+			this.columnHeader4.Text = "Symbol loc.";
+			this.columnHeader4.Width = 72;
+			// 
 			// toolStrip2
 			// 
 			this.toolStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -551,6 +590,39 @@
 			this.tabPage4.Text = "V-Stack";
 			this.tabPage4.UseVisualStyleBackColor = true;
 			// 
+			// lvVStack
+			// 
+			this.lvVStack.BackColor = System.Drawing.SystemColors.Window;
+			this.lvVStack.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnHeader5,
+            this.columnHeader6,
+            this.columnHeader7});
+			this.lvVStack.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.lvVStack.FullRowSelect = true;
+			this.lvVStack.GridLines = true;
+			this.lvVStack.Location = new System.Drawing.Point(3, 28);
+			this.lvVStack.Name = "lvVStack";
+			this.lvVStack.Size = new System.Drawing.Size(350, 249);
+			this.lvVStack.TabIndex = 7;
+			this.lvVStack.UseCompatibleStateImageBehavior = false;
+			this.lvVStack.View = System.Windows.Forms.View.Details;
+			this.lvVStack.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.lvVStack_MouseDoubleClick);
+			// 
+			// columnHeader5
+			// 
+			this.columnHeader5.Text = "Stack ofs";
+			this.columnHeader5.Width = 72;
+			// 
+			// columnHeader6
+			// 
+			this.columnHeader6.Text = "Type";
+			this.columnHeader6.Width = 94;
+			// 
+			// columnHeader7
+			// 
+			this.columnHeader7.Text = "Value";
+			this.columnHeader7.Width = 157;
+			// 
 			// toolStrip3
 			// 
 			this.toolStrip3.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -625,6 +697,44 @@
 			this.tabPage1.Text = "Call Stack";
 			this.tabPage1.UseVisualStyleBackColor = true;
 			// 
+			// lvCallStack
+			// 
+			this.lvCallStack.BackColor = System.Drawing.SystemColors.Window;
+			this.lvCallStack.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.colAddress,
+            this.colName,
+            this.colReturn,
+            this.colBP});
+			this.lvCallStack.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.lvCallStack.FullRowSelect = true;
+			this.lvCallStack.GridLines = true;
+			this.lvCallStack.Location = new System.Drawing.Point(3, 28);
+			this.lvCallStack.Name = "lvCallStack";
+			this.lvCallStack.Size = new System.Drawing.Size(350, 294);
+			this.lvCallStack.TabIndex = 8;
+			this.lvCallStack.UseCompatibleStateImageBehavior = false;
+			this.lvCallStack.View = System.Windows.Forms.View.Details;
+			// 
+			// colAddress
+			// 
+			this.colAddress.Text = "Address";
+			this.colAddress.Width = 72;
+			// 
+			// colName
+			// 
+			this.colName.Text = "Name";
+			this.colName.Width = 106;
+			// 
+			// colReturn
+			// 
+			this.colReturn.Text = "Return";
+			this.colReturn.Width = 72;
+			// 
+			// colBP
+			// 
+			this.colBP.Text = "Base Ptr";
+			this.colBP.Width = 72;
+			// 
 			// toolStrip4
 			// 
 			this.toolStrip4.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -685,6 +795,21 @@
 			this.splitContainer3.SplitterDistance = 446;
 			this.splitContainer3.TabIndex = 0;
 			// 
+			// codeView
+			// 
+			this.codeView.ActiveLine = -1;
+			this.codeView.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+			this.codeView.CursorLine = 0;
+			this.codeView.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.codeView.Font = new System.Drawing.Font("Consolas", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.codeView.ForeColor = System.Drawing.Color.Gainsboro;
+			this.codeView.Location = new System.Drawing.Point(0, 0);
+			this.codeView.Margin = new System.Windows.Forms.Padding(4);
+			this.codeView.Name = "codeView";
+			this.codeView.Size = new System.Drawing.Size(726, 446);
+			this.codeView.SourceCode = null;
+			this.codeView.TabIndex = 1;
+			// 
 			// txtOutput
 			// 
 			this.txtOutput.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
@@ -703,131 +828,6 @@
 			this.timerFollow.Interval = 15;
 			this.timerFollow.Tick += new System.EventHandler(this.timerFollow_Tick);
 			// 
-			// lvWatches
-			// 
-			this.lvWatches.BackColor = System.Drawing.SystemColors.Window;
-			this.lvWatches.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeader1,
-            this.columnHeader2,
-            this.columnHeader3,
-            this.columnHeader4});
-			this.lvWatches.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.lvWatches.FullRowSelect = true;
-			this.lvWatches.GridLines = true;
-			this.lvWatches.Location = new System.Drawing.Point(3, 28);
-			this.lvWatches.Name = "lvWatches";
-			this.lvWatches.Size = new System.Drawing.Size(350, 249);
-			this.lvWatches.TabIndex = 4;
-			this.lvWatches.UseCompatibleStateImageBehavior = false;
-			this.lvWatches.View = System.Windows.Forms.View.Details;
-			this.lvWatches.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.lvWatches_MouseDoubleClick);
-			// 
-			// columnHeader1
-			// 
-			this.columnHeader1.Text = "Name";
-			this.columnHeader1.Width = 72;
-			// 
-			// columnHeader2
-			// 
-			this.columnHeader2.Text = "Type";
-			this.columnHeader2.Width = 57;
-			// 
-			// columnHeader3
-			// 
-			this.columnHeader3.Text = "Value";
-			this.columnHeader3.Width = 111;
-			// 
-			// columnHeader4
-			// 
-			this.columnHeader4.Text = "Symbol loc.";
-			this.columnHeader4.Width = 72;
-			// 
-			// lvVStack
-			// 
-			this.lvVStack.BackColor = System.Drawing.SystemColors.Window;
-			this.lvVStack.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeader5,
-            this.columnHeader6,
-            this.columnHeader7});
-			this.lvVStack.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.lvVStack.FullRowSelect = true;
-			this.lvVStack.GridLines = true;
-			this.lvVStack.Location = new System.Drawing.Point(3, 28);
-			this.lvVStack.Name = "lvVStack";
-			this.lvVStack.Size = new System.Drawing.Size(350, 249);
-			this.lvVStack.TabIndex = 7;
-			this.lvVStack.UseCompatibleStateImageBehavior = false;
-			this.lvVStack.View = System.Windows.Forms.View.Details;
-			this.lvVStack.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.lvVStack_MouseDoubleClick);
-			// 
-			// columnHeader5
-			// 
-			this.columnHeader5.Text = "Stack ofs";
-			this.columnHeader5.Width = 72;
-			// 
-			// columnHeader6
-			// 
-			this.columnHeader6.Text = "Type";
-			this.columnHeader6.Width = 94;
-			// 
-			// columnHeader7
-			// 
-			this.columnHeader7.Text = "Value";
-			this.columnHeader7.Width = 157;
-			// 
-			// lvCallStack
-			// 
-			this.lvCallStack.BackColor = System.Drawing.SystemColors.Window;
-			this.lvCallStack.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.colAddress,
-            this.colName,
-            this.colReturn,
-            this.colBP});
-			this.lvCallStack.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.lvCallStack.FullRowSelect = true;
-			this.lvCallStack.GridLines = true;
-			this.lvCallStack.Location = new System.Drawing.Point(3, 28);
-			this.lvCallStack.Name = "lvCallStack";
-			this.lvCallStack.Size = new System.Drawing.Size(350, 294);
-			this.lvCallStack.TabIndex = 8;
-			this.lvCallStack.UseCompatibleStateImageBehavior = false;
-			this.lvCallStack.View = System.Windows.Forms.View.Details;
-			// 
-			// colAddress
-			// 
-			this.colAddress.Text = "Address";
-			this.colAddress.Width = 72;
-			// 
-			// colName
-			// 
-			this.colName.Text = "Name";
-			this.colName.Width = 106;
-			// 
-			// colReturn
-			// 
-			this.colReturn.Text = "Return";
-			this.colReturn.Width = 72;
-			// 
-			// colBP
-			// 
-			this.colBP.Text = "Base Ptr";
-			this.colBP.Width = 72;
-			// 
-			// codeView
-			// 
-			this.codeView.ActiveLine = -1;
-			this.codeView.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-			this.codeView.CursorLine = 0;
-			this.codeView.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.codeView.Font = new System.Drawing.Font("Consolas", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.codeView.ForeColor = System.Drawing.Color.Gainsboro;
-			this.codeView.Location = new System.Drawing.Point(0, 0);
-			this.codeView.Margin = new System.Windows.Forms.Padding(4);
-			this.codeView.Name = "codeView";
-			this.codeView.Size = new System.Drawing.Size(726, 446);
-			this.codeView.SourceCode = null;
-			this.codeView.TabIndex = 1;
-			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -839,7 +839,7 @@
 			this.Controls.Add(this.menuStrip1);
 			this.MainMenuStrip = this.menuStrip1;
 			this.Name = "MainForm";
-			this.Text = "Moon# Debugger";
+			this.Text = "MoonSharp Debugger";
 			this.Load += new System.EventHandler(this.MainForm_Load);
 			this.menuStrip1.ResumeLayout(false);
 			this.menuStrip1.PerformLayout();

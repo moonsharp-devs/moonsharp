@@ -138,7 +138,7 @@ namespace MoonSharp.Interpreter.CoreLib.StringLib
 				case L_ESC:
 					{
 						if (p[0] == '\0')
-							LuaLError(ms.L, "malformed pattern (ends with " + LUA_QL("%%") + ")");
+							LuaLError(ms.L, "malformed pattern (ends with " + LUA_QL("%") + ")");
 						return p + 1;
 					}
 				case '[':
@@ -175,6 +175,7 @@ namespace MoonSharp.Interpreter.CoreLib.StringLib
 				case 'l': res = islower(c); break;
 				case 'p': res = ispunct(c); break;
 				case 's': res = isspace(c); break;
+				case 'g': res = isgraph(c); break;
 				case 'u': res = isupper(c); break;
 				case 'w': res = isalnum(c); break;
 				case 'x': res = isxdigit((char)c); break;
@@ -184,16 +185,6 @@ namespace MoonSharp.Interpreter.CoreLib.StringLib
 			return (islower(cl) ? (res ? 1 : 0) : ((!res) ? 1 : 0));
 		}
 
-		protected static bool isxdigit(char p)
-		{
-			return isdigit(p) ||
-				p == 'a' || p == 'A' ||
-				p == 'b' || p == 'B' ||
-				p == 'c' || p == 'C' ||
-				p == 'd' || p == 'D' ||
-				p == 'e' || p == 'E' ||
-				p == 'f' || p == 'F';
-		}
 
 
 		private static int matchbracketclass(int c, CharPtr p, CharPtr ec)
@@ -668,8 +659,7 @@ namespace MoonSharp.Interpreter.CoreLib.StringLib
 		}
 
 
-		private static void add_s(MatchState ms, LuaLBuffer b, CharPtr s,
-														   CharPtr e)
+		private static void add_s(MatchState ms, LuaLBuffer b, CharPtr s, CharPtr e)
 		{
 			uint l, i;
 			CharPtr news = LuaToLString(ms.L, 3, out l);
@@ -681,7 +671,13 @@ namespace MoonSharp.Interpreter.CoreLib.StringLib
 				{
 					i++;  /* skip ESC */
 					if (!isdigit((char)(news[i])))
+					{
+						if (news[i] != L_ESC)
+						{
+							LuaLError(ms.L, "invalid use of '%' in replacement string");
+						}
 						LuaLAddChar(b, news[i]);
+					}
 					else if (news[i] == '0')
 						LuaLAddLString(b, s, (uint)(e - s));
 					else
@@ -708,14 +704,13 @@ namespace MoonSharp.Interpreter.CoreLib.StringLib
 						add_s(ms, b, s, e);
 						return;
 					}
-				case LUA_TUSERDATA:
+				// case LUA_TUSERDATA: /// +++ does this make sense ??
 				case LUA_TFUNCTION:
 					{
 						int n;
-						throw new NotImplementedException();
-						//LuaPushValue(L, 3);
-						//n = push_captures(ms, s, e);
-						//LuaCall(L, n, 1);
+						LuaPushValue(L, 3);
+						n = push_captures(ms, s, e);
+						LuaCall(L, n, 1);
 						break;
 					}
 				case LUA_TTABLE:
@@ -731,10 +726,11 @@ namespace MoonSharp.Interpreter.CoreLib.StringLib
 				LuaPushLString(L, s, (uint)(e - s));  /* keep original text */
 			}
 			else if (LuaIsString(L, -1) == 0)
-				LuaLError(L, "invalid replacement value (a %s)", LuaLTypeName(L, -1));
+				LuaLError(L, "invalid replacement value (a {0})", LuaLTypeName(L, -1));
 
 			LuaLAddValue(b);  /* add result to accumulator */
 		}
+
 
 		public static int str_gsub(LuaState L)
 		{
@@ -826,14 +822,27 @@ namespace MoonSharp.Interpreter.CoreLib.StringLib
 							LuaLAddLString(b, "\\r", 2);
 							break;
 						}
-					case '\0':
-						{
-							LuaLAddLString(b, "\\000", 4);
-							break;
-						}
 					default:
 						{
-							LuaLAddChar(b, s[0]);
+							if (s[0] < (char)16)
+							{
+								bool isfollowedbynum = false;
+
+								if (l >= 1)
+								{
+									if (char.IsNumber(s[1]))
+										isfollowedbynum = true;
+								}
+
+								if (isfollowedbynum)
+									LuaLAddString(b, string.Format("\\{0:000}", (int)s[0]));
+								else
+									LuaLAddString(b, string.Format("\\{0}", (int)s[0]));
+							}
+							else
+							{
+								LuaLAddChar(b, s[0]);
+							}
 							break;
 						}
 				}
@@ -965,7 +974,7 @@ namespace MoonSharp.Interpreter.CoreLib.StringLib
 							}
 						default:
 							{  /* also treat cases `pnLlh' */
-								return LuaLError(L, "invalid option " + LUA_QL("%%%c") + " to " +
+								return LuaLError(L, "invalid option " + LUA_QL("%" + ch) + " to " +
 													 LUA_QL("format"), strfrmt[-1]);
 							}
 					}

@@ -32,6 +32,8 @@ namespace MoonSharp.Interpreter.Interop.LuaStateInterop
 		protected const int LUA_TFUNCTION = 6;
 		protected const int LUA_TUSERDATA = 7;
 		protected const int LUA_TTHREAD = 8;
+		
+		protected const int LUA_MULTRET = -1;
 
 		protected const string LUA_INTFRMLEN = "l";
 
@@ -42,7 +44,7 @@ namespace MoonSharp.Interpreter.Interop.LuaStateInterop
 
 		protected static DynValue ArgAsType(LuaState L, lua_Integer pos, DataType type, bool allowNil = false)
 		{
-			return GetArgument(L, pos).CheckType(L.FunctionName, type, pos, allowNil ? TypeValidationFlags.AllowNil | TypeValidationFlags.AutoConvert : TypeValidationFlags.AutoConvert);
+			return GetArgument(L, pos).CheckType(L.FunctionName, type, pos - 1, allowNil ? TypeValidationFlags.AllowNil | TypeValidationFlags.AutoConvert : TypeValidationFlags.AutoConvert);
 		}
 
 		protected static lua_Integer LuaType(LuaState L, lua_Integer p)
@@ -115,6 +117,12 @@ namespace MoonSharp.Interpreter.Interop.LuaStateInterop
 			b.StringBuilder.Append(s.ToString((int)p));
 		}
 
+		protected static void LuaLAddString(LuaLBuffer b, string s)
+		{
+			b.StringBuilder.Append(s.ToString());
+		}
+
+
 		protected static lua_Integer LuaLOptInteger(LuaState L, lua_Integer pos, lua_Integer def)
 		{
 			DynValue v = ArgAsType(L, pos, DataType.Number, true);
@@ -134,7 +142,7 @@ namespace MoonSharp.Interpreter.Interop.LuaStateInterop
 		protected static void LuaLArgCheck(LuaState L, bool condition, lua_Integer argNum, string message)
 		{
 			if (!condition)
-				throw new ScriptRuntimeException(message);
+				LuaLArgError(L, argNum, message);
 		}
 
 		protected static lua_Integer LuaLCheckInt(LuaState L, lua_Integer argNum)
@@ -245,7 +253,7 @@ namespace MoonSharp.Interpreter.Interop.LuaStateInterop
 
 		protected static void LuaLArgError(LuaState L, lua_Integer arg, string p)
 		{
-			throw new ScriptRuntimeException(p);
+			throw ScriptRuntimeException.BadArgument(arg - 1, L.FunctionName, p);
 		}
 
 		protected static double LuaLCheckNumber(LuaState L, lua_Integer pos)
@@ -258,6 +266,55 @@ namespace MoonSharp.Interpreter.Interop.LuaStateInterop
 		{
 			DynValue v = L.At(arg);
 			L.Push(v);
+		}
+
+
+		/// <summary>
+		/// Calls a function.
+		/// To call a function you must use the following protocol: first, the function to be called is pushed onto the stack; then,
+		/// the arguments to the function are pushed in direct order; that is, the first argument is pushed first. Finally you call
+		/// lua_call; nargs is the number of arguments that you pushed onto the stack. All arguments and the function value are
+		/// popped from the stack when the function is called. The function results are pushed onto the stack when the function
+		/// returns. The number of results is adjusted to nresults, unless nresults is LUA_MULTRET. In this case, all results from
+		/// the function are pushed. Lua takes care that the returned values fit into the stack space. The function results are
+		/// pushed onto the stack in direct order (the first result is pushed first), so that after the call the last result is on
+		/// the top of the stack.
+		/// </summary>
+		/// <param name="L">The LuaState</param>
+		/// <param name="nargs">The number of arguments.</param>
+		/// <param name="nresults">The number of expected results.</param>
+		/// <exception cref="System.NotImplementedException"></exception>
+		protected static void LuaCall(LuaState L, lua_Integer nargs, lua_Integer nresults = LUA_MULTRET)
+		{
+			DynValue[] args = L.GetTopArray(nargs);
+
+			L.Discard(nargs);
+
+			DynValue func = L.Pop();
+
+			DynValue ret = L.ExecutionContext.Call(func, args);
+
+			if (nresults != 0)
+			{
+				if (nresults == -1)
+				{
+					nresults = (ret.Type == DataType.Tuple) ? ret.Tuple.Length : 1;
+				}
+
+				DynValue[] vals = (ret.Type == DataType.Tuple) ? ret.Tuple : new DynValue[1] { ret };
+
+				int copied = 0;
+
+				for (int i = 0; i < vals.Length && copied < nresults; i++, copied++)
+				{
+					L.Push(vals[i]);
+				}
+
+				while (copied < nresults)
+				{
+					L.Push(DynValue.Nil);
+				}
+			}
 		}
 	}
 }

@@ -165,17 +165,23 @@ namespace MoonSharp.Interpreter.CoreLib
         {
             DynValue arg_s = args.AsType(0, "rep", DataType.String, false);
             DynValue arg_n = args.AsType(1, "rep", DataType.Number, false);
+			DynValue arg_sep = args.AsType(2, "rep", DataType.String, true);
 
             if (String.IsNullOrEmpty(arg_s.String) || (arg_n.Number < 1))
             {
                 return DynValue.NewString("");
             }
 
+			string sep = (arg_sep.IsNotNil()) ? arg_sep.String : null;
+
             int count = (int)arg_n.Number;
             StringBuilder result = new StringBuilder(arg_s.String.Length * count);
 
             for (int i = 0; i < count; ++i)
             {
+				if (i != 0 && sep != null)
+					result.Append(sep);
+
                 result.Append(arg_s.String);
             }
 

@@ -283,7 +283,6 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
-		[Ignore]
 		public void TestMore_314_regex()
 		{
 			TapRunner.Run(@"TestMore\314-regex.t");

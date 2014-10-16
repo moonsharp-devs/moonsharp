@@ -105,5 +105,73 @@ namespace MoonSharp.Interpreter.Execution
 			int retvals = callback(L);
 			return L.GetReturnValue(retvals);
 		}
+
+		/// <summary>
+		/// Calls the specified function, supporting most cases. The called function must not yield.
+		/// </summary>
+		/// <param name="func">The function; it must be a Function or ClrFunction or have a call metamethod defined.</param>
+		/// <param name="args">The arguments.</param>
+		/// <returns></returns>
+		/// <exception cref="System.ScriptRuntimeException">If the function yields, returns a tail call request with continuations/handlers or, of course, if it encounters errors.</exception>
+		public DynValue Call(DynValue func, params DynValue[] args)
+		{
+			if (func.Type == DataType.Function)
+			{
+				return this.GetScript().Call(func, args);
+			}
+			else if (func.Type == DataType.ClrFunction)
+			{
+				while (true)
+				{
+					DynValue ret = func.Callback.Invoke(this, args, false);
+
+					if (ret.Type == DataType.YieldRequest)
+					{
+						throw ScriptRuntimeException.CannotYield();
+					}
+					else if (ret.Type == DataType.TailCallRequest)
+					{
+						var tail = ret.TailCallData;
+
+						if (tail.Continuation != null || tail.ErrorHandler != null)
+						{
+							throw new ScriptRuntimeException("the function passed cannot be called directly. wrap in a script function instead.");
+						}
+						else
+						{
+							args = tail.Args;
+							func = tail.Function;
+						}
+					}
+					else
+					{
+						return ret;
+					}
+				}
+			}
+			else
+			{
+				int maxloops = 10;
+
+				while (maxloops > 0)
+				{
+					DynValue v = this.GetMetamethod(func, "__call");
+
+					if (v == null && v.IsNil())
+					{
+						throw ScriptRuntimeException.AttemptToCallNonFunc(func.Type);
+					}
+
+					func = v;
+
+					if (func.Type == DataType.Function || func.Type == DataType.ClrFunction)
+					{
+						return Call(func, args);
+					}
+				}
+
+				throw ScriptRuntimeException.LoopInCall();
+			}
+		}
 	}
 }

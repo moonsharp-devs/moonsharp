@@ -127,6 +127,28 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			Assert.IsTrue(res.IsNil());
 		}
 
+		[Test]
+		public void String_Format_1()
+		{
+			string script = @"
+				d = 5; m = 11; y = 1990
+				return string.format('%02d/%02d/%04d', d, m, y)
+			";
+			DynValue res = Script.RunString(script);
+			Utils.DynAssert(res, "05/11/1990");
+		}
+
+		[Test]
+		public void String_GSub_1()
+		{
+			string script = @"
+				s = string.gsub('hello world', '(%w+)', '%1 %1')
+				return s, s == 'hello hello world world'
+			";
+			DynValue res = Script.RunString(script);
+			Assert.AreEqual(res.Tuple[0].String, "hello hello world world");
+			Assert.AreEqual(res.Tuple[1].Boolean, true);
+		}
 
 		[Test]
 		public void PrintTest1()
@@ -192,9 +214,16 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			";
 			DynValue res = Script.RunString(script);
 			Utils.DynAssert(res, DataType.Void, "yup");
-
 		}
 
-
+		[Test]
+		[ExpectedException(typeof(ScriptRuntimeException))]
+		public void String_GSub_2()
+		{
+			string script = @"
+				string.gsub('hello world', '%w+', '%e')
+			";
+			DynValue res = Script.RunString(script);
+		}
 	}
 }

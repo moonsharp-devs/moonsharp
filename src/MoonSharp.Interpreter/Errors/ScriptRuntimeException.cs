@@ -58,6 +58,11 @@ namespace MoonSharp.Interpreter
 				return new ScriptRuntimeException("attempt to compare {0} with {1}", l.Type.ToLuaTypeString(), r.Type.ToLuaTypeString());
 		}
 
+		public static ScriptRuntimeException BadArgument(int argNum, string funcName, string message)
+		{
+			return new ScriptRuntimeException("bad argument #{0} to '{1}' ({2})", argNum + 1, funcName, message);
+		}
+
 		public static ScriptRuntimeException BadArgument(int argNum, string funcName, DataType expected, DataType got, bool allowNil)
 		{
 			return BadArgument(argNum, funcName, expected.ToErrorTypeString(), got.ToErrorTypeString(), allowNil);
@@ -101,6 +106,11 @@ namespace MoonSharp.Interpreter
 		public static ScriptRuntimeException LoopInNewIndex()
 		{
 			return new ScriptRuntimeException("loop in settable");
+		}
+
+		public static ScriptRuntimeException LoopInCall()
+		{
+			return new ScriptRuntimeException("loop in call");
 		}
 
 		public static ScriptRuntimeException TableIndexIsNil()
@@ -176,5 +186,14 @@ namespace MoonSharp.Interpreter
 			return new ScriptRuntimeException("bad argument #{0} to '{1}' (index out of range)", argIdx, funcName);
 		}
 
+		public static ScriptRuntimeException AttemptToCallNonFunc(DataType type, string debugText = null)
+		{
+			string functype = type.ToErrorTypeString();
+
+			if (debugText != null)
+				return new ScriptRuntimeException("attempt to call a {0} value near '{1}'", functype, debugText);
+			else
+				return new ScriptRuntimeException("attempt to call a {0} value", functype);
+		}
 	}
 }

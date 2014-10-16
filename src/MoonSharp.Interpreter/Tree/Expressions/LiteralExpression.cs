@@ -79,6 +79,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 			foreach (char c in str)
 			{
+			redo:
 				if (escape)
 				{
 					if (val.Length == 0 && !hex)
@@ -140,11 +141,11 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 								sb.Append(char.ConvertFromUtf32(i));
 
-								if (!char.IsDigit(c))
-									sb.Append(c);
-
-								zmode = false; 
+								zmode = false;
 								escape = false;
+
+								if (!char.IsDigit(c))
+									goto redo;
 							}
 						}
 					}
