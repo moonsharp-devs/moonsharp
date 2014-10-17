@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MoonSharp.Interpreter.Debugging;
 using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Execution.VM;
 using MoonSharp.Interpreter.Grammar;
@@ -16,6 +17,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		Statement m_InnerBlock;
 		SymbolRef m_VarName;
 		Expression m_Start, m_End, m_Step;
+		SourceRef m_RefFor, m_RefEnd;
 
 		public ForLoopStatement(LuaParser.Stat_forloopContext context, ScriptLoadingContext lcontext)
 			: base(context, lcontext)
@@ -34,10 +36,15 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			m_VarName = lcontext.Scope.DefineLocal(context.NAME().GetText());
 			m_InnerBlock = NodeFactory.CreateStatement(context.block(), lcontext);
 			m_StackFrame = lcontext.Scope.PopBlock();
+
+			m_RefFor = BuildSourceRef(lcontext, context.Start, context.FOR());
+			m_RefEnd = BuildSourceRef(lcontext, context.Stop, context.END());
 		}
 
 		public override void Compile(ByteCode bc)
 		{
+			bc.PushSourceRef(m_RefFor);
+
 			Loop L = new Loop()
 			{
 				Scope = m_StackFrame
@@ -60,6 +67,10 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			bc.Emit_Store(m_VarName, 0, 0);
 
 			m_InnerBlock.Compile(bc);
+
+			bc.PopSourceRef();
+			bc.PushSourceRef(m_RefEnd);
+
 			bc.Emit_Debug("..end");
 			bc.Emit_Leave(m_StackFrame);
 			bc.Emit_Incr(1);
@@ -74,6 +85,8 @@ namespace MoonSharp.Interpreter.Tree.Statements
 
 			jumpend.NumVal = exitpoint;
 			bc.Emit_Pop(3);
+
+			bc.PopSourceRef();
 		}
 
 	}

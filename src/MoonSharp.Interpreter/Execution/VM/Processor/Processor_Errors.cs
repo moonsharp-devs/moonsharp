@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MoonSharp.Interpreter.Debugging;
 
 namespace MoonSharp.Interpreter.Execution.VM
 {
@@ -38,8 +39,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		private void FillDebugData(InterpreterException ex, int ip)
 		{
-			ex.DecoratedMessage = "chunk:0: " + ex.Message;
-
 			// adjust IP
 			if (ip == YIELD_SPECIAL_TRAP)
 				ip = m_SavedInstructionPtr;
@@ -47,6 +46,20 @@ namespace MoonSharp.Interpreter.Execution.VM
 				ip -= 1;
 
 			ex.InstructionPtr = ip;
+
+			if (ip >= 0 && ip < m_RootChunk.Code.Count)
+			{
+				Instruction I = m_RootChunk.Code[ip];
+				SourceRef sref = I.SourceCodeRef;
+				SourceCode sc = m_Script.GetSourceCode(sref.SourceIdx);
+
+				ex.DecoratedMessage = string.Format("{0}:{1}: {2}", sc.Name, sref.FromLine, ex.Message);
+			}
+			else
+			{
+				ex.DecoratedMessage = string.Format("bytecode:{0}: {1}", ip, ex.Message);
+			}
+			
 			ex.CallStack = GetCallStack(ip);
 		}
 

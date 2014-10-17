@@ -9,7 +9,7 @@ namespace MoonSharp.Interpreter.Debugging
 	public interface IDebugger
 	{
 		void SetSourceCode(ByteCode byteCode, string[] code);
-		DebuggerAction GetAction(int ip);
+		DebuggerAction GetAction(int ip, SourceRef sourceref);
 		void Update(WatchType watchType, List<WatchItem> items);
 		List<string> GetWatchItems();
 	}

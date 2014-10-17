@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MoonSharp.Interpreter.Debugging;
 using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Execution.VM;
 using MoonSharp.Interpreter.Grammar;
@@ -13,11 +14,16 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		Expression m_Condition;
 		Statement m_Block;
 		RuntimeScopeBlock m_StackFrame;
+		SourceRef m_Start, m_End;
 
 		public WhileStatement(LuaParser.Stat_whiledoloopContext context, ScriptLoadingContext lcontext)
 			: base(context, lcontext)
 		{
-			m_Condition = NodeFactory.CreateExpression(context.exp(), lcontext);
+			var exp = context.exp();
+			m_Condition = NodeFactory.CreateExpression(exp, lcontext);
+
+			m_Start = BuildSourceRef(lcontext, context.Start, exp.Stop);
+			m_End = BuildSourceRef(lcontext, context.Stop, context.END());
 
 			lcontext.Scope.PushBlock();
 			m_Block = NodeFactory.CreateStatement(context.block(), lcontext);
@@ -32,7 +38,10 @@ namespace MoonSharp.Interpreter.Tree.Statements
 				Scope = m_StackFrame
 			};
 
+
 			bc.LoopTracker.Loops.Push(L);
+
+			bc.PushSourceRef(m_Start);
 
 			int start = bc.GetJumpPointForNextInstruction();
 
@@ -40,8 +49,13 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			var jumpend = bc.Emit_Jump(OpCode.Jf, -1);
 
 			bc.Emit_Enter(m_StackFrame);
+
 			m_Block.Compile(bc);
+
+			bc.PopSourceRef();
 			bc.Emit_Debug("..end");
+			bc.PushSourceRef(m_End);
+	
 			bc.Emit_Leave(m_StackFrame);
 			bc.Emit_Jump(OpCode.Jump, start);
 			
@@ -53,6 +67,8 @@ namespace MoonSharp.Interpreter.Tree.Statements
 				i.NumVal = exitpoint;
 
 			jumpend.NumVal = exitpoint;
+
+			bc.PopSourceRef();
 		}
 
 	}

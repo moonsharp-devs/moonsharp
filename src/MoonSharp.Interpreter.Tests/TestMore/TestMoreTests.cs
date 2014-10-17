@@ -222,21 +222,11 @@ namespace MoonSharp.Interpreter.Tests
 			TapRunner.Run(@"TestMore\301-basic.t");
 		}
 
-
-		[Test]
-		[Ignore]
-		public void TestMore_303_package()
-		{
-			TapRunner.Run(@"TestMore\303-package.t");
-		}
-
-
 		[Test]
 		public void TestMore_304_string()
 		{
 			TapRunner.Run(@"TestMore\304-string.t");
 		}
-
 
 		[Test]
 		public void TestMore_305_table()

@@ -82,7 +82,13 @@ namespace MoonSharp
 
 					try
 					{
-						Console.WriteLine("={0}", script.DoString(cmd));
+						var v = script.LoadString(cmd, null, "stdin");
+
+						Console.WriteLine("={0}", script.Call(v));
+					}
+					catch (ScriptRuntimeException ex)
+					{
+						Console.WriteLine("{0}", ex.DecoratedMessage);
 					}
 					catch (Exception ex)
 					{

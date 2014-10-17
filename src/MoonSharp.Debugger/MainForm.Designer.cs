@@ -102,8 +102,14 @@
 			this.label1 = new System.Windows.Forms.Label();
 			this.splitContainer3 = new System.Windows.Forms.SplitContainer();
 			this.codeView = new MoonSharp.Debugger.SourceCodeDebugControl();
-			this.txtOutput = new System.Windows.Forms.TextBox();
 			this.timerFollow = new System.Windows.Forms.Timer(this.components);
+			this.tabControl3 = new System.Windows.Forms.TabControl();
+			this.tabPage5 = new System.Windows.Forms.TabPage();
+			this.tabPage6 = new System.Windows.Forms.TabPage();
+			this.txtOutput = new System.Windows.Forms.TextBox();
+			this.toolStrip5 = new System.Windows.Forms.ToolStrip();
+			this.txtCodeView = new System.Windows.Forms.TextBox();
+			this.toolStrip6 = new System.Windows.Forms.ToolStrip();
 			this.menuStrip1.SuspendLayout();
 			this.toolStrip1.SuspendLayout();
 			this.splitContainer1.Panel1.SuspendLayout();
@@ -124,6 +130,9 @@
 			this.splitContainer3.Panel1.SuspendLayout();
 			this.splitContainer3.Panel2.SuspendLayout();
 			this.splitContainer3.SuspendLayout();
+			this.tabControl3.SuspendLayout();
+			this.tabPage5.SuspendLayout();
+			this.tabPage6.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// menuStrip1
@@ -189,7 +198,7 @@
 			// scriptCodeToolStripMenuItem
 			// 
 			this.scriptCodeToolStripMenuItem.Name = "scriptCodeToolStripMenuItem";
-			this.scriptCodeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.scriptCodeToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
 			this.scriptCodeToolStripMenuItem.Text = "Script code";
 			// 
 			// bytecodeToolStripMenuItem
@@ -197,7 +206,7 @@
 			this.bytecodeToolStripMenuItem.Checked = true;
 			this.bytecodeToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
 			this.bytecodeToolStripMenuItem.Name = "bytecodeToolStripMenuItem";
-			this.bytecodeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.bytecodeToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
 			this.bytecodeToolStripMenuItem.Text = "Bytecode";
 			// 
 			// debugToolStripMenuItem
@@ -790,7 +799,7 @@
 			// 
 			// splitContainer3.Panel2
 			// 
-			this.splitContainer3.Panel2.Controls.Add(this.txtOutput);
+			this.splitContainer3.Panel2.Controls.Add(this.tabControl3);
 			this.splitContainer3.Size = new System.Drawing.Size(726, 663);
 			this.splitContainer3.SplitterDistance = 446;
 			this.splitContainer3.TabIndex = 0;
@@ -810,23 +819,89 @@
 			this.codeView.SourceCode = null;
 			this.codeView.TabIndex = 1;
 			// 
+			// timerFollow
+			// 
+			this.timerFollow.Interval = 15;
+			this.timerFollow.Tick += new System.EventHandler(this.timerFollow_Tick);
+			// 
+			// tabControl3
+			// 
+			this.tabControl3.Controls.Add(this.tabPage5);
+			this.tabControl3.Controls.Add(this.tabPage6);
+			this.tabControl3.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.tabControl3.Location = new System.Drawing.Point(0, 0);
+			this.tabControl3.Name = "tabControl3";
+			this.tabControl3.SelectedIndex = 0;
+			this.tabControl3.Size = new System.Drawing.Size(726, 213);
+			this.tabControl3.TabIndex = 0;
+			// 
+			// tabPage5
+			// 
+			this.tabPage5.Controls.Add(this.txtOutput);
+			this.tabPage5.Controls.Add(this.toolStrip5);
+			this.tabPage5.Location = new System.Drawing.Point(4, 22);
+			this.tabPage5.Name = "tabPage5";
+			this.tabPage5.Padding = new System.Windows.Forms.Padding(3);
+			this.tabPage5.Size = new System.Drawing.Size(718, 187);
+			this.tabPage5.TabIndex = 0;
+			this.tabPage5.Text = "Output";
+			this.tabPage5.UseVisualStyleBackColor = true;
+			// 
+			// tabPage6
+			// 
+			this.tabPage6.Controls.Add(this.txtCodeView);
+			this.tabPage6.Controls.Add(this.toolStrip6);
+			this.tabPage6.Location = new System.Drawing.Point(4, 22);
+			this.tabPage6.Name = "tabPage6";
+			this.tabPage6.Padding = new System.Windows.Forms.Padding(3);
+			this.tabPage6.Size = new System.Drawing.Size(718, 187);
+			this.tabPage6.TabIndex = 1;
+			this.tabPage6.Text = "Code View";
+			this.tabPage6.UseVisualStyleBackColor = true;
+			// 
 			// txtOutput
 			// 
 			this.txtOutput.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
 			this.txtOutput.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.txtOutput.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.txtOutput.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
-			this.txtOutput.Location = new System.Drawing.Point(0, 0);
+			this.txtOutput.Location = new System.Drawing.Point(3, 28);
 			this.txtOutput.Multiline = true;
 			this.txtOutput.Name = "txtOutput";
 			this.txtOutput.ReadOnly = true;
-			this.txtOutput.Size = new System.Drawing.Size(726, 213);
-			this.txtOutput.TabIndex = 0;
+			this.txtOutput.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+			this.txtOutput.Size = new System.Drawing.Size(712, 156);
+			this.txtOutput.TabIndex = 3;
 			// 
-			// timerFollow
+			// toolStrip5
 			// 
-			this.timerFollow.Interval = 15;
-			this.timerFollow.Tick += new System.EventHandler(this.timerFollow_Tick);
+			this.toolStrip5.Location = new System.Drawing.Point(3, 3);
+			this.toolStrip5.Name = "toolStrip5";
+			this.toolStrip5.Size = new System.Drawing.Size(712, 25);
+			this.toolStrip5.TabIndex = 2;
+			this.toolStrip5.Text = "toolStrip5";
+			// 
+			// txtCodeView
+			// 
+			this.txtCodeView.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+			this.txtCodeView.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.txtCodeView.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.txtCodeView.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
+			this.txtCodeView.Location = new System.Drawing.Point(3, 28);
+			this.txtCodeView.Multiline = true;
+			this.txtCodeView.Name = "txtCodeView";
+			this.txtCodeView.ReadOnly = true;
+			this.txtCodeView.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+			this.txtCodeView.Size = new System.Drawing.Size(712, 156);
+			this.txtCodeView.TabIndex = 3;
+			// 
+			// toolStrip6
+			// 
+			this.toolStrip6.Location = new System.Drawing.Point(3, 3);
+			this.toolStrip6.Name = "toolStrip6";
+			this.toolStrip6.Size = new System.Drawing.Size(712, 25);
+			this.toolStrip6.TabIndex = 2;
+			this.toolStrip6.Text = "toolStrip6";
 			// 
 			// MainForm
 			// 
@@ -840,6 +915,7 @@
 			this.MainMenuStrip = this.menuStrip1;
 			this.Name = "MainForm";
 			this.Text = "MoonSharp Debugger";
+			this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
 			this.Load += new System.EventHandler(this.MainForm_Load);
 			this.menuStrip1.ResumeLayout(false);
 			this.menuStrip1.PerformLayout();
@@ -868,8 +944,12 @@
 			this.tabPage2.ResumeLayout(false);
 			this.splitContainer3.Panel1.ResumeLayout(false);
 			this.splitContainer3.Panel2.ResumeLayout(false);
-			this.splitContainer3.Panel2.PerformLayout();
 			this.splitContainer3.ResumeLayout(false);
+			this.tabControl3.ResumeLayout(false);
+			this.tabPage5.ResumeLayout(false);
+			this.tabPage5.PerformLayout();
+			this.tabPage6.ResumeLayout(false);
+			this.tabPage6.PerformLayout();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -931,7 +1011,6 @@
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
 		private System.Windows.Forms.SplitContainer splitContainer3;
 		private SourceCodeDebugControl codeView;
-		private System.Windows.Forms.TextBox txtOutput;
 		private DoubleBufferedListView lvVStack;
 		private System.Windows.Forms.ColumnHeader columnHeader5;
 		private System.Windows.Forms.ColumnHeader columnHeader6;
@@ -951,6 +1030,13 @@
 		private System.Windows.Forms.Timer timerFollow;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
 		private System.Windows.Forms.ToolStripButton btnFastHack;
+		private System.Windows.Forms.TabControl tabControl3;
+		private System.Windows.Forms.TabPage tabPage5;
+		private System.Windows.Forms.TextBox txtOutput;
+		private System.Windows.Forms.ToolStrip toolStrip5;
+		private System.Windows.Forms.TabPage tabPage6;
+		private System.Windows.Forms.TextBox txtCodeView;
+		private System.Windows.Forms.ToolStrip toolStrip6;
 
 
 	}

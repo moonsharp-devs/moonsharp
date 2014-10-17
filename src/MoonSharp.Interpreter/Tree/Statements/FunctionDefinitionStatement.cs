@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MoonSharp.Interpreter.Debugging;
 using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Grammar;
 using MoonSharp.Interpreter.Tree.Expressions;
@@ -14,6 +15,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		List<string> m_TableAccessors;
 		string m_MethodName;
 		string m_FriendlyName;
+		SourceRef m_SourceRef;
 
 		bool m_Local;
 		FunctionDefinitionExpression m_FuncDef;
@@ -23,7 +25,9 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		{
 			m_Local = true;
 			m_FuncSymbol = lcontext.Scope.TryDefineLocal(context.NAME().GetText());
-			m_FuncDef = new FunctionDefinitionExpression(context.funcbody(), lcontext);
+			m_FuncDef = new FunctionDefinitionExpression(context.funcbody(), lcontext, context);
+
+			m_SourceRef = BuildSourceRef(lcontext, context.Start, context.Stop);
 
 			m_FriendlyName = string.Format("{0} (local)", m_FuncSymbol.i_Name);
 		}
@@ -40,7 +44,9 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			string nameOfMethodAccessor = methodaccessor != null ? methodaccessor.Text : null;
 			m_TableAccessors = tableaccessor != null ? tableaccessor.Select(s => s.NAME().GetText()).ToList() : new List<string>();
 
-			m_FuncDef = new FunctionDefinitionExpression(context.funcbody(), lcontext, nameOfMethodAccessor != null);
+			m_SourceRef = BuildSourceRef(lcontext, context.Start, context.Stop);
+
+			m_FuncDef = new FunctionDefinitionExpression(context.funcbody(), lcontext, context, nameOfMethodAccessor != null);
 
 			if (nameOfMethodAccessor != null || m_TableAccessors.Count > 0)
 			{
@@ -72,19 +78,22 @@ namespace MoonSharp.Interpreter.Tree.Statements
 
 		public override void Compile(Execution.VM.ByteCode bc)
 		{
-			if (m_Local)
+			using (bc.EnterSource(m_SourceRef))
 			{
-				bc.Emit_Literal(DynValue.Nil);
-				bc.Emit_Store(m_FuncSymbol, 0, 0);
-				m_FuncDef.Compile(bc, () => SetFunction(bc, 2), m_FriendlyName);
-			}
-			else if (m_MethodName == null)
-			{
-				m_FuncDef.Compile(bc, () => SetFunction(bc, 1), m_FriendlyName);
-			}
-			else
-			{
-				m_FuncDef.Compile(bc, () => SetMethod(bc), m_FriendlyName);
+				if (m_Local)
+				{
+					bc.Emit_Literal(DynValue.Nil);
+					bc.Emit_Store(m_FuncSymbol, 0, 0);
+					m_FuncDef.Compile(bc, () => SetFunction(bc, 2), m_FriendlyName);
+				}
+				else if (m_MethodName == null)
+				{
+					m_FuncDef.Compile(bc, () => SetFunction(bc, 1), m_FriendlyName);
+				}
+				else
+				{
+					m_FuncDef.Compile(bc, () => SetMethod(bc), m_FriendlyName);
+				}
 			}
 		}
 

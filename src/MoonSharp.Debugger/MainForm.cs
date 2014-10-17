@@ -131,11 +131,12 @@ namespace MoonSharp.Debugger
 		AutoResetEvent m_WaitLock = new AutoResetEvent(false);
 		AutoResetEvent m_WaitBack = new AutoResetEvent(false);
 
-		DebuggerAction IDebugger.GetAction(int ip)
+		DebuggerAction IDebugger.GetAction(int ip, SourceRef sourceCodeRef)
 		{
 			m_Ctx.Post(o =>
 			{
 				codeView.ActiveLine = ip;
+				RefreshCodeView(sourceCodeRef);
 			}, null);
 
 			m_WaitLock.WaitOne();
@@ -146,6 +147,28 @@ namespace MoonSharp.Debugger
 			m_WaitBack.Set();
 
 			return action;
+		}
+
+		SourceRef m_PrevRef = null;
+
+		private void RefreshCodeView(SourceRef sourceCodeRef)
+		{
+			if (sourceCodeRef == m_PrevRef)
+				return;
+
+			m_PrevRef = sourceCodeRef;
+
+			if (sourceCodeRef == null)
+			{
+				txtCodeView.Text = "!! NULL !!";
+			}
+			else
+			{
+				SourceCode sc = m_Script.GetSourceCode(sourceCodeRef.SourceIdx);
+				//txtCodeView.Text = sc.Lines[sourceCodeRef.FromLine + 1] + "\n" +
+				//	sourceCodeRef.ToString();
+				txtCodeView.Text = sc.GetCodeSnippet(sourceCodeRef) + "\r\n\r\n" + sourceCodeRef.ToString();
+			}
 		}
 
 		void DebugAction(DebuggerAction action)

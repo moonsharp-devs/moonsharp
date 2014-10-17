@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MoonSharp.Interpreter.Debugging;
 using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Execution.VM;
 using MoonSharp.Interpreter.Grammar;
@@ -16,10 +17,12 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			public Expression Exp;
 			public Statement Block;
 			public RuntimeScopeBlock StackFrame;
+			public SourceRef Source;
 		}
 
 		List<IfBlock> m_Ifs = new List<IfBlock>();
 		Statement m_Else = null;
+		SourceRef m_End, m_ElseRef;
 		RuntimeScopeBlock m_ElseStackFrame;
 
 
@@ -35,7 +38,14 @@ namespace MoonSharp.Interpreter.Tree.Statements
 				var blk = context.block()[i];
 
 				lcontext.Scope.PushBlock();
-				var ifblock = new IfBlock() { Exp = NodeFactory.CreateExpression(exp, lcontext), Block = NodeFactory.CreateStatement(blk, lcontext) };
+				var ifblock = new IfBlock() 
+				{ 
+					Exp = NodeFactory.CreateExpression(exp, lcontext), 
+					Block = NodeFactory.CreateStatement(blk, lcontext),
+					Source = BuildSourceRef(lcontext, 
+						i == 0 ? context.IF().Symbol : context.ELSEIF()[i - 1].Symbol 
+						, exp.Stop)
+				};
 				ifblock.StackFrame = lcontext.Scope.PopBlock();
 
 				m_Ifs.Add(ifblock);
@@ -46,7 +56,10 @@ namespace MoonSharp.Interpreter.Tree.Statements
 				lcontext.Scope.PushBlock();
 				m_Else = NodeFactory.CreateStatement(context.block()[bcount - 1], lcontext);
 				m_ElseStackFrame = lcontext.Scope.PopBlock();
+				m_ElseRef = BuildSourceRef(lcontext, context.ELSE()); 
 			}
+
+			m_End = BuildSourceRef(lcontext, context.Stop, context.END());
 		}
 
 
@@ -58,14 +71,20 @@ namespace MoonSharp.Interpreter.Tree.Statements
 
 			foreach (var ifblock in m_Ifs)
 			{
-				if (lastIfJmp != null)
-					lastIfJmp.NumVal = bc.GetJumpPointForNextInstruction();
+				using (bc.EnterSource(ifblock.Source))
+				{
+					if (lastIfJmp != null)
+						lastIfJmp.NumVal = bc.GetJumpPointForNextInstruction();
 
-				ifblock.Exp.Compile(bc);
-				lastIfJmp = bc.Emit_Jump(OpCode.Jf, -1);
-				bc.Emit_Enter(ifblock.StackFrame);
-				ifblock.Block.Compile(bc);
-				bc.Emit_Leave(ifblock.StackFrame);
+					ifblock.Exp.Compile(bc);
+					lastIfJmp = bc.Emit_Jump(OpCode.Jf, -1);
+					bc.Emit_Enter(ifblock.StackFrame);
+					ifblock.Block.Compile(bc);
+				}
+
+				using (bc.EnterSource(m_End))
+					bc.Emit_Leave(ifblock.StackFrame);
+
 				endJumps.Add(bc.Emit_Jump(OpCode.Jump, -1));
 			}
 
@@ -73,9 +92,14 @@ namespace MoonSharp.Interpreter.Tree.Statements
 
 			if (m_Else != null)
 			{
-				bc.Emit_Enter(m_ElseStackFrame);
-				m_Else.Compile(bc);
-				bc.Emit_Leave(m_ElseStackFrame);
+				using (bc.EnterSource(m_ElseRef))
+				{
+					bc.Emit_Enter(m_ElseStackFrame);
+					m_Else.Compile(bc);
+				}
+
+				using (bc.EnterSource(m_End))
+					bc.Emit_Leave(m_ElseStackFrame);
 			}
 
 			foreach(var endjmp in endJumps)

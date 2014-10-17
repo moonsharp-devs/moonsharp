@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MoonSharp.Interpreter.Debugging;
 using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Grammar;
 using MoonSharp.Interpreter.Tree.Expressions;
@@ -11,6 +12,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 	class ReturnStatement: Statement
 	{
 		Expression m_Expression = null;
+		SourceRef m_Ref;
 
 		public ReturnStatement(LuaParser.RetstatContext context, ScriptLoadingContext lcontext)
 			: base(context, lcontext)
@@ -18,21 +20,31 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			LuaParser.ExplistContext expr = context.children.FirstOrDefault(t => t is LuaParser.ExplistContext) as LuaParser.ExplistContext;
 
 			if (expr != null)
+			{
 				m_Expression = NodeFactory.CreateExpression(expr, lcontext);
+				m_Ref = BuildSourceRef(lcontext, context.Start, expr.Stop);
+			}
+			else
+			{
+				m_Ref = BuildSourceRef(lcontext, context.Start, context.RETURN());
+			}
 		}
 
 
 
 		public override void Compile(Execution.VM.ByteCode bc)
 		{
-			if (m_Expression != null)
+			using (bc.EnterSource(m_Ref))
 			{
-				m_Expression.Compile(bc);
-				bc.Emit_Ret(1);
-			}
-			else
-			{
-				bc.Emit_Ret(0);
+				if (m_Expression != null)
+				{
+					m_Expression.Compile(bc);
+					bc.Emit_Ret(1);
+				}
+				else
+				{
+					bc.Emit_Ret(0);
+				}
 			}
 		}
 	}

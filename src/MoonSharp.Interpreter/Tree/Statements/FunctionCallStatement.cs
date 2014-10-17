@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Antlr4.Runtime.Tree;
+using MoonSharp.Interpreter.Debugging;
 using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Execution.VM;
 using MoonSharp.Interpreter.Grammar;
@@ -13,18 +14,23 @@ namespace MoonSharp.Interpreter.Tree.Statements
 	class FunctionCallStatement : Statement
 	{
 		FunctionCallChainExpression m_FunctionCallChain;
+		SourceRef m_SourceRef;
 
 		public FunctionCallStatement(LuaParser.Stat_functioncallContext context, ScriptLoadingContext lcontext)
 			: base(context, lcontext)
 		{
 			m_FunctionCallChain = new FunctionCallChainExpression(context, lcontext);
+			m_SourceRef = BuildSourceRef(lcontext, context.Start, context.Stop);
 		}
 
 
 		public override void Compile(ByteCode bc)
 		{
-			m_FunctionCallChain.Compile(bc);
-			bc.Emit_Pop();
+			using (bc.EnterSource(m_SourceRef))
+			{
+				m_FunctionCallChain.Compile(bc);
+				bc.Emit_Pop();
+			}
 		}
 	}
 }

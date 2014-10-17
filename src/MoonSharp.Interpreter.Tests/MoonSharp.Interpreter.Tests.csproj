@@ -196,9 +196,6 @@
     <None Include="TestMore\301-basic.t">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="TestMore\303-package.t">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="TestMore\304-string.t">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

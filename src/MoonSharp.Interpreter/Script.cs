@@ -29,7 +29,7 @@ namespace MoonSharp.Interpreter
 		IScriptLoader m_ScriptLoader = DefaultScriptLoader;
 		Table[] m_TypeMetatables = new Table[(int)LuaTypeExtensions.MaxMetaTypes];
 
-	
+
 		static Script()
 		{
 			DefaultScriptLoader = new ClassicLuaScriptLoader();
@@ -104,18 +104,13 @@ namespace MoonSharp.Interpreter
 		/// </returns>
 		public DynValue LoadFunction(string code, Table globalTable = null, string funcFriendlyName = null)
 		{
-			string chunkName = string.Format("<string:{0:X4}>", m_Sources.Count);
+			string chunkName = string.Format("libfunc_{0}", funcFriendlyName ?? m_Sources.Count.ToString());
 
-			SourceCode source = new SourceCode(funcFriendlyName ?? chunkName, code);
+			SourceCode source = new SourceCode(chunkName, code, m_Sources.Count, this);
+
+			int address = Loader_Antlr.LoadFunction(this, source, m_ByteCode, globalTable ?? m_GlobalTable);
 
 			m_Sources.Add(source);
-
-			int address = Loader_Antlr.LoadFunction(this, 
-				code,
-				m_ByteCode,
-				funcFriendlyName ?? chunkName,
-				m_Sources.Count - 1,
-				globalTable ?? m_GlobalTable);
 
 			if (m_Debugger != null)
 				m_Debugger.SetSourceCode(m_ByteCode, null);
@@ -136,18 +131,16 @@ namespace MoonSharp.Interpreter
 		/// </returns>
 		public DynValue LoadString(string code, Table globalTable = null, string codeFriendlyName = null)
 		{
-			string chunkName = string.Format("<string:{0:X4}>", m_Sources.Count);
+			string chunkName = string.Format("{0}", codeFriendlyName ?? "chunk_" + m_Sources.Count.ToString());
 
-			SourceCode source = new SourceCode(codeFriendlyName ?? chunkName, code);
-
-			m_Sources.Add(source);
+			SourceCode source = new SourceCode(codeFriendlyName ?? chunkName, code, m_Sources.Count, this);
 
 			int address = Loader_Antlr.LoadChunk(this,
-				code,
+				source,
 				m_ByteCode,
-				codeFriendlyName ?? chunkName,
-				m_Sources.Count - 1,
 				globalTable ?? m_GlobalTable);
+
+			m_Sources.Add(source);
 
 			if (m_Debugger != null)
 				m_Debugger.SetSourceCode(m_ByteCode, null);
@@ -374,6 +367,29 @@ namespace MoonSharp.Interpreter
 			m_MainProcessor.AttachDebugger(debugger);
 			m_Debugger.SetSourceCode(m_ByteCode, null);
 		}
+
+		/// <summary>
+		/// Gets the source code.
+		/// </summary>
+		/// <param name="sourceCodeID">The source code identifier.</param>
+		/// <returns></returns>
+		public SourceCode GetSourceCode(int sourceCodeID)
+		{
+			return m_Sources[sourceCodeID];
+		}
+
+
+		/// <summary>
+		/// Gets the source code count.
+		/// </summary>
+		/// <value>
+		/// The source code count.
+		/// </value>
+		public int SourceCodeCount
+		{
+			get { return m_Sources.Count; }
+		}
+
 
 
 		/// <summary>

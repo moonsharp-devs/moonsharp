@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Antlr4.Runtime;
+using MoonSharp.Interpreter.Debugging;
 using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Execution.VM;
 using MoonSharp.Interpreter.Grammar;
@@ -20,13 +22,20 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 		Table m_GlobalEnv;
 		SymbolRef m_Env;
 
+		SourceRef m_Begin, m_End;
+
 		public FunctionDefinitionExpression(LuaParser.AnonfunctiondefContext context, ScriptLoadingContext lcontext, bool pushSelfParam = false, Table globalContext = null)
-			: this(context.funcbody(), lcontext, pushSelfParam, globalContext)
-		{
-		}
+			: this(context.funcbody(), lcontext, context, pushSelfParam, globalContext)
+		{ }
 
 
-		public FunctionDefinitionExpression(LuaParser.FuncbodyContext context, ScriptLoadingContext lcontext, bool pushSelfParam = false, Table globalContext = null)
+		public FunctionDefinitionExpression(LuaParser.Exp_anonfuncContext context, ScriptLoadingContext lcontext, bool pushSelfParam = false, Table globalContext = null)
+			: this(context.funcbody(), lcontext, context, pushSelfParam, globalContext)
+		{ }
+
+		public FunctionDefinitionExpression(LuaParser.FuncbodyContext context, ScriptLoadingContext lcontext, 
+			ParserRuleContext declarationContext,
+			bool pushSelfParam = false, Table globalContext = null)
 			: base(context, lcontext)
 		{
 			var parlist = context.parlist();
@@ -68,6 +77,8 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 			m_StackFrame = lcontext.Scope.PopFunction();
 
+			m_Begin = BuildSourceRef(lcontext, declarationContext.Start, context.PAREN_CLOSE().Symbol);
+			m_End = BuildSourceRef(lcontext, context.Stop, context.END());
 		}
 
 		public SymbolRef CreateUpvalue(BuildTimeScope scope, SymbolRef symbol)
@@ -102,6 +113,8 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 		public int CompileBody(ByteCode bc, string friendlyName)
 		{
+			bc.PushSourceRef(m_Begin);
+
 			Instruction I = bc.Emit_Jump(OpCode.Jump, -1);
 
 			bc.Emit_BeginFn(m_StackFrame, friendlyName ?? "<anonymous>");
@@ -122,6 +135,9 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 			m_Statement.Compile(bc);
 
+			bc.PopSourceRef();
+			bc.PushSourceRef(m_End);
+
 			if (bc.GetLastInstruction().OpCode != OpCode.Ret)
 				bc.Emit_Ret(0);
 
@@ -129,19 +145,24 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 			I.NumVal = bc.GetJumpPointForNextInstruction();
 
+			bc.PopSourceRef();
+
 			return entryPoint;
 		}
 
 		public int Compile(ByteCode bc, Func<int> afterDecl, string friendlyName)
 		{
-			SymbolRef[] symbs = m_Closure
-				//.Select((s, idx) => s.CloneLocalAndSetFrame(m_ClosureFrames[idx]))
-				.ToArray();
+			using (bc.EnterSource(m_Begin))
+			{
+				SymbolRef[] symbs = m_Closure
+					//.Select((s, idx) => s.CloneLocalAndSetFrame(m_ClosureFrames[idx]))
+					.ToArray();
 
-			m_ClosureInstruction = bc.Emit_Closure(symbs, bc.GetJumpPointForNextInstruction());
-			int ops = afterDecl();
+				m_ClosureInstruction = bc.Emit_Closure(symbs, bc.GetJumpPointForNextInstruction());
+				int ops = afterDecl();
 
-			m_ClosureInstruction.NumVal += 2 + ops;
+				m_ClosureInstruction.NumVal += 2 + ops;
+			}
 
 			return CompileBody(bc, friendlyName);
 		}

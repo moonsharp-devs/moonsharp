@@ -136,7 +136,7 @@ namespace MoonSharp.Interpreter.Tree
 			if (tree is LuaParser.Exp_stringContext) tree = ((LuaParser.Exp_stringContext)tree).@string();
 			if (tree is LuaParser.Exp_varargsContext) tree = ((LuaParser.Exp_varargsContext)tree).vararg();
 
-			if (tree is LuaParser.Exp_anonfuncContext) return new FunctionDefinitionExpression(((LuaParser.Exp_anonfuncContext)tree).funcbody(), lcontext);
+			if (tree is LuaParser.Exp_anonfuncContext) return new FunctionDefinitionExpression(((LuaParser.Exp_anonfuncContext)tree), lcontext);
 			if (tree is LuaParser.Exp_prefixexpContext) tree = ((LuaParser.Exp_prefixexpContext)tree).prefixexp();
 			if (tree is LuaParser.Exp_tabctorContext) tree = ((LuaParser.Exp_tabctorContext)tree).tableconstructor();
 			if (tree is LuaParser.Exp_powerContext) return new PowerOperatorExpression(tree, lcontext);

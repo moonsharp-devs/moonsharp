@@ -35,7 +35,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 			while (true)
 			{
-				var action = m_Debug.DebuggerAttached.GetAction(instructionPtr);
+				var action = m_Debug.DebuggerAttached.GetAction(instructionPtr, instr.SourceCodeRef);
 
 				switch (action.Action)
 				{

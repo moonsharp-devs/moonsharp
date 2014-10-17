@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
+using MoonSharp.Interpreter.Debugging;
 using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Grammar;
 using MoonSharp.Interpreter.Tree.Expressions;
@@ -13,6 +13,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 	{
 		IVariable[] m_LValues;
 		Expression[] m_RValues;
+		SourceRef m_Ref;
 
 		public AssignmentStatement(LuaParser.Stat_assignmentContext context, ScriptLoadingContext lcontext)
 			: base(context, lcontext)
@@ -26,6 +27,8 @@ namespace MoonSharp.Interpreter.Tree.Statements
 				.exp()
 				.Select(e => NodeFactory.CreateExpression(e, lcontext))
 				.ToArray();
+
+			m_Ref = BuildSourceRef(lcontext, context.Start, context.Stop);
 		}
 
 		public AssignmentStatement(LuaParser.Stat_localassignmentContext context, ScriptLoadingContext lcontext)
@@ -49,22 +52,27 @@ namespace MoonSharp.Interpreter.Tree.Statements
 				.Select(s => new SymbolRefExpression(context, lcontext, s))
 				.Cast<IVariable>()
 				.ToArray();
+
+			m_Ref = BuildSourceRef(lcontext, context.Start, context.Stop);
 		}
 
 
 		public override void Compile(Execution.VM.ByteCode bc)
 		{
-			foreach (var exp in m_RValues)
+			using (bc.EnterSource(m_Ref))
 			{
-				exp.Compile(bc);
+				foreach (var exp in m_RValues)
+				{
+					exp.Compile(bc);
+				}
+
+				for (int i = 0; i < m_LValues.Length; i++)
+					m_LValues[i].CompileAssignment(bc,
+							Math.Max(m_RValues.Length - 1 - i, 0), // index of r-value
+							i - Math.Min(i, m_RValues.Length - 1)); // index in last tuple
+
+				bc.Emit_Pop(m_RValues.Length);
 			}
-
-			for(int i = 0; i < m_LValues.Length; i++)
-				m_LValues[i].CompileAssignment(bc,
-						Math.Max(m_RValues.Length - 1 - i, 0), // index of r-value
-						i - Math.Min(i, m_RValues.Length - 1)); // index in last tuple
-
-			bc.Emit_Pop(m_RValues.Length);
 		}
 
 	}

@@ -219,6 +219,7 @@
     <Compile Include="Modules\MoonSharpModuleAttribute.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Tree\Antlr_Interface\AntlrErrorListener.cs" />
     <Compile Include="Tree\Expressions\AdjustmentExpression.cs" />
     <Compile Include="Tree\Expressions\BinaryOperatorExpression.cs" />
     <Compile Include="Tree\Expressions\PowerOperatorExpression.cs" />
@@ -234,7 +235,7 @@
     <Compile Include="Tree\Expression.cs" />
     <Compile Include="Tree\Expressions\OperatorExpression.cs" />
     <Compile Include="Tree\Expressions\SymbolRefExpression.cs" />
-    <Compile Include="Tree\Loader_Antlr.cs" />
+    <Compile Include="Tree\Antlr_Interface\Loader_Antlr.cs" />
     <Compile Include="Tree\Loop.cs" />
     <Compile Include="Tree\NodeBase.cs" />
     <Compile Include="Tree\NodeFactory.cs" />
@@ -251,7 +252,6 @@
     <Compile Include="Tree\Statements\IfStatement.cs" />
     <Compile Include="Tree\Statement.cs" />
     <Compile Include="Tree\Statements\LabelStatement.cs" />
-    <Compile Include="Tree\Statements\LocalAssignmentStatement.cs" />
     <Compile Include="Tree\Statements\NullStatement.cs" />
     <Compile Include="Tree\Statements\RepeatStatement.cs" />
     <Compile Include="Tree\Statements\ReturnStatement.cs" />

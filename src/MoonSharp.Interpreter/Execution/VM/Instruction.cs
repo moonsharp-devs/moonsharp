@@ -18,6 +18,11 @@ namespace MoonSharp.Interpreter.Execution.VM
 		public bool Breakpoint;
 		public SourceRef SourceCodeRef;
 
+		public Instruction(SourceRef sourceref)
+		{
+			SourceCodeRef = sourceref;
+		}
+
 		public override string ToString()
 		{
 			string append = "";

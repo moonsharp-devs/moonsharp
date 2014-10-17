@@ -71,7 +71,7 @@ exp
 	;
 
 var
-    : (NAME | '(' exp ')' varSuffix) varSuffix*
+    : (NAME | PAREN_OPEN exp PAREN_CLOSE varSuffix) varSuffix*
     ;
 
 prefixexp
@@ -80,7 +80,7 @@ prefixexp
 
 //
 varOrExp
-    : var | '(' exp ')'
+    : var | PAREN_OPEN exp PAREN_CLOSE
     ;
 
 
@@ -96,7 +96,7 @@ varSuffix
 
 // Possible args to func call : list of expressions, table ctor, string literal
 args
-    : '(' explist? ')' | tableconstructor | string
+    : PAREN_OPEN explist? PAREN_CLOSE | tableconstructor | string
     ;
 
 
@@ -115,7 +115,7 @@ anonfunctiondef
 
 // A func body from the parlist to end.
 funcbody
-    : '(' parlist? ')' block 'end'
+    : PAREN_OPEN parlist? PAREN_CLOSE block END
     ;
 
 // The list of params in a function def
@@ -126,7 +126,7 @@ parlist
 
 // A table ctor
 tableconstructor
-    : '{' fieldlist? '}'
+    : CURLY_OPEN fieldlist? CURLY_CLOSE
     ;
 
 
@@ -183,7 +183,10 @@ THEN : 'then';
 TRUE : 'true';
 UNTIL : 'until';
 WHILE : 'while';
-
+CURLY_OPEN : '{';
+CURLY_CLOSE : '}';
+PAREN_OPEN : '(';
+PAREN_CLOSE: ')';
 
 operatorbinary 
 	: OR | AND | '<' | '>' | '<=' | '>=' | '~=' | '==' | '..' | '+' | '-' | '*' | '/' | '%' ;
@@ -276,7 +279,7 @@ HexDigit
 
 COMMENT
     : '--[' NESTED_STR ']' -> channel(HIDDEN)
-    ;
+    ; 
     
 LINE_COMMENT
     : '--'

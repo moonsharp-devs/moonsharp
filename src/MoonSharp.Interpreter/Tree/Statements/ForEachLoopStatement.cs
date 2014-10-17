@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MoonSharp.Interpreter.Debugging;
 using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Execution.VM;
 using MoonSharp.Interpreter.Grammar;
@@ -17,6 +18,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		Expression m_RValues;
 		Statement m_Block;
 		string m_DebugText;
+		SourceRef m_RefFor, m_RefEnd;
 
 
 		public ForEachLoopStatement(LuaParser.Stat_foreachloopContext context, ScriptLoadingContext lcontext)
@@ -45,11 +47,16 @@ namespace MoonSharp.Interpreter.Tree.Statements
 
 			m_StackFrame = lcontext.Scope.PopBlock();
 			m_DebugText = context.GetText();
+
+			m_RefFor = BuildSourceRef(lcontext, context.Start, context.FOR());
+			m_RefEnd = BuildSourceRef(lcontext, context.Stop, context.END());
 		}
 
 		public override void Compile(ByteCode bc)
 		{
 			//for var_1, ···, var_n in explist do block end
+
+			bc.PushSourceRef(m_RefFor);
 
 			Loop L = new Loop()
 			{
@@ -92,6 +99,9 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			// executes the stuff - stack : iterator-tuple
 			m_Block.Compile(bc);
 
+			bc.PopSourceRef();
+			bc.PushSourceRef(m_RefEnd);
+
 			// loop back again - stack : iterator-tuple
 			bc.Emit_Leave(m_StackFrame);
 			bc.Emit_Jump(OpCode.Jump, start);
@@ -109,6 +119,8 @@ namespace MoonSharp.Interpreter.Tree.Statements
 				i.NumVal = exitpointBreaks;
 
 			endjump.NumVal = exitpointLoopExit;
+
+			bc.PopSourceRef();
 		}
 
 
