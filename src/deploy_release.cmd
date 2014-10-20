@@ -34,3 +34,4 @@ copy /Y search.html C:\git\moonsharp_org\reference
 copy /Y WebKI.xml C:\git\moonsharp_org\reference
 copy /Y WebTOC.xml C:\git\moonsharp_org\reference
 
+start c:\temp\moonsharp_release
