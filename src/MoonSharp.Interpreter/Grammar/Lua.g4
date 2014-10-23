@@ -183,6 +183,7 @@ THEN : 'then';
 TRUE : 'true';
 UNTIL : 'until';
 WHILE : 'while';
+
 CURLY_OPEN : '{';
 CURLY_CLOSE : '}';
 PAREN_OPEN : '(';
@@ -249,24 +250,11 @@ HexExponentPart
 
 fragment
 EscapeSequence
-    : '\\' [abfnrtvz"'\\]
-    | '\\' '\r'? '\n'
-    | DecimalEscape
-    | HexEscape
+    : '\\' '\r'? '\n'
+    | '\\' ["']
+	| '\\' .
     ;
     
-fragment
-DecimalEscape
-    : '\\' Digit
-    | '\\' Digit Digit
-    | '\\' [0-2] Digit Digit
-    ;
-    
-fragment
-HexEscape
-    : '\\' 'x' HexDigit HexDigit
-    ;
-
 fragment
 Digit
     : [0-9]

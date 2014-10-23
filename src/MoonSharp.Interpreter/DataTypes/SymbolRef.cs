@@ -12,10 +12,11 @@ namespace MoonSharp.Interpreter
 	/// </summary>
 	public class SymbolRef
 	{
-		internal SymbolRef i_Env;
+		private static SymbolRef s_DefaultEnv = new SymbolRef() { i_Type = SymbolRefType.DefaultEnv };
 
 		// Fields are internal - direct access by the executor was a 10% improvement at profiling here!
 		internal SymbolRefType i_Type;
+		internal SymbolRef i_Env;
 		internal int i_Index;
 		internal string i_Name;
 
@@ -24,6 +25,8 @@ namespace MoonSharp.Interpreter
 		public string Name { get { return i_Name; } }
 		public SymbolRef Environment { get { return i_Env; } }
 
+
+		public static SymbolRef DefaultEnv { get { return s_DefaultEnv; } }
 
 		public static SymbolRef Global(string name, SymbolRef envSymbol)
 		{
@@ -44,6 +47,9 @@ namespace MoonSharp.Interpreter
 
 		public override string ToString()
 		{
+			if (i_Type == SymbolRefType.DefaultEnv)
+				return "(default _ENV)";
+			else
 			if (i_Type == SymbolRefType.Global)
 				return string.Format("{2} : {0} / {1}", i_Type, i_Env, i_Name);
 			else

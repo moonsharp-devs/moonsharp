@@ -97,7 +97,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		private WatchItem Debugger_RefreshWatch(string name)
 		{
-			SymbolRef L = FindRefByName(name);
+			SymbolRef L = FindSymbolByName(name);
 
 			if (L != null)
 			{

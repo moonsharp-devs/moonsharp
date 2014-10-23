@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using MoonSharp.Interpreter;
 using MoonSharp.Interpreter.Execution;
+using MoonSharp.RemoteDebugger.Network;
 
 namespace MoonSharp
 {
@@ -64,6 +65,12 @@ namespace MoonSharp
 					Console.Write("{0}> ", string.IsNullOrEmpty(cmd) ? "" : ">");
 					string s = Console.ReadLine();
 
+					if (s.StartsWith("!"))
+					{
+						ParseCommand(s.Substring(1));
+						continue;
+					}
+
 					if (s != "")
 					{
 						cmd += s + "\n";
@@ -103,6 +110,33 @@ namespace MoonSharp
 
 
 			}
+		}
+
+		static Utf8TcpServer m_Server;
+		static HttpServer m_Http;
+
+		private static void ParseCommand(string p)
+		{
+			if (p == "net")
+			{
+				m_Server = new Utf8TcpServer(1912, 8 << 20, '\n', Utf8TcpServerOptions.SingleClientOnly);
+				m_Server.DataReceived += m_Server_DataReceivedAny;
+				m_Server.Start();
+			}
+			if (p == "http")
+			{
+				m_Http = new HttpServer(1994, Utf8TcpServerOptions.Default);
+				m_Http.RegisterResource("/", HttpResource.CreateText(HttpResourceType.PlainText, "Hello, world!\n"));
+				m_Http.RegisterResource("/1.png", HttpResource.CreateBinary(HttpResourceType.Png, File.ReadAllBytes(@"c:\temp\1.png")));
+				m_Http.Authenticator = (usr, pwd) => usr == pwd;
+				m_Http.Start();
+			}
+		}
+
+		static void m_Server_DataReceivedAny(object sender, Utf8TcpPeerEventArgs e)
+		{
+			Console.WriteLine("RCVD: {0}", e.Message);
+			e.Peer.Send(e.Message.ToUpper());
 		}
 
 

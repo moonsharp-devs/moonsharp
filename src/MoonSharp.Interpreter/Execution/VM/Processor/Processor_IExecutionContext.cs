@@ -7,17 +7,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 {
 	sealed partial class Processor
 	{
-		internal DynValue GetVar(SymbolRef symref)
-		{
-			return this.GetGenericSymbol(symref);
-		}
-
-		internal void SetVar(SymbolRef symref, DynValue value)
-		{
-			AssignGenericSymbol(symref, value);
-		}
-
-
 		internal Table GetMetatable(DynValue value)
 		{
 			if (value.Type == DataType.Table)

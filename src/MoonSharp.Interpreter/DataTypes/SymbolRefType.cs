@@ -10,5 +10,6 @@ namespace MoonSharp.Interpreter
 		Local,
 		Upvalue,
 		Global,
+		DefaultEnv,
 	}
 }

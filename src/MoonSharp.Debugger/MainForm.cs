@@ -50,23 +50,6 @@ namespace MoonSharp.Debugger
 		Script m_Script;
 		SynchronizationContext m_Ctx;
 
-
-		DynValue Assert(ScriptExecutionContext executionContext, CallbackArguments values)
-		{
-			if (!values[0].CastToBool())
-				Console_WriteLine("ASSERT FAILED!");
-
-			return DynValue.Nil;
-		}
-
-		DynValue XAssert(ScriptExecutionContext executionContext, CallbackArguments values)
-		{
-			if (!values[1].CastToBool())
-				Console_WriteLine("ASSERT FAILED! : {0}", values[0].ToString());
-
-			return DynValue.Nil;
-		}
-
 		private void Console_WriteLine(string fmt, params object[] args)
 		{
 			fmt = string.Format(fmt, args);
@@ -86,8 +69,6 @@ namespace MoonSharp.Debugger
 			m_Script = new Script(CoreModules.Preset_Complete);
 
 			m_Script.DebugPrint = s => { Console_WriteLine("{0}", s); };
-			//m_Script.Globals["assert"] = DynValue.NewCallback(Assert);
-			m_Script.Globals.Set("xassert", DynValue.NewCallback(XAssert));
 
 			var L = new ClassicLuaScriptLoader();
 			L.ModulePaths = L.UnpackStringPaths("Modules/?;Modules/?.lua");

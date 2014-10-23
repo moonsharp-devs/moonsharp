@@ -101,6 +101,47 @@ namespace MoonSharp.Interpreter.Tests
 			Assert.AreEqual("[==[[=[[[eheh]]=]=]", res.Tuple[2].String);
 		}
 
+
+		[Test]
+		public void UnicodeEscapeLua53Style()
+		{
+			string script = @"    
+				x = 'ciao\u{41}';
+				return x;";
+
+			DynValue res = Script.RunString(script);
+
+			Assert.AreEqual(DataType.String, res.Type);
+			Assert.AreEqual("ciaoA", res.String);
+		}
+
+		[Test]
+		[ExpectedException(typeof(SyntaxErrorException))]
+		public void InvalidEscape()
+		{
+			string script = @"    
+				x = 'ciao\k{41}';
+				return x;";
+
+			DynValue res = Script.RunString(script);
+		}
+
+		[Test]
+		public void KeywordsInStrings()
+		{
+			string keywrd = "and break do else elseif end false end for function end goto if ::in:: in local nil not [or][[][==][[]] repeat return { then 0 end return; }; then true (x != 5 or == * 3 - 5) x";
+
+			string script = string.Format(@"    
+				x = '{0}';
+				return x;", keywrd);
+
+			DynValue res = Script.RunString(script);
+			Assert.AreEqual(DataType.String, res.Type);
+			Assert.AreEqual(keywrd, res.String);
+		}
+
+
+
 		[Test]
 		public void ParserErrorMessage()
 		{

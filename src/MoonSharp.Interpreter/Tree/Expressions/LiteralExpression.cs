@@ -31,10 +31,12 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			if (m_Value == null) TryParse(context.FLOAT(), s => double.Parse(s, CultureInfo.InvariantCulture));
 			if (m_Value == null) TryParse(context.HEX(), s => (double)ulong.Parse(RemoveHexHeader(s), NumberStyles.HexNumber, CultureInfo.InvariantCulture));
 			if (m_Value == null) TryParse(context.INT(), s => double.Parse(s, CultureInfo.InvariantCulture));
+			if (m_Value == null) TryParse(context.HEX_FLOAT(), s => ParseHexFloat(s));
 
 			if (m_Value == null)
 				throw new SyntaxErrorException("unknown number format near '{0}'", context.GetText());
 		}
+
 
 		private string RemoveHexHeader(string s)
 		{
@@ -72,7 +74,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 			bool escape = false;
 			bool hex = false;
-			int limit = 2;
+			int unicode_state = 0;
 			string hexprefix = "";
 			string val = "";
 			bool zmode = false;
@@ -82,7 +84,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			redo:
 				if (escape)
 				{
-					if (val.Length == 0 && !hex)
+					if (val.Length == 0 && !hex && unicode_state == 0)
 					{
 						if (c == 'a') { sb.Append('\a'); escape = false; zmode = false; }
 						else if (c == '\r') { }  // this makes \\r\n -> \\n
@@ -98,21 +100,46 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 						else if (c == '\'') { sb.Append('\''); escape = false; zmode = false; }
 						else if (c == '[') { sb.Append('['); escape = false; zmode = false; }
 						else if (c == ']') { sb.Append(']'); escape = false; zmode = false; }
-						else if (c == 'x') { hex = true; limit = 2; hexprefix = "x"; }
-						else if (c == 'u') { hex = true; limit = 4; hexprefix = "u"; }
-						else if (c == 'U') { hex = true; limit = 8; hexprefix = "U"; }
+						else if (c == 'x') { hex = true; }
+						else if (c == 'u') { unicode_state = 1; }
 						else if (c == 'z') { zmode = true; escape = false; }
 						else if (char.IsDigit(c)) { val = val + c; }
 						else throw new SyntaxErrorException("invalid escape sequence near '\\{0}'", c);
 					}
 					else
 					{
-						if (hex)
+						if (unicode_state == 1)
+						{
+							if (c != '{')
+								throw new SyntaxErrorException("'{' expected near '\\u'");
+
+							unicode_state = 2;
+						}
+						else if (unicode_state == 2)
+						{
+							if (c == '}')
+							{
+								int i = int.Parse(val, NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+								sb.Append(char.ConvertFromUtf32(i));
+								unicode_state = 0;
+								val = string.Empty;
+								escape = false;
+							}
+							else if (val.Length >= 8)
+							{
+								throw new SyntaxErrorException("'}' missing, or unicode code point too large after '\\u'");
+							}
+							else
+							{
+								val += c;
+							}
+						}
+						else if (hex)
 						{
 							if (IsHexDigit(c))
 							{
 								val += c;
-								if (val.Length == limit)
+								if (val.Length == 2)
 								{
 									int i = int.Parse(val, NumberStyles.HexNumber, CultureInfo.InvariantCulture);
 									sb.Append(char.ConvertFromUtf32(i));
@@ -232,5 +259,11 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 		{
 			bc.Emit_Literal(m_Value);
 		}
+
+		private double ParseHexFloat(string s)
+		{
+			throw new SyntaxErrorException("hex floats are not supported: '{0}'", s);
+		}
+
 	}
 }

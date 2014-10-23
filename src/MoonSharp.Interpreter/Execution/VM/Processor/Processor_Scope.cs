@@ -40,6 +40,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 		{
 			switch (symref.i_Type)
 			{
+				case  SymbolRefType.DefaultEnv:
+					return DynValue.NewTable(this.GetScript().Globals);
 				case SymbolRefType.Global:
 					return GetGlobalSymbol(GetGenericSymbol(symref.i_Env), symref.i_Name);
 				case SymbolRefType.Local:
@@ -97,13 +99,17 @@ namespace MoonSharp.Interpreter.Execution.VM
 						v.Assign(value);
 					}
 					break;
+				case SymbolRefType.DefaultEnv:
+					{
+						throw new ArgumentException("Can't AssignGenericSymbol on a DefaultEnv symbol");
+					}
 				default:
 					throw new InternalErrorException("Unexpected {0} LRef at resolution: {1}", symref.i_Type, symref.i_Name);
 			}
 		}
 
 
-		public SymbolRef FindRefByName(string name)
+		public SymbolRef FindSymbolByName(string name)
 		{
 			var stackframe = m_ExecutionStack.Peek();
 
@@ -130,14 +136,13 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 			if (name != WellKnownSymbols.ENV)
 			{
-				SymbolRef env = FindRefByName(WellKnownSymbols.ENV);
+				SymbolRef env = FindSymbolByName(WellKnownSymbols.ENV);
 				return SymbolRef.Global(name, env);
 			}
-
-			// reminder: good code never reaches here, except when debugger peeks others' affairs
-			// +++
-
-			return null;
+			else
+			{
+				return SymbolRef.DefaultEnv;
+			}
 		}
 
 	}

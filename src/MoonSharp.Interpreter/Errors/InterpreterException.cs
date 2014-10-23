@@ -8,19 +8,19 @@ namespace MoonSharp.Interpreter
 {
 	public class InterpreterException : Exception 
 	{
-		internal InterpreterException(Exception ex)
+		protected InterpreterException(Exception ex)
 			: base(ex.Message, ex)
 		{
 
 		}
 
-		internal InterpreterException(string format, params object[] args)
+		protected InterpreterException(string format, params object[] args)
 			: base(string.Format(format, args))
 		{
 
 		}
 
-		internal InterpreterException(IParseTree tree, string format, params object[] args)
+		protected InterpreterException(IParseTree tree, string format, params object[] args)
 			: base(string.Format(format, args) + FormatTree(tree))
 		{
 

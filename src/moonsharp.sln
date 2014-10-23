@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoonSharp.Debugger", "MoonS
 EndProject
 Project("{7CF6DF6D-3B04-46F8-A40B-537D21BCA0B4}") = "MoonSharp.Documentation", "MoonSharp.Documentation\MoonSharp.Documentation.shfbproj", "{26B3033C-D1E2-4188-870C-D197E95A7F6B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoonSharp.RemoteDebugger", "MoonSharp.RemoteDebugger\MoonSharp.RemoteDebugger.csproj", "{43D3AD52-FED5-4305-B0F4-6B991220CD0A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -82,6 +84,12 @@ Global
 		{26B3033C-D1E2-4188-870C-D197E95A7F6B}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{26B3033C-D1E2-4188-870C-D197E95A7F6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{26B3033C-D1E2-4188-870C-D197E95A7F6B}.Release|x86.ActiveCfg = Release|Any CPU
+		{43D3AD52-FED5-4305-B0F4-6B991220CD0A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{43D3AD52-FED5-4305-B0F4-6B991220CD0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{43D3AD52-FED5-4305-B0F4-6B991220CD0A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{43D3AD52-FED5-4305-B0F4-6B991220CD0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{43D3AD52-FED5-4305-B0F4-6B991220CD0A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{43D3AD52-FED5-4305-B0F4-6B991220CD0A}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
