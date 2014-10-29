@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Disable warning 429 (Unreachable code) because of the RESTRICT_TEST condition below.
+#pragma warning disable 429
+
+using System;
 using System.Collections.Generic;
 using MoonSharp.Interpreter.Diagnostics;
 using System.Linq;

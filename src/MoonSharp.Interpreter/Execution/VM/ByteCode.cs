@@ -12,7 +12,7 @@ using MoonSharp.Interpreter.Debugging;
 
 namespace MoonSharp.Interpreter.Execution.VM
 {
-	public class ByteCode : ITrackableReference
+	internal class ByteCode : ITrackableReference
 	{
 		public List<Instruction> Code = new List<Instruction>();
 		private List<SourceRef> m_SourceRefStack = new List<SourceRef>();

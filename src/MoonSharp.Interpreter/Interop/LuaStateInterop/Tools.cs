@@ -172,7 +172,10 @@ namespace MoonSharp.Interpreter.Interop.LuaStateInterop
 		/// type.
 		/// </summary>
 		/// <param name="Value">The value.</param>
-		/// <returns>A boxed numeric object whos type is an integer type.</returns>
+		/// <param name="Round">if set to <c>true</c> [round].</param>
+		/// <returns>
+		/// A boxed numeric object whos type is an integer type.
+		/// </returns>
 		public static object ToInteger(object Value, bool Round)
 		{
 			switch (Type.GetTypeCode(Value.GetType()))

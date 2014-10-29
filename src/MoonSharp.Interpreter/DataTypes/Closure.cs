@@ -85,5 +85,26 @@ namespace MoonSharp.Interpreter
 		}
 
 
+		/// <summary>
+		/// Gets a delegate wrapping calls to this scripted function
+		/// </summary>
+		/// <returns></returns>
+		public ScriptFunctionDelegate GetDelegate()
+		{
+			return args => this.Call(args).ToObject();
+		}
+
+		/// <summary>
+		/// Gets a delegate wrapping calls to this scripted function
+		/// </summary>
+		/// <typeparam name="T">The type of return value of the delegate.</typeparam>
+		/// <returns></returns>
+		public ScriptFunctionDelegate<T> GetDelegate<T>()
+		{
+			return args => this.Call(args).ToObject<T>();
+		}
+
+
+
 	}
 }

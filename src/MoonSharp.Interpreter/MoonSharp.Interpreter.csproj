@@ -90,6 +90,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="CoreLib\StringLib\KopiLua_StrLib.cs" />
+    <Compile Include="DataTypes\ScriptFunctionDelegate.cs" />
     <Compile Include="DataTypes\TypeValidationFlags.cs" />
     <Compile Include="Interop\LuaStateInterop\CharPtr.cs" />
     <Compile Include="Interop\LuaStateInterop\LuaBase.cs" />
@@ -152,7 +153,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Debugging\SourceCode.cs" />
-    <Compile Include="Execution\VM\Chunk.cs" />
     <Compile Include="Execution\VM\CoroutineState.cs" />
     <Compile Include="Execution\VM\ExecutionState.cs" />
     <Compile Include="Execution\VM\Processor\DebugContext.cs" />

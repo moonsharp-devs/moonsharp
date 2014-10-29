@@ -6,7 +6,7 @@ using System.Text;
 namespace MoonSharp.Interpreter.Execution.VM
 {
 
-	public enum OpCode
+	internal enum OpCode
 	{
 		// Meta-opcodes
 		Nop,		// Does not perform any operation.

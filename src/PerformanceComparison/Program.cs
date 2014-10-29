@@ -1,4 +1,9 @@
-﻿//#define PROFILER
+﻿// This code is a workbench code - it gets commented on the fly, changed, etc.
+// Disable warnings for "assigned but value never used" and "unreachable code".
+#pragma warning disable 414
+#pragma warning disable 429
+
+//#define PROFILER
 
 using System;
 using System.Collections.Generic;

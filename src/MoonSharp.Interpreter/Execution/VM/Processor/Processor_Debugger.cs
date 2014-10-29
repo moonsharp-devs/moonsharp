@@ -25,11 +25,12 @@ namespace MoonSharp.Interpreter.Execution.VM
 				m_Debug.DebuggerCurrentActionTarget = -1;
 			}
 
-			if (m_Debug.DebuggerCurrentAction == DebuggerAction.ActionType.Run)
-				return;
-
-			if (m_Debug.DebuggerCurrentAction == DebuggerAction.ActionType.StepOver && m_Debug.DebuggerCurrentActionTarget != instructionPtr)
-				return;
+			if ((m_Debug.DebuggerCurrentAction == DebuggerAction.ActionType.Run)
+				|| (m_Debug.DebuggerCurrentAction == DebuggerAction.ActionType.StepOver && m_Debug.DebuggerCurrentActionTarget != instructionPtr))
+			{
+				if (!m_Debug.DebuggerAttached.IsPauseRequested())
+					return;
+			}
 
 			RefreshDebugger();
 

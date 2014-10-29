@@ -79,8 +79,5 @@ namespace MoonSharp.Interpreter
 					return m_Processor.State;
 			}
 		}
-
-
-
 	}
 }

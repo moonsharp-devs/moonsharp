@@ -112,12 +112,27 @@ namespace MoonSharp.Interpreter
 
 			m_Sources.Add(source);
 
-			if (m_Debugger != null)
-				m_Debugger.SetSourceCode(m_ByteCode, null);
-
+			SignalSourceCodeChange(source);
+			SignalByteCodeChange();
+		
 			return MakeClosure(address);
 		}
 
+		private void SignalByteCodeChange()
+		{
+			if (m_Debugger != null)
+			{
+				m_Debugger.SetByteCode(m_ByteCode.Code.Select(s => s.ToString()).ToArray());
+			}
+		}
+
+		private void SignalSourceCodeChange(SourceCode source)
+		{
+			if (m_Debugger != null)
+			{
+				m_Debugger.SetSourceCode(source);
+			}
+		}
 
 
 		/// <summary>
@@ -142,8 +157,8 @@ namespace MoonSharp.Interpreter
 
 			m_Sources.Add(source);
 
-			if (m_Debugger != null)
-				m_Debugger.SetSourceCode(m_ByteCode, null);
+			SignalSourceCodeChange(source);
+			SignalByteCodeChange();
 
 			return MakeClosure(address);
 		}
@@ -365,7 +380,11 @@ namespace MoonSharp.Interpreter
 		{
 			m_Debugger = debugger;
 			m_MainProcessor.AttachDebugger(debugger);
-			m_Debugger.SetSourceCode(m_ByteCode, null);
+
+			foreach (SourceCode src in m_Sources)
+				SignalSourceCodeChange(src);
+
+			SignalByteCodeChange();
 		}
 
 		/// <summary>

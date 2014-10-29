@@ -9,9 +9,9 @@ using MoonSharp.Interpreter;
 namespace MoonSharp.RemoteDebugger.Network
 {
 	/// <summary>
-	/// This is a very very simplified and light http server. It exists to run on platforms where 
-	/// more standard methods offered by .NET BCL are not available and/or they require special priviledges
-	/// on the machine. 
+	/// This is a very very (very!) simplified and light http server. It exists to run on platforms where 
+	/// more standard methods offered by .NET BCL are not available and/or if priviledges cannot be 
+	/// excalated. This just uses a TcpListener and a Socket.
 	/// This supports only GET method and basic (or no) authentication.
 	/// </summary>
 	public class HttpServer
@@ -19,8 +19,14 @@ namespace MoonSharp.RemoteDebugger.Network
 		Utf8TcpServer m_Server;
 		Dictionary<string, List<string>> m_HttpData = new Dictionary<string, List<string>>();
 		Dictionary<string, HttpResource> m_Resources = new Dictionary<string, HttpResource>();
-
 		object m_Lock = new object();
+
+		const string ERROR_TEMPLATE = "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\"><html><head><title>{0}</title></head><body><h1>{0}</h1>{1}<hr><address>MoonSharp Remote Debugger / {2}</address></body></html><!-- This padding is added to bring the error message over 512 bytes to avoid some browsers custom errors. This padding is added to bring the error message over 512 bytes to avoid some browsers custom errors. This padding is added to bring the error message over 512 bytes to avoid some browsers custom errors. This padding is added to bring the error message over 512 bytes to avoid some browsers custom errors. This padding is added to bring the error message over 512 bytes to avoid some browsers custom errors. -->";
+
+		static readonly string VERSION = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+		readonly string ERROR_401 = string.Format(ERROR_TEMPLATE, "401 Unauthorized", "Please login.", VERSION);
+		readonly string ERROR_404 = string.Format(ERROR_TEMPLATE, "404 Not Found", "The specified resource cannot be found.", VERSION);
+		readonly string ERROR_500 = string.Format(ERROR_TEMPLATE, "500 Internal Server Error", "An internal server error occurred.", VERSION);
 
 		public HttpServer(int port, Utf8TcpServerOptions options)
 		{
@@ -62,6 +68,29 @@ namespace MoonSharp.RemoteDebugger.Network
 			}
 		}
 
+		private void SendHttp(Utf8TcpPeer peer, string responseCode, string contentType, string data, params string[] extraHeaders)
+		{
+			SendHttp(peer, responseCode, contentType, Encoding.UTF8.GetBytes(data), extraHeaders);
+		}
+
+
+		private void SendHttp(Utf8TcpPeer peer, string responseCode, string contentType, byte[] data, params string[] extraHeaders)
+		{
+			peer.Send("HTTP/1.0 {0}", responseCode);
+			peer.Send("Server: moonsharp-remote-debugger/{0}", VERSION);
+			peer.Send("Content-Type: {0}", contentType);
+			peer.Send("Content-Length: {0}", data.Length);
+			peer.Send("Connection: close");
+			peer.Send("Cache-Control: max-age=0, no-cache");
+
+			foreach (string h in extraHeaders)
+				peer.Send(h);
+
+			peer.Send("");
+			peer.SendBinary(data);
+		}
+
+
 		private void ExecHttpRequest(Utf8TcpPeer peer, List<string> httpdata)
 		{
 			try
@@ -80,14 +109,7 @@ namespace MoonSharp.RemoteDebugger.Network
 
 					if (!authorized)
 					{
-						peer.Send("HTTP/1.0 401 Not Authorized");
-						peer.Send("Server: moonsharp-remote-debugger/{0}", Assembly.GetExecutingAssembly().GetName().Version.ToString());
-						peer.Send("Content-Type: text; charset=utf-8");
-						peer.Send("Content-Length: 0");
-						peer.Send("Connection: close");
-						peer.Send("WWW-Authenticate: Basic realm=\"moonsharp-remote-debugger\"");
-						peer.Send("Cache-Control: max-age=0, no-cache");
-						peer.Send("");
+						SendHttp(peer, "401 Not Authorized", "text/html", ERROR_401, "WWW-Authenticate: Basic realm=\"moonsharp-remote-debugger\"");
 						return;
 					}
 				}
@@ -96,24 +118,11 @@ namespace MoonSharp.RemoteDebugger.Network
 
 				if (res == null)
 				{
-					peer.Send("HTTP/1.0 404 Not Found");
-					peer.Send("Server: moonsharp-remote-debugger/{0}", Assembly.GetExecutingAssembly().GetName().Version.ToString());
-					peer.Send("Content-Type: text; charset=utf-8");
-					peer.Send("Content-Length: 0");
-					peer.Send("Connection: close");
-					peer.Send("Cache-Control: max-age=0, no-cache");
-					peer.Send("");
+					SendHttp(peer, "404 Not Found", "text/html", ERROR_404);
 				}
 				else
 				{
-					peer.Send("HTTP/1.0 200 OK");
-					peer.Send("Server: moonsharp-remote-debugger/{0}", Assembly.GetExecutingAssembly().GetName().Version.ToString());
-					peer.Send("Content-Type: {0}", res.GetContentTypeString());
-					peer.Send("Content-Length: {0}", res.Data.Length);
-					peer.Send("Connection: close");
-					peer.Send("Cache-Control: max-age=0, no-cache");
-					peer.Send("");
-					peer.SendBinary(res.Data);
+					SendHttp(peer, "200 OK", res.GetContentTypeString(), res.Data);
 				}
 			}
 			catch (Exception ex)
@@ -122,13 +131,7 @@ namespace MoonSharp.RemoteDebugger.Network
 
 				try
 				{
-					peer.Send("HTTP/1.0 500 Internal Server Error");
-					peer.Send("Server: moonsharp-remote-debugger/{0}", Assembly.GetExecutingAssembly().GetName().Version.ToString());
-					peer.Send("Content-Type: text; charset=utf-8");
-					peer.Send("Content-Length: 0");
-					peer.Send("Connection: close");
-					peer.Send("Cache-Control: max-age=0, no-cache");
-					peer.Send("");
+					SendHttp(peer, "500 Internal Server Error", "text/html", ERROR_500);
 				}
 				catch (Exception ex2)
 				{
@@ -222,7 +225,7 @@ namespace MoonSharp.RemoteDebugger.Network
 					return ret;
 				}
 			}
-		
+
 			return null;
 		}
 

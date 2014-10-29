@@ -6,7 +6,7 @@ using MoonSharp.Interpreter.Debugging;
 
 namespace MoonSharp.Interpreter.Execution.VM
 {
-	public class Instruction
+	internal class Instruction
 	{
 		public OpCode OpCode;
 		public SymbolRef Symbol;

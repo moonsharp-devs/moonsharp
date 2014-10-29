@@ -112,7 +112,7 @@ namespace MoonSharp.Interpreter.Execution
 		/// <param name="func">The function; it must be a Function or ClrFunction or have a call metamethod defined.</param>
 		/// <param name="args">The arguments.</param>
 		/// <returns></returns>
-		/// <exception cref="System.ScriptRuntimeException">If the function yields, returns a tail call request with continuations/handlers or, of course, if it encounters errors.</exception>
+		/// <exception cref="ScriptRuntimeException">If the function yields, returns a tail call request with continuations/handlers or, of course, if it encounters errors.</exception>
 		public DynValue Call(DynValue func, params DynValue[] args)
 		{
 			if (func.Type == DataType.Function)

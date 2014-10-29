@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using MoonSharp.Interpreter;
 using MoonSharp.Interpreter.Execution;
+using MoonSharp.RemoteDebugger;
 using MoonSharp.RemoteDebugger.Network;
 
 namespace MoonSharp
@@ -67,7 +68,7 @@ namespace MoonSharp
 
 					if (s.StartsWith("!"))
 					{
-						ParseCommand(s.Substring(1));
+						ParseCommand(script, s.Substring(1));
 						continue;
 					}
 
@@ -114,8 +115,9 @@ namespace MoonSharp
 
 		static Utf8TcpServer m_Server;
 		static HttpServer m_Http;
+		static DebugServer m_DbgS;
 
-		private static void ParseCommand(string p)
+		private static void ParseCommand(Script S, string p)
 		{
 			if (p == "net")
 			{
@@ -130,6 +132,11 @@ namespace MoonSharp
 				m_Http.RegisterResource("/1.png", HttpResource.CreateBinary(HttpResourceType.Png, File.ReadAllBytes(@"c:\temp\1.png")));
 				m_Http.Authenticator = (usr, pwd) => usr == pwd;
 				m_Http.Start();
+			}
+			if (p == "dbg")
+			{
+				m_DbgS = new DebugServer(20001, false);
+				S.AttachDebugger(m_DbgS);
 			}
 		}
 

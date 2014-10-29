@@ -131,7 +131,7 @@ namespace MoonSharp.RemoteDebugger.Network
             }
         }
 
-        public void BroadcastMessage(string message, bool flush)
+        public void BroadcastMessage(string message)
         {
             lock (m_PeerListLock)
             {

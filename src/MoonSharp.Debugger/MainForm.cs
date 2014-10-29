@@ -93,14 +93,15 @@ namespace MoonSharp.Debugger
 			m_Debugger.Start();
 		}
 
-		void IDebugger.SetSourceCode(ByteCode byteCode, string[] code)
-		{
-			string[] source = new string[byteCode.Code.Count];
 
-			for (int i = 0; i < byteCode.Code.Count; i++)
-			{
-				source[i] = string.Format("{0:X8}  {1}", i, byteCode.Code[i]);
-			}
+
+		public void SetSourceCode(SourceCode sourceCode)
+		{
+		}
+
+		void IDebugger.SetByteCode(string[]  byteCode)
+		{
+			string[] source = byteCode.Select((s, i) => string.Format("{0:X8}  {1}", i, s)).ToArray();
 
 			m_Ctx.Send(o =>
 				{
@@ -405,5 +406,15 @@ namespace MoonSharp.Debugger
 
 
 
+
+		void IDebugger.SetSourceCode(SourceCode sourceCode)
+		{
+			
+		}
+
+		bool IDebugger.IsPauseRequested()
+		{
+			return false;
+		}
 	}
 }
