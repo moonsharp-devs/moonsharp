@@ -122,6 +122,18 @@ namespace MoonSharp.Interpreter
 			}
 		}
 
+		/// <summary>
+		/// Converts the DataType to the string returned by the "type(...)" Lua function, with additional values
+		/// to support debuggers
+		/// </summary>
+		/// <param name="type">The type.</param>
+		/// <returns></returns>
+		/// <exception cref="ScriptRuntimeException">The DataType is not a Lua type</exception>
+		public static string ToLuaDebuggerString(this DataType type)
+		{
+			return type.ToString().ToLowerInvariant();
+		}
+
 
 		/// <summary>
 		/// Converts the DataType to the string returned by the "type(...)" Lua function

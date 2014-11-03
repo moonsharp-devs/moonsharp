@@ -19,6 +19,15 @@ namespace MoonSharp.Interpreter.Debugging
 
 		public int InstructionPtr { get; set; }
 		public ActionType Action { get; set; }
+		public DateTime TimeStampUTC { get; private set; }
+
+		public DebuggerAction()
+		{
+			TimeStampUTC = DateTime.UtcNow;
+		}
+
+		public TimeSpan Age { get { return DateTime.UtcNow - TimeStampUTC; } }
+
 
 		public override string ToString()
 		{

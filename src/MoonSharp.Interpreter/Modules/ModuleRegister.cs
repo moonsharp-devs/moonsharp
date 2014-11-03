@@ -34,9 +34,8 @@ namespace MoonSharp.Interpreter
 		public static Table RegisterConstants(this Table table)
 		{
 			table.Set("_G", DynValue.NewTable(table));
-			table.Set("_VERSION", DynValue.NewString(string.Format("Moon# {0}", 
-				Assembly.GetExecutingAssembly().GetName().Version.Major,
-				Assembly.GetExecutingAssembly().GetName().Version.Minor)));
+			table.Set("_VERSION", DynValue.NewString(string.Format("MoonSharp {0}", 
+				Assembly.GetExecutingAssembly().GetName().Version)));
 			table.Set("_MOONSHARP", DynValue.NewString(Assembly.GetExecutingAssembly().GetName().Version.ToString()));
 
 			return table;

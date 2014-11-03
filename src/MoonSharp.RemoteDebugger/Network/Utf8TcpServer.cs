@@ -86,11 +86,6 @@ namespace MoonSharp.RemoteDebugger.Network
 			}
 
 			Utf8TcpPeer peer = new Utf8TcpPeer(this, socket);
-			if (ClientConnected != null)
-			{
-				Utf8TcpPeerEventArgs args = new Utf8TcpPeerEventArgs(peer);
-				ClientConnected(this, args);
-			}
 
 			lock (m_PeerListLock)
 			{
@@ -99,6 +94,13 @@ namespace MoonSharp.RemoteDebugger.Network
 				peer.DataReceived += OnPeerDataReceived;
 			}
 
+
+			if (ClientConnected != null)
+			{
+				Utf8TcpPeerEventArgs args = new Utf8TcpPeerEventArgs(peer);
+				ClientConnected(this, args);
+			} 
+			
 			peer.Start();
 		}
 
@@ -133,21 +135,25 @@ namespace MoonSharp.RemoteDebugger.Network
 
         public void BroadcastMessage(string message)
         {
+			List<Utf8TcpPeer> peers;
+
             lock (m_PeerListLock)
             {
-				message = CompleteMessage(message);
+				peers = m_PeerList.ToList();
+			}
 
-				if (message == null)
-					return;
+			message = CompleteMessage(message);
 
-                foreach (Utf8TcpPeer peer in m_PeerList)
+			if (message == null)
+				return;
+
+			foreach (Utf8TcpPeer peer in peers)
+            {
+                try
                 {
-                    try
-                    {
-						peer.SendTerminated(message);
-                    }
-                    catch { }
+					peer.SendTerminated(message);
                 }
+                catch { }
             }
         }
 

@@ -10,6 +10,8 @@ namespace MoonSharp.Interpreter.Debugging
 		Watches,
 		VStack,
 		CallStack,
-		Coroutines
+		Coroutines,
+
+		MaxValue
 	}
 }

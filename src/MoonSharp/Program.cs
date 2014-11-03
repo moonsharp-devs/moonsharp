@@ -32,7 +32,7 @@ namespace MoonSharp
 		static void Main(string[] args)
 		{
 			Console.WriteLine("Moon# {0}\nCopyright (C) 2014 Marco Mastropaolo\nhttp://www.moonsharp.org",
-				Assembly.GetExecutingAssembly().GetName().Version);
+				Assembly.GetAssembly(typeof(Script)).GetName().Version);
 
 			Console.WriteLine("Based on Lua 5.1 - 5.3, Copyright (C) 1994-2014 Lua.org");
 
@@ -135,7 +135,7 @@ namespace MoonSharp
 			}
 			if (p == "dbg")
 			{
-				m_DbgS = new DebugServer(20001, false);
+				m_DbgS = new DebugServer("MoonSharp REPL interpreter", S, 20001, false);
 				S.AttachDebugger(m_DbgS);
 			}
 		}
