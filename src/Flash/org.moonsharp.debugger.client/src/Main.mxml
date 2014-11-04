@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" 
+			   minWidth="955" minHeight="600" width="100%" height="100%"
+			   creationComplete="application1_creationCompleteHandler(event)"
+			   >
+	<fx:Style source="Main.css"/>
+	<!-- fx:Style>
+	@namespace s "library://ns.adobe.com/flex/spark";
+	@namespace mx "library://ns.adobe.com/flex/mx";
+	
+	s|Panel #titleDisplay {
+	color: white;
+	} 
+	
+	</fx:Style -->	
+	
+	<fx:Script>
+		
+		<![CDATA[ 
+			import flashx.textLayout.formats.TextLayoutFormat;
+			
+			import mx.events.FlexEvent;
+			
+			import spark.events.IndexChangeEvent;
+			import spark.events.TextOperationEvent;
+			
+			private var m_Debugger : DebuggerViewLogic; 
+			
+			protected function application1_creationCompleteHandler(event:FlexEvent):void
+			{
+				m_Debugger = new DebuggerViewLogic(this);
+			}
+			
+			public function refreshSourceCode(s : SourceCode, l : ArrayList) : void
+			{
+				var sel:int = lstSources.selectedIndex;
+				
+				lstSources.dataProvider = l;
+				
+				if (sel >= 0)
+				{
+					lstSources.selectedIndex = sel;
+					lstSources_changeHandler(null);
+				}
+				else
+				{
+					lstSources.selectedIndex = 0;
+					lstSources_changeHandler(null);
+				}
+			}
+			
+			public function refreshInstructionPtrHighlight() : void
+			{
+				var hl:Highlight = m_Debugger.getInstructionPtrHighlight();
+				
+				if (hl !== null && hl.Source !== m_CurrentSrc)
+				{
+					selectSource(hl.Source);
+				}
+				
+				var tlf:TextLayoutFormat = new TextLayoutFormat();
+				tlf.backgroundColor = 0xFFFFFF;
+				
+				txtCode.setFormatOfRange(tlf, 0, txtCode.text.length - 1);
+				
+				if (hl !== null && hl.Source === m_CurrentSrc)
+				{
+					var tlf2:TextLayoutFormat = new TextLayoutFormat();
+					tlf2.backgroundColor = 0x0080FF;
+					
+					txtCode.setFormatOfRange(tlf2, hl.From, hl.To);
+				}
+			}
+			
+			private var m_CurrentSrc:SourceCode = null;
+			
+			public function refreshCallStack(l : ArrayList):void
+			{
+				gridStack.dataProvider = l;
+			}
+			
+			public function refreshWatches(l : ArrayList):void
+			{
+				gridWatches.dataProvider = l;
+			}
+			
+			private function selectSource(S : SourceCode) : void
+			{
+				lstSources.selectedItem = S;	
+				lstSources_changeHandler(null);
+			}
+			
+			protected function lstSources_changeHandler(event:IndexChangeEvent):void
+			{
+				var S : SourceCode = (SourceCode)(lstSources.selectedItem);
+				txtCode.text = S.getText();
+				m_CurrentSrc = S;
+			}
+			
+			protected function getSourceName(o : Object) : String
+			{
+				var S : SourceCode = o as SourceCode;
+				return S.getId() + " : " + S.getName();	
+			}
+			
+			public function welcome(appName : String, ver : String): void
+			{
+				titleBar.title = "MoonSharp Remote Debugger - [" + appName + "] - v" + ver;
+			}
+			
+			protected function btnRemoveWatch_clickHandler(event:MouseEvent):void
+			{
+				var str:String = "";
+				
+				for each(var wi:WatchItem in gridWatches.selectedItems)
+				{
+					if (str.length > 0)
+						str += ",";
+					
+					str += wi.Name;	
+				}
+				
+				if (str.length > 0)
+					m_Debugger.removeWatch(str);
+			}
+			
+			protected function btnAddWatch_clickHandler(event:MouseEvent):void
+			{
+				InputBox.show(this, "Add watch...", "Enter the name of the variables you want to watch, separated by ',' if more than one is desired", "", function(str:String):void
+				{
+					if (str !== null && str !== "")
+						m_Debugger.addWatch(str);
+				});
+			}
+			
+			public function appendMessage(text : String) : void
+			{
+				textOutput.text += text + "\n";
+				textOutput.scrollToRange(int.MAX_VALUE, int.MAX_VALUE);
+			}
+			
+		]]>
+	</fx:Script> 
+	
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	
+	</fx:Declarations>
+	<s:Panel id="titleBar" width="100%" height="100%" title="MoonSharp Remote Debugger - Connecting...">
+		<mx:VBox width="100%" height="100%">
+			
+			
+			<mx:HBox width="100%" paddingTop="4" paddingLeft="4">
+				<s:Button label="Step in" click="m_Debugger.stepIn();"/> 
+				<s:Button label="Step over" click="m_Debugger.stepOver();"/>
+				<s:Button label="Run" click="m_Debugger.run();"/>
+				<s:Button label="Toggle breakpoint" /> 
+			</mx:HBox>
+			
+			<mx:HDividedBox width="100%" height="100%" liveDragging="true">
+				<mx:VDividedBox width="30%" height="100%">
+					<s:Panel title="Watches" width="100%" height="50%">
+						<mx:VBox width="100%"  height="100%">
+							<mx:HBox width="100%" paddingTop="4" paddingLeft="4">
+								<s:Button id="btnAddWatch" label="Add" click="btnAddWatch_clickHandler(event)"/>
+								<s:Button id="btnRemoveWatch" label="Remove" click="btnRemoveWatch_clickHandler(event)"/>
+							</mx:HBox>
+							<s:DataGrid id="gridWatches" width="100%" height="100%" selectionMode="multipleRows">
+								<s:columns>
+									<s:ArrayList>
+										<s:GridColumn dataField="Name" headerText="Name" ></s:GridColumn>
+										<s:GridColumn dataField="Value" headerText="Value" ></s:GridColumn>
+										<s:GridColumn dataField="Type" headerText="Type" ></s:GridColumn>
+										<s:GridColumn dataField="LValue" headerText="Scope" ></s:GridColumn>
+									</s:ArrayList>
+								</s:columns>
+							</s:DataGrid>
+						</mx:VBox>
+					</s:Panel>				
+					<s:Panel title="Stack" width="100%" height="50%">
+						<s:DataGrid id="gridStack" width="100%" height="100%" sortableColumns="false">
+							<s:columns>
+								<s:ArrayList>
+									<s:GridColumn dataField="Address" headerText="Address" ></s:GridColumn>
+									<s:GridColumn dataField="Name" headerText="Name" ></s:GridColumn>
+									<s:GridColumn dataField="RetAddress" headerText="Return" ></s:GridColumn>
+									<s:GridColumn dataField="BasePtr" headerText="Base Ptr" ></s:GridColumn>
+								</s:ArrayList>
+							</s:columns>
+						</s:DataGrid>
+					</s:Panel>
+				</mx:VDividedBox>
+				<mx:VDividedBox width="70%" height="100%">
+					<s:Panel id="codeBox" width="100%" height="70%" title="Code">
+						<mx:VBox width="100%"  height="100%">
+							<mx:HBox width="100%">
+								<s:DropDownList width="100%" id="lstSources" change="lstSources_changeHandler(event)" labelFunction="getSourceName" />
+							</mx:HBox>
+							
+							<s:Scroller width="100%"  height="100%">  
+								<s:RichEditableText id="txtCode" width="100%"  height="100%" fontFamily="Consolas" fontSize="12"  editable="false" />
+							</s:Scroller>
+						</mx:VBox>
+					</s:Panel>
+					<s:Panel id="outputBox" width="100%" height="30%" title="Output">
+						<s:TextArea id="textOutput" width="100%" height="100%" /> 
+					</s:Panel>
+			</mx:VDividedBox>
+				
+			</mx:HDividedBox>
+			
+		</mx:VBox>
+	</s:Panel>
+</s:Application>
