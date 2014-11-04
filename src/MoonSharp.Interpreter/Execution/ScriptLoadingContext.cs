@@ -10,5 +10,7 @@ namespace MoonSharp.Interpreter.Execution
 	{
 		public BuildTimeScope Scope { get; set; }
 		public SourceCode Source { get; set; }
+
+
 	}
 }

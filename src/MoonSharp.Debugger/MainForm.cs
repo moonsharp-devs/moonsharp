@@ -192,12 +192,12 @@ namespace MoonSharp.Debugger
 
 		private void StepIN()
 		{
-			DebugAction(new DebuggerAction() { Action = DebuggerAction.ActionType.StepIn });
+			DebugAction(new DebuggerAction() { Action = DebuggerAction.ActionType.ByteCodeStepIn });
 		}
 
 		private void StepOVER()
 		{
-			DebugAction(new DebuggerAction() { Action = DebuggerAction.ActionType.StepOver });
+			DebugAction(new DebuggerAction() { Action = DebuggerAction.ActionType.ByteCodeStepOver });
 		}
 
 		private void GO()
@@ -206,7 +206,7 @@ namespace MoonSharp.Debugger
 		}
 
 
-		void IDebugger.Update(WatchType watchType, List<WatchItem> items)
+		void IDebugger.Update(WatchType watchType, IEnumerable<WatchItem> items)
 		{
 			if (watchType == WatchType.CallStack)
 				m_Ctx.Post(UpdateCallStack, items);
@@ -217,7 +217,7 @@ namespace MoonSharp.Debugger
 		}
 		void UpdateVStack(object o)
 		{
-			List<WatchItem> items = (List<WatchItem>)o;
+			IEnumerable<WatchItem> items = (IEnumerable<WatchItem>)o;
 
 			lvVStack.BeginUpdate();
 			lvVStack.Items.Clear();
@@ -238,7 +238,7 @@ namespace MoonSharp.Debugger
 
 		void UpdateWatches(object o)
 		{
-			List<WatchItem> items = (List<WatchItem>)o;
+			IEnumerable<WatchItem> items = (IEnumerable<WatchItem>)o;
 
 			lvWatches.BeginUpdate();
 			lvWatches.Items.Clear();
@@ -259,7 +259,7 @@ namespace MoonSharp.Debugger
 
 		void UpdateCallStack(object o)
 		{
-			List<WatchItem> items = (List<WatchItem>)o;
+			IEnumerable<WatchItem> items = (IEnumerable<WatchItem>)o;
 
 			lvCallStack.BeginUpdate();
 			lvCallStack.Items.Clear();
@@ -415,6 +415,16 @@ namespace MoonSharp.Debugger
 		bool IDebugger.IsPauseRequested()
 		{
 			return false;
+		}
+
+
+		public void SignalExecutionEnded()
+		{
+		}
+
+
+		public void RefreshBreakpoints(IEnumerable<SourceRef> refs)
+		{
 		}
 	}
 }

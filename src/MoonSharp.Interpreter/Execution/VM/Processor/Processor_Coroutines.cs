@@ -29,31 +29,40 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		public DynValue Coroutine_Resume(DynValue[] args)
 		{
-			int entrypoint = 0;
+			EnterProcessor();
 
-			if (m_State != CoroutineState.NotStarted && m_State != CoroutineState.Suspended)
-				throw ScriptRuntimeException.CannotResumeNotSuspended(m_State);
-
-			if (m_State == CoroutineState.NotStarted)
-				entrypoint = PushClrToScriptStackFrame(null, args);
-			else
+			try
 			{
-				m_ValueStack.Push(DynValue.NewTuple(args));
-				entrypoint = m_SavedInstructionPtr;
+				int entrypoint = 0;
+
+				if (m_State != CoroutineState.NotStarted && m_State != CoroutineState.Suspended)
+					throw ScriptRuntimeException.CannotResumeNotSuspended(m_State);
+
+				if (m_State == CoroutineState.NotStarted)
+					entrypoint = PushClrToScriptStackFrame(null, args);
+				else
+				{
+					m_ValueStack.Push(DynValue.NewTuple(args));
+					entrypoint = m_SavedInstructionPtr;
+				}
+
+				m_State = CoroutineState.Running;
+				DynValue retVal = Processing_Loop(entrypoint);
+
+				if (retVal.Type == DataType.YieldRequest)
+				{
+					m_State = CoroutineState.Suspended;
+					return DynValue.NewTuple(retVal.YieldRequest.ReturnValues);
+				}
+				else
+				{
+					m_State = CoroutineState.Dead;
+					return retVal;
+				}
 			}
-
-			m_State = CoroutineState.Running;
-			DynValue retVal = Processing_Loop(entrypoint);
-
-			if (retVal.Type == DataType.YieldRequest)
+			finally
 			{
-				m_State = CoroutineState.Suspended;
-				return DynValue.NewTuple(retVal.YieldRequest.ReturnValues);
-			}
-			else
-			{
-				m_State = CoroutineState.Dead;
-				return retVal;
+				LeaveProcessor();
 			}
 		}
 

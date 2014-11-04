@@ -12,9 +12,12 @@ namespace MoonSharp.Interpreter.Debugging
 		public string[] Lines { get; private set; }
 		public Script OwnerScript { get; private set; }
 		public int SourceID { get; private set; }
+		internal List<SourceRef> Refs { get; private set; }
 
 		internal SourceCode(string name, string code, int sourceID, Script ownerScript)
 		{
+			Refs = new List<SourceRef>();
+
 			List<string> lines = new List<string>();
 
 			Name = name;

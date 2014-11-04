@@ -154,7 +154,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 		}
 
 
-		//[Conditional("EMIT_DEBUG_OPS")]
+		[Conditional("EMIT_DEBUG_OPS")]
 		public void Emit_Debug(string str)
 		{
 			AppendInstruction(new Instruction(m_CurrentSourceRef) { OpCode = OpCode.Debug, Name = str.Substring(0, Math.Min(32, str.Length)) });

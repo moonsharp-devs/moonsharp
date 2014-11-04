@@ -12,7 +12,9 @@ namespace MoonSharp.Interpreter.Debugging
 		void SetByteCode(string[] byteCode);
 		bool IsPauseRequested();
 		DebuggerAction GetAction(int ip, SourceRef sourceref);
-		void Update(WatchType watchType, List<WatchItem> items);
+		void SignalExecutionEnded();
+		void Update(WatchType watchType, IEnumerable<WatchItem> items);
 		List<string> GetWatchItems();
+		void RefreshBreakpoints(IEnumerable<SourceRef> refs);
 	}
 }

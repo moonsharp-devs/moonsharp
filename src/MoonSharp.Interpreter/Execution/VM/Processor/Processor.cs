@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using MoonSharp.Interpreter.DataStructs;
 using MoonSharp.Interpreter.Debugging;
 
@@ -45,21 +46,30 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		public DynValue Call(DynValue function, DynValue[] args)
 		{
-			var stopwatch = this.m_Script.PerformanceStats.StartStopwatch(Diagnostics.PerformanceCounter.Execution);
-
-			m_CanYield = false;
+			EnterProcessor();
 
 			try
 			{
-				int entrypoint = PushClrToScriptStackFrame(function, args);
-				return Processing_Loop(entrypoint);
+				var stopwatch = this.m_Script.PerformanceStats.StartStopwatch(Diagnostics.PerformanceCounter.Execution);
+
+				m_CanYield = false;
+
+				try
+				{
+					int entrypoint = PushClrToScriptStackFrame(function, args);
+					return Processing_Loop(entrypoint);
+				}
+				finally
+				{
+					m_CanYield = true;
+
+					if (stopwatch != null)
+						stopwatch.Dispose();
+				}
 			}
 			finally
 			{
-				m_CanYield = true;
-
-				if (stopwatch != null)
-					stopwatch.Dispose();
+				LeaveProcessor();
 			}
 		}
 
@@ -91,7 +101,33 @@ namespace MoonSharp.Interpreter.Execution.VM
 		}
 
 
+		int m_OwningThreadID = -1;
+		int m_ExecutionNesting = 0;
 
+		private void LeaveProcessor()
+		{
+			m_ExecutionNesting -= 1;
+
+			if (m_ExecutionNesting == 0 && m_Debug != null && m_Debug.DebuggerAttached != null)
+			{
+				m_Debug.DebuggerAttached.SignalExecutionEnded();
+			}
+		}
+
+		private void EnterProcessor()
+		{
+			int threadID = Thread.CurrentThread.ManagedThreadId;
+
+			if (m_OwningThreadID >= 0 && m_OwningThreadID != threadID)
+			{
+				string msg = string.Format("Cannot enter the same MoonSharp processor from two different threads : {0} and {1}", m_OwningThreadID, threadID);
+				throw new InvalidOperationException(msg);
+			}
+
+			m_OwningThreadID = threadID;
+
+			m_ExecutionNesting += 1;
+		}
 
 
 

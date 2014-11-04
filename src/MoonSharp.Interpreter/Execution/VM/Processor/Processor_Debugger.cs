@@ -17,22 +17,38 @@ namespace MoonSharp.Interpreter.Execution.VM
 			m_Debug.DebuggerAttached = debugger;
 		}
 
+
+
 		private void ListenDebugger(Instruction instr, int instructionPtr)
 		{
-			if (instr.Breakpoint)
+			if (m_Debug.DebuggerAttached.IsPauseRequested() ||
+				(instr.SourceCodeRef != null && instr.SourceCodeRef.Breakpoint && instr.SourceCodeRef != m_Debug.LastHlRef))
 			{
 				m_Debug.DebuggerCurrentAction = DebuggerAction.ActionType.None;
 				m_Debug.DebuggerCurrentActionTarget = -1;
 			}
 
-			if ((m_Debug.DebuggerCurrentAction == DebuggerAction.ActionType.Run)
-				|| (m_Debug.DebuggerCurrentAction == DebuggerAction.ActionType.StepOver && m_Debug.DebuggerCurrentActionTarget != instructionPtr))
+			switch(m_Debug.DebuggerCurrentAction)
 			{
-				if (!m_Debug.DebuggerAttached.IsPauseRequested())
+				case DebuggerAction.ActionType.Run:
 					return;
+				case DebuggerAction.ActionType.ByteCodeStepOver:
+					if (m_Debug.DebuggerCurrentActionTarget != instructionPtr) return;
+					break;
+				case DebuggerAction.ActionType.ByteCodeStepOut:
+				case DebuggerAction.ActionType.StepOut:
+					if (m_ExecutionStack.Count >= m_Debug.ExStackDepthAtStep) return;
+					break;
+				case DebuggerAction.ActionType.StepIn:
+					if (instr.SourceCodeRef == null || instr.SourceCodeRef == m_Debug.LastHlRef) return;
+					break;
+				case DebuggerAction.ActionType.StepOver:
+					if (instr.SourceCodeRef == null || instr.SourceCodeRef == m_Debug.LastHlRef || m_ExecutionStack.Count > m_Debug.ExStackDepthAtStep) return;
+					break;
 			}
 
-			RefreshDebugger();
+						
+			RefreshDebugger(false);
 
 			while (true)
 			{
@@ -41,11 +57,19 @@ namespace MoonSharp.Interpreter.Execution.VM
 				switch (action.Action)
 				{
 					case DebuggerAction.ActionType.StepIn:
-						m_Debug.DebuggerCurrentAction = DebuggerAction.ActionType.StepIn;
+					case DebuggerAction.ActionType.StepOver:
+					case DebuggerAction.ActionType.StepOut:
+					case DebuggerAction.ActionType.ByteCodeStepOut:
+						m_Debug.DebuggerCurrentAction = action.Action;
+						m_Debug.LastHlRef = instr.SourceCodeRef;
+						m_Debug.ExStackDepthAtStep = m_ExecutionStack.Count;
+						return;
+					case DebuggerAction.ActionType.ByteCodeStepIn:
+						m_Debug.DebuggerCurrentAction = DebuggerAction.ActionType.ByteCodeStepIn;
 						m_Debug.DebuggerCurrentActionTarget = -1;
 						return;
-					case DebuggerAction.ActionType.StepOver:
-						m_Debug.DebuggerCurrentAction = DebuggerAction.ActionType.StepOver;
+					case DebuggerAction.ActionType.ByteCodeStepOver:
+						m_Debug.DebuggerCurrentAction = DebuggerAction.ActionType.ByteCodeStepOver;
 						m_Debug.DebuggerCurrentActionTarget = instructionPtr + 1;
 						return;
 					case DebuggerAction.ActionType.Run:
@@ -53,10 +77,14 @@ namespace MoonSharp.Interpreter.Execution.VM
 						m_Debug.DebuggerCurrentActionTarget = -1;
 						return;
 					case DebuggerAction.ActionType.ToggleBreakpoint:
-						m_RootChunk.Code[action.InstructionPtr].Breakpoint = !m_RootChunk.Code[action.InstructionPtr].Breakpoint;
+						ToggleBreakPoint(action);
+						RefreshDebugger(true);
 						break;
 					case DebuggerAction.ActionType.Refresh:
-						RefreshDebugger();
+						RefreshDebugger(false);
+						break;
+					case DebuggerAction.ActionType.HardRefresh:
+						RefreshDebugger(true);
 						break;
 					case DebuggerAction.ActionType.None:
 					default:
@@ -65,7 +93,32 @@ namespace MoonSharp.Interpreter.Execution.VM
 			}
 		}
 
-		private void RefreshDebugger()
+
+
+		private void ToggleBreakPoint(DebuggerAction action)
+		{
+			SourceCode src = m_Script.GetSourceCode(action.SourceID);
+
+			foreach (SourceRef srf in src.Refs)
+			{
+				if (srf.IncludesLocation(action.SourceID, action.SourceLine, action.SourceCol))
+				{
+					srf.Breakpoint = !srf.Breakpoint;
+
+					if (srf.Breakpoint)
+					{
+						m_Debug.BreakPoints.Add(srf);
+					}
+					else
+					{
+						m_Debug.BreakPoints.Remove(srf);
+					}
+				}
+			}
+
+		}
+
+		private void RefreshDebugger(bool hard)
 		{
 			List<string> watchList = m_Debug.DebuggerAttached.GetWatchItems();
 			List<WatchItem> callStack = Debugger_GetCallStack();
@@ -74,6 +127,9 @@ namespace MoonSharp.Interpreter.Execution.VM
 			m_Debug.DebuggerAttached.Update(WatchType.CallStack, callStack);
 			m_Debug.DebuggerAttached.Update(WatchType.Watches, watches);
 			m_Debug.DebuggerAttached.Update(WatchType.VStack, vstack);
+
+			if (hard)
+				m_Debug.DebuggerAttached.RefreshBreakpoints(m_Debug.BreakPoints);
 		}
 
 		private List<WatchItem> Debugger_RefreshVStack()

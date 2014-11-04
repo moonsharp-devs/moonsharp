@@ -9,17 +9,25 @@ namespace MoonSharp.Interpreter.Debugging
 	{
 		public enum ActionType
 		{
+			ByteCodeStepIn,
+			ByteCodeStepOver,
+			ByteCodeStepOut,
 			StepIn,
 			StepOver,
+			StepOut,
 			Run,
 			ToggleBreakpoint,
 			Refresh,
+			HardRefresh,
 			None,
 		}
 
-		public int InstructionPtr { get; set; }
 		public ActionType Action { get; set; }
 		public DateTime TimeStampUTC { get; private set; }
+
+		public int SourceID { get; set; }
+		public int SourceLine { get; set; }
+		public int SourceCol { get; set; }
 
 		public DebuggerAction()
 		{
@@ -31,7 +39,14 @@ namespace MoonSharp.Interpreter.Debugging
 
 		public override string ToString()
 		{
-			return string.Format("{0}({1})", Action, InstructionPtr);
+			if (Action == ActionType.ToggleBreakpoint)
+			{
+				return string.Format("{0} {1}:({2},{3})", Action, SourceID, SourceLine, SourceCol);
+			}
+			else
+			{
+				return Action.ToString();
+			}
 		}
 	}
 }

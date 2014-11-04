@@ -15,7 +15,7 @@ namespace MoonSharp.RemoteDebugger
 	public class DebugServer : IDebugger
 	{
 		List<string> m_Watches = new List<string>();
-		List<string> m_WatchesChanging = new List<string>();
+		HashSet<string> m_WatchesChanging = new HashSet<string>();
 		Utf8TcpServer m_Server;
 		Script m_Script;
 		string m_AppName;
@@ -105,7 +105,7 @@ namespace MoonSharp.RemoteDebugger
 		string[] m_CachedWatches = new string[(int)WatchType.MaxValue];
 
 
-		public void Update(WatchType watchType, List<WatchItem> items)
+		public void Update(WatchType watchType, IEnumerable<WatchItem> items)
 		{
 			if (watchType != WatchType.CallStack && watchType != WatchType.Watches)
 				return;
@@ -202,14 +202,7 @@ namespace MoonSharp.RemoteDebugger
 				{
 					Send(xw =>
 						{
-							using (xw.Element("source-loc"))
-							{
-								xw.Attribute("srcid", sourceref.SourceIdx)
-									.Attribute("cf", sourceref.FromChar)
-									.Attribute("ct", sourceref.ToChar)
-									.Attribute("lf", sourceref.FromLine)
-									.Attribute("lt", sourceref.ToLine);
-							}
+							SendSourceRef(xw, sourceref);
 						});
 				}
 
@@ -217,7 +210,7 @@ namespace MoonSharp.RemoteDebugger
 				{
 					DebuggerAction da = m_QueuedActions.Dequeue();
 
-					if (da.Action == DebuggerAction.ActionType.Refresh)
+					if (da.Action == DebuggerAction.ActionType.Refresh || da.Action == DebuggerAction.ActionType.HardRefresh)
 					{
 						lock (m_Lock)
 						{
@@ -228,6 +221,9 @@ namespace MoonSharp.RemoteDebugger
 						return da;
 					}
 
+					if (da.Action == DebuggerAction.ActionType.ToggleBreakpoint)
+						return da;
+
 					if (da.Age < TimeSpan.FromMilliseconds(100))
 						return da;
 				}
@@ -235,6 +231,18 @@ namespace MoonSharp.RemoteDebugger
 			finally
 			{
 				m_InGetActionLoop = false;
+			}
+		}
+
+		private void SendSourceRef(XmlWriter xw, SourceRef sourceref)
+		{
+			using (xw.Element("source-loc"))
+			{
+				xw.Attribute("srcid", sourceref.SourceIdx)
+					.Attribute("cf", sourceref.FromChar)
+					.Attribute("ct", sourceref.ToChar)
+					.Attribute("lf", sourceref.FromLine)
+					.Attribute("lt", sourceref.ToLine);
 			}
 		}
 
@@ -267,9 +275,12 @@ namespace MoonSharp.RemoteDebugger
 					case "stepover":
 						QueueAction(new DebuggerAction() { Action = DebuggerAction.ActionType.StepOver });
 						break;
+					case "stepout":
+						QueueAction(new DebuggerAction() { Action = DebuggerAction.ActionType.StepOut });
+						break;
 					case "addwatch":
 						lock (m_Lock)
-							m_WatchesChanging.AddRange(arg.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries));
+							m_WatchesChanging.UnionWith(arg.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()));
 
 						QueueRefresh();
 						break;
@@ -296,7 +307,7 @@ namespace MoonSharp.RemoteDebugger
 				m_HostBusySent = true;
 			}
 
-			QueueAction(new DebuggerAction() { Action = DebuggerAction.ActionType.Refresh });
+			QueueAction(new DebuggerAction() { Action = DebuggerAction.ActionType.HardRefresh });
 		}
 
 		private void SendMessage(string text)
@@ -316,7 +327,26 @@ namespace MoonSharp.RemoteDebugger
 
 		public bool IsPauseRequested()
 		{
-			return true;
+			return false;
+		}
+
+
+		public void SignalExecutionEnded()
+		{
+			Send(xw => xw.Element("execution-completed", ""));
+		}
+
+
+		public void RefreshBreakpoints(IEnumerable<SourceRef> refs)
+		{
+			Send(xw =>
+			{
+				using (xw.Element("breakpoints"))
+				{
+					foreach (var rf in refs)
+						SendSourceRef(xw, rf);
+				}
+			});
 		}
 	}
 }

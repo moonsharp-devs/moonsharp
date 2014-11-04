@@ -138,6 +138,12 @@ namespace MoonSharp
 				m_DbgS = new DebugServer("MoonSharp REPL interpreter", S, 20001, false);
 				S.AttachDebugger(m_DbgS);
 			}
+			if (p == "!")
+			{
+				m_DbgS = new DebugServer("MoonSharp REPL interpreter", S, 20001, false);
+				S.AttachDebugger(m_DbgS);
+				S.DoFile(@"c:\temp\test.lua");
+			}
 		}
 
 		static void m_Server_DataReceivedAny(object sender, Utf8TcpPeerEventArgs e)

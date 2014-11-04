@@ -14,6 +14,8 @@ namespace MoonSharp.Interpreter.Debugging
 		public int ToLine { get; private set; }
 		public bool IsStepStop { get; private set; }
 
+		public bool Breakpoint;
+
 		internal SourceRef(int sourceIdx, int from, int to, int fromline, int toline, bool isStepStop)
 		{
 			SourceIdx = sourceIdx;
@@ -24,10 +26,6 @@ namespace MoonSharp.Interpreter.Debugging
 			IsStepStop = isStepStop;
 		}
 
-		public SourceRef(int sourceIdx)
-			: this(sourceIdx, 0, int.MaxValue, 0, 0, true)
-		{
-		}
 
 		public override string ToString()
 		{
@@ -36,5 +34,22 @@ namespace MoonSharp.Interpreter.Debugging
 				FromLine, FromChar,
 				ToLine, ToChar);
 		}
+
+		public bool IncludesLocation(int sourceIdx, int line, int col)
+		{
+			if (sourceIdx != SourceIdx || line < FromLine || line > ToLine)
+				return false;
+
+			if (FromLine == ToLine)
+				return col >= FromChar && col <= ToChar;
+			if (line == FromLine)
+				return col >= FromChar;
+			if (line == ToLine)
+				return col <= ToChar;
+
+			return true;
+		}
+
+
 	}
 }

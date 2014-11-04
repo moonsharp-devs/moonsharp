@@ -36,13 +36,13 @@ namespace MoonSharp.Interpreter.Tree
 
 		protected static SourceRef BuildSourceRef(ScriptLoadingContext lcontext, IToken token, ITerminalNode terminalNode)
 		{
-			return new SourceRef(lcontext.Source.SourceID, token.Column, token.Column + terminalNode.GetText().Length, token.Line, token.Line, true);
+			return RegisterSourceRef(lcontext, new SourceRef(lcontext.Source.SourceID, token.Column, token.Column + terminalNode.GetText().Length, token.Line, token.Line, true));
 		}
 
 		protected static SourceRef BuildSourceRef(ScriptLoadingContext lcontext, IToken token1, IToken token2 = null)
 		{
 			token2 = token2 ?? token1;
-			return new SourceRef(lcontext.Source.SourceID, token1.Column, token2.Column + token2.Text.Length, token1.Line, token2.Line, true);
+			return RegisterSourceRef(lcontext, new SourceRef(lcontext.Source.SourceID, token1.Column, token2.Column + token2.Text.Length, token1.Line, token2.Line, true));
 		}
 
 		protected static SourceRef BuildSourceRef(ScriptLoadingContext lcontext, ITerminalNode terminalNode)
@@ -50,6 +50,11 @@ namespace MoonSharp.Interpreter.Tree
 			return BuildSourceRef(lcontext, terminalNode.Symbol, terminalNode);
 		}
 
+		private static SourceRef RegisterSourceRef(ScriptLoadingContext lcontext, SourceRef sourceRef)
+		{
+			lcontext.Source.Refs.Add(sourceRef);
+			return sourceRef;
+		}
 
 	}
 }

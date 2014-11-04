@@ -41,10 +41,10 @@ namespace MoonSharp.Interpreter.Tree
 
 				int beginIp = -1;
 
-				var srcref = new SourceRef(source.SourceID);
+				//var srcref = new SourceRef(source.SourceID);
 
 				using (script.PerformanceStats.StartStopwatch(Diagnostics.PerformanceCounter.Compilation))
-				using (bytecode.EnterSource(srcref))
+				using (bytecode.EnterSource(null))
 				{
 					bytecode.Emit_Nop(string.Format("Begin chunk {0}", source.Name));
 					beginIp = bytecode.GetJumpPointForLastInstruction();
@@ -78,10 +78,10 @@ namespace MoonSharp.Interpreter.Tree
 
 				int beginIp = -1;
 
-				var srcref = new SourceRef(source.SourceID);
+				// var srcref = new SourceRef(source.SourceID);
 
 				using (script.PerformanceStats.StartStopwatch(Diagnostics.PerformanceCounter.Compilation))
-				using (bytecode.EnterSource(srcref))
+				using (bytecode.EnterSource(null))
 				{
 					bytecode.Emit_Nop(string.Format("Begin function {0}", source.Name));
 					beginIp = fndef.CompileBody(bytecode, source.Name);

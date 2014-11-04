@@ -3,32 +3,64 @@
 			   xmlns:s="library://ns.adobe.com/flex/spark" 
 			   xmlns:mx="library://ns.adobe.com/flex/mx" 
 			   minWidth="955" minHeight="600" width="100%" height="100%"
-			   creationComplete="application1_creationCompleteHandler(event)"
+			   creationComplete="application_creationCompleteHandler(event)"
+			   initialize="initializeApp();"
 			   >
+	<fx:Style source="MXFTEText.css"/>
 	<fx:Style source="Main.css"/>
-	<!-- fx:Style>
-	@namespace s "library://ns.adobe.com/flex/spark";
-	@namespace mx "library://ns.adobe.com/flex/mx";
-	
-	s|Panel #titleDisplay {
-	color: white;
-	} 
-	
-	</fx:Style -->	
-	
+
 	<fx:Script>
 		
-		<![CDATA[ 
+		<![CDATA[
 			import flashx.textLayout.formats.TextLayoutFormat;
 			
+			import mx.collections.XMLListCollection;
+			import mx.controls.Alert;
 			import mx.events.FlexEvent;
+			import mx.events.MenuEvent;
 			
 			import spark.events.IndexChangeEvent;
 			import spark.events.TextOperationEvent;
+
+			[Bindable]
+			public var menuBarCollection:XMLListCollection;
+			
+			private var menubarXML:XMLList =
+				<>
+					<menuitem label="Debug" data="top">
+						<menuitem label="Step In - F11" data="1A" icon="@Embed('assets/stepin.gif')"/>
+						<menuitem label="Step Over" data="1B"/>
+						<menuitem type="separator"/>
+						<menuitem label="Run" data="1B"/>
+						<menuitem label="Pause" data="1B"/>
+						<menuitem type="separator"/>
+						<menuitem label="Toggle breakpoint" data="1B"/>
+					</menuitem>
+					<menuitem label="Watches" data="top">
+						<menuitem label="Add..." data="1A"/>
+						<menuitem label="Remove" data="1B"/>
+					</menuitem>
+					<menuitem label="Help" data="top">
+						<menuitem label="About..." data="about"/>
+					</menuitem>
+				</>;			
+			
+			private function initializeApp():void {
+				menuBarCollection = new XMLListCollection(menubarXML);
+			}
+			
+			private function menuHandler(evt:MenuEvent):void  
+			{
+				var cmd : String = evt.item.@data; 
+				
+				if (cmd == "top") return;
+				else if (cmd == "about") AboutBox.show(this); 
+			}
+			
 			
 			private var m_Debugger : DebuggerViewLogic; 
 			
-			protected function application1_creationCompleteHandler(event:FlexEvent):void
+			protected function application_creationCompleteHandler(event:FlexEvent):void
 			{
 				m_Debugger = new DebuggerViewLogic(this);
 			}
@@ -51,24 +83,24 @@
 				}
 			}
 			
-			public function refreshInstructionPtrHighlight() : void
+			public function refreshInstructionPtrHighlight(switchToSource:Boolean) : void
 			{
 				var hl:Highlight = m_Debugger.getInstructionPtrHighlight();
 				
-				if (hl !== null && hl.Source !== m_CurrentSrc)
+				if (switchToSource && hl !== null && hl.Source !== m_CurrentSrc)
 				{
 					selectSource(hl.Source);
 				}
 				
 				var tlf:TextLayoutFormat = new TextLayoutFormat();
-				tlf.backgroundColor = 0xFFFFFF;
+				tlf.backgroundColor = 0x444444;
 				
 				txtCode.setFormatOfRange(tlf, 0, txtCode.text.length - 1);
 				
 				if (hl !== null && hl.Source === m_CurrentSrc)
 				{
 					var tlf2:TextLayoutFormat = new TextLayoutFormat();
-					tlf2.backgroundColor = 0x0080FF;
+					tlf2.backgroundColor = 0xb1aefa;
 					
 					txtCode.setFormatOfRange(tlf2, hl.From, hl.To);
 				}
@@ -97,6 +129,7 @@
 				var S : SourceCode = (SourceCode)(lstSources.selectedItem);
 				txtCode.text = S.getText();
 				m_CurrentSrc = S;
+				refreshInstructionPtrHighlight(false);
 			}
 			
 			protected function getSourceName(o : Object) : String
@@ -107,7 +140,7 @@
 			
 			public function welcome(appName : String, ver : String): void
 			{
-				titleBar.title = "MoonSharp Remote Debugger - [" + appName + "] - v" + ver;
+				titleBar.text = "MoonSharp Remote Debugger - [" + appName + "] - v" + ver;
 			}
 			
 			protected function btnRemoveWatch_clickHandler(event:MouseEvent):void
@@ -141,6 +174,16 @@
 				textOutput.scrollToRange(int.MAX_VALUE, int.MAX_VALUE);
 			}
 			
+			protected function txtCode_changingHandler(event:TextOperationEvent):void
+			{
+				event.preventDefault();
+			}
+			
+			protected function toggleBreakpoint() : void
+			{
+				
+			}
+			
 		]]>
 	</fx:Script> 
 	
@@ -148,15 +191,30 @@
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	
 	</fx:Declarations>
-	<s:Panel id="titleBar" width="100%" height="100%" title="MoonSharp Remote Debugger - Connecting...">
 		<mx:VBox width="100%" height="100%">
 			
+			<s:Label width="100%" id="titleBar" height="24" text="MoonSharp Remote Debugger - Connecting..."
+					 verticalAlign="middle"
+					 textAlign="center"
+					 fontSize="14"
+					 fontWeight="bold"
+					 paddingTop="8"
+					 color="0xFFFFFF"
+					 />
 			
-			<mx:HBox width="100%" paddingTop="4" paddingLeft="4">
-				<s:Button label="Step in" click="m_Debugger.stepIn();"/> 
-				<s:Button label="Step over" click="m_Debugger.stepOver();"/>
-				<s:Button label="Run" click="m_Debugger.run();"/>
-				<s:Button label="Toggle breakpoint" /> 
+			
+			<mx:MenuBar labelField="@label" iconField="@icon" itemClick="menuHandler(event);" dataProvider="{menuBarCollection}" width="100%"
+						cornerRadius="0" 
+						/>
+			
+			<mx:HBox width="100%" paddingTop="0" paddingLeft="4">
+				<s:Button height="20" label="Step in" click="m_Debugger.stepIn();" icon="@Embed('assets/stepin.gif')"/> 
+				<s:Button height="20" label="Step out" click="m_Debugger.stepOut();" icon="@Embed('assets/stepout.gif')"/> 
+				<s:Button height="20" label="Step over" click="m_Debugger.stepOver();" icon="@Embed('assets/stepover.gif')"/>
+				<s:Button height="20" label="Run" click="m_Debugger.run();" icon="@Embed('assets/run.gif')"/>
+				<s:Button height="20" label="Pause" click="m_Debugger.run();" icon="@Embed('assets/pause.gif')"/>
+				<s:Button height="20" label="Go to current" click="refreshInstructionPtrHighlight(true);" icon="@Embed('assets/step_current.gif')"/> 
+				<s:Button height="20" label="Toggle breakpoint"  icon="@Embed('assets/breakpoint.gif')" click="toggleBreakpoint();"/> 
 			</mx:HBox>
 			
 			<mx:HDividedBox width="100%" height="100%" liveDragging="true">
@@ -164,8 +222,8 @@
 					<s:Panel title="Watches" width="100%" height="50%">
 						<mx:VBox width="100%"  height="100%">
 							<mx:HBox width="100%" paddingTop="4" paddingLeft="4">
-								<s:Button id="btnAddWatch" label="Add" click="btnAddWatch_clickHandler(event)"/>
-								<s:Button id="btnRemoveWatch" label="Remove" click="btnRemoveWatch_clickHandler(event)"/>
+								<s:Button height="20" id="btnAddWatch" label="Add" click="btnAddWatch_clickHandler(event)" icon="@Embed('assets/add.gif')"/>
+								<s:Button height="20" id="btnRemoveWatch" label="Remove" click="btnRemoveWatch_clickHandler(event)" icon="@Embed('assets/remove.gif')"/>
 							</mx:HBox>
 							<s:DataGrid id="gridWatches" width="100%" height="100%" selectionMode="multipleRows">
 								<s:columns>
@@ -200,17 +258,16 @@
 							</mx:HBox>
 							
 							<s:Scroller width="100%"  height="100%">  
-								<s:RichEditableText id="txtCode" width="100%"  height="100%" fontFamily="Consolas" fontSize="12"  editable="false" />
+								<s:RichEditableText id="txtCode" width="100%" backgroundColor="0x444444"  height="100%" fontFamily="UbuntuMono" fontSize="14"  editable="true" changing="txtCode_changingHandler(event)" />
 							</s:Scroller>
 						</mx:VBox>
 					</s:Panel>
 					<s:Panel id="outputBox" width="100%" height="30%" title="Output">
-						<s:TextArea id="textOutput" width="100%" height="100%" /> 
+						<s:TextArea id="textOutput" width="100%" height="100%" editable="false" /> 
 					</s:Panel>
 			</mx:VDividedBox>
 				
 			</mx:HDividedBox>
 			
 		</mx:VBox>
-	</s:Panel>
 </s:Application>

@@ -65,7 +65,13 @@ package
 			else if (cmd == "source-loc")
 			{
 				m_InstructionPtrHighlight = parseHighlight(xml);
-				m_View.refreshInstructionPtrHighlight();
+				m_View.refreshInstructionPtrHighlight(true);
+			}			
+			else if (cmd == "execution-completed")
+			{
+				m_InstructionPtrHighlight = null;
+				m_View.refreshInstructionPtrHighlight(true);
+				logMessage("Execution completed.");
 			}
 			else if (cmd == "callstack")
 			{
@@ -165,7 +171,12 @@ package
 		{
 			m_Socket.send(<Command cmd="stepIn" />);		
 		}
-
+		
+		public function stepOut() : void
+		{
+			m_Socket.send(<Command cmd="stepOut" />);		
+		}
+		
 		public function stepOver() : void
 		{
 			m_Socket.send(<Command cmd="stepOver" />);		

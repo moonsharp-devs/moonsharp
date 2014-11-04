@@ -15,7 +15,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 		public DynValue Value;
 		public int NumVal;
 		public int NumVal2;
-		public bool Breakpoint;
 		public SourceRef SourceCodeRef;
 
 		public Instruction(SourceRef sourceref)
