@@ -211,7 +211,7 @@ namespace MoonSharp.Interpreter.Tree
 				else
 					indexExp = new LiteralExpression(suff_NAME, lcontext, DynValue.NewString(suff_NAME.GetText()));
 
-				if (nameAndArgs != null)
+				if (nameAndArgs != null && nameAndArgs.Length > 0)
 				{
 					varExp = new FunctionCallChainExpression(suffix, lcontext, varExp, nameAndArgs);
 				}

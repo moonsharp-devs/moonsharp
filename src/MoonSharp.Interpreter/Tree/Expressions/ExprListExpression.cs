@@ -34,5 +34,13 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			if (expressions.Length > 1)
 				bc.Emit_MkTuple(expressions.Length);
 		}
+
+		public override DynValue Eval(ScriptExecutionContext context)
+		{
+			if (expressions.Length > 1)
+				return expressions[0].Eval(context);
+
+			return DynValue.Void;
+		}
 	}
 }

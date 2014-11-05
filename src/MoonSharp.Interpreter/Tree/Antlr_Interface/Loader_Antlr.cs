@@ -24,6 +24,31 @@ namespace MoonSharp.Interpreter.Tree
 	/// </summary>
 	internal static class Loader_Antlr
 	{
+		internal static DynamicExprExpression LoadDynamicExpr(Script script, SourceCode source)
+		{
+			AntlrErrorListener listener = new AntlrErrorListener(source);
+
+			try
+			{
+				LuaParser parser = CreateParser(script, new AntlrInputStream(source.Code), source.SourceID, p => p.dynamicexp(), listener);
+
+				ScriptLoadingContext lcontext = CreateLoadingContext(source);
+				lcontext.IsDynamicExpression = true;
+				lcontext.Anonymous = true;
+
+				DynamicExprExpression stat;
+
+				using (script.PerformanceStats.StartStopwatch(Diagnostics.PerformanceCounter.AstCreation))
+					stat = new DynamicExprExpression(parser.dynamicexp(), lcontext);
+
+				return stat;
+			}
+			catch (ParseCanceledException ex)
+			{
+				HandleParserError(ex, listener);
+				throw;
+			}
+		}
 
 		internal static int LoadChunk(Script script, SourceCode source, ByteCode bytecode, Table globalContext)
 		{
@@ -68,7 +93,7 @@ namespace MoonSharp.Interpreter.Tree
 			AntlrErrorListener listener = new AntlrErrorListener(source);
 			try
 			{
-				LuaParser parser = CreateParser(script, new AntlrInputStream(source.Code), source.SourceID, p => p.anonfunctiondef(), listener);
+				LuaParser parser = CreateParser(script, new AntlrInputStream(source.Code), source.SourceID, p => p.singlefunc(), listener);
 
 				ScriptLoadingContext lcontext = CreateLoadingContext(source);
 				FunctionDefinitionExpression fndef;

@@ -51,6 +51,13 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			public Node Last;
 		}
 
+		const Operator MUL_DIV_MOD = Operator.Mul | Operator.Div | Operator.Mod;
+		const Operator ADD_SUB = Operator.Add | Operator.Sub;
+		const Operator STRCAT = Operator.StrConcat;
+		const Operator COMPARES = Operator.Less | Operator.Greater | Operator.GreaterOrEqual | Operator.LessOrEqual | Operator.Equal | Operator.NotEqual;
+		const Operator LOGIC_AND = Operator.And;
+		const Operator LOGIC_OR = Operator.Or;
+
 		private static Operator CreateLinkedList(LinkedList list, IParseTree root, ScriptLoadingContext lcontext)
 		{
 			Operator opfound = 0;
@@ -102,13 +109,6 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 		/// </summary>
 		public static Expression CreateSubTree(IParseTree tree, ScriptLoadingContext lcontext)
 		{
-			const Operator MUL_DIV_MOD = Operator.Mul | Operator.Div | Operator.Mod;
-			const Operator ADD_SUB = Operator.Add | Operator.Sub;
-			const Operator STRCAT = Operator.StrConcat;
-			const Operator COMPARES = Operator.Less | Operator.Greater | Operator.GreaterOrEqual | Operator.LessOrEqual | Operator.Equal | Operator.NotEqual;
-			const Operator LOGIC_AND = Operator.And;
-			const Operator LOGIC_OR = Operator.Or;
-
 			LinkedList list = new LinkedList();
 
 			Operator opfound = CreateLinkedList(list, tree, lcontext);
@@ -323,6 +323,138 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 			if (ShouldInvertBoolean(m_Operator))
 				bc.Emit_Operator(OpCode.Not);
+		}
+
+		public override DynValue Eval(ScriptExecutionContext context)
+		{
+			DynValue v1 = m_Exp1.Eval(context).ToScalar();
+
+			if (m_Operator == Operator.Or)
+			{
+				if (v1.CastToBool())
+					return v1;
+				else
+					return m_Exp2.Eval(context).ToScalar();
+			}
+
+			if (m_Operator == Operator.And)
+			{
+				if (!v1.CastToBool())
+					return v1;
+				else
+					return m_Exp2.Eval(context).ToScalar();
+			}
+
+			DynValue v2 = m_Exp2.Eval(context).ToScalar();
+
+			if ((m_Operator & COMPARES) != 0)
+			{
+				return DynValue.NewBoolean(EvalComparison(v1, v2, m_Operator));				
+			}
+			else if (m_Operator == Operator.StrConcat)
+			{
+				string s1 = v1.CastToString();
+				string s2 = v2.CastToString();
+
+				if (s1 == null || s2 == null)
+					throw new DynamicExpressionException("Attempt to perform concatenation on non-strings.");
+
+				return DynValue.NewString(s1 + s2);
+			}
+			else
+			{
+				return DynValue.NewNumber(EvalArithmetic(v1, v2));
+			}
+		}
+
+		private double EvalArithmetic(DynValue v1, DynValue v2)
+		{
+			double? nd1 = v1.CastToNumber();
+			double? nd2 = v2.CastToNumber();
+
+			if (nd1 == null || nd2 == null)
+				throw new DynamicExpressionException("Attempt to perform arithmetic on non-numbers.");
+
+			double d1 = nd1.Value;
+			double d2 = nd2.Value;
+
+			switch (m_Operator)
+			{
+				case Operator.Add:
+					return d1 + d2;
+				case Operator.Sub:
+					return d1 - d2;
+				case Operator.Mul:
+					return d1 * d2;
+				case Operator.Div:
+					return d1 / d2;
+				case Operator.Mod:
+					{
+						double mod = Math.IEEERemainder(d1, d2);
+						if (mod < 0) mod += d2;
+						return mod;
+					}
+				default:
+					throw new DynamicExpressionException("Unsupported operator {0}", m_Operator);
+			}
+		}
+
+		private bool EvalComparison(DynValue l, DynValue r, Operator op)
+		{
+			switch (op)
+			{
+				case Operator.Less:
+					if (l.Type == DataType.Number && r.Type == DataType.Number)
+					{
+						return (l.Number < r.Number);
+					}
+					else if (l.Type == DataType.String && r.Type == DataType.String)
+					{
+						return (l.String.CompareTo(r.String) < 0);
+					}
+					else
+					{
+						throw new DynamicExpressionException("Attempt to compare non-numbers, non-strings.");
+					}
+				case Operator.LessOrEqual:
+					if (l.Type == DataType.Number && r.Type == DataType.Number)
+					{
+						return (l.Number <= r.Number);
+					}
+					else if (l.Type == DataType.String && r.Type == DataType.String)
+					{
+						return (l.String.CompareTo(r.String) <= 0);
+					}
+					else
+					{
+						throw new DynamicExpressionException("Attempt to compare non-numbers, non-strings.");
+					}
+				case Operator.Equal:
+					if (object.ReferenceEquals(r, l))
+					{
+						return true;
+					}
+					else if (r.Type != l.Type)
+					{
+						if ((l.Type == DataType.Nil && r.Type == DataType.Void)
+							|| (l.Type == DataType.Void && r.Type == DataType.Nil))
+							return true;
+						else
+							return false;
+					}
+					else
+					{
+						return r.Equals(l);
+					}
+				case Operator.Greater:
+					return !EvalComparison(l, r, Operator.LessOrEqual);
+				case Operator.GreaterOrEqual:
+					return !EvalComparison(l, r, Operator.Less);
+				case Operator.NotEqual:
+					return !EvalComparison(l, r, Operator.Equal);
+				default:
+					throw new DynamicExpressionException("Unsupported operator {0}", op);
+			}
 		}
 	}
 }

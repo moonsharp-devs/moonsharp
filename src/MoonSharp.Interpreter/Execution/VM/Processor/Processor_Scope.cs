@@ -111,27 +111,30 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		public SymbolRef FindSymbolByName(string name)
 		{
-			var stackframe = m_ExecutionStack.Peek();
-
-			if (stackframe.Debug_Symbols != null)
+			if (m_ExecutionStack.Count > 0)
 			{
-				for (int i = stackframe.Debug_Symbols.Length - 1; i >= 0; i--)
+				var stackframe = m_ExecutionStack.Peek();
+
+				if (stackframe.Debug_Symbols != null)
 				{
-					var l = stackframe.Debug_Symbols[i];
+					for (int i = stackframe.Debug_Symbols.Length - 1; i >= 0; i--)
+					{
+						var l = stackframe.Debug_Symbols[i];
 
-					if (l.i_Name == name && stackframe.LocalScope[i] != null)
-						return l;
+						if (l.i_Name == name && stackframe.LocalScope[i] != null)
+							return l;
+					}
 				}
-			}
 
-			
-			var closure = stackframe.ClosureScope;
 
-			if (closure != null)
-			{
-				for (int i = 0; i < closure.Symbols.Length; i++)
-					if (closure.Symbols[i] == name)
-						return SymbolRef.Upvalue(name, i);
+				var closure = stackframe.ClosureScope;
+
+				if (closure != null)
+				{
+					for (int i = 0; i < closure.Symbols.Length; i++)
+						if (closure.Symbols[i] == name)
+							return SymbolRef.Upvalue(name, i);
+				}
 			}
 
 			if (name != WellKnownSymbols.ENV)

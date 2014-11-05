@@ -26,8 +26,12 @@ namespace MoonSharp.Interpreter.Execution
 		/// </summary>
 		public object AdditionalData 
 		{
-			get { return m_Callback.AdditionalData; }
-			set { m_Callback.AdditionalData = value; } 
+			get { return (m_Callback != null) ? m_Callback.AdditionalData : null; }
+			set 
+			{
+				if (m_Callback == null) throw new InvalidOperationException("Cannot set additional data on a context which has no callback");
+				m_Callback.AdditionalData = value; 
+			} 
 		}
 
 
@@ -172,6 +176,33 @@ namespace MoonSharp.Interpreter.Execution
 
 				throw ScriptRuntimeException.LoopInCall();
 			}
+		}
+
+		/// <summary>
+		/// Tries to get the reference of a symbol in the current execution state
+		/// </summary>
+		public DynValue EvaluateSymbol(SymbolRef symref)
+		{
+			if (symref == null)
+				return DynValue.Nil;
+
+			return m_Processor.GetGenericSymbol(symref);
+		}
+
+		/// <summary>
+		/// Tries to get the value of a symbol in the current execution state
+		/// </summary>
+		public DynValue EvaluateSymbolByName(string symbol)
+		{
+			return this.EvaluateSymbol(this.FindSymbolByName(symbol));
+		}
+
+		/// <summary>
+		/// Finds a symbol by name in the current execution state
+		/// </summary>
+		public SymbolRef FindSymbolByName(string symbol)
+		{
+			return m_Processor.FindSymbolByName(symbol);
 		}
 	}
 }

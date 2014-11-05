@@ -26,5 +26,19 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			m_Exp2.Compile(bc);
 			bc.Emit_Operator(OpCode.Power);
 		}
+
+		public override DynValue Eval(ScriptExecutionContext context)
+		{
+			DynValue v1 = m_Exp1.Eval(context).ToScalar();
+			DynValue v2 = m_Exp1.Eval(context).ToScalar();
+
+			double? d1 = v1.CastToNumber();
+			double? d2 = v1.CastToNumber();
+
+			if (d1.HasValue && d2.HasValue)
+				return DynValue.NewNumber(Math.Pow(d1.Value, d2.Value));
+
+			throw new DynamicExpressionException("Attempt to perform arithmetic on non-numbers.");
+		}
 	}
 }

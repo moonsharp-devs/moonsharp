@@ -22,8 +22,8 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			var exp = context.exp();
 			m_Condition = NodeFactory.CreateExpression(exp, lcontext);
 
-			m_Start = BuildSourceRef(lcontext, context.Start, exp.Stop);
-			m_End = BuildSourceRef(lcontext, context.Stop, context.END());
+			m_Start = BuildSourceRef(context.Start, exp.Stop);
+			m_End = BuildSourceRef(context.Stop, context.END());
 
 			lcontext.Scope.PushBlock();
 			m_Block = NodeFactory.CreateStatement(context.block(), lcontext);

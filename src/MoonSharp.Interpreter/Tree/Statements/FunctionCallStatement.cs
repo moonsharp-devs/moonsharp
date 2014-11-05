@@ -20,7 +20,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			: base(context, lcontext)
 		{
 			m_FunctionCallChain = new FunctionCallChainExpression(context, lcontext);
-			m_SourceRef = BuildSourceRef(lcontext, context.Start, context.Stop);
+			m_SourceRef = BuildSourceRef(context.Start, context.Stop);
 		}
 
 

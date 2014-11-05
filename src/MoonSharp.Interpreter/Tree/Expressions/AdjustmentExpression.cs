@@ -24,6 +24,9 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			bc.Emit_Scalar();
 		}
 
-
+		public override DynValue Eval(ScriptExecutionContext context)
+		{
+			return expression.Eval(context).ToScalar();
+		}
 	}
 }

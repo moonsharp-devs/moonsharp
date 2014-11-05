@@ -20,7 +20,7 @@ namespace MoonSharp.Debugger
 {
 	public partial class MainForm : Form, IDebugger
 	{
-		List<string> m_Watches = new List<string>();
+		List<DynamicExpression> m_Watches = new List<DynamicExpression>();
 
 		public MainForm()
 		{
@@ -281,7 +281,7 @@ namespace MoonSharp.Debugger
 
 
 
-		List<string> IDebugger.GetWatchItems()
+		List<DynamicExpression> IDebugger.GetWatchItems()
 		{
 			return m_Watches;
 		}
@@ -292,7 +292,9 @@ namespace MoonSharp.Debugger
 
 			if (!string.IsNullOrEmpty(text))
 			{
-				m_Watches.AddRange(text.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries));
+				string[] codeToAdd = text.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+				m_Watches.AddRange(codeToAdd.Select(code => m_Script.CreateDynamicExpression(code)));
 				DebugAction(new DebuggerAction() { Action = DebuggerAction.ActionType.Refresh });
 			}
 		}
@@ -301,7 +303,7 @@ namespace MoonSharp.Debugger
 		{
 			HashSet<string> itemsToRemove = new HashSet<string>(lvWatches.SelectedItems.OfType<ListViewItem>().Select(lvi => lvi.Text));
 
-			int i = m_Watches.RemoveAll(w => itemsToRemove.Contains(w));
+			int i = m_Watches.RemoveAll(w => itemsToRemove.Contains(w.ExpressionCode));
 
 			if (i != 0)
 				DebugAction(new DebuggerAction() { Action = DebuggerAction.ActionType.Refresh });

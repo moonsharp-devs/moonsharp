@@ -87,6 +87,10 @@ package
 			{
 				logMessage(xml.toString());	
 			}
+			else if (cmd == "breakpoints")
+			{
+				refreshBreakpoints(xml);
+			}
 		}
 		
 		public function getInstructionPtrHighlight():Highlight
@@ -129,7 +133,7 @@ package
 			}
 			else
 			{
-				trace("defaulting to default highlight...");
+				logMessage("ERROR: Highlighted source " + srcid.toString() + " not found in sources list.");
 				return null;	
 			}
 		}
@@ -160,8 +164,24 @@ package
 		
 		private function securityErrorHandler(event:SecurityErrorEvent):void {
 			onFatalError("IO Error : " + event.text);
-		}				
-	
+		}			
+		
+		private function refreshBreakpoints(xml : XML): void
+		{
+			for(var i:int = 0; i < m_SourceList.length; i++)
+				m_SourceList.getItemAt(i).Breakpoints= new Vector.<Highlight>();
+			
+			for each(var x:XML in xml.elements())
+			{
+				var hl:Highlight = parseHighlight(x);
+				
+				if (hl != null)
+					hl.Source.Breakpoints.push(hl);	
+			}
+			
+			m_View.refreshBreakpoints();
+		}
+		
 		public function refresh() : void
 		{
 			m_Socket.send(<Command cmd="refresh" />);		
@@ -187,6 +207,11 @@ package
 			m_Socket.send(<Command cmd="run" />);		
 		}
 		
+		public function pause() : void
+		{
+			m_Socket.send(<Command cmd="pause" />);		
+		}
+		
 		public function addWatch(varNames : String) : void
 		{
 			var cmd:XML = <Command cmd="addWatch" />;
@@ -199,7 +224,17 @@ package
 			var cmd:XML = <Command cmd="delWatch" />;
 			cmd.@arg = varNames;
 			m_Socket.send(cmd);			
-		}		
+		}	
+		
+		
+		public function toggleBreakpoint(src:int, line:int, col:int) : void
+		{
+			var cmd:XML = <Command cmd="breakpoint" arg="toggle" />;
+			cmd.@src = src;
+			cmd.@line = line;
+			cmd.@col = col;
+			m_Socket.send(cmd);		
+		}	
 		
 	}
 }

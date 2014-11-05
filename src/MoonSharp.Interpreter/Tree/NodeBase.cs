@@ -34,25 +34,26 @@ namespace MoonSharp.Interpreter.Tree
 
 		public abstract void Compile(ByteCode bc);
 
-		protected static SourceRef BuildSourceRef(ScriptLoadingContext lcontext, IToken token, ITerminalNode terminalNode)
+		protected SourceRef BuildSourceRef(IToken token, ITerminalNode terminalNode)
 		{
-			return RegisterSourceRef(lcontext, new SourceRef(lcontext.Source.SourceID, token.Column, token.Column + terminalNode.GetText().Length, token.Line, token.Line, true));
+			return RegisterSourceRef(new SourceRef(LoadingContext.Source.SourceID, token.Column, token.Column + terminalNode.GetText().Length, token.Line, token.Line, true));
 		}
 
-		protected static SourceRef BuildSourceRef(ScriptLoadingContext lcontext, IToken token1, IToken token2 = null)
+		protected SourceRef BuildSourceRef(IToken token1, IToken token2 = null)
 		{
 			token2 = token2 ?? token1;
-			return RegisterSourceRef(lcontext, new SourceRef(lcontext.Source.SourceID, token1.Column, token2.Column + token2.Text.Length, token1.Line, token2.Line, true));
+			return RegisterSourceRef(new SourceRef(LoadingContext.Source.SourceID, token1.Column, token2.Column + token2.Text.Length, token1.Line, token2.Line, true));
 		}
 
-		protected static SourceRef BuildSourceRef(ScriptLoadingContext lcontext, ITerminalNode terminalNode)
+		protected SourceRef BuildSourceRef(ITerminalNode terminalNode)
 		{
-			return BuildSourceRef(lcontext, terminalNode.Symbol, terminalNode);
+			return BuildSourceRef(terminalNode.Symbol, terminalNode);
 		}
 
-		private static SourceRef RegisterSourceRef(ScriptLoadingContext lcontext, SourceRef sourceRef)
+		private SourceRef RegisterSourceRef(SourceRef sourceRef)
 		{
-			lcontext.Source.Refs.Add(sourceRef);
+			LoadingContext.Source.Refs.Add(sourceRef);
+			sourceRef.Type = this.GetType().Name;
 			return sourceRef;
 		}
 

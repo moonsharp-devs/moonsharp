@@ -40,7 +40,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 					if (m_ExecutionStack.Count >= m_Debug.ExStackDepthAtStep) return;
 					break;
 				case DebuggerAction.ActionType.StepIn:
-					if (instr.SourceCodeRef == null || instr.SourceCodeRef == m_Debug.LastHlRef) return;
+					if ((m_ExecutionStack.Count >= m_Debug.ExStackDepthAtStep) && (instr.SourceCodeRef == null || instr.SourceCodeRef == m_Debug.LastHlRef)) return;
 					break;
 				case DebuggerAction.ActionType.StepOver:
 					if (instr.SourceCodeRef == null || instr.SourceCodeRef == m_Debug.LastHlRef || m_ExecutionStack.Count > m_Debug.ExStackDepthAtStep) return;
@@ -95,14 +95,22 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 
 
-		private void ToggleBreakPoint(DebuggerAction action)
+		private bool ToggleBreakPoint(DebuggerAction action)
 		{
 			SourceCode src = m_Script.GetSourceCode(action.SourceID);
 
+			bool found = false;
 			foreach (SourceRef srf in src.Refs)
 			{
+				if (srf.CannotBreakpoint)
+					continue;
+
 				if (srf.IncludesLocation(action.SourceID, action.SourceLine, action.SourceCol))
 				{
+					found = true;
+
+					System.Diagnostics.Debug.WriteLine(string.Format("BRK: found {0} for {1} on contains", srf, srf.Type));
+
 					srf.Breakpoint = !srf.Breakpoint;
 
 					if (srf.Breakpoint)
@@ -116,14 +124,58 @@ namespace MoonSharp.Interpreter.Execution.VM
 				}
 			}
 
+			if (!found)
+			{
+				int minDistance = int.MaxValue;
+				SourceRef nearest = null;
+
+				foreach (SourceRef srf in src.Refs)
+				{
+					if (srf.CannotBreakpoint)
+						continue;
+
+					int dist = srf.GetLocationDistance(action.SourceID, action.SourceLine, action.SourceCol);
+
+					if (dist < minDistance)
+					{
+						minDistance = dist;
+						nearest = srf;
+					}
+				}
+
+				if (nearest != null)
+				{
+					System.Diagnostics.Debug.WriteLine(string.Format("BRK: found {0} for {1} on distance {2}", nearest, nearest.Type, minDistance));
+
+					nearest.Breakpoint = !nearest.Breakpoint;
+
+					if (nearest.Breakpoint)
+					{
+						m_Debug.BreakPoints.Add(nearest);
+					}
+					else
+					{
+						m_Debug.BreakPoints.Remove(nearest);
+					}
+
+					return true;
+				}
+				else
+					return false;
+			}
+			else
+				return true;
 		}
 
 		private void RefreshDebugger(bool hard)
 		{
-			List<string> watchList = m_Debug.DebuggerAttached.GetWatchItems();
+			ScriptExecutionContext context = new ScriptExecutionContext(this, null);
+
+			List<DynamicExpression> watchList = m_Debug.DebuggerAttached.GetWatchItems();
 			List<WatchItem> callStack = Debugger_GetCallStack();
-			List<WatchItem> watches = Debugger_RefreshWatches(watchList);
+			List<WatchItem> watches = Debugger_RefreshWatches(context, watchList);
 			List<WatchItem> vstack = Debugger_RefreshVStack();
+
 			m_Debug.DebuggerAttached.Update(WatchType.CallStack, callStack);
 			m_Debug.DebuggerAttached.Update(WatchType.Watches, watches);
 			m_Debug.DebuggerAttached.Update(WatchType.VStack, vstack);
@@ -147,29 +199,34 @@ namespace MoonSharp.Interpreter.Execution.VM
 			return lwi;
 		}
 
-		private List<WatchItem> Debugger_RefreshWatches(List<string> watchList)
+		private List<WatchItem> Debugger_RefreshWatches(ScriptExecutionContext context, List<DynamicExpression> watchList)
 		{
-			return watchList.Select(w => Debugger_RefreshWatch(w)).ToList();
+			return watchList.Select(w => Debugger_RefreshWatch(context, w)).ToList();
 		}
 
-		private WatchItem Debugger_RefreshWatch(string name)
+		private WatchItem Debugger_RefreshWatch(ScriptExecutionContext context, DynamicExpression dynExpr)
 		{
-			SymbolRef L = FindSymbolByName(name);
-
-			if (L != null)
+			try
 			{
-				DynValue v = this.GetGenericSymbol(L);
+				SymbolRef L = dynExpr.FindSymbol(context);
+				DynValue v = dynExpr.Evaluate(context);
 
 				return new WatchItem()
 				{
+					IsError = dynExpr.IsConstant(),
 					LValue = L,
 					Value = v,
-					Name = name
+					Name = dynExpr.ExpressionCode
 				};
 			}
-			else
+			catch (Exception ex)
 			{
-				return new WatchItem() { Name = name };
+				return new WatchItem()
+				{
+					IsError = true,
+					Value = DynValue.NewString(ex.Message),
+					Name = dynExpr.ExpressionCode
+				};
 			}
 		}
 

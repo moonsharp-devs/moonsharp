@@ -48,8 +48,8 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			m_StackFrame = lcontext.Scope.PopBlock();
 			m_DebugText = context.GetText();
 
-			m_RefFor = BuildSourceRef(lcontext, context.Start, context.FOR());
-			m_RefEnd = BuildSourceRef(lcontext, context.Stop, context.END());
+			m_RefFor = BuildSourceRef(context.Start, context.FOR());
+			m_RefEnd = BuildSourceRef(context.Stop, context.END());
 		}
 
 		public override void Compile(ByteCode bc)

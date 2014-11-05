@@ -15,6 +15,9 @@ namespace MoonSharp.Interpreter.Debugging
 		public bool IsStepStop { get; private set; }
 
 		public bool Breakpoint;
+		public bool CannotBreakpoint { get; private set; }
+
+		public string Type { get; set; }
 
 		internal SourceRef(int sourceIdx, int from, int to, int fromline, int toline, bool isStepStop)
 		{
@@ -35,6 +38,57 @@ namespace MoonSharp.Interpreter.Debugging
 				ToLine, ToChar);
 		}
 
+		public int GetLocationDistance(int sourceIdx, int line, int col)
+		{
+			const int PER_LINE_FACTOR = 1600; // we avoid computing real lines length and approximate with heuristics..
+
+			if (sourceIdx != SourceIdx)
+				return int.MaxValue;
+
+			if (FromLine == ToLine)
+			{
+				if (line == FromLine)
+				{
+					if (col >= FromChar && col <= ToChar)
+						return 0;
+					else if (col < FromChar)
+						return FromChar - col;
+					else
+						return col - ToChar;
+				}
+				else
+				{
+					return Math.Abs(line - FromLine) * PER_LINE_FACTOR;
+				}
+			}
+			else if (line == FromLine)
+			{
+				if (col < FromChar)
+					return FromChar - col;
+				else
+					return 0;
+			}
+			else if (line == ToLine)
+			{
+				if (col > ToChar)
+					return col - ToChar;
+				else
+					return 0;
+			}
+			else if (line > FromLine && line < ToLine)
+			{
+				return 0;
+			}
+			else if (line < FromLine)
+			{
+				return (FromLine - line) * PER_LINE_FACTOR;
+			}
+			else
+			{
+				return (line - ToLine) * PER_LINE_FACTOR;
+			}
+		}
+
 		public bool IncludesLocation(int sourceIdx, int line, int col)
 		{
 			if (sourceIdx != SourceIdx || line < FromLine || line > ToLine)
@@ -51,5 +105,12 @@ namespace MoonSharp.Interpreter.Debugging
 		}
 
 
+
+
+		public SourceRef SetNoBreakPoint()
+		{
+			CannotBreakpoint = true;
+			return this;
+		}
 	}
 }

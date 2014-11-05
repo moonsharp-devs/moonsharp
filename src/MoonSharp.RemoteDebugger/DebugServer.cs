@@ -14,12 +14,18 @@ namespace MoonSharp.RemoteDebugger
 {
 	public class DebugServer : IDebugger
 	{
-		List<string> m_Watches = new List<string>();
+		List<DynamicExpression> m_Watches = new List<DynamicExpression>();
 		HashSet<string> m_WatchesChanging = new HashSet<string>();
 		Utf8TcpServer m_Server;
 		Script m_Script;
 		string m_AppName;
 		object m_Lock = new object();
+		BlockingQueue<DebuggerAction> m_QueuedActions = new BlockingQueue<DebuggerAction>();
+		SourceRef m_LastSentSourceRef = null;
+		bool m_InGetActionLoop = false;
+		bool m_HostBusySent = false;
+		private bool m_RequestPause = false;
+		string[] m_CachedWatches = new string[(int)WatchType.MaxValue];
 
 
 		public DebugServer(string appName, Script script, int port, bool localOnly)
@@ -85,7 +91,7 @@ namespace MoonSharp.RemoteDebugger
 
 			string xml = sb.ToString();
 			m_Server.BroadcastMessage(xml);
-			Console.WriteLine(xml);
+			//Console.WriteLine(xml);
 		}
 
 
@@ -101,9 +107,6 @@ namespace MoonSharp.RemoteDebugger
 				}
 			});
 		}
-
-		string[] m_CachedWatches = new string[(int)WatchType.MaxValue];
-
 
 		public void Update(WatchType watchType, IEnumerable<WatchItem> items)
 		{
@@ -147,7 +150,9 @@ namespace MoonSharp.RemoteDebugger
 								if (wi.Value != null)
 								{
 									xw.Attribute("value", wi.Value.ToString());
-									xw.Attribute("type", wi.Value.Type.ToLuaDebuggerString());
+									xw.Attribute("type", 
+										wi.IsError ? "error" : 
+										wi.Value.Type.ToLuaDebuggerString());
 								}
 
 								xw.Attribute("address", wi.Address.ToString("X8"));
@@ -176,11 +181,6 @@ namespace MoonSharp.RemoteDebugger
 
 		#endregion
 
-		BlockingQueue<DebuggerAction> m_QueuedActions = new BlockingQueue<DebuggerAction>();
-		SourceRef m_LastSentSourceRef = null;
-		bool m_InGetActionLoop = false;
-		bool m_HostBusySent = false;
-
 		public void QueueAction(DebuggerAction action)
 		{
 			m_QueuedActions.Enqueue(action);
@@ -191,6 +191,7 @@ namespace MoonSharp.RemoteDebugger
 			try
 			{
 				m_InGetActionLoop = true;
+				m_RequestPause = false;
 
 				if (m_HostBusySent)
 				{
@@ -214,8 +215,17 @@ namespace MoonSharp.RemoteDebugger
 					{
 						lock (m_Lock)
 						{
-							m_Watches.Clear();
-							m_Watches.AddRange(m_WatchesChanging);
+							HashSet<string> existing = new HashSet<string>();
+
+							// remove all not present anymore
+							m_Watches.RemoveAll(de => !m_WatchesChanging.Contains(de.ExpressionCode));
+
+							// add all missing
+							existing.UnionWith(m_Watches.Select(de => de.ExpressionCode));
+
+							m_Watches.AddRange(m_WatchesChanging
+								.Where(code => !existing.Contains(code))
+								.Select(code => CreateDynExpr(code)));
 						}
 
 						return da;
@@ -231,6 +241,19 @@ namespace MoonSharp.RemoteDebugger
 			finally
 			{
 				m_InGetActionLoop = false;
+			}
+		}
+
+		private DynamicExpression CreateDynExpr(string code)
+		{
+			try
+			{
+				return m_Script.CreateDynamicExpression(code);
+			}
+			catch (Exception ex)
+			{
+				SendMessage(string.Format("Error setting watch {0} :\n{1}", code, ex.Message));
+				return m_Script.CreateConstantDynamicExpression(code, DynValue.NewString(ex.Message));
 			}
 		}
 
@@ -278,6 +301,9 @@ namespace MoonSharp.RemoteDebugger
 					case "stepout":
 						QueueAction(new DebuggerAction() { Action = DebuggerAction.ActionType.StepOut });
 						break;
+					case "pause":
+						m_RequestPause = true;
+						break;
 					case "addwatch":
 						lock (m_Lock)
 							m_WatchesChanging.UnionWith(arg.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()));
@@ -293,6 +319,15 @@ namespace MoonSharp.RemoteDebugger
 								m_WatchesChanging.Remove(a);
 						}
 						QueueRefresh();
+						break;
+					case "breakpoint":
+						QueueAction(new DebuggerAction() 
+						{
+							Action = DebuggerAction.ActionType.ToggleBreakpoint,
+							SourceID = int.Parse(xdoc.DocumentElement.GetAttribute("src")),
+							SourceLine = int.Parse(xdoc.DocumentElement.GetAttribute("line")),
+							SourceCol = int.Parse(xdoc.DocumentElement.GetAttribute("col")),
+						});
 						break;
 				}
 
@@ -319,7 +354,7 @@ namespace MoonSharp.RemoteDebugger
 		}
 
 
-		public List<string> GetWatchItems()
+		public List<DynamicExpression> GetWatchItems()
 		{
 			return m_Watches;
 		}
@@ -327,7 +362,7 @@ namespace MoonSharp.RemoteDebugger
 
 		public bool IsPauseRequested()
 		{
-			return false;
+			return m_RequestPause;
 		}
 
 
@@ -348,5 +383,11 @@ namespace MoonSharp.RemoteDebugger
 				}
 			});
 		}
+
+
+
+
+
+
 	}
 }

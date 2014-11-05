@@ -20,8 +20,8 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			lcontext.Scope.PushBlock();
 			m_Block = NodeFactory.CreateStatement(context.block(), lcontext);
 
-			m_Do = BuildSourceRef(lcontext, context.Start, context.DO());
-			m_End = BuildSourceRef(lcontext, context.Stop, context.END());
+			m_Do = BuildSourceRef(context.Start, context.DO());
+			m_End = BuildSourceRef(context.Stop, context.END());
 
 			m_StackFrame = lcontext.Scope.PopBlock();
 		}

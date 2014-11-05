@@ -8,7 +8,7 @@ package
 		private var m_Text : String;
 		private var m_CumulativeLength : Vector.<int> = new Vector.<int>();
 		
-	
+		public var Breakpoints : Vector.<Highlight> = new Vector.<Highlight>();
 		
 		public function SourceCode(xml: XML)
 		{
@@ -47,5 +47,37 @@ package
 			return m_CumulativeLength[line] + col;
 		}
 		
+		
+		public function inflateLocationLine(pos : int) : int 
+		{
+			for(var line:int = 0; line < m_CumulativeLength.length; line++)
+			{
+				if (pos < m_CumulativeLength[line])
+					return line - 1;
+			}
+			
+			return m_CumulativeLength.length - 1;
+		}
+		
+		public function inflateLocationColumn(pos : int, line : int) : int
+		{
+			if (line <= 0) return pos;
+			return pos - m_CumulativeLength[line];
+		}
+		
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -96,6 +96,8 @@ s|Panel,mx|TitleWindow
 s|TextArea
 {
 	color: #CCCCCC;
+	background-color: #555555;
+	contentBackgroundColor: #555555;
 }
 
 s|Panel
@@ -146,4 +148,7 @@ mx|MenuBar
 	contentBackgroundColor: #777777;
 	roll-over-color: #B1AEFA;
 }
+
+
+
 

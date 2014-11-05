@@ -28,7 +28,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 				.Select(e => NodeFactory.CreateExpression(e, lcontext))
 				.ToArray();
 
-			m_Ref = BuildSourceRef(lcontext, context.Start, context.Stop);
+			m_Ref = BuildSourceRef(context.Start, context.Stop);
 		}
 
 		public AssignmentStatement(LuaParser.Stat_localassignmentContext context, ScriptLoadingContext lcontext)
@@ -53,7 +53,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 				.Cast<IVariable>()
 				.ToArray();
 
-			m_Ref = BuildSourceRef(lcontext, context.Start, context.Stop);
+			m_Ref = BuildSourceRef(context.Start, context.Stop);
 		}
 
 

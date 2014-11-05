@@ -46,5 +46,29 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 
 		}
+
+		public override DynValue Eval(ScriptExecutionContext context)
+		{
+			DynValue v = m_Exp.Eval(context).ToScalar();
+
+			switch (m_OpText)
+			{
+				case "not":
+					return DynValue.NewBoolean(!v.CastToBool());
+				case "#":
+					return v.GetLength();
+				case "-":
+					{
+						double? d = v.CastToNumber();
+
+						if (d.HasValue)
+							return DynValue.NewNumber(-d.Value);
+
+						throw new DynamicExpressionException("Attempt to perform arithmetic on non-numbers.");
+					}
+				default:
+					throw new DynamicExpressionException("Unexpected unary operator '{0}'", m_OpText);
+			}
+		}
 	}
 }

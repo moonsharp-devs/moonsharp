@@ -14,6 +14,7 @@ namespace MoonSharp.Interpreter.Debugging
 		public string Name { get; set; }
 		public DynValue Value { get; set; }
 		public SymbolRef LValue { get; set; }
+		public bool IsError { get; set; }
 
 		public override string ToString()
 		{

@@ -7,10 +7,12 @@ using Antlr4.Runtime;
 using MoonSharp.Interpreter.CoreLib;
 using MoonSharp.Interpreter.Debugging;
 using MoonSharp.Interpreter.Diagnostics;
+using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Execution.VM;
 using MoonSharp.Interpreter.Interop;
 using MoonSharp.Interpreter.Loaders;
 using MoonSharp.Interpreter.Tree;
+using MoonSharp.Interpreter.Tree.Expressions;
 using MoonSharp.Interpreter.Tree.Statements;
 
 namespace MoonSharp.Interpreter
@@ -493,8 +495,34 @@ namespace MoonSharp.Interpreter
 		}
 
 
+		/// <summary>
+		/// Creates a new dynamic expression.
+		/// </summary>
+		/// <param name="code">The code of the expression.</param>
+		/// <returns></returns>
+		public DynamicExpression CreateDynamicExpression(string code)
+		{
+			DynamicExprExpression dee = Loader_Antlr.LoadDynamicExpr(this, new SourceCode("__dynamic", code, -1, this));
+			return new DynamicExpression(this, code, dee);
+		}
 
+		/// <summary>
+		/// Creates a new dynamic expression.
+		/// </summary>
+		/// <param name="code">The code of the expression.</param>
+		/// <returns></returns>
+		public DynamicExpression CreateConstantDynamicExpression(string code, DynValue constant)
+		{
+			return new DynamicExpression(this, code, constant);
+		}
 
-
+		/// <summary>
+		/// Gets an execution context exposing only partial functionality
+		/// </summary>
+		/// <returns></returns>
+		public ScriptExecutionContext CreateMockExecutionContext()
+		{
+			return new ScriptExecutionContext(m_MainProcessor, null);
+		}
 	}
 }

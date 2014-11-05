@@ -11,11 +11,17 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 	class SymbolRefExpression : Expression, IVariable
 	{
 		SymbolRef m_Ref;
+		string m_VarName;
 
 		public SymbolRefExpression(IParseTree context, ScriptLoadingContext lcontext, SymbolRef refr)
 			: base(context, lcontext)
 		{
 			m_Ref = refr;
+
+			if (lcontext.IsDynamicExpression)
+			{
+				throw new DynamicExpressionException("Unsupported symbol reference expression detected.");
+			}
 		}
 
 
@@ -28,14 +34,23 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			{
 				throw new SyntaxErrorException("error:0: cannot use '...' outside a vararg function");
 			}
+
+			if (lcontext.IsDynamicExpression)
+			{
+				throw new DynamicExpressionException("Cannot use '...' in a dynamic expression.");
+			}
 		}
 
 
 		public SymbolRefExpression(ITerminalNode terminalNode, ScriptLoadingContext lcontext)
 			: base(terminalNode, lcontext)
 		{
-			string varName = terminalNode.GetText();
-			m_Ref = lcontext.Scope.Find(varName);
+			m_VarName = terminalNode.GetText();
+
+			if (!lcontext.IsDynamicExpression)
+			{
+				m_Ref = lcontext.Scope.Find(m_VarName);
+			}
 		}
 
 
@@ -48,6 +63,16 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 		public void CompileAssignment(Execution.VM.ByteCode bc, int stackofs, int tupleidx)
 		{
 			bc.Emit_Store(m_Ref, stackofs, tupleidx);
+		}
+
+		public override DynValue Eval(ScriptExecutionContext context)
+		{
+			return context.EvaluateSymbolByName(m_VarName);
+		}
+
+		public override SymbolRef FindDynamic(ScriptExecutionContext context)
+		{
+			return context.FindSymbolByName(m_VarName);
 		}
 	}
 }

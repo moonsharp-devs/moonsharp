@@ -14,5 +14,11 @@ namespace MoonSharp.Interpreter.Tree
 			: base(node, lcontext)
 		{ }
 
+		public abstract DynValue Eval(ScriptExecutionContext context);
+
+		public virtual SymbolRef FindDynamic(ScriptExecutionContext context)
+		{
+			return null;
+		}
 	}
 }

@@ -26,8 +26,8 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			m_Condition = NodeFactory.CreateExpression(exp, lcontext);
 			m_StackFrame = lcontext.Scope.PopBlock();
 
-			m_Repeat = BuildSourceRef(lcontext, context.Start, context.REPEAT());
-			m_Until = BuildSourceRef(lcontext, exp.Start, exp.Stop);
+			m_Repeat = BuildSourceRef(context.Start, context.REPEAT());
+			m_Until = BuildSourceRef(exp.Start, exp.Stop);
 		}
 
 

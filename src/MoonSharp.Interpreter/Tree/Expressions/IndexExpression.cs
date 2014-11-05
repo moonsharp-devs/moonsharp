@@ -56,5 +56,15 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 
 		}
+
+		public override DynValue Eval(ScriptExecutionContext context)
+		{
+			DynValue b = m_BaseExp.Eval(context).ToScalar();
+			DynValue i = m_IndexExp.Eval(context).ToScalar();
+
+			if (b.Type != DataType.Table) throw new DynamicExpressionException("Attempt to index non-table.");
+			else if (i.IsNilOrNan()) throw new DynamicExpressionException("Attempt to index with nil or nan key.");
+			return b.Table.Get(i) ?? DynValue.Nil;
+		}
 	}
 }

@@ -10,7 +10,7 @@ namespace MoonSharp.Interpreter.Execution
 	{
 		public BuildTimeScope Scope { get; set; }
 		public SourceCode Source { get; set; }
-
-
+		public bool Anonymous { get; set; }
+		public bool IsDynamicExpression { get; set; }
 	}
 }

@@ -67,5 +67,10 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			}
 		}
 
+
+		public override DynValue Eval(ScriptExecutionContext context)
+		{
+			throw new DynamicExpressionException("Dynamic Expressions cannot define new tables.");
+		}
 	}
 }

@@ -27,7 +27,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			m_FuncSymbol = lcontext.Scope.TryDefineLocal(context.NAME().GetText());
 			m_FuncDef = new FunctionDefinitionExpression(context.funcbody(), lcontext, context);
 
-			m_SourceRef = BuildSourceRef(lcontext, context.Start, context.Stop);
+			m_SourceRef = BuildSourceRef(context.Start, context.Stop);
 
 			m_FriendlyName = string.Format("{0} (local)", m_FuncSymbol.i_Name);
 		}
@@ -44,7 +44,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			string nameOfMethodAccessor = methodaccessor != null ? methodaccessor.Text : null;
 			m_TableAccessors = tableaccessor != null ? tableaccessor.Select(s => s.NAME().GetText()).ToList() : new List<string>();
 
-			m_SourceRef = BuildSourceRef(lcontext, context.Start, context.Stop);
+			m_SourceRef = BuildSourceRef(context.Start, context.Stop).SetNoBreakPoint();
 
 			m_FuncDef = new FunctionDefinitionExpression(context.funcbody(), lcontext, context, nameOfMethodAccessor != null);
 

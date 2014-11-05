@@ -4,6 +4,15 @@ chunk
     : block (EOF)
     ;
 
+dynamicexp
+	: exp EOF
+	;
+
+singlefunc
+	: anonfunctiondef EOF
+	;
+
+
 block
     : stat* retstat?
     ;
@@ -54,6 +63,7 @@ namelist
 explist
     : exp (',' exp)*
     ;
+
 
 exp
     : NIL												#exp_nil

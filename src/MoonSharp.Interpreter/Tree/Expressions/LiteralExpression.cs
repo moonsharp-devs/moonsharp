@@ -265,5 +265,9 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			throw new SyntaxErrorException("hex floats are not supported: '{0}'", s);
 		}
 
+		public override DynValue Eval(ScriptExecutionContext context)
+		{
+			return m_Value;
+		}
 	}
 }

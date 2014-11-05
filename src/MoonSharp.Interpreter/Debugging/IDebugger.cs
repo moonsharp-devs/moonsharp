@@ -14,7 +14,7 @@ namespace MoonSharp.Interpreter.Debugging
 		DebuggerAction GetAction(int ip, SourceRef sourceref);
 		void SignalExecutionEnded();
 		void Update(WatchType watchType, IEnumerable<WatchItem> items);
-		List<string> GetWatchItems();
+		List<DynamicExpression> GetWatchItems();
 		void RefreshBreakpoints(IEnumerable<SourceRef> refs);
 	}
 }

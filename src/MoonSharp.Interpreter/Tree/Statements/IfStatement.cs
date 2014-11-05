@@ -42,7 +42,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 				{ 
 					Exp = NodeFactory.CreateExpression(exp, lcontext), 
 					Block = NodeFactory.CreateStatement(blk, lcontext),
-					Source = BuildSourceRef(lcontext, 
+					Source = BuildSourceRef(
 						i == 0 ? context.IF().Symbol : context.ELSEIF()[i - 1].Symbol 
 						, exp.Stop)
 				};
@@ -56,10 +56,10 @@ namespace MoonSharp.Interpreter.Tree.Statements
 				lcontext.Scope.PushBlock();
 				m_Else = NodeFactory.CreateStatement(context.block()[bcount - 1], lcontext);
 				m_ElseStackFrame = lcontext.Scope.PopBlock();
-				m_ElseRef = BuildSourceRef(lcontext, context.ELSE()); 
+				m_ElseRef = BuildSourceRef(context.ELSE()); 
 			}
 
-			m_End = BuildSourceRef(lcontext, context.Stop, context.END());
+			m_End = BuildSourceRef(context.Stop, context.END());
 		}
 
 

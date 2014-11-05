@@ -90,13 +90,25 @@ namespace MoonSharp
 
 					try
 					{
-						var v = script.LoadString(cmd, null, "stdin");
+						DynValue result = null;
 
-						Console.WriteLine("={0}", script.Call(v));
+						if (cmd.StartsWith("?"))
+						{
+							var code = cmd.Substring(1);
+							var exp = script.CreateDynamicExpression(code);
+							result = exp.Evaluate(script.CreateMockExecutionContext());
+						}
+						else
+						{
+							var v = script.LoadString(cmd, null, "stdin");
+							result = script.Call(v);
+						}
+
+						Console.WriteLine("={0}", result);
 					}
 					catch (ScriptRuntimeException ex)
 					{
-						Console.WriteLine("{0}", ex.DecoratedMessage);
+						Console.WriteLine("{0}", ex.DecoratedMessage ?? ex.Message);
 					}
 					catch (Exception ex)
 					{

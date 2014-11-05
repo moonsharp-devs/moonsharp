@@ -16,7 +16,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		public BreakStatement(LuaParser.Stat_breakContext context, ScriptLoadingContext lcontext)
 			: base(context, lcontext)
 		{
-			m_Ref = BuildSourceRef(lcontext, context.Start, context.Stop);
+			m_Ref = BuildSourceRef(context.Start, context.Stop);
 		}
 
 

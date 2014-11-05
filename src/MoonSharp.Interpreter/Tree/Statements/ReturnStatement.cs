@@ -22,11 +22,11 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			if (expr != null)
 			{
 				m_Expression = NodeFactory.CreateExpression(expr, lcontext);
-				m_Ref = BuildSourceRef(lcontext, context.Start, expr.Stop);
+				m_Ref = BuildSourceRef(context.Start, expr.Stop);
 			}
 			else
 			{
-				m_Ref = BuildSourceRef(lcontext, context.Start, context.RETURN());
+				m_Ref = BuildSourceRef(context.Start, context.RETURN());
 			}
 		}
 

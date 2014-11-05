@@ -77,8 +77,8 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 			m_StackFrame = lcontext.Scope.PopFunction();
 
-			m_Begin = BuildSourceRef(lcontext, declarationContext.Start, context.PAREN_CLOSE().Symbol);
-			m_End = BuildSourceRef(lcontext, context.Stop, context.END());
+			m_Begin = BuildSourceRef(declarationContext.Start, context.PAREN_CLOSE().Symbol);
+			m_End = BuildSourceRef(context.Stop, context.END());
 		}
 
 		public SymbolRef CreateUpvalue(BuildTimeScope scope, SymbolRef symbol)
@@ -173,5 +173,10 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			Compile(bc, () => 0, null);
 		}
 
+
+		public override DynValue Eval(ScriptExecutionContext context)
+		{
+			throw new DynamicExpressionException("Dynamic Expressions cannot define new functions.");
+		}
 	}
 }
