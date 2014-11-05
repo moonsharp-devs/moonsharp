@@ -25,11 +25,12 @@ namespace MoonSharp.Interpreter
 		Os_System = 0x1000,
 		File = 0x2000,
 		Io = 0x4000,
+		Dynamic = 0x8000,
 
 
 
 		Preset_HardSandbox = GlobalConsts | TableIterators | String | Table | Basic | Math | Bit32,
-		Preset_SoftSandbox = Preset_HardSandbox | Metatables | ErrorHandling | Coroutine | Os_Time,
+		Preset_SoftSandbox = Preset_HardSandbox | Metatables | ErrorHandling | Coroutine | Os_Time | Dynamic,
 		Preset_Default = Preset_SoftSandbox | LoadMethods | Os_System | File | Io,
 		Preset_Complete = Preset_Default,
 

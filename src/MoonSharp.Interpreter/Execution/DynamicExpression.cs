@@ -7,6 +7,9 @@ using MoonSharp.Interpreter.Tree.Expressions;
 
 namespace MoonSharp.Interpreter
 {
+	/// <summary>
+	/// Represents a dynamic expression in the script
+	/// </summary>
 	public class DynamicExpression : IScriptPrivateResource
 	{
 		DynamicExprExpression m_Exp;
@@ -28,8 +31,10 @@ namespace MoonSharp.Interpreter
 			m_Constant = constant;
 		}
 
-		public DynValue Evaluate(ScriptExecutionContext context)
+		public DynValue Evaluate(ScriptExecutionContext context = null)
 		{
+			context = context ?? OwnerScript.CreateDynamicExecutionContext();
+
 			if (m_Constant != null)
 				return m_Constant;
 

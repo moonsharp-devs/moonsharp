@@ -25,6 +25,7 @@ namespace MoonSharp.Interpreter
 			if (modules.Has(CoreModules.Math)) RegisterModuleType<MathModule>(table);
 			if (modules.Has(CoreModules.Coroutine)) RegisterModuleType<CoroutineMethods>(table);
 			if (modules.Has(CoreModules.Bit32)) RegisterModuleType<Bit32Module>(table);
+			if (modules.Has(CoreModules.Dynamic)) RegisterModuleType<DynamicModule>(table);
 
 			return table;
 		}

@@ -516,11 +516,8 @@ namespace MoonSharp.Interpreter
 			return new DynamicExpression(this, code, constant);
 		}
 
-		/// <summary>
-		/// Gets an execution context exposing only partial functionality
-		/// </summary>
-		/// <returns></returns>
-		public ScriptExecutionContext CreateMockExecutionContext()
+		// Gets an execution context exposing only partial functionality, which should be used ONLY for dynamic expression evaluation.
+		internal ScriptExecutionContext CreateDynamicExecutionContext()
 		{
 			return new ScriptExecutionContext(m_MainProcessor, null);
 		}

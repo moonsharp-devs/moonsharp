@@ -80,6 +80,7 @@
   <ItemGroup>
     <Compile Include="CoreLib\CoroutineMethods.cs" />
     <Compile Include="CoreLib\BasicMethods.cs" />
+    <Compile Include="CoreLib\DynamicModule.cs" />
     <Compile Include="CoreLib\ErrorHandling.cs" />
     <Compile Include="CoreLib\LoadMethods.cs" />
     <Compile Include="CoreLib\Bit32Module.cs" />

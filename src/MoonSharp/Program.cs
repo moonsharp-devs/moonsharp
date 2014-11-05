@@ -96,7 +96,7 @@ namespace MoonSharp
 						{
 							var code = cmd.Substring(1);
 							var exp = script.CreateDynamicExpression(code);
-							result = exp.Evaluate(script.CreateMockExecutionContext());
+							result = exp.Evaluate();
 						}
 						else
 						{
