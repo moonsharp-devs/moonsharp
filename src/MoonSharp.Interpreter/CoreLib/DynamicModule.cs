@@ -44,7 +44,7 @@ namespace MoonSharp.Interpreter.CoreLib
 				}
 			}
 			catch (SyntaxErrorException ex)
-			{
+			{ 
 				throw new ScriptRuntimeException(ex);
 			}
 		}
@@ -56,7 +56,7 @@ namespace MoonSharp.Interpreter.CoreLib
 			{
 				DynValue vs = args.AsType(0, "eval", DataType.String, false);
 				DynamicExpression expr = executionContext.GetScript().CreateDynamicExpression(vs.String);
-				return expr.Evaluate(executionContext);
+				return UserData.Create(new DynamicExprWrapper() { Expr = expr });
 			}
 			catch (SyntaxErrorException ex)
 			{

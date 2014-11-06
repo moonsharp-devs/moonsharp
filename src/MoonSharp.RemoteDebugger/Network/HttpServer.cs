@@ -217,6 +217,7 @@ namespace MoonSharp.RemoteDebugger.Network
 			{
 				if (ret.Type == HttpResourceType.Callback)
 				{
+					if (args == null) args = new Dictionary<string, string>();
 					args.Add("?", uri);
 					return ret.Callback(args);
 				}

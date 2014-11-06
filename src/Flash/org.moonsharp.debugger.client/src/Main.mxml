@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
-			   xmlns:s="library://ns.adobe.com/flex/spark" 
-			   xmlns:mx="library://ns.adobe.com/flex/mx" 
-			   minWidth="955" minHeight="600" width="100%" height="100%"
-			   creationComplete="application_creationCompleteHandler(event)"
-			   initialize="initializeApp();"
-			   >
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009"
+			   xmlns:s="library://ns.adobe.com/flex/spark"
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   width="100%" height="100%" minWidth="955" minHeight="600"
+			   applicationComplete="application_applicationCompleteHandler(event)"
+			   initialize="initializeApp();">
 	<fx:Style source="MXFTEText.css"/>
 	<fx:Style source="Main.css"/>
 	
@@ -37,6 +36,8 @@
 			[Bindable][Embed (source="assets/breakpoint.gif" )] public var  breakpoint:Class;
 			[Bindable][Embed (source="assets/remove.gif" )] public var  remove:Class;
 			[Bindable][Embed (source="assets/step_current.gif" )] public var  step_current:Class;
+			
+			private var m_DisableKeys : Boolean = false;
 			
 			
 			private var menubarXML:XMLList =
@@ -76,14 +77,16 @@
 			
 			private var m_Debugger : DebuggerViewLogic; 
 			
-			protected function application_creationCompleteHandler(event:FlexEvent):void
+			protected function application_applicationCompleteHandler(event:FlexEvent):void
 			{
-				m_Debugger = new DebuggerViewLogic(this);
+				m_Debugger = new DebuggerViewLogic(this, this.loaderInfo);
 				systemManager.addEventListener(KeyboardEvent.KEY_UP, shortcutListener, true);   
 			}
 			
 			private function shortcutListener(e:KeyboardEvent):void
 			{
+				if (m_DisableKeys) return;
+				
 				switch(e.keyCode)
 				{
 					case 73:
@@ -153,7 +156,7 @@
 				if (hl !== null && hl.Source === m_CurrentSrc)
 				{
 					var tlf2:TextLayoutFormat = new TextLayoutFormat();
-					tlf2.backgroundColor = 0xb1aefa;
+					tlf2.backgroundColor = 0x645ef5;
 					
 					txtCode.setFormatOfRange(tlf2, hl.From, hl.To);
 					moveCaret(hl.To);
@@ -244,6 +247,7 @@
 			{
 				txtCode.setFocus();
 				txtCode.selectRange(where, where);
+				txtCode.scrollToRange(where, where);
 				updateCaretLabel();
 			}
 			
@@ -284,8 +288,12 @@
 				else if (cmd == "expand") deepWatch();
 				else if (cmd == "add") 
 				{
+					m_DisableKeys = true;
+					
 					InputBox.show(this, "Add watch...", "Enter the name of the variables you want to watch, separated by ',' if more than one is desired", "", function(str:String):void
 					{
+						m_DisableKeys = false;
+						
 						if (str !== null && str !== "")
 							m_Debugger.addWatch(str);
 					});

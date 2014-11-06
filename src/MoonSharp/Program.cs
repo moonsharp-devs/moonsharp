@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -125,36 +126,25 @@ namespace MoonSharp
 			}
 		}
 
-		static Utf8TcpServer m_Server;
-		static HttpServer m_Http;
-		static DebugServer m_DbgS;
+		static RemoteDebuggerService m_Debugger;
 
 		private static void ParseCommand(Script S, string p)
 		{
-			if (p == "net")
+			if (p == "debug" && m_Debugger == null)
 			{
-				m_Server = new Utf8TcpServer(1912, 8 << 20, '\n', Utf8TcpServerOptions.SingleClientOnly);
-				m_Server.DataReceived += m_Server_DataReceivedAny;
-				m_Server.Start();
+				m_Debugger = new RemoteDebuggerService();
+				m_Debugger.Attach(S, "MoonSharp REPL interpreter");
+				Process.Start(m_Debugger.HttpUrlStringLocalHost);
 			}
-			if (p == "http")
+			if (p.StartsWith("run"))
 			{
-				m_Http = new HttpServer(1994, Utf8TcpServerOptions.Default);
-				m_Http.RegisterResource("/", HttpResource.CreateText(HttpResourceType.PlainText, "Hello, world!\n"));
-				m_Http.RegisterResource("/1.png", HttpResource.CreateBinary(HttpResourceType.Png, File.ReadAllBytes(@"c:\temp\1.png")));
-				m_Http.Authenticator = (usr, pwd) => usr == pwd;
-				m_Http.Start();
-			}
-			if (p == "dbg")
-			{
-				m_DbgS = new DebugServer("MoonSharp REPL interpreter", S, 20001, false);
-				S.AttachDebugger(m_DbgS);
+				p = p.Substring(3).Trim();
+				S.DoFile(p);
 			}
 			if (p == "!")
 			{
-				m_DbgS = new DebugServer("MoonSharp REPL interpreter", S, 20001, false);
-				S.AttachDebugger(m_DbgS);
-				S.DoFile(@"c:\temp\test.lua");
+				ParseCommand(S, "debug");
+				ParseCommand(S, @"run c:\temp\test.lua");
 			}
 		}
 

@@ -12,7 +12,7 @@ namespace MoonSharp.RemoteDebugger.Network
 {
 	public class Utf8TcpServer : IDisposable 
 	{
-        int m_PortNumber = 1912;
+		int m_PortNumber = 1912;
 		IPAddress m_IPAddress;
 		TcpListener m_Listener = null;
 		Action<string> m_Logger;
@@ -26,11 +26,17 @@ namespace MoonSharp.RemoteDebugger.Network
 		public event EventHandler<Utf8TcpPeerEventArgs> DataReceived;
 		public event EventHandler<Utf8TcpPeerEventArgs> ClientDisconnected;
 
+		public int PortNumber
+		{
+			get { return m_PortNumber; }
+		}
+
+
 		public Utf8TcpServer(int port, int bufferSize, char packetSeparator, Utf8TcpServerOptions options)
         {
 			m_IPAddress = ((options & Utf8TcpServerOptions.LocalHostOnly) != 0) ? IPAddress.Loopback : IPAddress.Any;
             m_PortNumber = port;
-			m_Logger = s => Console.WriteLine(s);
+			m_Logger = s => System.Diagnostics.Debug.WriteLine(s);
 			PacketSeparator = packetSeparator;
 			BufferSize = bufferSize;
 			Options = options;
@@ -70,6 +76,11 @@ namespace MoonSharp.RemoteDebugger.Network
 			}
 		}
 
+		public int GetConnectedClients()
+		{
+			lock (m_PeerListLock) 
+				return m_PeerList.Count;
+		}
 
 
 		private void AddNewClient(Socket socket)

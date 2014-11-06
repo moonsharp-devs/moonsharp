@@ -375,7 +375,7 @@ namespace MoonSharp.Interpreter
 		}
 
 		/// <summary>
-		/// Attaches a debugger.
+		/// Attaches a debugger. This usually should be called by the debugger itself and not by user code.
 		/// </summary>
 		/// <param name="debugger">The debugger object.</param>
 		public void AttachDebugger(IDebugger debugger)
@@ -507,9 +507,10 @@ namespace MoonSharp.Interpreter
 		}
 
 		/// <summary>
-		/// Creates a new dynamic expression.
+		/// Creates a new dynamic expression which is actually quite static, returning always the same constant value.
 		/// </summary>
-		/// <param name="code">The code of the expression.</param>
+		/// <param name="code">The code of the not-so-dynamic expression.</param>
+		/// <param name="constant">The constant to return.</param>
 		/// <returns></returns>
 		public DynamicExpression CreateConstantDynamicExpression(string code, DynValue constant)
 		{

@@ -28,27 +28,36 @@ namespace MoonSharp.RemoteDebugger
 		string[] m_CachedWatches = new string[(int)WatchType.MaxValue];
 
 
-		public DebugServer(string appName, Script script, int port, bool localOnly)
+		public DebugServer(string appName, Script script, int port, Utf8TcpServerOptions options)
 		{
 			m_AppName = appName;
 
-			m_Server = new Utf8TcpServer(port, 1 << 20, '\0', localOnly ? Utf8TcpServerOptions.LocalHostOnly : Utf8TcpServerOptions.Default);
+			m_Server = new Utf8TcpServer(port, 1 << 20, '\0', options);
 			m_Server.Start();
 			m_Server.DataReceived += m_Server_DataReceived;
-			m_Server.ClientConnected += m_Server_ClientConnected;
 			m_Script = script;
 		}
 
-		void m_Server_ClientConnected(object sender, Utf8TcpPeerEventArgs e)
-		{
-			SendWelcome();
+		public string AppName { get { return m_AppName; } }
+		public int Port { get { return m_Server.PortNumber; } }
 
-			for (int i = 0; i < m_Script.SourceCodeCount; i++)
-				SetSourceCode(m_Script.GetSourceCode(i));
+		public string GetState()
+		{
+			if (m_HostBusySent)
+				return "Busy";
+			else if (m_InGetActionLoop)
+				return "Waiting debugger";
+			else
+				return "Unknown";
 		}
 
-		#region Writes
+		public int ConnectedClients()
+		{
+			return m_Server.GetConnectedClients();
+		}
 
+
+		#region Writes
 
 		public void SetSourceCode(SourceCode sourceCode)
 		{
@@ -91,7 +100,6 @@ namespace MoonSharp.RemoteDebugger
 
 			string xml = sb.ToString();
 			m_Server.BroadcastMessage(xml);
-			//Console.WriteLine(xml);
 		}
 
 
@@ -145,13 +153,13 @@ namespace MoonSharp.RemoteDebugger
 									xw.Attribute("name", wi.Name);
 								}
 
-								
+
 
 								if (wi.Value != null)
 								{
 									xw.Attribute("value", wi.Value.ToString());
-									xw.Attribute("type", 
-										wi.IsError ? "error" : 
+									xw.Attribute("type",
+										wi.IsError ? "error" :
 										wi.Value.Type.ToLuaDebuggerString());
 								}
 
@@ -274,6 +282,22 @@ namespace MoonSharp.RemoteDebugger
 			XmlDocument xdoc = new XmlDocument();
 			xdoc.LoadXml(e.Message);
 
+			if (xdoc.DocumentElement.Name == "policy-file-request")
+			{
+				Send(xw =>
+				{
+					using (xw.Element("cross-domain-policy"))
+					{
+						using (xw.Element("allow-access-from"))
+						{
+							xw.Attribute("domain", "*");
+							xw.Attribute("to-ports", m_Server.PortNumber);
+						}
+					}
+				});
+				return;
+			}
+
 			if (xdoc.DocumentElement.Name == "Command")
 			{
 				string cmd = xdoc.DocumentElement.GetAttribute("cmd").ToLowerInvariant();
@@ -281,6 +305,12 @@ namespace MoonSharp.RemoteDebugger
 
 				switch (cmd)
 				{
+					case "handshake":
+						SendWelcome();
+
+						for (int i = 0; i < m_Script.SourceCodeCount; i++)
+							SetSourceCode(m_Script.GetSourceCode(i));
+						break;
 					case "stepin":
 						QueueAction(new DebuggerAction() { Action = DebuggerAction.ActionType.StepIn });
 						break;
@@ -315,13 +345,13 @@ namespace MoonSharp.RemoteDebugger
 						{
 							var args = arg.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 
-							foreach(var a in args)
+							foreach (var a in args)
 								m_WatchesChanging.Remove(a);
 						}
 						QueueRefresh();
 						break;
 					case "breakpoint":
-						QueueAction(new DebuggerAction() 
+						QueueAction(new DebuggerAction()
 						{
 							Action = DebuggerAction.ActionType.ToggleBreakpoint,
 							SourceID = int.Parse(xdoc.DocumentElement.GetAttribute("src")),

@@ -40,6 +40,7 @@ namespace MoonSharp.RemoteDebugger.Network
 			};
 		}
 
+
 		public static HttpResource CreateCallback(Func<Dictionary<string, string>, HttpResource> callback)
 		{
 			return new HttpResource()
@@ -48,7 +49,6 @@ namespace MoonSharp.RemoteDebugger.Network
 				Callback = callback
 			};
 		}
-
 
 
 		public string GetContentTypeString()
@@ -69,6 +69,10 @@ namespace MoonSharp.RemoteDebugger.Network
 					return "image/png";
 				case HttpResourceType.Binary:
 					return "application/octet-stream";
+				case HttpResourceType.Javascript:
+					return "application/javascript";
+				case HttpResourceType.Css:
+					return "text/css";
 				case HttpResourceType.Callback:
 				default:
 					throw new InvalidOperationException();

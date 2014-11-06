@@ -14,6 +14,8 @@ namespace MoonSharp.RemoteDebugger.Network
 		Jpeg,
 		Png,
 		Binary,
-		Callback
+		Callback,
+		Css,
+		Javascript
 	}
 }

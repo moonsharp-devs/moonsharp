@@ -1,13 +1,20 @@
 package
 {
+	import flash.display.LoaderInfo;
 	import flash.events.*;
 	import flash.external.ExternalInterface;
 	import flash.net.XMLSocket;
+	import flash.system.Security;
+	import flash.system.System;
 	import flash.utils.Dictionary;
 	
 	import mx.collections.ArrayList;
 	import mx.controls.Alert;
 	import mx.controls.List;
+	import mx.core.FlexGlobals;
+	import mx.managers.BrowserManager;
+	import mx.managers.IBrowserManager;
+	import mx.utils.URLUtil;
 
 	public class DebuggerViewLogic
 	{
@@ -20,11 +27,30 @@ package
 		private var m_InstructionPtrHighlight : Highlight = null;
 		
 		
-		public function DebuggerViewLogic(view : Main)
+		public function DebuggerViewLogic(view : Main, loaderInfo: LoaderInfo)
 		{
 			m_View = view;
 			
-			m_Socket = new XMLSocket("127.0.0.1", 20001);
+			var domain:String = getDomain();
+			var port:int = 1;
+			
+			if (domain == null)
+			{
+				domain = "127.0.0.1";
+				port = 2006;
+				logMessage("Running under Flex debugger ? Assuming default host/port.");
+			}
+			else
+			{
+				var portstr:String = FlexGlobals.topLevelApplication.parameters.port;
+				
+				logMessage(portstr);
+				port = int(portstr);
+			}
+			
+			logMessage("Connecting to: " + domain + ":" + port);
+			
+			m_Socket = new XMLSocket(domain, port);
 			
 			m_Socket.addEventListener(Event.CLOSE, closeHandler);
 			m_Socket.addEventListener(Event.CONNECT, connectHandler);
@@ -32,7 +58,17 @@ package
 			m_Socket.addEventListener(IOErrorEvent.IO_ERROR, ioErrorHandler);
 			m_Socket.addEventListener(ProgressEvent.PROGRESS, progressHandler);
 			m_Socket.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
+		} 
+		
+		public function getDomain():String
+		{
+			var domain:String = Security.pageDomain;
+			if (domain == null) return null;
+
+			return URLUtil.getServerName(domain);
 		}
+		
+		
 		
 		private function closeHandler(event:Event):void {
 			onFatalError("Connection closed.");
@@ -41,6 +77,7 @@ package
 		private function connectHandler(event:Event):void {
 			trace("connectHandler: " + event);
 			logMessage("Connection with host established.");
+			m_Socket.send(<Command cmd="handshake" />);		
 		}
 		
 		private function dataHandler(event:DataEvent):void {
