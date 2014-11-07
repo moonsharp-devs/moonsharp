@@ -1,9 +1,11 @@
-Moon# 
+MoonSharp
 =========
 http://www.moonsharp.org
 
+A complete Lua solution written entirely in C# for the .NET, Mono and Unity3D platforms.
 
-A Lua interpreter written entirely in C# for the .NET, Mono, Xamarin and Unity3D platforms.
+Includes an interpreter, debugger and will soon have code analysis facilities.
+
 It is 99% compatible with Lua 5.2 (with a few exceptions, like goto statements and hex floats) and includes some nifty addition, plus a tight integration with .NET code.
 
 Please see http://www.moonsharp.org for downloads, infos, tutorials, etc.

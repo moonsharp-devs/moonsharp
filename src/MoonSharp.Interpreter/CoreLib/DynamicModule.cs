@@ -54,7 +54,7 @@ namespace MoonSharp.Interpreter.CoreLib
 		{
 			try
 			{
-				DynValue vs = args.AsType(0, "eval", DataType.String, false);
+				DynValue vs = args.AsType(0, "dynamic.prepare", DataType.String, false);
 				DynamicExpression expr = executionContext.GetScript().CreateDynamicExpression(vs.String);
 				return UserData.Create(new DynamicExprWrapper() { Expr = expr });
 			}

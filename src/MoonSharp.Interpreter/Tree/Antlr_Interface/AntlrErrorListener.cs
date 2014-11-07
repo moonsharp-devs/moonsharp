@@ -49,7 +49,7 @@ namespace MoonSharp.Interpreter.Tree
 		{
 			string[] lines = m_Source.Lines;
 			StringBuilder errorMessage = new StringBuilder();
-			errorMessage.AppendLine(lines[line - 1].Replace('\t', ' ').Replace('\r', ' ').Replace('\n', ' '));
+			errorMessage.AppendLine(lines[line].Replace('\t', ' ').Replace('\r', ' ').Replace('\n', ' '));
 
 			for (int i = 0; i < charPositionInLine; i++)
 			{

@@ -70,6 +70,10 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 				m_GlobalEnv = globalContext;
 				m_Env = lcontext.Scope.TryDefineLocal(WellKnownSymbols.ENV);
 			}
+			else
+			{
+				lcontext.Scope.ForceEnvUpValue();
+			}
 
 			m_ParamNames = DefineArguments(paramnames, lcontext);
 

@@ -79,6 +79,7 @@
   <ItemGroup>
     <Compile Include="EndToEnd\ClosureTests.cs" />
     <Compile Include="EndToEnd\CoroutineTests.cs" />
+    <Compile Include="EndToEnd\DynamicTests.cs" />
     <Compile Include="EndToEnd\LuaTestSuiteExtract.cs" />
     <Compile Include="EndToEnd\MetatableTests.cs">
       <SubType>Code</SubType>

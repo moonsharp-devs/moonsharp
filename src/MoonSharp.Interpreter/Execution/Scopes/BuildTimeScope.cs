@@ -72,6 +72,12 @@ namespace MoonSharp.Interpreter.Execution
 			return SymbolRef.Global(name, env);
 		}
 
+
+		public void ForceEnvUpValue()
+		{
+			Find(WellKnownSymbols.ENV);
+		}
+
 		private SymbolRef CreateUpValue(BuildTimeScope buildTimeScope, SymbolRef symb, int closuredFrame, int currentFrame)
 		{
 			// it's a 0-level upvalue. Just create it and we're done.
@@ -97,5 +103,6 @@ namespace MoonSharp.Interpreter.Execution
 		{
 			return m_Frames.Last().HasVarArgs;
 		}
+
 	}
 }

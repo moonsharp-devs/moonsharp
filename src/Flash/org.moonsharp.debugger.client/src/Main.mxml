@@ -36,6 +36,7 @@
 			[Bindable][Embed (source="assets/breakpoint.gif" )] public var  breakpoint:Class;
 			[Bindable][Embed (source="assets/remove.gif" )] public var  remove:Class;
 			[Bindable][Embed (source="assets/step_current.gif" )] public var  step_current:Class;
+			[Bindable][Embed (source="assets/watch.gif" )] public var  watch:Class;
 			
 			private var m_DisableKeys : Boolean = false;
 			
@@ -55,8 +56,10 @@
 						<menuitem label="(G) - Go to current" data="step_current" icon="step_current" />
 					</menuitem>
 					<menuitem label="Watches" data="top">
-						<menuitem label="(Ins) - Add..." data="add" icon="add" />
-						<menuitem label="(Del) - Remove" data="remove" icon="remove" />
+						<menuitem label="(Ins) - Add watches..." data="add" icon="add" />
+						<menuitem label="(Del) - Remove selected watches" data="remove" icon="remove" />
+						<menuitem type="separator"/>
+						<menuitem label="(W) - Watch current..." data="watch" icon="watch" />
 					</menuitem>
 					<menuitem label="Help" data="top">
 						<menuitem label="About..." data="about"/>
@@ -115,6 +118,9 @@
 						break;
 					case 46:
 						exec("remove");
+						break;
+					case 87:
+						exec("watch");
 						break;
 				}
 				
@@ -262,21 +268,11 @@
 				txtCaret.text = m_CurrentSrc.getName() + ":" + line.toString() + ","+col.toString();
 			}
 			
-			private function deepWatch() : void
-			{
-				var wi:WatchItem = gridWatches.selectedItem as WatchItem;
-				
-				if (wi != null)
-				{
-					Alert.show("Value = " + wi.Value + "\n" + 
-						"Type = " + wi.Type + "\n" + 
-						"Scope = " + wi.LValue, wi.Name); 
-				}
-			}
-			
 			
 			public function exec(cmd:String) : void
 			{
+				var wi:WatchItem;
+				
 				if (cmd == "about") AboutBox.show(this);
 				else if (cmd == "stepin") m_Debugger.stepIn();
 				else if (cmd == "stepout") m_Debugger.stepOut();
@@ -285,7 +281,6 @@
 				else if (cmd == "pause") m_Debugger.pause();
 				else if (cmd == "step_current") refreshInstructionPtrHighlight(true);
 				else if (cmd == "breakpoint") toggleBreakpoint();
-				else if (cmd == "expand") deepWatch();
 				else if (cmd == "add") 
 				{
 					m_DisableKeys = true;
@@ -302,7 +297,7 @@
 				{
 					var str:String = "";
 					
-					for each(var wi:WatchItem in gridWatches.selectedItems)
+					for each(wi in gridWatches.selectedItems)
 					{
 						if (str.length > 0)
 							str += ",";
@@ -312,6 +307,17 @@
 					
 					if (str.length > 0)
 						m_Debugger.removeWatch(str);
+				}
+				else if (cmd == "watch")
+				{
+					wi = gridWatches.selectedItem as WatchItem;
+					
+					if (wi != null)
+					{
+						Alert.show("Value = " + wi.Value + "\n" + 
+							"Type = " + wi.Type + "\n" + 
+							"Scope = " + wi.LValue, wi.Name); 
+					}					
 				}
 				else
 				{
@@ -363,7 +369,7 @@
 						<mx:HBox width="100%" paddingTop="4" paddingLeft="4">
 							<s:Button height="20" id="btnAddWatch" label="Add" click="exec('add');" icon="{add}"/>
 							<s:Button height="20" id="btnRemoveWatch" label="Remove" click="exec('remove');" icon="{remove}"/>
-							<s:Button height="20" id="btnExpand" label="Expand" click="exec('expand');" />
+							<s:Button height="20" id="btnExpand" label="Inspect" click="exec('watch');" icon="{watch}" />
 						</mx:HBox>
 						<s:DataGrid id="gridWatches" width="100%" height="100%" selectionMode="multipleRows">
 							<s:columns>

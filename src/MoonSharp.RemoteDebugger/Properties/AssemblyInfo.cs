@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("MoonSharp.RemoteDebugger")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Remote Debugger for the MoonSharp interpreter")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("MoonSharp.RemoteDebugger")]
-[assembly: AssemblyCopyright("Copyright ©  2014")]
+[assembly: AssemblyCompany("http://www.moonsharp.org")]
+[assembly: AssemblyProduct("MoonSharp.Debugger")]
+[assembly: AssemblyCopyright("Copyright © 2014, Marco Mastropaolo")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
