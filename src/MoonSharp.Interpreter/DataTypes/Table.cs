@@ -58,7 +58,7 @@ namespace MoonSharp.Interpreter
 
 		/// <summary>
 		/// Gets or sets the <see cref="System.Object"/> with the specified key.
-		/// This will marshall CLR and Moon# objects in the best possible way.
+		/// This will marshall CLR and MoonSharp objects in the best possible way.
 		/// </summary>
 		/// <value>
 		/// The <see cref="System.Object"/>.

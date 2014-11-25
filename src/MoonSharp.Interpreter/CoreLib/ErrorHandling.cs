@@ -51,6 +51,10 @@ namespace MoonSharp.Interpreter.CoreLib
 					return DynValue.NewTupleNested(DynValue.False, DynValue.NewString(ex.Message));
 				}
 			}
+			else if (args[0].Type != DataType.Function)
+			{
+				return DynValue.NewTupleNested(DynValue.False, DynValue.NewString("attempt to pcall a non-function"));
+			}
 			else
 			{
 				return DynValue.NewTailCallReq(new TailCallData()

@@ -7,7 +7,7 @@ using System.Text;
 namespace MoonSharp.Interpreter
 {
 	/// <summary>
-	/// Enumeration of possible data types in Moon#
+	/// Enumeration of possible data types in MoonSharp
 	/// </summary>
 	public enum DataType
 	{

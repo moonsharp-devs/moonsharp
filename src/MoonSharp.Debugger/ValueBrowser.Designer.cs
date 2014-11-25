@@ -286,7 +286,7 @@
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "ValueBrowser";
-			this.Text = "Moon# Value Browser";
+			this.Text = "MoonSharp Value Browser";
 			this.Load += new System.EventHandler(this.ValueBrowser_Load);
 			this.toolStrip1.ResumeLayout(false);
 			this.toolStrip1.PerformLayout();

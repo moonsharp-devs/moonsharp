@@ -18,7 +18,7 @@ using MoonSharp.Interpreter.Tree.Statements;
 namespace MoonSharp.Interpreter
 {
 	/// <summary>
-	/// This class implements a Moon# scripting session. Multiple Script objects can coexist in the same program but cannot share
+	/// This class implements a MoonSharp scripting session. Multiple Script objects can coexist in the same program but cannot share
 	/// data among themselves unless some mechanism is put in place.
 	/// </summary>
 	public class Script
@@ -32,6 +32,7 @@ namespace MoonSharp.Interpreter
 		Table[] m_TypeMetatables = new Table[(int)LuaTypeExtensions.MaxMetaTypes];
 
 
+	
 		static Script()
 		{
 			DefaultScriptLoader = new ClassicLuaScriptLoader();
@@ -53,6 +54,7 @@ namespace MoonSharp.Interpreter
 		public Script(CoreModules coreModules)
 		{
 			PerformanceStats = new PerformanceStatistics();
+			Registry = new Table(this);
 
 			DebugPrint = s => { Console.WriteLine(s); };
 			m_ByteCode = new ByteCode();
@@ -96,7 +98,7 @@ namespace MoonSharp.Interpreter
 		}
 
 		/// <summary>
-		/// Loads a string containing a Lua/Moon# function.
+		/// Loads a string containing a Lua/MoonSharp function.
 		/// </summary>
 		/// <param name="code">The code.</param>
 		/// <param name="globalTable">The global table to bind to this chunk.</param>
@@ -138,7 +140,7 @@ namespace MoonSharp.Interpreter
 
 
 		/// <summary>
-		/// Loads a string containing a Lua/Moon# script.
+		/// Loads a string containing a Lua/MoonSharp script.
 		/// </summary>
 		/// <param name="code">The code.</param>
 		/// <param name="globalTable">The global table to bind to this chunk.</param>
@@ -166,7 +168,7 @@ namespace MoonSharp.Interpreter
 		}
 
 		/// <summary>
-		/// Loads a string containing a Lua/Moon# script.
+		/// Loads a string containing a Lua/MoonSharp script.
 		/// </summary>
 		/// <param name="filename">The code.</param>
 		/// <param name="globalContext">The global table to bind to this chunk.</param>
@@ -191,7 +193,7 @@ namespace MoonSharp.Interpreter
 		}
 
 		/// <summary>
-		/// Loads and executes a string containing a Lua/Moon# script.
+		/// Loads and executes a string containing a Lua/MoonSharp script.
 		/// </summary>
 		/// <param name="code">The code.</param>
 		/// <param name="globalContext">The global context.</param>
@@ -205,7 +207,7 @@ namespace MoonSharp.Interpreter
 		}
 
 		/// <summary>
-		/// Loads and executes a file containing a Lua/Moon# script.
+		/// Loads and executes a file containing a Lua/MoonSharp script.
 		/// </summary>
 		/// <param name="filename">The filename.</param>
 		/// <param name="globalContext">The global context.</param>
@@ -233,7 +235,7 @@ namespace MoonSharp.Interpreter
 		/// <summary>
 		/// Runs the specified code with all possible defaults for quick experimenting.
 		/// </summary>
-		/// <param name="code">The Lua/Moon# code.</param>
+		/// <param name="code">The Lua/MoonSharp code.</param>
 		/// A DynValue containing the result of the processing of the executed script.
 		public static DynValue RunString(string code)
 		{
@@ -258,7 +260,7 @@ namespace MoonSharp.Interpreter
 		/// <summary>
 		/// Calls the specified function.
 		/// </summary>
-		/// <param name="function">The Lua/Moon# function to be called - callbacks are not supported.</param>
+		/// <param name="function">The Lua/MoonSharp function to be called - callbacks are not supported.</param>
 		/// <returns>
 		/// The return value(s) of the function call.
 		/// </returns>
@@ -274,7 +276,7 @@ namespace MoonSharp.Interpreter
 		/// <summary>
 		/// Calls the specified function.
 		/// </summary>
-		/// <param name="function">The Lua/Moon# function to be called - callbacks are not supported.</param>
+		/// <param name="function">The Lua/MoonSharp function to be called - callbacks are not supported.</param>
 		/// <param name="args">The arguments to pass to the function.</param>
 		/// <returns>
 		/// The return value(s) of the function call.
@@ -291,7 +293,7 @@ namespace MoonSharp.Interpreter
 		/// <summary>
 		/// Calls the specified function.
 		/// </summary>
-		/// <param name="function">The Lua/Moon# function to be called - callbacks are not supported.</param>
+		/// <param name="function">The Lua/MoonSharp function to be called - callbacks are not supported.</param>
 		/// <param name="args">The arguments to pass to the function.</param>
 		/// <returns>
 		/// The return value(s) of the function call.
@@ -313,7 +315,7 @@ namespace MoonSharp.Interpreter
 		/// <summary>
 		/// Calls the specified function.
 		/// </summary>
-		/// <param name="function">The Lua/Moon# function to be called - callbacks are not supported.</param>
+		/// <param name="function">The Lua/MoonSharp function to be called - callbacks are not supported.</param>
 		/// <returns></returns>
 		/// <exception cref="System.ArgumentException">Thrown if function is not of DataType.Function</exception>
 		public DynValue Call(object function)
@@ -324,7 +326,7 @@ namespace MoonSharp.Interpreter
 		/// <summary>
 		/// Calls the specified function.
 		/// </summary>
-		/// <param name="function">The Lua/Moon# function to be called - callbacks are not supported.</param>
+		/// <param name="function">The Lua/MoonSharp function to be called - callbacks are not supported.</param>
 		/// <param name="args">The arguments to pass to the function.</param>
 		/// <returns></returns>
 		/// <exception cref="System.ArgumentException">Thrown if function is not of DataType.Function</exception>
@@ -486,7 +488,7 @@ namespace MoonSharp.Interpreter
 
 
 		/// <summary>
-		/// Warms up the parser/lexer structures so that Moon# operations start faster.
+		/// Warms up the parser/lexer structures so that MoonSharp operations start faster.
 		/// </summary>
 		public static void WarmUp()
 		{
@@ -522,5 +524,22 @@ namespace MoonSharp.Interpreter
 		{
 			return new ScriptExecutionContext(m_MainProcessor, null);
 		}
+
+		/// <summary>
+		/// MoonSharp (like Lua itself) provides a registry, a predefined table that can be used by any CLR code to 
+		/// store whatever Lua values it needs to store. 
+		/// Any CLR code can store data into this table, but it should take care to choose keys 
+		/// that are different from those used by other libraries, to avoid collisions. 
+		/// Typically, you should use as key a string GUID, a string containing your library name, or a 
+		/// userdata with the address of a CLR object in your code.
+		/// </summary>
+		public Table Registry
+		{
+			get;
+			private set;
+		}
+
+
+
 	}
 }

@@ -88,7 +88,7 @@ namespace MoonSharp.Debugger
 			m_Script.AttachDebugger(this);
 
 			Thread m_Debugger = new Thread(DebugMain);
-			m_Debugger.Name = "Moon# Execution Thread";
+			m_Debugger.Name = "MoonSharp Execution Thread";
 			m_Debugger.IsBackground = true;
 			m_Debugger.Start();
 		}

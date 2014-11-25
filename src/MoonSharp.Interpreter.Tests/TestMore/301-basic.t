@@ -27,7 +27,7 @@ L<http://www.lua.org/manual/5.2/manual.html#6.1>.
 
 --]]
 
--- Moon# note : THIS SUITE WAS HEAVILY CUT FOR NOT APPLIABLE TESTS
+-- MoonSharp note : THIS SUITE WAS HEAVILY CUT FOR NOT APPLIABLE TESTS
 
 
 require 'Test.More'
@@ -259,7 +259,7 @@ is(rawset(t, 'a', 'letter a'), t, "function rawset")
 is(t.a, 'letter a')
 
 error_like(function () t = {}; rawset(t, nil, 42) end,
-           "^[^:]+:%d+: table index is nil",   -- changed this for moon#, but we stay as it is!
+           "^[^:]+:%d+: table index is nil",   -- changed this for MoonSharp, but we stay as it is!
            "function rawset (table index is nil)")
 
 is(select('#'), 0, "function select")
@@ -285,7 +285,7 @@ is(type(print), 'function')
 is(type(type), 'function')
 is(type(true), 'boolean')
 is(type(nil), 'nil')
--- is(type(io.stdin), 'userdata') -- no stdin in moon# so far 
+-- is(type(io.stdin), 'userdata') -- no stdin in MoonSharp so far 
 is(type(type(X)), 'string')
 
 a = nil
@@ -333,7 +333,7 @@ error_like(function () tostring() end,
            "^[^:]+:%d+: bad argument #1 to 'tostring' %(value expected%)",
            "function tostring (no arg)")
 
---[[ Moon# : this is intentional - we support pack and unpack outside the table namespace (or whatever they are) 
+--[[ MoonSharp : this is intentional - we support pack and unpack outside the table namespace (or whatever they are) 
 if (platform and platform.compat) or jit then
     type_ok(unpack, 'function', "function unpack")
 else

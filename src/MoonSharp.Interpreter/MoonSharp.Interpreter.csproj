@@ -82,11 +82,16 @@
     <Compile Include="CoreLib\BasicMethods.cs" />
     <Compile Include="CoreLib\DynamicModule.cs" />
     <Compile Include="CoreLib\ErrorHandling.cs" />
+    <Compile Include="CoreLib\IO\BinaryEncoding.cs" />
+    <Compile Include="CoreLib\IO\FileUserData.cs" />
+    <Compile Include="CoreLib\IoMethods.cs" />
+    <Compile Include="CoreLib\IO\FileUserDataBase.cs" />
     <Compile Include="CoreLib\LoadMethods.cs" />
     <Compile Include="CoreLib\Bit32Module.cs" />
     <Compile Include="CoreLib\MathModule.cs" />
     <Compile Include="CoreLib\MetaTableMethods.cs" />
-    <Compile Include="CoreLib\OsMethods.cs" />
+    <Compile Include="CoreLib\OsSystemMethods.cs" />
+    <Compile Include="CoreLib\OsTimeMethods.cs" />
     <Compile Include="CoreLib\StringLib\CaptureInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -192,6 +197,14 @@
     <Compile Include="Execution\ScriptLoadingContext.cs" />
     <Compile Include="DataTypes\DataType.cs" />
     <Compile Include="Modules\MoonSharpConstantAttribute.cs" />
+    <Compile Include="RuntimeAbstraction\PlatformImplementations\Clr2Platform.cs" />
+    <Compile Include="RuntimeAbstraction\PlatformImplementations\Clr4Platform.cs" />
+    <Compile Include="RuntimeAbstraction\Platform.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="RuntimeAbstraction\PlatformImplementations\MonoPlatform.cs" />
+    <Compile Include="RuntimeAbstraction\PlatformImplementations\UnityPlatform.cs" />
+    <Compile Include="RuntimeAbstraction\PlatformImplementations\UnityWebPlatform.cs" />
     <Compile Include="Script.cs" />
     <Compile Include="DataTypes\Table.cs" />
     <Compile Include="Execution\VM\ByteCode.cs" />

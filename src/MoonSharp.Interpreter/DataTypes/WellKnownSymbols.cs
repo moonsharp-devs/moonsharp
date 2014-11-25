@@ -6,7 +6,7 @@ using System.Text;
 namespace MoonSharp.Interpreter
 {
 	/// <summary>
-	/// Constants of well known "symbols" in the Moon# grammar
+	/// Constants of well known "symbols" in the MoonSharp grammar
 	/// </summary>
 	public static class WellKnownSymbols
 	{

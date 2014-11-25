@@ -204,5 +204,20 @@ namespace MoonSharp.Interpreter.Execution
 		{
 			return m_Processor.FindSymbolByName(symbol);
 		}
+
+		/// <summary>
+		/// Gets the current global env, or null if not found.
+		/// </summary>
+		public Table CurrentGlobalEnv
+		{
+			get
+			{
+				DynValue env = EvaluateSymbolByName(WellKnownSymbols.ENV);
+
+				if (env == null || env.Type != DataType.Table)
+					return null;
+				else return env.Table;
+			}
+		}
 	}
 }

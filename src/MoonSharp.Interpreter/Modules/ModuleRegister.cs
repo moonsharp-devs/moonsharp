@@ -26,6 +26,9 @@ namespace MoonSharp.Interpreter
 			if (modules.Has(CoreModules.Coroutine)) RegisterModuleType<CoroutineMethods>(table);
 			if (modules.Has(CoreModules.Bit32)) RegisterModuleType<Bit32Module>(table);
 			if (modules.Has(CoreModules.Dynamic)) RegisterModuleType<DynamicModule>(table);
+			if (modules.Has(CoreModules.OS_System)) RegisterModuleType<OsSystemMethods>(table);
+			if (modules.Has(CoreModules.OS_Time)) RegisterModuleType<OsTimeMethods>(table);
+			if (modules.Has(CoreModules.IO)) RegisterModuleType<IoMethods>(table);
 
 			return table;
 		}
@@ -131,8 +134,20 @@ namespace MoonSharp.Interpreter
 			}
 			else
 			{
-				Table table = new Table(gtable.OwnerScript);
-				gtable.Set(attr.Namespace, DynValue.NewTable(table));
+				Table table = null;
+
+				DynValue found = gtable.Get(attr.Namespace);
+
+				if (found.Type == DataType.Table)
+				{
+					table = found.Table;
+				}
+				else
+				{
+					table = new Table(gtable.OwnerScript);
+					gtable.Set(attr.Namespace, DynValue.NewTable(table));
+				}
+
 
 				DynValue package = gtable.RawGet("package");
 

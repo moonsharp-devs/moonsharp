@@ -33,7 +33,7 @@ namespace MoonSharp.Interpreter.Interop
 			m_IsAction = mi.ReturnType == typeof(void);
 
 			m_Arguments = mi.GetParameters().Select(pi => pi.ParameterType).ToArray();
-			m_Defaults = mi.GetParameters().Select(pi => pi.DefaultValue).ToArray(); 
+			m_Defaults = mi.GetParameters().Select(pi => pi.DefaultValue).ToArray();
 
 			if (AccessMode == InteropAccessMode.Preoptimized)
 				Optimize();
@@ -63,6 +63,10 @@ namespace MoonSharp.Interpreter.Interop
 				else if (m_Arguments[i] == typeof(ScriptExecutionContext))
 				{
 					pars[i] = context;
+				}
+				else if (m_Arguments[i] == typeof(CallbackArguments))
+				{
+					pars[i] = args.SkipMethodCall();
 				}
 				else
 				{

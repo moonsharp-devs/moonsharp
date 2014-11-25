@@ -13,6 +13,10 @@ namespace MoonSharp.Interpreter
 	public enum TypeValidationFlags
 	{
 		/// <summary>
+		/// No type validation specific behaviour
+		/// </summary>
+		None  = 0,
+		/// <summary>
 		/// Nil and Void values are allowed (and returned by the call)
 		/// </summary>
 		AllowNil = 0x1,

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using MoonSharp.Interpreter.RuntimeAbstraction;
 
 namespace MoonSharp.Interpreter.Loaders
 {
@@ -12,12 +13,12 @@ namespace MoonSharp.Interpreter.Loaders
 		
 		public ClassicLuaScriptLoader()
 		{
-			string env = Environment.GetEnvironmentVariable("MOONSHARP_PATH");
+			string env = Platform.Current.GetEnvironmentVariable("MOONSHARP_PATH");
 			if (!string.IsNullOrEmpty(env)) m_EnvironmentPaths = UnpackStringPaths(env);
 
 			if (m_EnvironmentPaths == null)
 			{
-				env = Environment.GetEnvironmentVariable("LUA_PATH");
+				env = Platform.Current.GetEnvironmentVariable("LUA_PATH");
 				if (!string.IsNullOrEmpty(env)) m_EnvironmentPaths = UnpackStringPaths(env);
 			}
 

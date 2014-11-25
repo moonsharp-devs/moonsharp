@@ -405,7 +405,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			DynValue s = v.Tuple.Length >= 2 ? v.Tuple[1] : DynValue.Nil;
 			DynValue var = v.Tuple.Length >= 3 ? v.Tuple[2] : DynValue.Nil;
 
-			// Moon# additions - given f, s, var
+			// MoonSharp additions - given f, s, var
 			// 1) if f is not a function and has a __iterator metamethod, call __iterator to get the triplet
 			// 2) if f is a table with no __call metamethod, use a default table iterator
 

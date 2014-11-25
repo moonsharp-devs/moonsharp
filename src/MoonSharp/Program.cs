@@ -32,7 +32,7 @@ namespace MoonSharp
 		[STAThread]
 		static void Main(string[] args)
 		{
-			Console.WriteLine("Moon# {0}\nCopyright (C) 2014 Marco Mastropaolo\nhttp://www.moonsharp.org",
+			Console.WriteLine("MoonSharp REPL {0}\nCopyright (C) 2014 Marco Mastropaolo\nhttp://www.moonsharp.org",
 				Assembly.GetAssembly(typeof(Script)).GetName().Version);
 
 			Console.WriteLine("Based on Lua 5.1 - 5.3, Copyright (C) 1994-2014 Lua.org");

@@ -63,6 +63,17 @@ namespace MoonSharp.Interpreter
 			return new ScriptRuntimeException("bad argument #{0} to '{1}' ({2})", argNum + 1, funcName, message);
 		}
 
+		public static ScriptRuntimeException BadArgumentUserData(int argNum, string funcName, Type expected, object got, bool allowNil)
+		{
+			return new ScriptRuntimeException("bad argument #{0} to '{1}' (userdata<{2}>{3} expected, got {4})", 
+				argNum + 1, 
+				funcName,
+				expected.Name,
+				allowNil ? "nil or " : "",
+				got != null ? "userdata<" + got.GetType().Name + ">" : "null"
+				);
+		}
+
 		public static ScriptRuntimeException BadArgument(int argNum, string funcName, DataType expected, DataType got, bool allowNil)
 		{
 			return BadArgument(argNum, funcName, expected.ToErrorTypeString(), got.ToErrorTypeString(), allowNil);
@@ -155,7 +166,7 @@ namespace MoonSharp.Interpreter
 
 		public static ScriptRuntimeException UserDataArgumentTypeMismatch(DataType t, Type clrType)
 		{
-			return new ScriptRuntimeException("cannot find a conversion from a moon# {0} to a clr {1}", t.ToString().ToLowerInvariant(), clrType.FullName);
+			return new ScriptRuntimeException("cannot find a conversion from a MoonSharp {0} to a clr {1}", t.ToString().ToLowerInvariant(), clrType.FullName);
 		}
 
 		public static ScriptRuntimeException UserDataMissingField(string typename, string fieldname)

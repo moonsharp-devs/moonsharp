@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MoonSharp.Interpreter.DataStructs;
 using MoonSharp.Interpreter.Execution;
 
 namespace MoonSharp.Interpreter
@@ -143,6 +144,20 @@ namespace MoonSharp.Interpreter
 		}
 
 		/// <summary>
+		/// Gets the specified argument as as an argument of the specified user data type. If not possible,
+		/// an exception is raised.
+		/// </summary>
+		/// <typeparam name="T">The desired userdata type</typeparam>
+		/// <param name="argNum">The argument number.</param>
+		/// <param name="funcName">Name of the function.</param>
+		/// <param name="allowNil">if set to <c>true</c> nil values are allowed.</param>
+		/// <returns></returns>
+		public T AsUserData<T>(int argNum, string funcName, bool allowNil = false)
+		{
+			return this[argNum].CheckUserDataType<T>(funcName, argNum, allowNil ? TypeValidationFlags.AllowNil : TypeValidationFlags.None);
+		}
+
+		/// <summary>
 		/// Gets the specified argument as an integer
 		/// </summary>
 		/// <param name="argNum">The argument number.</param>
@@ -183,5 +198,15 @@ namespace MoonSharp.Interpreter
 			}
 		}
 
+
+		public CallbackArguments SkipMethodCall()
+		{
+			if (this.IsMethodCall)
+			{
+				Slice<DynValue> slice = new Slice<DynValue>(m_Args, 1, m_Args.Count - 1, false);
+				return new CallbackArguments(slice, false);
+			}
+			else return this;
+		}
 	}
 }

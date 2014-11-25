@@ -26,6 +26,21 @@ namespace MoonSharp.Interpreter.CoreLib
 		[MoonSharpMethod]
 		public static DynValue load(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
+			return load_impl(executionContext, args, null);
+		}
+
+		// loadsafe (ld [, source [, mode [, env]]])
+		// ----------------------------------------------------------------
+		// Same as load, except that "env" defaults to the current environment of the function
+		// calling load, instead of the actual global environment.
+		[MoonSharpMethod]
+		public static DynValue loadsafe(ScriptExecutionContext executionContext, CallbackArguments args)
+		{
+			return load_impl(executionContext, args, GetSafeDefaultEnv(executionContext));
+		}
+
+		public static DynValue load_impl(ScriptExecutionContext executionContext, CallbackArguments args, Table defaultEnv)
+		{
 			try
 			{
 				Script S = executionContext.GetScript();
@@ -58,7 +73,7 @@ namespace MoonSharp.Interpreter.CoreLib
 				DynValue env = args.AsType(3, "load", DataType.Table, true);
 
 				DynValue fn = S.LoadString(script,
-					!env.IsNil() ? env.Table : null,
+					!env.IsNil() ? env.Table : defaultEnv,
 					!source.IsNil() ? source.String : "=(load)");
 
 				return fn;
@@ -76,13 +91,30 @@ namespace MoonSharp.Interpreter.CoreLib
 		[MoonSharpMethod]
 		public static DynValue loadfile(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
+			return loadfile_impl(executionContext, args, null);
+		}
+
+		// loadfile ([filename [, mode [, env]]])
+		// ----------------------------------------------------------------
+		// Same as loadfile, except that "env" defaults to the current environment of the function
+		// calling load, instead of the actual global environment.
+		[MoonSharpMethod]
+		public static DynValue loadfilesafe(ScriptExecutionContext executionContext, CallbackArguments args)
+		{
+			return loadfile_impl(executionContext, args, GetSafeDefaultEnv(executionContext));
+		}
+
+
+
+		private static DynValue loadfile_impl(ScriptExecutionContext executionContext, CallbackArguments args, Table defaultEnv)
+		{
 			try
 			{
 				Script S = executionContext.GetScript();
 				DynValue filename = args.AsType(0, "loadfile", DataType.String, false);
 				DynValue env = args.AsType(2, "loadfile", DataType.Table, true);
 
-				DynValue fn = S.LoadFile(filename.String, env.IsNil() ? null : env.Table);
+				DynValue fn = S.LoadFile(filename.String, env.IsNil() ? defaultEnv : env.Table);
 
 				return fn;
 			}
@@ -90,6 +122,17 @@ namespace MoonSharp.Interpreter.CoreLib
 			{
 				return DynValue.NewTuple(DynValue.Nil, DynValue.NewString(ex.Message));
 			}
+		}
+
+
+		private static Table GetSafeDefaultEnv(ScriptExecutionContext executionContext)
+		{
+			Table env = executionContext.CurrentGlobalEnv;
+
+			if (env == null)
+				throw new ScriptRuntimeException("current environment cannot be backtracked.");
+
+			return env;
 		}
 
 		//dofile ([filename])

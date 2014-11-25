@@ -4,8 +4,8 @@
 		<introduction>
       <para>This is the API reference for the MoonSharp.Interpreter assembly.</para>
       <para>To get started, please visit <externalLink>
-        <linkText>the Moon# homepage</linkText>
-        <linkAlternateText>Moon# homepage</linkAlternateText>
+        <linkText>the MoonSharp homepage</linkText>
+        <linkAlternateText>MoonSharp homepage</linkAlternateText>
         <linkUri>http://www.moonsharp.org</linkUri>
       </externalLink>.</para>
     </introduction>

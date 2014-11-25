@@ -7,7 +7,7 @@ using MoonSharp.Interpreter.Execution;
 namespace MoonSharp.Interpreter.CoreLib
 {
 	[MoonSharpModule(Namespace="bit32")]
-	public class MathModule
+	public class Bit32Module
 	{
 		static readonly uint[] BITS = new uint[] { 
 							0x1, 0x2, 0x4, 0x8,

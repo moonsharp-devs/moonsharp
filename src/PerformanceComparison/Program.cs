@@ -159,7 +159,7 @@ end
 			}
 			sw.Stop();
 
-			Console.WriteLine("Moon# : {0} ms", sw.ElapsedMilliseconds);
+			Console.WriteLine("MoonSharp : {0} ms", sw.ElapsedMilliseconds);
 
 
 			lua.RegisterFunction("print", typeof(Program).GetMethod("NPrint"));
@@ -183,7 +183,7 @@ end
 
 			Console.WriteLine("M# == NL ? {0}", g_MoonSharpStr.ToString() == g_NLuaStr.ToString());
 
-			Console.WriteLine("=== Moon# ===");
+			Console.WriteLine("=== MoonSharp ===");
 			//Console.WriteLine(g_MoonSharpStr.ToString());
 			Console.WriteLine("");
 			Console.WriteLine("=== NLua  ===");

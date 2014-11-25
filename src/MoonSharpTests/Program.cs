@@ -23,7 +23,7 @@ namespace MoonSharpTests
 			int fail = 0;
 			int total = 0;
 
-			Console.WriteLine("Moon# Test Suite Runner");
+			Console.WriteLine("MoonSharp Test Suite Runner");
 			Console.WriteLine("Copyright (C) 2014 Marco Mastropaolo [http://www.mastropaolo.com]");
 			Console.WriteLine("See : http://moonsharp.codeplex.com");
 			Console.WriteLine();

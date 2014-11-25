@@ -11,7 +11,7 @@ using MoonSharp.Interpreter.Execution.VM;
 namespace MoonSharp.Interpreter
 {
 	/// <summary>
-	/// A class representing a value in a Lua/Moon# script.
+	/// A class representing a value in a Lua/MoonSharp script.
 	/// </summary>
 	public sealed class DynValue
 	{
@@ -207,7 +207,7 @@ namespace MoonSharp.Interpreter
 		}
 
 		/// <summary>
-		/// Creates a new request for a tail call. This is the preferred way to execute Lua/Moon# code from a callback,
+		/// Creates a new request for a tail call. This is the preferred way to execute Lua/MoonSharp code from a callback,
 		/// although it's not always possible to use it. When a function (callback or script closure) returns a
 		/// TailCallRequest, the bytecode processor immediately executes the function contained in the request.
 		/// By executing script in this way, a callback function ensures it's not on the stack anymore and thus a number
@@ -230,7 +230,7 @@ namespace MoonSharp.Interpreter
 		}
 
 		/// <summary>
-		/// Creates a new request for a tail call. This is the preferred way to execute Lua/Moon# code from a callback,
+		/// Creates a new request for a tail call. This is the preferred way to execute Lua/MoonSharp code from a callback,
 		/// although it's not always possible to use it. When a function (callback or script closure) returns a
 		/// TailCallRequest, the bytecode processor immediately executes the function contained in the request.
 		/// By executing script in this way, a callback function ensures it's not on the stack anymore and thus a number
@@ -735,7 +735,7 @@ namespace MoonSharp.Interpreter
 		}
 
 		/// <summary>
-		/// Converts this Moon# DynValue to a CLR object.
+		/// Converts this MoonSharp DynValue to a CLR object.
 		/// </summary>
 		public object ToObject()
 		{
@@ -743,7 +743,7 @@ namespace MoonSharp.Interpreter
 		}
 
 		/// <summary>
-		/// Converts this Moon# DynValue to a CLR object of the specified type.
+		/// Converts this MoonSharp DynValue to a CLR object of the specified type.
 		/// </summary>
 		public T ToObject<T>()
 		{
@@ -799,6 +799,29 @@ namespace MoonSharp.Interpreter
 				throw ScriptRuntimeException.BadArgumentNoValue(argNum, funcName, desiredType);
 
 			throw ScriptRuntimeException.BadArgument(argNum, funcName, desiredType, this.Type, allowNil);
+		}
+
+		/// <summary>
+		/// Checks if the type is a specific userdata type, and returns it or throws.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="funcName">Name of the function.</param>
+		/// <param name="argNum">The argument number.</param>
+		/// <param name="flags">The flags.</param>
+		/// <returns></returns>
+		public T CheckUserDataType<T>(string funcName, int argNum = -1, TypeValidationFlags flags = TypeValidationFlags.Default)
+		{
+			DynValue v = this.CheckType(funcName, DataType.UserData, argNum, flags);
+			bool allowNil = ((int)(flags & TypeValidationFlags.AllowNil) != 0);
+
+			if (v.IsNil())
+				return default(T);
+
+			object o = v.UserData.Object;
+			if (o != null && o is T)
+				return (T)o;
+
+			throw ScriptRuntimeException.BadArgumentUserData(argNum, funcName, typeof(T), o, allowNil);
 		}
 
 
