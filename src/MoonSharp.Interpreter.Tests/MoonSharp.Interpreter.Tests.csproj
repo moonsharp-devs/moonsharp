@@ -96,6 +96,7 @@
     <Compile Include="EndToEnd\TableTests.cs" />
     <Compile Include="TestMore\TapRunner.cs" />
     <Compile Include="TestMore\TestMoreTests.cs" />
+    <Compile Include="TestRunner.cs" />
     <Compile Include="Units\FastStackTests.cs" />
     <Compile Include="Units\InteropTests.cs" />
   </ItemGroup>

@@ -42,8 +42,7 @@ namespace MoonSharp.Interpreter.RuntimeAbstraction
 			}
 
 			System.Diagnostics.Debug.WriteLine(string.Format("MoonSharp {0} running over {1}.",
-				Assembly.GetExecutingAssembly().GetName().Version,
-				s_Current.Name));
+				Script.VERSION, s_Current.Name));
 		}
 
 

@@ -32,9 +32,15 @@ namespace MoonSharp.Interpreter.Tests
 			S.DebugPrint = Print;
 			S.Globals.Set("arg", DynValue.NewTable(S));
 
-			var L = new ClassicLuaScriptLoader();
+			ClassicLuaScriptLoader L = S.ScriptLoader as ClassicLuaScriptLoader;
+
+			if (L == null)
+			{
+				L = new ClassicLuaScriptLoader();
+				S.ScriptLoader = L;
+			}
+
 			L.ModulePaths = L.UnpackStringPaths("TestMore/Modules/?;TestMore/Modules/?.lua");
-			S.ScriptLoader = L;
 			S.DoFile(m_File);
 		}
 

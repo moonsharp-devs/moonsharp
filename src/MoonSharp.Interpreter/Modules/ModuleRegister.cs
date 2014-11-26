@@ -6,6 +6,7 @@ using System.Text;
 using MoonSharp.Interpreter.CoreLib;
 using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Interop;
+using MoonSharp.Interpreter.RuntimeAbstraction;
 
 namespace MoonSharp.Interpreter
 {
@@ -37,10 +38,16 @@ namespace MoonSharp.Interpreter
 
 		public static Table RegisterConstants(this Table table)
 		{
+			DynValue moonsharp_table = DynValue.NewTable(table.OwnerScript);
+			Table m = moonsharp_table.Table;
+
 			table.Set("_G", DynValue.NewTable(table));
-			table.Set("_VERSION", DynValue.NewString(string.Format("MoonSharp {0}", 
-				Assembly.GetExecutingAssembly().GetName().Version)));
-			table.Set("_MOONSHARP", DynValue.NewString(Assembly.GetExecutingAssembly().GetName().Version.ToString()));
+			table.Set("_VERSION", DynValue.NewString(string.Format("MoonSharp {0}", Script.VERSION)));
+			table.Set("_MOONSHARP", moonsharp_table);
+
+			m.Set("version", DynValue.NewString(Script.VERSION));
+			m.Set("luacompat", DynValue.NewString(Script.LUA_VERSION));
+			m.Set("platform", DynValue.NewString(Platform.Current.Name));
 
 			return table;
 		}

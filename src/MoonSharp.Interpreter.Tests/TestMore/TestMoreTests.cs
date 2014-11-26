@@ -256,6 +256,7 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
+		[Ignore]
 		public void TestMore_309_os()
 		{
 			TapRunner.Run(@"TestMore\309-os.t");

@@ -23,6 +23,9 @@ namespace MoonSharp.Interpreter
 	/// </summary>
 	public class Script
 	{
+		public const string VERSION = "0.7.0.99";
+		public const string LUA_VERSION = "5.2";
+
 		Processor m_MainProcessor = null;
 		ByteCode m_ByteCode;
 		List<SourceCode> m_Sources = new List<SourceCode>();
@@ -177,20 +180,9 @@ namespace MoonSharp.Interpreter
 		{
 			filename = m_ScriptLoader.ResolveFileName(filename, globalContext ?? m_GlobalTable);
 
-			return LoadResolvedFile(filename, globalContext);
+			return LoadString(m_ScriptLoader.LoadFile(filename, globalContext ?? m_GlobalTable), globalContext, filename);
 		}
 
-		private DynValue LoadResolvedFile(string filename, Table globalContext)
-		{
-			if (m_ScriptLoader.HasCustomFileLoading())
-			{
-				return LoadString(m_ScriptLoader.LoadFile(filename, globalContext ?? m_GlobalTable), globalContext, filename);
-			}
-			else
-			{
-				return LoadString(File.ReadAllText(filename), globalContext, filename);
-			}
-		}
 
 		/// <summary>
 		/// Loads and executes a string containing a Lua/MoonSharp script.
@@ -430,7 +422,7 @@ namespace MoonSharp.Interpreter
 			if (filename == null)
 				throw new ScriptRuntimeException("module '{0}' not found", modname);
 
-			DynValue func = LoadResolvedFile(filename, globalContext);
+			DynValue func = LoadString(m_ScriptLoader.LoadFile(filename, globalContext), globalContext, filename);
 			return func;
 		}
 

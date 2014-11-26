@@ -15,41 +15,14 @@ namespace MoonSharpTests
 {
 	class Program
 	{
-		public const string RESTRICT_TEST = null;//"LoopWithReturn";
+		public const string RESTRICT_TEST = null;
 
 		static void Main(string[] args)
 		{
-			int ok = 0;
-			int fail = 0;
-			int total = 0;
+			TestRunner T = new TestRunner(Log);
 
-			Console.WriteLine("MoonSharp Test Suite Runner");
-			Console.WriteLine("Copyright (C) 2014 Marco Mastropaolo [http://www.mastropaolo.com]");
-			Console.WriteLine("See : http://moonsharp.codeplex.com");
-			Console.WriteLine();
+			T.Test(RESTRICT_TEST);
 
-			Assembly asm = Assembly.GetAssembly(typeof(SimpleTests));
-
-			foreach (Type t in asm.GetTypes().Where(t => t.GetCustomAttributes(typeof(TestFixtureAttribute), true).Any()))
-			{
-				foreach (MethodInfo mi in t.GetMethods().Where(m => m.GetCustomAttributes(typeof(TestAttribute), true).Any()))
-				{
-					if (RESTRICT_TEST != null && mi.Name != RESTRICT_TEST)
-						continue;
-
-					if (RunTest(t, mi))
-						++ok;
-					else
-						++fail;
-					++total;
-				}
-			}
-
-			Console.WriteLine("");
-
-			Console.WriteLine("OK : {0}/{2}, Failed {1}/{2}", ok, fail, total);
-
-			
 			if (Debugger.IsAttached)
 			{
 				Console.WriteLine("Press any key...");
@@ -57,22 +30,30 @@ namespace MoonSharpTests
 			}
 		}
 
-		private static bool RunTest(Type t, MethodInfo mi)
+		private static void Log(TestResult r)
 		{
-			Console.Write("{0}...", mi.Name);
-
-			try
+			if (r.Type == TestResultType.Fail)
 			{
-				object o = Activator.CreateInstance(t);
-				mi.Invoke(o, new object[0]);
-				Console.WriteLine(" ok ");
-				return true;
+				Console.ForegroundColor = ConsoleColor.Red;
+				Console.WriteLine("{0} - {1}", r.TestName, r.Message);
 			}
-			catch (Exception ex)
+			else if (r.Type == TestResultType.Ok)
 			{
-				Console.WriteLine(" failed - {0}", ex.InnerException.Message);
-				return false;
+				Console.ForegroundColor = ConsoleColor.DarkGreen;
+				Console.WriteLine("{0} - {1}", r.TestName, r.Message);
+			}
+			else if (r.Type == TestResultType.Skipped)
+			{
+				Console.ForegroundColor = ConsoleColor.Yellow;
+				Console.WriteLine("{0} - {1}", r.TestName, r.Message);
+			}
+			else
+			{
+				Console.ForegroundColor = ConsoleColor.Gray;
+				Console.WriteLine("{0}", r.Message);
 			}
 		}
+
+
 	}
 }

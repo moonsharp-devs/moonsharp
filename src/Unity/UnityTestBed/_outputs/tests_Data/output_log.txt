@@ -1,0 +1,27 @@
+Initialize engine version: 4.5.5f1 (7684ad0c5a44)
+GfxDevice: creating device client; threaded=1
+Direct3D:
+    Version:  Direct3D 11.0 [level 11.0]
+    Renderer: NVIDIA NVS 4200M    (ID=0x1056)
+    Vendor:   NVIDIA
+    VRAM:     460 MB
+Begin MonoManager ReloadAssembly
+Platform assembly: C:\git\moonsharp\src\Unity\UnityTestBed\_outputs\tests_Data\Managed\UnityEngine.dll (this message is harmless)
+Loading C:\git\moonsharp\src\Unity\UnityTestBed\_outputs\tests_Data\Managed\UnityEngine.dll into Unity Child Domain
+Platform assembly: C:\git\moonsharp\src\Unity\UnityTestBed\_outputs\tests_Data\Managed\Assembly-CSharp.dll (this message is harmless)
+Loading C:\git\moonsharp\src\Unity\UnityTestBed\_outputs\tests_Data\Managed\Assembly-CSharp.dll into Unity Child Domain
+Platform assembly: C:\git\moonsharp\src\Unity\UnityTestBed\_outputs\tests_Data\Managed\Antlr4.Runtime.net35.dll (this message is harmless)
+Loading C:\git\moonsharp\src\Unity\UnityTestBed\_outputs\tests_Data\Managed\Antlr4.Runtime.net35.dll into Unity Child Domain
+Platform assembly: C:\git\moonsharp\src\Unity\UnityTestBed\_outputs\tests_Data\Managed\nunit.framework.dll (this message is harmless)
+Loading C:\git\moonsharp\src\Unity\UnityTestBed\_outputs\tests_Data\Managed\nunit.framework.dll into Unity Child Domain
+Platform assembly: C:\git\moonsharp\src\Unity\UnityTestBed\_outputs\tests_Data\Managed\MoonSharp.Interpreter.dll (this message is harmless)
+Loading C:\git\moonsharp\src\Unity\UnityTestBed\_outputs\tests_Data\Managed\MoonSharp.Interpreter.dll into Unity Child Domain
+Platform assembly: C:\git\moonsharp\src\Unity\UnityTestBed\_outputs\tests_Data\Managed\MoonSharp.Interpreter.Tests.dll (this message is harmless)
+Loading C:\git\moonsharp\src\Unity\UnityTestBed\_outputs\tests_Data\Managed\MoonSharp.Interpreter.Tests.dll into Unity Child Domain
+- Completed reload, in  0.053 seconds
+desktop: 1680x1050 60Hz; virtual: 4240x1050 at -1280,0
+<RI> Initializing input.
+<RI> Input initialized.
+Platform assembly: C:\git\moonsharp\src\Unity\UnityTestBed\_outputs\tests_Data\Managed\System.Core.dll (this message is harmless)
+Platform assembly: C:\git\moonsharp\src\Unity\UnityTestBed\_outputs\tests_Data\Managed\System.dll (this message is harmless)
+Platform assembly: C:\git\moonsharp\src\Unity\UnityTestBed\_outputs\tests_Data\Managed\System.Xml.dll (this message is harmless)
