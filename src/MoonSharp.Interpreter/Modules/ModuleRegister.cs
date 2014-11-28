@@ -14,22 +14,24 @@ namespace MoonSharp.Interpreter
 	{
 		public static Table RegisterCoreModules(this Table table, CoreModules modules)
 		{
+			modules = Platform.Current.FilterSupportedCoreModules(modules);
+
 			if (modules.Has(CoreModules.GlobalConsts)) RegisterConstants(table);
-			if (modules.Has(CoreModules.TableIterators)) RegisterModuleType<TableIterators>(table);
-			if (modules.Has(CoreModules.Basic)) RegisterModuleType<BasicMethods>(table);
-			if (modules.Has(CoreModules.Metatables)) RegisterModuleType<MetaTableMethods>(table);
+			if (modules.Has(CoreModules.TableIterators)) RegisterModuleType<TableIteratorsModule>(table);
+			if (modules.Has(CoreModules.Basic)) RegisterModuleType<BasicModule>(table);
+			if (modules.Has(CoreModules.Metatables)) RegisterModuleType<MetaTableModule>(table);
 			if (modules.Has(CoreModules.String)) RegisterModuleType<StringModule>(table);
-			if (modules.Has(CoreModules.LoadMethods)) RegisterModuleType<LoadMethods>(table);
+			if (modules.Has(CoreModules.LoadMethods)) RegisterModuleType<LoadModule>(table);
 			if (modules.Has(CoreModules.Table)) RegisterModuleType<TableModule>(table);
 			if (modules.Has(CoreModules.Table)) RegisterModuleType<TableModule_Globals>(table);
-			if (modules.Has(CoreModules.ErrorHandling)) RegisterModuleType<ErrorHandling>(table);
+			if (modules.Has(CoreModules.ErrorHandling)) RegisterModuleType<ErrorHandlingModule>(table);
 			if (modules.Has(CoreModules.Math)) RegisterModuleType<MathModule>(table);
-			if (modules.Has(CoreModules.Coroutine)) RegisterModuleType<CoroutineMethods>(table);
+			if (modules.Has(CoreModules.Coroutine)) RegisterModuleType<CoroutineModule>(table);
 			if (modules.Has(CoreModules.Bit32)) RegisterModuleType<Bit32Module>(table);
 			if (modules.Has(CoreModules.Dynamic)) RegisterModuleType<DynamicModule>(table);
-			if (modules.Has(CoreModules.OS_System)) RegisterModuleType<OsSystemMethods>(table);
-			if (modules.Has(CoreModules.OS_Time)) RegisterModuleType<OsTimeMethods>(table);
-			if (modules.Has(CoreModules.IO)) RegisterModuleType<IoMethods>(table);
+			if (modules.Has(CoreModules.OS_System)) RegisterModuleType<OsSystemModule>(table);
+			if (modules.Has(CoreModules.OS_Time)) RegisterModuleType<OsTimeModule>(table);
+			if (modules.Has(CoreModules.IO)) RegisterModuleType<IoModule>(table);
 
 			return table;
 		}

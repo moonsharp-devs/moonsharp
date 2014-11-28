@@ -23,7 +23,14 @@ namespace MoonSharp.Interpreter
 	/// </summary>
 	public class Script
 	{
+		/// <summary>
+		/// The version of the MoonSharp engine
+		/// </summary>
 		public const string VERSION = "0.7.0.99";
+
+		/// <summary>
+		/// The Lua version being supported
+		/// </summary>
 		public const string LUA_VERSION = "5.2";
 
 		Processor m_MainProcessor = null;
@@ -33,8 +40,6 @@ namespace MoonSharp.Interpreter
 		IDebugger m_Debugger;
 		IScriptLoader m_ScriptLoader = DefaultScriptLoader;
 		Table[] m_TypeMetatables = new Table[(int)LuaTypeExtensions.MaxMetaTypes];
-
-
 	
 		static Script()
 		{
@@ -60,6 +65,8 @@ namespace MoonSharp.Interpreter
 			Registry = new Table(this);
 
 			DebugPrint = s => { Console.WriteLine(s); };
+			DebugInput = () => { return Console.ReadLine(); };
+
 			m_ByteCode = new ByteCode();
 			m_GlobalTable = new Table(this).RegisterCoreModules(coreModules);
 			m_MainProcessor = new Processor(this, m_GlobalTable, m_ByteCode);
@@ -175,12 +182,15 @@ namespace MoonSharp.Interpreter
 		/// </summary>
 		/// <param name="filename">The code.</param>
 		/// <param name="globalContext">The global table to bind to this chunk.</param>
-		/// <returns>A DynValue containing a function which will execute the loaded code.</returns>
-		public DynValue LoadFile(string filename, Table globalContext = null)
+		/// <param name="friendlyFilename">The filename to be used in error messages.</param>
+		/// <returns>
+		/// A DynValue containing a function which will execute the loaded code.
+		/// </returns>
+		public DynValue LoadFile(string filename, Table globalContext = null, string friendlyFilename = null)
 		{
 			filename = m_ScriptLoader.ResolveFileName(filename, globalContext ?? m_GlobalTable);
 
-			return LoadString(m_ScriptLoader.LoadFile(filename, globalContext ?? m_GlobalTable), globalContext, filename);
+			return LoadString(m_ScriptLoader.LoadFile(filename, globalContext ?? m_GlobalTable), globalContext, friendlyFilename ?? filename);
 		}
 
 
@@ -477,6 +487,11 @@ namespace MoonSharp.Interpreter
 		/// Gets or sets the debug print handler
 		/// </summary>
 		public Action<string> DebugPrint { get; set; }
+
+		/// <summary>
+		/// Gets or sets the debug input handler
+		/// </summary>
+		public Func<string> DebugInput { get; set; }
 
 
 		/// <summary>

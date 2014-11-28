@@ -9,7 +9,7 @@ using MoonSharp.Interpreter.Execution.VM;
 namespace MoonSharp.Interpreter.CoreLib
 {
 	[MoonSharpModule(Namespace = "coroutine")]
-	public class CoroutineMethods
+	public class CoroutineModule
 	{
 		[MoonSharpMethod]
 		public static DynValue create(ScriptExecutionContext executionContext, CallbackArguments args)

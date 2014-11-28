@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MoonSharp.Interpreter.RuntimeAbstraction;
 using NUnit.Framework;
 
 namespace MoonSharp.Interpreter.Tests
@@ -139,19 +140,19 @@ namespace MoonSharp.Interpreter.Tests
 		}
 
 
-		[Test]
-		[Ignore] // Failing because of handling of syntax error messages + goto/labels not implemented
-		public void TestMore_203_lexico()
-		{
-			TapRunner.Run(@"TestMore\203-lexico.t");
-		}
+		//[Test]
+		//[Ignore] // Failing because of handling of syntax error messages + goto/labels not implemented
+		//public void TestMore_203_lexico()
+		//{
+		//	TapRunner.Run(@"TestMore\203-lexico.t");
+		//}
 
-		[Test]
-		[Ignore] // Failing because of handling of syntax error messages
-		public void TestMore_204_grammar()
-		{
-			TapRunner.Run(@"TestMore\204-grammar.t");
-		}
+		//[Test]
+		//[Ignore] // Failing because of handling of syntax error messages
+		//public void TestMore_204_grammar()
+		//{
+		//	TapRunner.Run(@"TestMore\204-grammar.t");
+		//}
 
 		[Test]
 		public void TestMore_211_scope()
@@ -248,28 +249,31 @@ namespace MoonSharp.Interpreter.Tests
 		}
 
 		[Test]
-		[Ignore]
 		public void TestMore_308_io()
 		{
+			if (!Platform.Current.AreCoreModulesFullySupported(CoreModules.OS_System | CoreModules.IO))
+				throw new SkipThisTestException();
+
 			TapRunner.Run(@"TestMore\308-io.t");
 		}
 
 
 		[Test]
-		[Ignore]
 		public void TestMore_309_os()
 		{
+			if (!Platform.Current.AreCoreModulesFullySupported(CoreModules.OS_System | CoreModules.IO))
+				throw new SkipThisTestException();
+
 			TapRunner.Run(@"TestMore\309-os.t");
 		}
 
 
-		// Commented : we will likely NEVER support this!
-		//[Test]
-		//[Ignore]
-		//public void TestMore_310_debug()
-		//{
-		//	TapRunner.Run(@"TestMore\310-debug.t");
-		//}
+		[Test]
+		[Ignore]
+		public void TestMore_310_debug()
+		{
+			TapRunner.Run(@"TestMore\310-debug.t");
+		}
 
 
 		[Test]
@@ -278,12 +282,12 @@ namespace MoonSharp.Interpreter.Tests
 			TapRunner.Run(@"TestMore\314-regex.t");
 		}
 
-		[Test]
-		[Ignore]
-		public void TestMore_320_stdin()
-		{
-			TapRunner.Run(@"TestMore\310-stdin.t");
-		}
+		//[Test]
+		//[Ignore]
+		//public void TestMore_320_stdin()
+		//{
+		//	TapRunner.Run(@"TestMore\310-stdin.t");
+		//}
 
 	}
 }

@@ -24,6 +24,7 @@ namespace MoonSharp.Interpreter.Tests
 		public TestResultType Type;
 	}
 
+	internal class SkipThisTestException : Exception { }
 
 	public class TestRunner
 	{
@@ -129,6 +130,16 @@ namespace MoonSharp.Interpreter.Tests
 			catch (TargetInvocationException tiex)
 			{
 				Exception ex = tiex.InnerException;
+
+				if (ex is SkipThisTestException)
+				{
+					return new TestResult()
+					{
+						TestName = mi.Name,
+						Message = "skipped",
+						Type = TestResultType.Skipped
+					};
+				}
 
 				if (expectedEx != null && expectedEx.ExpectedException.IsInstanceOfType(ex))
 				{

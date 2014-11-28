@@ -13,15 +13,17 @@ namespace MoonSharp.Interpreter.Interop
 		internal string Name { get; private set; }
 		internal Type Type { get; private set; }
 		internal InteropAccessMode AccessMode { get; private set; }
+		internal string FriendlyName { get; private set; }
 
 		private Dictionary<string, UserDataMethodDescriptor> m_Methods = new Dictionary<string, UserDataMethodDescriptor>();
 		private Dictionary<string, UserDataPropertyDescriptor> m_Properties = new Dictionary<string, UserDataPropertyDescriptor>();
 
-		internal UserDataDescriptor(Type type, InteropAccessMode accessMode)
+		internal UserDataDescriptor(Type type, InteropAccessMode accessMode, string friendlyName)
 		{
 			Type = type;
 			Name = type.FullName;
 			AccessMode = accessMode;
+			FriendlyName = friendlyName;
 
 			if (AccessMode != InteropAccessMode.HideMembers)
 			{

@@ -135,6 +135,30 @@ namespace MoonSharp.Interpreter
 		}
 
 		/// <summary>
+		/// Creates a new writable value initialized to the specified StringBuilder.
+		/// </summary>
+		public static DynValue NewString(StringBuilder sb)
+		{
+			return new DynValue()
+			{
+				m_Object = sb.ToString(),
+				m_Type = DataType.String,
+			};
+		}
+
+		/// <summary>
+		/// Creates a new writable value initialized to the specified string using String.Format like syntax
+		/// </summary>
+		public static DynValue NewString(string format, params object[] args)
+		{
+			return new DynValue()
+			{
+				m_Object = string.Format(format, args),
+				m_Type = DataType.String,
+			};
+		}
+
+		/// <summary>
 		/// Creates a new writable value initialized to the specified coroutine.
 		/// Internal use only, for external use, see Script.CoroutineCreate
 		/// </summary>
@@ -396,7 +420,18 @@ namespace MoonSharp.Interpreter
 			if (this.m_Object != null && this.m_Object is RefIdObject)
 			{
 				RefIdObject refid = (RefIdObject)m_Object;
-				return refid.FormatTypeString(this.Type);
+
+				string typeString = this.Type.ToLuaTypeString();
+
+				if (m_Object is UserData)
+				{
+					UserData ud = (UserData)m_Object;
+
+					if (ud.Object != null)
+						return ud.Object.ToString();
+				}
+
+				return refid.FormatTypeString(typeString);
 			}
 
 			switch (Type)

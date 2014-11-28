@@ -8,7 +8,7 @@ using MoonSharp.Interpreter.Execution;
 namespace MoonSharp.Interpreter.CoreLib
 {
 	[MoonSharpModule(Namespace = "io")]
-	public class IoMethods
+	public class IoModule
 	{
 		enum DefaultFiles
 		{
@@ -17,15 +17,36 @@ namespace MoonSharp.Interpreter.CoreLib
 			Err
 		}
 
-		public static void MoonSharpInit(Table globalTable, Table stringTable)
+		public static void MoonSharpInit(Table globalTable, Table ioTable)
 		{
-			UserData.RegisterType<FileUserDataBase>();
+			UserData.RegisterType<FileUserDataBase>(InteropAccessMode.Default, "file");
+
+			Table meta = new Table(ioTable.OwnerScript);
+			DynValue __index = DynValue.NewCallback(new CallbackFunction(__index_callback));
+			meta.Set("__index", __index);
+			ioTable.MetaTable = meta;
+
+			stdin = new StdinFileUserData();
+			stdout = new StdoutFileUserData();
+			stderr = new StderrFileUserData();
+		}
+
+		private static DynValue __index_callback(ScriptExecutionContext executionContext, CallbackArguments args)
+		{
+			string name = args[1].CastToString();
+
+			if (name == "stdin")
+				return UserData.Create(stdin);
+			else if (name == "stdout")
+				return UserData.Create(stdout);
+			else if (name == "stderr")
+				return UserData.Create(stderr);
+			else
+				return DynValue.Nil;
 		}
 
 		static FileUserDataBase stdin;
-
 		static FileUserDataBase stdout;
-
 		static FileUserDataBase stderr;
 
 		static FileUserDataBase GetDefaultFile(ScriptExecutionContext executionContext, DefaultFiles file)
@@ -59,15 +80,14 @@ namespace MoonSharp.Interpreter.CoreLib
 			Table R = executionContext.GetScript().Registry;
 			R.Set("853BEAAF298648839E2C99D005E1DF94_" + file.ToString(), UserData.Create(fileHandle));
 		}
-		
+
 
 
 		[MoonSharpMethod]
 		public static DynValue close(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			FileUserDataBase outp = args.AsUserData<FileUserDataBase>(0, "close", true) ?? GetDefaultFile(executionContext, DefaultFiles.Out);
-			outp.close();
-			return DynValue.Void;
+			return outp.close(executionContext, args);
 		}
 
 		[MoonSharpMethod]
@@ -75,7 +95,7 @@ namespace MoonSharp.Interpreter.CoreLib
 		{
 			FileUserDataBase outp = args.AsUserData<FileUserDataBase>(0, "close", true) ?? GetDefaultFile(executionContext, DefaultFiles.Out);
 			outp.flush();
-			return DynValue.Void;
+			return DynValue.True;
 		}
 
 
@@ -93,7 +113,7 @@ namespace MoonSharp.Interpreter.CoreLib
 
 		private static DynValue HandleDefaultStreamSetter(ScriptExecutionContext executionContext, CallbackArguments args, DefaultFiles defaultFiles)
 		{
-			if (args.Count == 0)
+			if (args.Count == 0 || args[0].IsNil())
 			{
 				var file = GetDefaultFile(executionContext, defaultFiles);
 				return UserData.Create(file);
@@ -104,16 +124,21 @@ namespace MoonSharp.Interpreter.CoreLib
 			if (args[0].Type == DataType.String || args[0].Type == DataType.Number)
 			{
 				string fileName = args[0].CastToString();
-				inp = Open(fileName, Encoding.UTF8, "w");
+				inp = Open(fileName, GetUTF8Encoding(), defaultFiles == DefaultFiles.In ? "r" : "w");
 			}
 			else
 			{
-				inp = args.AsUserData<FileUserDataBase>(0, "input", false);
+				inp = args.AsUserData<FileUserDataBase>(0, defaultFiles == DefaultFiles.In ? "input" : "output", false);
 			}
 
 			SetDefaultFile(executionContext, defaultFiles, inp);
 
 			return UserData.Create(inp);
+		}
+
+		private static Encoding GetUTF8Encoding()
+		{
+			return new System.Text.UTF8Encoding(false); 
 		}
 
 		[MoonSharpMethod]
@@ -123,17 +148,27 @@ namespace MoonSharp.Interpreter.CoreLib
 
 			try
 			{
-				string[] readLines = System.IO.File.ReadAllLines(filename);
+				List<DynValue> readLines = new List<DynValue>();
 
-				IEnumerable<DynValue> retLines = readLines
-					.Select(s => DynValue.NewString(s))
-					.Concat(new DynValue[] { DynValue.Nil });
+				using (var stream = new System.IO.FileStream(filename, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.ReadWrite | System.IO.FileShare.Delete))
+				{
+					using (var reader = new System.IO.StreamReader(stream))
+					{
+						while (!reader.EndOfStream)
+						{
+							string line = reader.ReadLine();
+							readLines.Add(DynValue.NewString(line));
+						}
+					}
+				}
 
-				return DynValue.FromObject(executionContext.GetScript(), retLines);
+				readLines.Add(DynValue.Nil);
+
+				return DynValue.FromObject(executionContext.GetScript(), readLines.Select(s => s));
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
-				throw new ScriptRuntimeException(ex);
+				throw new ScriptRuntimeException(IoExceptionToLuaMessage(ex, filename));
 			}
 		}
 
@@ -145,30 +180,61 @@ namespace MoonSharp.Interpreter.CoreLib
 			DynValue vencoding = args.AsType(2, "open", DataType.String, true);
 
 			string mode = vmode.IsNil() ? "r" : vmode.String;
-			string encoding = vencoding.IsNil() ? null : vencoding.String;
 
-			// list of codes: http://msdn.microsoft.com/en-us/library/vstudio/system.text.encoding%28v=vs.90%29.aspx.
-			// In addition, "binary" is available.
-			Encoding e = null;
-			bool isBinary = mode.Contains('b');
+			string invalidChars = mode.Replace("+", "")
+				.Replace("r", "")
+				.Replace("a", "")
+				.Replace("w", "")
+				.Replace("b", "")
+				.Replace("t", "");
 
-			if (encoding == "binary")
+			if (invalidChars.Length > 0)
+				throw ScriptRuntimeException.BadArgument(1, "open", "invalid mode");
+
+
+			try
 			{
-				isBinary = true;
+				string encoding = vencoding.IsNil() ? null : vencoding.String;
+
+				// list of codes: http://msdn.microsoft.com/en-us/library/vstudio/system.text.encoding%28v=vs.90%29.aspx.
+				// In addition, "binary" is available.
+				Encoding e = null;
+				bool isBinary = mode.Contains('b');
+
+				if (encoding == "binary")
+				{
+					isBinary = true;
+					e = new BinaryEncoding();
+				}
+				else if (encoding == null)
+				{
+					if (!isBinary) e = GetUTF8Encoding();
+					else e = new BinaryEncoding();
+				}
+				else
+				{
+					if (isBinary)
+						throw new ScriptRuntimeException("Can't specify encodings other than nil or 'binary' for binary streams.");
+
+					e = Encoding.GetEncoding(encoding);
+				}
+
+				return UserData.Create(Open(filename, e, mode));
 			}
-			else if (encoding == null)
+			catch (Exception ex)
 			{
-				if (!isBinary) e = Encoding.UTF8;
+				return DynValue.NewTuple(DynValue.Nil,
+					DynValue.NewString(IoExceptionToLuaMessage(ex, filename)));
 			}
+
+		}
+
+		public static string IoExceptionToLuaMessage(Exception ex, string filename)
+		{
+			if (ex is System.IO.FileNotFoundException)
+				return string.Format("{0}: No such file or directory", filename);
 			else
-			{
-				if (isBinary)
-					throw new ScriptRuntimeException("Can't specify encodings other than nil or 'binary' for binary streams.");
-
-				e = Encoding.GetEncoding(encoding);
-			}
-
-			return UserData.Create(Open(filename, e, mode));
+				return ex.Message;
 		}
 
 		[MoonSharpMethod]
@@ -204,7 +270,7 @@ namespace MoonSharp.Interpreter.CoreLib
 		[MoonSharpMethod]
 		public static DynValue tmpfile(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
-			FileUserDataBase file = Open(System.IO.Path.GetTempFileName(), Encoding.UTF8, "w");
+			FileUserDataBase file = Open(System.IO.Path.GetTempFileName(), GetUTF8Encoding(), "w");
 			return UserData.Create(file);
 		}
 

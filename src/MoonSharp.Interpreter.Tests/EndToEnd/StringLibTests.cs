@@ -225,5 +225,38 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			";
 			DynValue res = Script.RunString(script);
 		}
+
+		[Test]
+		public void String_GSub_3()
+		{
+			Script S = new Script();
+			S.Globals["a"] = @"                  'C:\temp\test.lua:68: bad argument #1 to 'date' (invalid conversion specifier '%Ja')'
+    doesn't match '^[^:]+:%d+: bad argument #1 to 'date' %(invalid conversion specifier '%%Ja'%)'";
+
+			string script = @"
+				string.gsub(a, '\n', '\n #')
+			";
+			DynValue res = S.DoString(script);
+		}
+
+		[Test]
+		public void String_Match_1()
+		{
+			string s = @"test.lua:185: field 'day' missing in date table";
+			string p = @"^[^:]+:%d+: field 'day' missing in date table";
+
+			TestMatch(s, p, true);
+		}
+
+		private void TestMatch(string s, string p, bool expected)
+		{
+			Script S = new Script(CoreModules.String);
+			S.Globals["s"] = s;
+			S.Globals["p"] = p;
+			DynValue res = S.DoString("return string.match(s, p)");
+
+			Assert.AreEqual(expected, !res.IsNil());
+		}
+
 	}
 }

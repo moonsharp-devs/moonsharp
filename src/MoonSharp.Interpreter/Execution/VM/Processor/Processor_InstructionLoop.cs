@@ -582,6 +582,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 					BasePointer = m_ValueStack.Count,
 					ReturnAddress = instructionPtr,
 					Debug_EntryPoint = fn.Function.EntryPointByteCodeLocation,
+					CallingSourceRef =  m_RootChunk.Code[instructionPtr].SourceCodeRef,
 					ClosureScope = fn.Function.ClosureContext,
 					ErrorHandler = handler,
 					Continuation = continuation

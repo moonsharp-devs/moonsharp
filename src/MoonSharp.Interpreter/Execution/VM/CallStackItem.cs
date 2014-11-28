@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MoonSharp.Interpreter.Debugging;
 
 namespace MoonSharp.Interpreter.Execution.VM
 {
@@ -9,6 +10,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 	{
 		public int Debug_EntryPoint;
 		public SymbolRef[] Debug_Symbols;
+
+		public SourceRef CallingSourceRef;
 
 		public CallbackFunction Continuation;
 		public CallbackFunction ErrorHandler;

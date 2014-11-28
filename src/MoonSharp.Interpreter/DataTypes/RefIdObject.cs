@@ -13,9 +13,9 @@ namespace MoonSharp.Interpreter
 		public int ReferenceID { get { return m_RefID; } }
 
 
-		public string FormatTypeString(DataType t)
+		public string FormatTypeString(string typeString)
 		{
-			return string.Format("{0}: {1:X8}", t.ToLuaTypeString(), m_RefID);
+			return string.Format("{0}: {1:X8}", typeString, m_RefID);
 		}
 
 	}

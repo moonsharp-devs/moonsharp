@@ -7,8 +7,29 @@ using MoonSharp.Interpreter.Execution;
 namespace MoonSharp.Interpreter.CoreLib
 {
 	[MoonSharpModule]
-	public class LoadMethods
+	public class LoadModule
 	{
+		public static void MoonSharpInit(Table globalTable, Table ioTable)
+		{
+			DynValue package = globalTable.Get("package");
+
+			if (package.IsNil())
+			{
+				package = DynValue.NewTable(globalTable.OwnerScript);
+				globalTable["package"] = package;
+			}
+			else if (package.Type != DataType.Table)
+			{
+				throw new InternalErrorException("'package' global variable was found and it is not a table");
+			}
+
+			string cfg = System.IO.Path.DirectorySeparatorChar + "\n;\n?\n!\n-\n";
+
+			package.Table.Set("config", DynValue.NewString(cfg));
+		}
+
+
+
 		// load (ld [, source [, mode [, env]]])
 		// ----------------------------------------------------------------
 		// Loads a chunk.

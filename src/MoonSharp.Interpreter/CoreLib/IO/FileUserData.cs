@@ -6,22 +6,31 @@ using System.Text;
 
 namespace MoonSharp.Interpreter.CoreLib.IO
 {
-	class FileUserData : FileUserDataBase
+	class FileUserData : StreamFileUserDataBase
 	{
-		Stream m_Stream;
-		StreamReader m_Reader;
-		StreamWriter m_Writer;
-		bool m_Closed = false;
-
 		public FileUserData(string filename, Encoding encoding, string mode)
 		{
-			m_Stream = new FileStream(filename, ParseFileMode(mode));
+			Stream stream = new FileStream(filename, ParseFileMode(mode), ParseFileAccess(mode), FileShare.ReadWrite | FileShare.Delete);
+			StreamReader reader = (stream.CanRead) ? new StreamReader(stream, encoding) : null;
+			StreamWriter writer = (stream.CanWrite) ? new StreamWriter(stream, encoding) : null;
 
-			if (m_Stream.CanRead)
-				m_Reader = new StreamReader(m_Stream, encoding);
+			base.Initialize(stream, reader, writer);
+		}
 
-			if (m_Stream.CanWrite)
-				m_Writer = new StreamWriter(m_Stream, encoding);
+		private FileAccess ParseFileAccess(string mode)
+		{
+			mode = mode.Replace("b", "");
+
+			if (mode == "r")
+				return FileAccess.Read;
+			else if (mode == "r+")
+				return FileAccess.ReadWrite;
+			else if (mode == "w")
+				return FileAccess.Write;
+			else if (mode == "w+")
+				return FileAccess.ReadWrite;
+			else
+				return FileAccess.ReadWrite;
 		}
 
 		private FileMode ParseFileMode(string mode)
@@ -40,98 +49,6 @@ namespace MoonSharp.Interpreter.CoreLib.IO
 				return FileMode.Append;
 		}
 
-		protected override bool Eof()
-		{
-			if (m_Reader != null)
-				return m_Reader.EndOfStream;
-			else
-				return false;
-		}
 
-		protected override string ReadLine()
-		{
-			return m_Reader.ReadLine();
-		}
-
-		protected override string ReadToEnd()
-		{
-			return m_Reader.ReadToEnd();
-		}
-
-		protected override string ReadBuffer(int p)
-		{
-			char[] buffer = new char[p];
-			int length = m_Reader.ReadBlock(buffer, 0, p);
-			return new string(buffer, 0, length);
-		}
-
-		protected override char Peek()
-		{
-			return (char)m_Reader.Peek();
-		}
-
-		protected override void Write(string value)
-		{
-			m_Writer.Write(value);
-		}
-
-		public override void close()
-		{
-			if (m_Reader != null)
-				m_Reader.Dispose();
-
-			if (m_Writer != null)
-				m_Writer.Dispose();
-
-			m_Stream.Dispose();
-
-			m_Closed = true;
-		}
-
-		public override void flush()
-		{
-			if (m_Writer != null)
-				m_Writer.Flush();
-		}
-
-		public override void lines()
-		{
-			throw new NotImplementedException();
-		}
-
-		public override long seek(string whence, long offset)
-		{
-			if (whence != null)
-			{
-				if (whence == "set")
-				{
-					m_Stream.Seek(offset, SeekOrigin.Begin);
-				}
-				else if (whence == "cur")
-				{
-					m_Stream.Seek(offset, SeekOrigin.Current);
-				}
-				else if (whence == "end")
-				{
-					m_Stream.Seek(offset, SeekOrigin.End);
-				}
-				else
-				{
-					return -1;
-				}
-			}
-
-			return m_Stream.Position;
-		}
-
-		public override void setvbuf(string mode, int size)
-		{
-			m_Writer.AutoFlush = (mode == "no" || mode == "line");
-		}
-
-		protected internal override bool isopen()
-		{
-			return !m_Closed;
-		}
 	}
 }

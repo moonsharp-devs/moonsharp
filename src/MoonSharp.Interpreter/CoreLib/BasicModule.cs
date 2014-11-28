@@ -8,7 +8,7 @@ using MoonSharp.Interpreter.Execution;
 namespace MoonSharp.Interpreter.CoreLib
 {
 	[MoonSharpModule]
-	public class BasicMethods
+	public class BasicModule
 	{
 		//type (v)
 		//----------------------------------------------------------------------------------------------------------------

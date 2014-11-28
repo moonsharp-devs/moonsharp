@@ -78,20 +78,23 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CoreLib\CoroutineMethods.cs" />
-    <Compile Include="CoreLib\BasicMethods.cs" />
+    <Compile Include="CoreLib\CoroutineModule.cs" />
+    <Compile Include="CoreLib\BasicModule.cs" />
+    <Compile Include="CoreLib\DebugModule.cs" />
     <Compile Include="CoreLib\DynamicModule.cs" />
-    <Compile Include="CoreLib\ErrorHandling.cs" />
+    <Compile Include="CoreLib\ErrorHandlingModule.cs" />
     <Compile Include="CoreLib\IO\BinaryEncoding.cs" />
     <Compile Include="CoreLib\IO\FileUserData.cs" />
-    <Compile Include="CoreLib\IoMethods.cs" />
+    <Compile Include="CoreLib\IoModule.cs" />
     <Compile Include="CoreLib\IO\FileUserDataBase.cs" />
-    <Compile Include="CoreLib\LoadMethods.cs" />
+    <Compile Include="CoreLib\IO\StdioFileUserData.cs" />
+    <Compile Include="CoreLib\IO\StreamFileUserDataBase.cs" />
+    <Compile Include="CoreLib\LoadModule.cs" />
     <Compile Include="CoreLib\Bit32Module.cs" />
     <Compile Include="CoreLib\MathModule.cs" />
-    <Compile Include="CoreLib\MetaTableMethods.cs" />
-    <Compile Include="CoreLib\OsSystemMethods.cs" />
-    <Compile Include="CoreLib\OsTimeMethods.cs" />
+    <Compile Include="CoreLib\MetaTableModule.cs" />
+    <Compile Include="CoreLib\OsSystemModule.cs" />
+    <Compile Include="CoreLib\OsTimeModule.cs" />
     <Compile Include="CoreLib\StringLib\CaptureInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -111,7 +114,7 @@
     <Compile Include="CoreLib\StringLib\StringRange.cs" />
     <Compile Include="Interop\LuaStateInterop\Tools.cs" />
     <Compile Include="CoreLib\StringModule.cs" />
-    <Compile Include="CoreLib\TableIterators.cs" />
+    <Compile Include="CoreLib\TableIteratorsModule.cs" />
     <Compile Include="CoreLib\TableModule.cs" />
     <Compile Include="DataStructs\Extension_Methods.cs" />
     <Compile Include="DataStructs\FastStackDynamic.cs" />

@@ -8,7 +8,7 @@ using MoonSharp.Interpreter.Execution.VM;
 namespace MoonSharp.Interpreter.CoreLib
 {
 	[MoonSharpModule]
-	public class ErrorHandling
+	public class ErrorHandlingModule
 	{
 		[MoonSharpMethod]
 		public static DynValue pcall(ScriptExecutionContext executionContext, CallbackArguments args)

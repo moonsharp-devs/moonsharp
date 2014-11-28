@@ -71,8 +71,8 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			var S = new Script();
 			Table globalCtx = S.Globals;
 
-			globalCtx.RegisterModuleType<TableIterators>();
-			globalCtx.RegisterModuleType<MetaTableMethods>();
+			globalCtx.RegisterModuleType<TableIteratorsModule>();
+			globalCtx.RegisterModuleType<MetaTableModule>();
 
 			DynValue res = S.DoString(script);
 

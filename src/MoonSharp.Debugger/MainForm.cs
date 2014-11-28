@@ -76,7 +76,7 @@ namespace MoonSharp.Debugger
 
 			try
 			{
-				m_Script.LoadFile(filename);
+				m_Script.LoadFile(filename, null, filename.Replace(':', '|'));
 			}
 			catch (Exception ex)
 			{

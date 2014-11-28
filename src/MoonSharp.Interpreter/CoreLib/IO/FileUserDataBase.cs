@@ -6,13 +6,33 @@ using MoonSharp.Interpreter.Execution;
 
 namespace MoonSharp.Interpreter.CoreLib.IO
 {
-	public abstract class FileUserDataBase
+	public abstract class FileUserDataBase : RefIdObject
 	{
+		public DynValue lines(ScriptExecutionContext executionContext, CallbackArguments args)
+		{
+			List<DynValue> readLines = new List<DynValue>();
+
+			DynValue readValue = null;
+
+			do
+			{
+				readValue = read(executionContext, args);
+				readLines.Add(readValue);
+
+			} while (readValue.IsNotNil());
+
+			return DynValue.FromObject(executionContext.GetScript(), readLines.Select(s => s));
+		}
+
 		public DynValue read(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			if (args.Count == 0)
 			{
 				string str = ReadLine();
+
+				if (str == null)
+					return DynValue.Nil;
+
 				str = str.TrimEnd('\n', '\r');
 				return DynValue.NewString(str);
 			}
@@ -26,7 +46,12 @@ namespace MoonSharp.Interpreter.CoreLib.IO
 
 					if (args[i].Type == DataType.Number)
 					{
-						string str = ReadBuffer((int)args[i].Number);
+						if (Eof())
+							return DynValue.Nil;
+
+						int howmany = (int)args[i].Number;
+
+						string str = ReadBuffer(howmany);
 						v = DynValue.NewString(str);
 					}
 					else 
@@ -60,7 +85,10 @@ namespace MoonSharp.Interpreter.CoreLib.IO
 						else if (opt.StartsWith("*L"))
 						{
 							string str = ReadLine();
+
 							str = str.TrimEnd('\n', '\r');
+							str += "\n";
+							
 							v = DynValue.NewString(str);
 						}
 						else
@@ -90,11 +118,36 @@ namespace MoonSharp.Interpreter.CoreLib.IO
 
 				return UserData.Create(this);
 			}
+			catch (ScriptRuntimeException)
+			{
+				throw;
+			}
 			catch (Exception ex)
 			{
 				return DynValue.NewTuple(DynValue.Nil, DynValue.NewString(ex.Message));
 			}
 		}
+
+		public DynValue close(ScriptExecutionContext executionContext, CallbackArguments args)
+		{
+			try
+			{
+				string msg = Close();
+				if (msg == null)
+					return DynValue.True;
+				else
+					return DynValue.NewTuple(DynValue.Nil, DynValue.NewString(msg));
+			}
+			catch (ScriptRuntimeException)
+			{
+				throw;
+			}
+			catch (Exception ex)
+			{
+				return DynValue.NewTuple(DynValue.Nil, DynValue.NewString(ex.Message));
+			}
+		}
+
 
 		double? ReadNumber()
 		{
@@ -153,10 +206,18 @@ namespace MoonSharp.Interpreter.CoreLib.IO
 
 
 		protected internal abstract bool isopen();
-		public abstract void close();
-		public abstract void flush();
-		public abstract void lines();
+		protected abstract string Close();
+
+		public abstract bool flush();
 		public abstract long seek(string whence, long offset);
-		public abstract void setvbuf(string mode, int size);
+		public abstract bool setvbuf(string mode);
+
+		public override string ToString()
+		{
+			if (isopen())
+				return string.Format("file ({0:X8})", base.ReferenceID);
+			else
+				return "file (closed)";
+		}
 	}
 }

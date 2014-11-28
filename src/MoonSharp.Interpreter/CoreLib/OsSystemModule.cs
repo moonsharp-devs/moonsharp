@@ -9,7 +9,7 @@ using MoonSharp.Interpreter.Execution;
 namespace MoonSharp.Interpreter.CoreLib
 {
 	[MoonSharpModule(Namespace = "os")]
-	public class OsSystemMethods
+	public class OsSystemModule
 	{
 		[MoonSharpMethod]
 		public static DynValue execute(ScriptExecutionContext executionContext, CallbackArguments args)
@@ -30,7 +30,7 @@ namespace MoonSharp.Interpreter.CoreLib
 					Process proc = Process.Start(psi);
 					proc.WaitForExit();
 					return DynValue.NewTuple(
-						DynValue.True,
+						DynValue.Nil,
 						DynValue.NewString("exit"),
 						DynValue.NewNumber(proc.ExitCode));
 				}
@@ -83,7 +83,10 @@ namespace MoonSharp.Interpreter.CoreLib
 				}
 				else
 				{
-					return DynValue.NewTuple(DynValue.Nil, DynValue.NewString("file not found."), DynValue.NewNumber(-1));
+					return DynValue.NewTuple(
+						DynValue.Nil,
+						DynValue.NewString("{0}: No such file or directory.", fileName),
+						DynValue.NewNumber(-1));
 				}
 			}
 			catch (Exception ex)
@@ -96,10 +99,17 @@ namespace MoonSharp.Interpreter.CoreLib
 		public static DynValue rename(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			string fileNameOld = args.AsType(0, "rename", DataType.String, false).String;
-			string fileNameNew = args.AsType(0, "rename", DataType.String, false).String;
+			string fileNameNew = args.AsType(1, "rename", DataType.String, false).String;
 
 			try
 			{
+				if (!File.Exists(fileNameOld))
+				{
+					return DynValue.NewTuple(DynValue.Nil,
+						DynValue.NewString("{0}: No such file or directory.", fileNameOld),
+						DynValue.NewNumber(-1));
+				}
+
 				File.Move(fileNameOld, fileNameNew);
 				return DynValue.True;
 			}

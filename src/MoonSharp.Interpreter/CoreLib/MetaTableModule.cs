@@ -7,7 +7,7 @@ using MoonSharp.Interpreter.Execution;
 namespace MoonSharp.Interpreter.CoreLib
 {
 	[MoonSharpModule]
-	public class MetaTableMethods
+	public class MetaTableModule
 	{
 		// setmetatable (table, metatable)
 		// -------------------------------------------------------------------------------------------------------------------

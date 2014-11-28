@@ -7,7 +7,7 @@ using MoonSharp.Interpreter.Execution;
 namespace MoonSharp.Interpreter.CoreLib
 {
 	[MoonSharpModule]
-	public class TableIterators
+	public class TableIteratorsModule
 	{
 		// ipairs (t)
 		// -------------------------------------------------------------------------------------------------------------------

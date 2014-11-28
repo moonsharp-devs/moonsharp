@@ -16,5 +16,11 @@ namespace MoonSharp.Interpreter.RuntimeAbstraction
 		{
 			return Environment.GetEnvironmentVariable(variable);
 		}
+
+		public override CoreModules FilterSupportedCoreModules(CoreModules module)
+		{
+			return module;
+		}
+
 	}
 }

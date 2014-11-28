@@ -11,5 +11,12 @@ namespace MoonSharp.Interpreter.RuntimeAbstraction
 		{
 			get { return "Unity"; }
 		}
+
+
+		public override CoreModules FilterSupportedCoreModules(CoreModules module)
+		{
+			return module & (~(CoreModules.IO | CoreModules.OS_System));
+		}
+
 	}
 }

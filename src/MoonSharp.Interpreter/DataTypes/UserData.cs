@@ -15,6 +15,8 @@ namespace MoonSharp.Interpreter
 			// This type can only be instantiated using one of the Create methods
 		}
 
+		public DynValue UserValue { get; set; }
+
 		public object Object { get; set; }
 		internal UserDataDescriptor Descriptor { get; set; }
 
@@ -32,14 +34,14 @@ namespace MoonSharp.Interpreter
 			m_DefaultAccessMode = InteropAccessMode.LazyOptimized;
 		}
 
-		public static void RegisterType<T>(InteropAccessMode accessMode = InteropAccessMode.Default)
+		public static void RegisterType<T>(InteropAccessMode accessMode = InteropAccessMode.Default, string friendlyName = null)
 		{
-			RegisterType_Impl(typeof(T), accessMode);
+			RegisterType_Impl(typeof(T), accessMode, friendlyName);
 		}
 
-		public static void RegisterType(Type type, InteropAccessMode accessMode = InteropAccessMode.Default)
+		public static void RegisterType(Type type, InteropAccessMode accessMode = InteropAccessMode.Default, string friendlyName = null)
 		{
-			RegisterType_Impl(type, accessMode);
+			RegisterType_Impl(type, accessMode, friendlyName);
 		}
 
 		public static void RegisterAssembly(Assembly asm = null)
@@ -104,7 +106,7 @@ namespace MoonSharp.Interpreter
 
 
 
-		private static void RegisterType_Impl(Type type, InteropAccessMode accessMode = InteropAccessMode.Default)
+		private static void RegisterType_Impl(Type type, InteropAccessMode accessMode, string friendlyName)
 		{
 			if (accessMode == InteropAccessMode.Default)
 			{
@@ -129,7 +131,7 @@ namespace MoonSharp.Interpreter
 			{
 				if (!s_Registry.ContainsKey(type))
 				{
-					UserDataDescriptor udd = new UserDataDescriptor(type, accessMode);
+					UserDataDescriptor udd = new UserDataDescriptor(type, accessMode, friendlyName);
 					s_Registry.Add(udd.Type, udd);
 
 					if (accessMode == InteropAccessMode.BackgroundOptimized)

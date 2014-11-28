@@ -70,6 +70,8 @@
     <Compile Include="Assets\UnityLoader.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\Antlr4.Runtime.net35.xml" />
+    <None Include="Assets\nunit.framework.xml" />
     <None Include="Assets\Resources\Scripts\TestMore\000-sanity.txt" />
     <None Include="Assets\Resources\Scripts\TestMore\001-if.txt" />
     <None Include="Assets\Resources\Scripts\TestMore\002-table.txt" />

@@ -555,7 +555,8 @@ namespace MoonSharp.Interpreter.CoreLib.StringLib
 				{
 					CharPtr res;
 					ms.level = 0;
-					LuaAssert(ms.matchdepth == MAXCCALLS);
+					// LuaAssert(ms.matchdepth == MAXCCALLS);
+					ms.matchdepth = MAXCCALLS;
 					if ((res = match(ms, s1, p)) != null)
 					{
 						if (find != 0)
@@ -611,7 +612,9 @@ namespace MoonSharp.Interpreter.CoreLib.StringLib
 			{
 				CharPtr e;
 				ms.level = 0;
-				LuaAssert(ms.matchdepth == MAXCCALLS);
+				//LuaAssert(ms.matchdepth == MAXCCALLS);
+				ms.matchdepth = MAXCCALLS;
+
 				if ((e = match(ms, src, p)) != null)
 				{
 					lua_Integer newstart = e - s;
@@ -761,7 +764,8 @@ namespace MoonSharp.Interpreter.CoreLib.StringLib
 			{
 				CharPtr e;
 				ms.level = 0;
-				LuaAssert(ms.matchdepth == MAXCCALLS);
+				//LuaAssert(ms.matchdepth == MAXCCALLS);
+				ms.matchdepth = MAXCCALLS;
 				e = match(ms, src, p);
 				if (e != null)
 				{

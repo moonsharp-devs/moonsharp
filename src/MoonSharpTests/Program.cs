@@ -35,7 +35,11 @@ namespace MoonSharpTests
 			if (r.Type == TestResultType.Fail)
 			{
 				Console.ForegroundColor = ConsoleColor.Red;
-				Console.WriteLine("{0} - {1}", r.TestName, r.Message);
+
+				if (r.Exception!= null)
+					Console.WriteLine("{0} - {1}", r.TestName, r.Exception);
+				else
+					Console.WriteLine("{0} - {1}", r.TestName, r.Message);
 			}
 			else if (r.Type == TestResultType.Ok)
 			{

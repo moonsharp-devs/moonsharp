@@ -7,14 +7,19 @@ using MoonSharp.Interpreter.Execution;
 namespace MoonSharp.Interpreter.CoreLib
 {
 	[MoonSharpModule(Namespace = "os")]
-	public class OsTimeMethods
+	public class OsTimeModule
 	{
 		static DateTime Time0 = DateTime.UtcNow;
 		static DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
 		private static DynValue GetUnixTime(DateTime dateTime, DateTime? epoch = null)
 		{
-			return DynValue.NewNumber((dateTime - (epoch ?? Epoch)).TotalSeconds);
+			double time = (dateTime - (epoch ?? Epoch)).TotalSeconds;
+
+			if (time < 0.0)
+				return DynValue.Nil;
+
+			return DynValue.NewNumber(time);
 		}
 
 		private static DateTime FromUnixTime(double unixtime)
@@ -48,8 +53,9 @@ namespace MoonSharp.Interpreter.CoreLib
 
 			if (args.Count > 0)
 			{
-				Table t = args.AsType(0, "time", DataType.Table, false).Table;
-				date = ParseTimeTable(t);
+				DynValue vt = args.AsType(0, "time", DataType.Table, true);
+				if (vt.Type == DataType.Table)
+					date = ParseTimeTable(vt.Table);
 			}
 
 			return GetUnixTime(date);
@@ -109,8 +115,16 @@ namespace MoonSharp.Interpreter.CoreLib
 			}
 			else
 			{
-				reference = TimeZoneInfo.ConvertTimeFromUtc(reference, TimeZoneInfo.Local);
-				isDst = reference.IsDaylightSavingTime();
+				try
+				{
+					reference = TimeZoneInfo.ConvertTimeFromUtc(reference, TimeZoneInfo.Local);
+					isDst = reference.IsDaylightSavingTime();
+				}
+				catch (TimeZoneNotFoundException)
+				{
+					// this catches a weird mono bug: https://bugzilla.xamarin.com/show_bug.cgi?id=11817
+					// however the behavior is definitely not correct. damn.
+				}
 			}
 
 

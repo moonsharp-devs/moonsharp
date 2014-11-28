@@ -33,10 +33,11 @@ namespace MoonSharp
 		[STAThread]
 		static void Main(string[] args)
 		{
-			Console.WriteLine("MoonSharp REPL {0} [{1}]\nCopyright (C) 2014 Marco Mastropaolo\nhttp://www.moonsharp.org",
-				Script.VERSION, Platform.Current.Name);
-
+			Console.WriteLine("MoonSharp REPL {0} [{1}]", Script.VERSION, Platform.Current.Name);
+			Console.WriteLine("Copyright (C) 2014 Marco Mastropaolo");
+			Console.WriteLine("http://www.moonsharp.org");
 			Console.WriteLine("Based on Lua 5.1 - 5.3, Copyright (C) 1994-2014 Lua.org");
+			Console.WriteLine("License: https://raw.githubusercontent.com/xanathar/moonsharp/master/LICENSE");
 
 			Console.WriteLine();
 

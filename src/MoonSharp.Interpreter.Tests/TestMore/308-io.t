@@ -31,7 +31,7 @@ See "Programming in Lua", section 21 "The I/O Library".
 
 require 'Test.More'
 
-local lua = (platform and platform.lua) or arg[-1]
+local lua = [[\git\moonsharp\src\Tools\lua52.exe]]
 
 plan(67)
 
@@ -59,6 +59,7 @@ f:close()
 f = io.open('file.txt')
 like(f, '^file %(0?[Xx]?%x+%)$', "function open")
 
+
 is(io.close(f), true, "function close")
 
 error_like(function () io.close(f) end,
@@ -72,6 +73,7 @@ error_like(function () io.open('file.txt', 'baz') end,
            "^[^:]+:%d+: bad argument #2 to 'open' %(invalid mode%)",
            "function open (bad mode)")
 
+		   
 is(io.type("not a file"), nil, "function type")
 f = io.open('file.txt')
 is(io.type(f), 'file')
@@ -83,6 +85,7 @@ is(tostring(f), 'file (closed)')
 is(io.stdin, io.input(), "function input")
 is(io.stdin, io.input(nil))
 f = io.stdin
+
 like(io.input('file.txt'), '^file %(0?[Xx]?%x+%)$')
 is(f, io.input(f))
 
@@ -250,3 +253,6 @@ os.remove('file.out') --clean up
 --   fill-column: 100
 -- End:
 -- vim: ft=lua expandtab shiftwidth=4:
+
+--]==]
+

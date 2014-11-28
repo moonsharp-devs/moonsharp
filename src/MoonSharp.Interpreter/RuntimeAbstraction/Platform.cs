@@ -56,8 +56,13 @@ namespace MoonSharp.Interpreter.RuntimeAbstraction
 		public abstract string GetEnvironmentVariable(string variable);
 
 
+		public abstract CoreModules FilterSupportedCoreModules(CoreModules module);
 
 
+		public bool AreCoreModulesFullySupported(CoreModules modules)
+		{
+			return FilterSupportedCoreModules(modules) == modules;
+		}
 
 	}
 }
