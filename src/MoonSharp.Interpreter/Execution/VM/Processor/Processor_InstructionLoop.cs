@@ -232,8 +232,16 @@ namespace MoonSharp.Interpreter.Execution.VM
 			{
 				FillDebugData(ex, instructionPtr);
 
-
 				if (!(ex is ScriptRuntimeException)) throw;
+
+				for (int i = 0; i < m_ExecutionStack.Count; i++)
+				{
+					var c = m_ExecutionStack.Peek(i);
+
+					if (c.ErrorHandlerBeforeUnwind != null)
+						ex.DecoratedMessage = PerformMessageDecorationBeforeUnwind(c.ErrorHandlerBeforeUnwind, ex.DecoratedMessage, GetCurrentSourceRef(instructionPtr));
+				}
+
 
 				while (m_ExecutionStack.Count > 0)
 				{
@@ -242,12 +250,16 @@ namespace MoonSharp.Interpreter.Execution.VM
 					if (csi.ErrorHandler != null)
 					{
 						instructionPtr = csi.ReturnAddress;
-						var argscnt = (int)(m_ValueStack.Pop().Number);
-						m_ValueStack.RemoveLast(argscnt + 1);
+
+						if (csi.ClrFunction == null)
+						{
+							var argscnt = (int)(m_ValueStack.Pop().Number);
+							m_ValueStack.RemoveLast(argscnt + 1);
+						}
 
 						var cbargs = new DynValue[] { DynValue.NewString(ex.DecoratedMessage) };
 
-						DynValue handled = csi.ErrorHandler.Invoke(new ScriptExecutionContext(this, csi.ErrorHandler), cbargs);
+						DynValue handled = csi.ErrorHandler.Invoke(new ScriptExecutionContext(this, csi.ErrorHandler, GetCurrentSourceRef(instructionPtr)), cbargs);
 
 						m_ValueStack.Push(handled);
 
@@ -266,6 +278,40 @@ namespace MoonSharp.Interpreter.Execution.VM
 			return m_ValueStack.Pop();
 
 
+		}
+
+
+		internal string PerformMessageDecorationBeforeUnwind(DynValue messageHandler, string decoratedMessage, SourceRef sourceRef)
+		{
+			try
+			{
+				DynValue[] args = new DynValue[] { DynValue.NewString(decoratedMessage) };
+				DynValue ret = DynValue.Nil;
+
+				if (messageHandler.Type == DataType.Function)
+				{
+					ret = this.Call(messageHandler, args);
+				}
+				else if (messageHandler.Type == DataType.ClrFunction)
+				{
+					ScriptExecutionContext ctx = new ScriptExecutionContext(this, messageHandler.Callback, sourceRef);
+					ret = messageHandler.Callback.Invoke(ctx, args);
+				}
+				else
+				{
+					throw new ScriptRuntimeException("error handler not set to a function");
+				}
+
+				string newmsg = ret.ToPrintString();
+				if (newmsg != null)
+					return newmsg;
+			}
+			catch (ScriptRuntimeException innerEx)
+			{
+				return innerEx.Message + "\n" + decoratedMessage;
+			}
+
+			return decoratedMessage;
 		}
 
 
@@ -512,7 +558,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 		private CallStackItem PopToBasePointer()
 		{
 			var csi = m_ExecutionStack.Pop();
-			m_ValueStack.CropAtCount(csi.BasePointer);
+			if (csi.BasePointer >= 0)
+				m_ValueStack.CropAtCount(csi.BasePointer);
 			return csi;
 		}
 
@@ -557,7 +604,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 
 
-		private int Internal_ExecCall(int argsCount, int instructionPtr, CallbackFunction handler = null, CallbackFunction continuation = null, bool thisCall = false, string debugText = null)
+		private int Internal_ExecCall(int argsCount, int instructionPtr, CallbackFunction handler = null, CallbackFunction continuation = null, bool thisCall = false, string debugText = null, DynValue unwindHandler = null)
 		{
 			DynValue fn = m_ValueStack.Peek(argsCount);
 
@@ -567,10 +614,24 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 				// we expand tuples before callbacks
 				// args = DynValue.ExpandArgumentsToList(args);
+				SourceRef sref = GetCurrentSourceRef(instructionPtr);
 
-				var ret = fn.Callback.Invoke(new ScriptExecutionContext(this, fn.Callback), args, isMethodCall:thisCall);
+				m_ExecutionStack.Push(new CallStackItem()
+				{
+					ClrFunction = fn.Callback,
+					ReturnAddress = instructionPtr,
+					CallingSourceRef = sref,
+					BasePointer = -1,
+					ErrorHandler = handler,
+					Continuation = continuation,
+					ErrorHandlerBeforeUnwind = unwindHandler,
+				});
+
+				var ret = fn.Callback.Invoke(new ScriptExecutionContext(this, fn.Callback, sref), args, isMethodCall:thisCall);
 				m_ValueStack.RemoveLast(argsCount + 1);
 				m_ValueStack.Push(ret);
+
+				m_ExecutionStack.Pop();
 
 				return Internal_CheckForTailRequests(null, instructionPtr);
 			}
@@ -582,10 +643,11 @@ namespace MoonSharp.Interpreter.Execution.VM
 					BasePointer = m_ValueStack.Count,
 					ReturnAddress = instructionPtr,
 					Debug_EntryPoint = fn.Function.EntryPointByteCodeLocation,
-					CallingSourceRef =  m_RootChunk.Code[instructionPtr].SourceCodeRef,
+					CallingSourceRef =  GetCurrentSourceRef(instructionPtr),
 					ClosureScope = fn.Function.ClosureContext,
 					ErrorHandler = handler,
-					Continuation = continuation
+					Continuation = continuation,
+					ErrorHandlerBeforeUnwind = unwindHandler,
 				});
 				return fn.Function.EntryPointByteCodeLocation;
 			}
@@ -648,7 +710,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			}
 
 			if (csi.Continuation != null)
-				m_ValueStack.Push(csi.Continuation.Invoke(new ScriptExecutionContext(this, csi.Continuation),
+				m_ValueStack.Push(csi.Continuation.Invoke(new ScriptExecutionContext(this, csi.Continuation, i.SourceCodeRef),
 					new DynValue[1] { m_ValueStack.Pop() }));
 
 			return retpoint;
@@ -671,7 +733,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				for (int ii = 0; ii < tcd.Args.Length; ii++)
 					m_ValueStack.Push(tcd.Args[ii]);
 
-				return Internal_ExecCall(tcd.Args.Length, instructionPtr, tcd.ErrorHandler, tcd.Continuation);
+				return Internal_ExecCall(tcd.Args.Length, instructionPtr, tcd.ErrorHandler, tcd.Continuation, false, null, tcd.ErrorHandlerBeforeUnwind);
 			}
 			else if (tail.Type == DataType.YieldRequest)
 			{

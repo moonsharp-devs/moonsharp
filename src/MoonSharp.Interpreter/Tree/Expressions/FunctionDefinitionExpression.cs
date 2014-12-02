@@ -121,7 +121,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 			Instruction I = bc.Emit_Jump(OpCode.Jump, -1);
 
-			bc.Emit_BeginFn(m_StackFrame, friendlyName ?? "<anonymous>");
+			bc.Emit_BeginFn(m_StackFrame, friendlyName ?? "<" + this.m_Begin.FormatLocation(this.LoadingContext.Script, true) + ">");
 
 			bc.LoopTracker.Loops.Push(new LoopBoundary());
 

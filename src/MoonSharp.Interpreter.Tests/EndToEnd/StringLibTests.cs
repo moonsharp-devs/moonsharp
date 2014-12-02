@@ -161,7 +161,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			Script S = new Script();
 			DynValue main = S.LoadString(script);
 
-			S.DebugPrint = s =>
+			S.Options.DebugPrint = s =>
 			{
 				printed = s;
 			};
@@ -191,7 +191,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			Script S = new Script();
 			DynValue main = S.LoadString(script);
 
-			S.DebugPrint = s =>
+			S.Options.DebugPrint = s =>
 			{
 				printed = s;
 			};

@@ -67,12 +67,12 @@ namespace MoonSharp.Debugger
 		private void DebugScript(string filename)
 		{
 			m_Script = new Script(CoreModules.Preset_Complete);
-
-			m_Script.DebugPrint = s => { Console_WriteLine("{0}", s); };
+			m_Script.Options.UseLuaErrorLocations = true;
+			m_Script.Options.DebugPrint = s => { Console_WriteLine("{0}", s); };
 
 			var L = new ClassicLuaScriptLoader();
 			L.ModulePaths = L.UnpackStringPaths("Modules/?;Modules/?.lua");
-			m_Script.ScriptLoader = L;
+			m_Script.Options.ScriptLoader = L;
 
 			try
 			{

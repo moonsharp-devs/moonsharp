@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using MoonSharp.Interpreter.Execution;
+using MoonSharp.Interpreter.Interop;
 
 namespace MoonSharp.Interpreter.CoreLib
 {
@@ -13,6 +14,25 @@ namespace MoonSharp.Interpreter.CoreLib
 		public const double pi = Math.PI;
 		[MoonSharpConstant]
 		public const double huge = double.MaxValue;
+
+		private static Random GetRandom(Script s)
+		{
+			DynValue rr = s.Registry.Get("F61E3AA7247D4D1EB7A45430B0C8C9BB_MATH_RANDOM");
+			return (rr.UserData.Object as AnonWrapper<Random>).Value;
+		}
+
+		private static void SetRandom(Script s, Random random)
+		{
+			DynValue rr = UserData.Create(new AnonWrapper<Random>(random));
+			s.Registry.Set("F61E3AA7247D4D1EB7A45430B0C8C9BB_MATH_RANDOM", rr);
+		}
+
+
+		public static void MoonSharpInit(Table globalTable, Table ioTable)
+		{
+			SetRandom(globalTable.OwnerScript, new Random());
+		}
+
 
 
 		private static DynValue exec1(CallbackArguments args, string funcName, Func<double, double> func)
@@ -237,7 +257,7 @@ namespace MoonSharp.Interpreter.CoreLib
 		{
 			DynValue m = args.AsType(0, "random", DataType.Number, true);
 			DynValue n = args.AsType(1, "random", DataType.Number, true);
-			Random R = executionContext.GetScript().RandomGenerator;
+			Random R = GetRandom(executionContext.GetScript());
 			double d;
 
 			if (m.IsNil() && n.IsNil())
@@ -262,7 +282,8 @@ namespace MoonSharp.Interpreter.CoreLib
 		public static DynValue randomseed(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			DynValue arg = args.AsType(0, "randomseed", DataType.Number, false);
-			executionContext.GetScript().ReseedRandomGenerator(arg.Number);
+			var script = executionContext.GetScript();
+			SetRandom(script, new Random((int)arg.Number));
 			return DynValue.Nil;
 		}
 

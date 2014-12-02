@@ -8,34 +8,15 @@ namespace MoonSharp.Interpreter.Execution.VM
 {
 	sealed partial class Processor
 	{
-		private IList<StackTraceItem> GetCallStack(int instructionPtr)
+		private SourceRef GetCurrentSourceRef(int instructionPtr)
 		{
-			List<StackTraceItem> callStack = new List<StackTraceItem>();
-
-			for (int i = 0; i < m_ExecutionStack.Count; i++)
+			if (instructionPtr >= 0 && instructionPtr < m_RootChunk.Code.Count)
 			{
-				var c = m_ExecutionStack.Peek(i);
-
-				var I = m_RootChunk.Code[c.Debug_EntryPoint];
-
-				string callname = I.OpCode == OpCode.BeginFn ? I.Name : null;
-
-
-				callStack.Add(new StackTraceItem()
-				{
-					EntryPoint = c.Debug_EntryPoint,
-					CurrentInstruction = instructionPtr,
-					SourceRef = m_RootChunk.Code[instructionPtr].SourceCodeRef,
-					BasePtr = c.BasePointer,
-					RetAddress = c.ReturnAddress,
-					Name = callname,
-				});
-
-				instructionPtr = c.ReturnAddress;
+				return m_RootChunk.Code[instructionPtr].SourceCodeRef;
 			}
-
-			return callStack;
+			return null;
 		}
+
 
 		private void FillDebugData(InterpreterException ex, int ip)
 		{
@@ -47,20 +28,18 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 			ex.InstructionPtr = ip;
 
-			if (ip >= 0 && ip < m_RootChunk.Code.Count)
-			{
-				Instruction I = m_RootChunk.Code[ip];
-				SourceRef sref = I.SourceCodeRef;
-				SourceCode sc = m_Script.GetSourceCode(sref.SourceIdx);
+			SourceRef sref = GetCurrentSourceRef(ip);
 
-				ex.DecoratedMessage = string.Format("{0}:{1}: {2}", sc.Name, sref.FromLine, ex.Message);
+			if (sref != null)
+			{
+				ex.DecoratedMessage = string.Format("{0}: {1}", sref.FormatLocation(m_Script), ex.Message);
 			}
 			else
 			{
 				ex.DecoratedMessage = string.Format("bytecode:{0}: {1}", ip, ex.Message);
 			}
-			
-			ex.CallStack = GetCallStack(ip);
+
+			ex.CallStack = Debugger_GetCallStack(sref);
 		}
 
 

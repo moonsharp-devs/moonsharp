@@ -42,7 +42,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 			m_Parent = parentProcessor;
 			m_State = CoroutineState.NotStarted;
 		}
-	
+
+
 
 		public DynValue Call(DynValue function, DynValue[] args)
 		{
@@ -95,6 +96,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				Debug_EntryPoint = function.Function.EntryPointByteCodeLocation,
 				ReturnAddress = -1,
 				ClosureScope = function.Function.ClosureContext,
+				CallingSourceRef = SourceRef.GetClrLocation()
 			});
 
 			return function.Function.EntryPointByteCodeLocation;
@@ -129,7 +131,10 @@ namespace MoonSharp.Interpreter.Execution.VM
 			m_ExecutionNesting += 1;
 		}
 
-
+		internal SourceRef GetCoroutineSuspendedLocation()
+		{
+			return GetCurrentSourceRef(m_SavedInstructionPtr);
+		}
 
 
 

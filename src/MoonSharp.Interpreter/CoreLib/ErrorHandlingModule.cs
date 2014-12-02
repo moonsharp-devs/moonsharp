@@ -13,6 +13,15 @@ namespace MoonSharp.Interpreter.CoreLib
 		[MoonSharpMethod]
 		public static DynValue pcall(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
+			return SetErrorHandlerStrategy("pcall", executionContext, args, null);
+		}
+
+
+		private static DynValue SetErrorHandlerStrategy(string funcName, 
+			ScriptExecutionContext executionContext, 
+			CallbackArguments args,
+			DynValue handlerBeforeUnwind)
+		{
 			DynValue v = args[0];
 			DynValue[] a = new DynValue[args.Count - 1];
 
@@ -27,19 +36,20 @@ namespace MoonSharp.Interpreter.CoreLib
 					if (ret.Type == DataType.TailCallRequest)
 					{
 						if (ret.TailCallData.Continuation != null || ret.TailCallData.ErrorHandler != null)
-							throw new ScriptRuntimeException("the function passed to pcall cannot be called directly by pcall. wrap in a script function instead.");
+							throw new ScriptRuntimeException("the function passed to {0} cannot be called directly by {0}. wrap in a script function instead.", funcName);
 
 						return DynValue.NewTailCallReq(new TailCallData()
 						{
 							Args = ret.TailCallData.Args,
 							Function = ret.TailCallData.Function,
-							Continuation = new CallbackFunction(pcall_continuation),
-							ErrorHandler = new CallbackFunction(pcall_onerror)
+							Continuation = new CallbackFunction(pcall_continuation, funcName),
+							ErrorHandler = new CallbackFunction(pcall_onerror, funcName),
+							ErrorHandlerBeforeUnwind = handlerBeforeUnwind
 						});
 					}
 					else if (ret.Type == DataType.YieldRequest)
 					{
-						throw new ScriptRuntimeException("the function passed to pcall cannot be called directly by pcall. wrap in a script function instead.");
+						throw new ScriptRuntimeException("the function passed to {0} cannot be called directly by {0}. wrap in a script function instead.", funcName);
 					}
 					else
 					{
@@ -48,12 +58,13 @@ namespace MoonSharp.Interpreter.CoreLib
 				}
 				catch (ScriptRuntimeException ex)
 				{
-					return DynValue.NewTupleNested(DynValue.False, DynValue.NewString(ex.Message));
+					executionContext.PerformMessageDecorationBeforeUnwind(handlerBeforeUnwind, ex);
+					return DynValue.NewTupleNested(DynValue.False, DynValue.NewString(ex.DecoratedMessage));
 				}
 			}
 			else if (args[0].Type != DataType.Function)
 			{
-				return DynValue.NewTupleNested(DynValue.False, DynValue.NewString("attempt to pcall a non-function"));
+				return DynValue.NewTupleNested(DynValue.False, DynValue.NewString("attempt to " + funcName + " a non-function"));
 			}
 			else
 			{
@@ -61,11 +72,13 @@ namespace MoonSharp.Interpreter.CoreLib
 				{
 					Args = a,
 					Function = v,
-					Continuation = new CallbackFunction(pcall_continuation),
-					ErrorHandler = new CallbackFunction(pcall_onerror)
+					Continuation = new CallbackFunction(pcall_continuation, funcName),
+					ErrorHandler = new CallbackFunction(pcall_onerror, funcName),
+					ErrorHandlerBeforeUnwind = handlerBeforeUnwind
 				});
 			}
 		}
+
 
 		public static DynValue pcall_continuation(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
@@ -89,7 +102,17 @@ namespace MoonSharp.Interpreter.CoreLib
 					a.Add(args[i]);
 			}
 
-			return pcall(executionContext, new CallbackArguments(a, false));
+			DynValue handler = null;
+			if (args[1].Type == DataType.Function || args[1].Type == DataType.ClrFunction)
+			{
+				handler = args[1];
+			}
+			else if (args[1].Type != DataType.Nil)
+			{
+				args.AsType(1, "xpcall", DataType.Function, false);
+			}
+
+			return SetErrorHandlerStrategy("xpcall", executionContext, new CallbackArguments(a, false), handler);
 		}
 
 	}

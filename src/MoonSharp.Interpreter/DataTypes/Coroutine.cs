@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MoonSharp.Interpreter.Debugging;
 using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Execution.VM;
 
@@ -43,7 +44,7 @@ namespace MoonSharp.Interpreter
 			Type = CoroutineType.ClrCallbackDead;
 		}
 
-		
+	
 		public DynValue Resume(params DynValue[] args)
 		{
 			if (Type == CoroutineType.Coroutine)
@@ -79,5 +80,18 @@ namespace MoonSharp.Interpreter
 					return m_Processor.State;
 			}
 		}
+
+		public WatchItem[] GetStackTrace(int skip, SourceRef entrySourceRef = null)
+		{
+			if (this.State != CoroutineState.Running)
+			{
+				entrySourceRef = m_Processor.GetCoroutineSuspendedLocation();
+			}
+
+			List<WatchItem> stack = m_Processor.Debugger_GetCallStack(entrySourceRef);
+			return stack.Skip(skip).ToArray();
+		}
+
+
 	}
 }

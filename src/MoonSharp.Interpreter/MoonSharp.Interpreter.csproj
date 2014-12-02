@@ -103,6 +103,7 @@
     <Compile Include="DataTypes\TypeValidationFlags.cs" />
     <Compile Include="Errors\DynamicExpressionException.cs" />
     <Compile Include="Execution\DynamicExpression.cs" />
+    <Compile Include="Interop\AnonWrapper.cs" />
     <Compile Include="Interop\LuaStateInterop\CharPtr.cs" />
     <Compile Include="Interop\LuaStateInterop\LuaBase.cs" />
     <Compile Include="CoreLib\StringLib\MatchState.cs">
@@ -147,7 +148,6 @@
     <Compile Include="Errors\ScriptRuntimeException.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Errors\StackTraceItem.cs" />
     <Compile Include="Errors\InternalErrorException.cs" />
     <Compile Include="Diagnostics\AstDump.cs" />
     <Compile Include="Errors\InterpreterException.cs" />
@@ -238,6 +238,7 @@
     <Compile Include="Modules\MoonSharpModuleAttribute.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="ScriptOptions.cs" />
     <Compile Include="Tree\Antlr_Interface\AntlrErrorListener.cs" />
     <Compile Include="Tree\Expressions\AdjustmentExpression.cs" />
     <Compile Include="Tree\Expressions\BinaryOperatorExpression.cs" />

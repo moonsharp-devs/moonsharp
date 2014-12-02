@@ -188,11 +188,11 @@ namespace MoonSharp.Interpreter
 		/// <summary>
 		/// Creates a new writable value initialized to the specified CLR callback.
 		/// </summary>
-		public static DynValue NewCallback(Func<ScriptExecutionContext, CallbackArguments, DynValue> callBack)
+		public static DynValue NewCallback(Func<ScriptExecutionContext, CallbackArguments, DynValue> callBack, string name = null)
 		{
 			return new DynValue()
 			{
-				m_Object = new CallbackFunction(callBack),
+				m_Object = new CallbackFunction(callBack, name),
 				m_Type = DataType.ClrFunction,
 			};
 		}

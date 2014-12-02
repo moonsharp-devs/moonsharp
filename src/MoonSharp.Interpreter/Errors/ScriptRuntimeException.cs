@@ -22,6 +22,8 @@ namespace MoonSharp.Interpreter
 
 		}
 
+		public bool DoNotDecorateMessage { get; set; }
+
 		public static ScriptRuntimeException ArithmeticOnNonNumber(DynValue l, DynValue r = null)
 		{
 			if (l.Type != DataType.Number && l.Type != DataType.String)

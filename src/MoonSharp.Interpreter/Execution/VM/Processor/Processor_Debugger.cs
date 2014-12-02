@@ -28,7 +28,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				m_Debug.DebuggerCurrentActionTarget = -1;
 			}
 
-			switch(m_Debug.DebuggerCurrentAction)
+			switch (m_Debug.DebuggerCurrentAction)
 			{
 				case DebuggerAction.ActionType.Run:
 					return;
@@ -47,8 +47,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 					break;
 			}
 
-						
-			RefreshDebugger(false);
+
+			RefreshDebugger(false, instructionPtr);
 
 			while (true)
 			{
@@ -78,13 +78,13 @@ namespace MoonSharp.Interpreter.Execution.VM
 						return;
 					case DebuggerAction.ActionType.ToggleBreakpoint:
 						ToggleBreakPoint(action);
-						RefreshDebugger(true);
+						RefreshDebugger(true, instructionPtr);
 						break;
 					case DebuggerAction.ActionType.Refresh:
-						RefreshDebugger(false);
+						RefreshDebugger(false, instructionPtr);
 						break;
 					case DebuggerAction.ActionType.HardRefresh:
-						RefreshDebugger(true);
+						RefreshDebugger(true, instructionPtr);
 						break;
 					case DebuggerAction.ActionType.None:
 					default:
@@ -167,12 +167,13 @@ namespace MoonSharp.Interpreter.Execution.VM
 				return true;
 		}
 
-		private void RefreshDebugger(bool hard)
+		private void RefreshDebugger(bool hard, int instructionPtr)
 		{
-			ScriptExecutionContext context = new ScriptExecutionContext(this, null);
+			SourceRef sref = GetCurrentSourceRef(instructionPtr);
+			ScriptExecutionContext context = new ScriptExecutionContext(this, null, sref);
 
 			List<DynamicExpression> watchList = m_Debug.DebuggerAttached.GetWatchItems();
-			List<WatchItem> callStack = Debugger_GetCallStack();
+			List<WatchItem> callStack = Debugger_GetCallStack(sref);
 			List<WatchItem> watches = Debugger_RefreshWatches(context, watchList);
 			List<WatchItem> vstack = Debugger_RefreshVStack();
 
@@ -230,7 +231,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			}
 		}
 
-		private List<WatchItem> Debugger_GetCallStack()
+		internal List<WatchItem> Debugger_GetCallStack(SourceRef startingRef)
 		{
 			List<WatchItem> wis = new List<WatchItem>();
 
@@ -242,14 +243,41 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 				string callname = I.OpCode == OpCode.BeginFn ? I.Name : null;
 
-
-				wis.Add(new WatchItem()
+				if (c.ClrFunction != null)
 				{
-					Address = c.Debug_EntryPoint,
-					BasePtr = c.BasePointer,
-					RetAddress = c.ReturnAddress,
-					Name = callname
-				});
+					wis.Add(new WatchItem()
+					{
+						Address = -1,
+						BasePtr = -1,
+						RetAddress = c.ReturnAddress,
+						Location = startingRef,
+						Name = c.ClrFunction.Name 
+					});
+				}
+				else
+				{
+					wis.Add(new WatchItem()
+					{
+						Address = c.Debug_EntryPoint,
+						BasePtr = c.BasePointer,
+						RetAddress = c.ReturnAddress,
+						Name = callname,
+						Location = startingRef,
+					});
+				}
+
+				startingRef = c.CallingSourceRef;
+
+				if (c.Continuation != null)
+				{
+					wis.Add(new WatchItem()
+					{
+						Name = c.Continuation.Name,
+						Location = SourceRef.GetClrLocation()
+					});
+				}
+
+
 			}
 
 			return wis;

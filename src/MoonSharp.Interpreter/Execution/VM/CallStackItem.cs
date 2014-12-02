@@ -13,8 +13,10 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		public SourceRef CallingSourceRef;
 
+		public CallbackFunction ClrFunction;
 		public CallbackFunction Continuation;
 		public CallbackFunction ErrorHandler;
+		public DynValue ErrorHandlerBeforeUnwind;
 
 		public int BasePointer;
 		public int ReturnAddress;

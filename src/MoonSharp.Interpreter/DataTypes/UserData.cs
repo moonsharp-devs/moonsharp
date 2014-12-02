@@ -30,6 +30,7 @@ namespace MoonSharp.Interpreter
 
 		static UserData()
 		{
+			RegisterType<AnonWrapper>(InteropAccessMode.HideMembers);
 			RegisterType<EnumerableWrapper>(InteropAccessMode.HideMembers);
 			m_DefaultAccessMode = InteropAccessMode.LazyOptimized;
 		}

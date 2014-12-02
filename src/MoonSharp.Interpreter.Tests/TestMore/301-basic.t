@@ -341,7 +341,7 @@ else
 end
 ]]
 
---[[ XPCALL
+
 if jit then
     error_like(function () xpcall(assert, nil) end,
                "bad argument #2 to 'xpcall' %(function expected, got nil%)",
@@ -353,7 +353,7 @@ if jit then
 else
     is(xpcall(assert, nil), false, "function xpcall")
     error_like(function () xpcall(assert) end,
-               "^[^:]+:%d+: bad argument #2 to 'xpcall' %(value expected%)",
+               "^[^:]+:%d+: bad argument #2 to 'xpcall' %(function expected, got no value%)",
                "function xpcall (no arg)")
 end
 
@@ -364,10 +364,14 @@ r, msg = xpcall(assert, backtrace)
 is(r, false, "function xpcall (backtrace)")
 is(msg, 'not a back trace')
 
+r, msg = xpcall(function() assert(); end, backtrace)
+is(r, false, "function xpcall (backtrace)")
+is(msg, 'not a back trace')
+
 r = xpcall(assert, backtrace, true)
 is(r, true, "function xpcall")
 
-]]
+
 
 -- Local Variables:
 --   mode: lua

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MoonSharp.Interpreter.Debugging;
 using MoonSharp.Interpreter.Execution;
 
 namespace MoonSharp.Interpreter.CoreLib
@@ -18,22 +19,22 @@ namespace MoonSharp.Interpreter.CoreLib
 			{
 				try
 				{
-					string cmd = script.DebugInput();
+					string cmd = script.Options.DebugInput();
 
 					if (cmd == "cont")
 						return DynValue.Void;
 
 					DynValue v = script.LoadString(cmd, null, "stdin");
 					DynValue result = script.Call(v);
-					script.DebugPrint(string.Format("={0}", result));
+					script.Options.DebugPrint(string.Format("={0}", result));
 				}
 				catch (ScriptRuntimeException ex)
 				{
-					script.DebugPrint(string.Format("{0}", ex.DecoratedMessage ?? ex.Message));
+					script.Options.DebugPrint(string.Format("{0}", ex.DecoratedMessage ?? ex.Message));
 				}
 				catch (Exception ex)
 				{
-					script.DebugPrint(string.Format("{0}", ex.Message));
+					script.Options.DebugPrint(string.Format("{0}", ex.Message));
 				}
 			}
 		}
@@ -156,6 +157,104 @@ namespace MoonSharp.Interpreter.CoreLib
 			return DynValue.NewString(closure.Symbols[index]);
 		}
 
+
+		[MoonSharpMethod]
+		public static DynValue traceback(ScriptExecutionContext executionContext, CallbackArguments args)
+		{
+			StringBuilder sb = new StringBuilder();
+
+			DynValue vmessage = args[0];
+			DynValue vlevel = args[1];
+
+			double defaultSkip = 1.0;
+
+			Coroutine cor = executionContext.GetCallingCoroutine();
+
+			if (vmessage.Type == DataType.Thread)
+			{
+				cor = vmessage.Coroutine;
+				vmessage = args[1];
+				vlevel = args[2];
+				defaultSkip = 0.0;
+			}
+
+			if (vmessage.IsNotNil() && vmessage.Type != DataType.String && vmessage.Type != DataType.Number)
+			{
+				return vmessage;
+			}
+
+			string message = vmessage.CastToString();
+
+			int skip = (int)((vlevel.CastToNumber()) ?? defaultSkip);
+
+			WatchItem[] stacktrace = cor.GetStackTrace(Math.Max(0, skip));
+
+			if (message != null)
+				sb.AppendLine(message);
+
+			sb.AppendLine("stack traceback:");
+
+			foreach (WatchItem wi in stacktrace)
+			{
+				string name;
+
+				if (wi.Name == null)
+					if (wi.RetAddress < 0)
+						name = "main chunk";
+					else
+						name = "?";
+				else
+					name = "function '" + wi.Name + "'";
+
+				string loc = wi.Location != null ? wi.Location.FormatLocation(executionContext.GetScript()) : "[clr]";
+				sb.AppendFormat("\t{0}: in {1}\n", loc, name);
+			}
+
+			return DynValue.NewString(sb);
+		}
+
+
+		//[MoonSharpMethod]
+		//public static DynValue getinfo(ScriptExecutionContext executionContext, CallbackArguments args)
+		//{
+		//	Coroutine cor = executionContext.GetCallingCoroutine();
+		//	int vfArgIdx = 0;
+
+		//	if (args[0].Type == DataType.Thread)
+		//		cor = args[0].Coroutine;
+
+		//	DynValue vf = args[vfArgIdx+0];
+		//	DynValue vwhat = args[vfArgIdx+1];
+
+		//	args.AsType(vfArgIdx + 1, "getinfo", DataType.String, true);
+			
+		//	string what = vwhat.CastToString() ?? "nfSlu";
+
+		//	DynValue vt = DynValue.NewTable(executionContext.GetScript());
+		//	Table t = vt.Table;
+
+		//	if (vf.Type == DataType.Function)
+		//	{
+		//		Closure f = vf.Function;
+		//		executionContext.GetInfoForFunction
+		//	}
+		//	else if (vf.Type == DataType.ClrFunction)
+		//	{
+
+		//	}
+		//	else if (vf.Type == DataType.Number || vf.Type == DataType.String)
+		//	{
+
+		//	}
+		//	else
+		//	{
+		//		args.AsType(vfArgIdx + 0, "getinfo", DataType.Number, true);
+		//	}
+
+		//	return vt;
+
+
+		//}
 
 	}
 }

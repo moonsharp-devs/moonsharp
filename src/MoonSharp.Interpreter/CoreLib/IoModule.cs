@@ -22,7 +22,7 @@ namespace MoonSharp.Interpreter.CoreLib
 			UserData.RegisterType<FileUserDataBase>(InteropAccessMode.Default, "file");
 
 			Table meta = new Table(ioTable.OwnerScript);
-			DynValue __index = DynValue.NewCallback(new CallbackFunction(__index_callback));
+			DynValue __index = DynValue.NewCallback(new CallbackFunction(__index_callback, "__index_callback"));
 			meta.Set("__index", __index);
 			ioTable.MetaTable = meta;
 

@@ -45,9 +45,9 @@ namespace MoonSharp.Interpreter.Execution.VM
 				case SymbolRefType.Global:
 					return GetGlobalSymbol(GetGenericSymbol(symref.i_Env), symref.i_Name);
 				case SymbolRefType.Local:
-					return m_ExecutionStack.Peek().LocalScope[symref.i_Index];
+					return GetTopNonClrFunction().LocalScope[symref.i_Index];
 				case SymbolRefType.Upvalue:
-					return m_ExecutionStack.Peek().ClosureScope[symref.i_Index];
+					return GetTopNonClrFunction().ClosureScope[symref.i_Index];
 				default:
 					throw new InternalErrorException("Unexpected {0} LRef at resolution: {1}", symref.i_Type, symref.i_Name);
 			}
@@ -79,7 +79,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 					break;
 				case SymbolRefType.Local:
 					{
-						var stackframe = m_ExecutionStack.Peek();
+						var stackframe = GetTopNonClrFunction();
 
 						DynValue v = stackframe.LocalScope[symref.i_Index];
 						if (v == null)
@@ -90,7 +90,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 					break;
 				case SymbolRefType.Upvalue:
 					{
-						var stackframe = m_ExecutionStack.Peek();
+						var stackframe = GetTopNonClrFunction();
 
 						DynValue v = stackframe.ClosureScope[symref.i_Index];
 						if (v == null)
@@ -108,32 +108,50 @@ namespace MoonSharp.Interpreter.Execution.VM
 			}
 		}
 
+		CallStackItem GetTopNonClrFunction()
+		{
+			CallStackItem stackframe = null;
+
+			for (int i = 0; i < m_ExecutionStack.Count; i++)
+			{
+				stackframe = m_ExecutionStack.Peek(i);
+
+				if (stackframe.ClrFunction == null)
+					break;
+			}
+
+			return stackframe;
+		}
+
 
 		public SymbolRef FindSymbolByName(string name)
 		{
 			if (m_ExecutionStack.Count > 0)
 			{
-				var stackframe = m_ExecutionStack.Peek();
+				CallStackItem stackframe = GetTopNonClrFunction();
 
-				if (stackframe.Debug_Symbols != null)
+				if (stackframe != null)
 				{
-					for (int i = stackframe.Debug_Symbols.Length - 1; i >= 0; i--)
+					if (stackframe.Debug_Symbols != null)
 					{
-						var l = stackframe.Debug_Symbols[i];
+						for (int i = stackframe.Debug_Symbols.Length - 1; i >= 0; i--)
+						{
+							var l = stackframe.Debug_Symbols[i];
 
-						if (l.i_Name == name && stackframe.LocalScope[i] != null)
-							return l;
+							if (l.i_Name == name && stackframe.LocalScope[i] != null)
+								return l;
+						}
 					}
-				}
 
 
-				var closure = stackframe.ClosureScope;
+					var closure = stackframe.ClosureScope;
 
-				if (closure != null)
-				{
-					for (int i = 0; i < closure.Symbols.Length; i++)
-						if (closure.Symbols[i] == name)
-							return SymbolRef.Upvalue(name, i);
+					if (closure != null)
+					{
+						for (int i = 0; i < closure.Symbols.Length; i++)
+							if (closure.Symbols[i] == name)
+								return SymbolRef.Upvalue(name, i);
+					}
 				}
 			}
 

@@ -32,7 +32,7 @@ namespace MoonSharp.Interpreter.Tree
 			{
 				LuaParser parser = CreateParser(script, new AntlrInputStream(source.Code), source.SourceID, p => p.dynamicexp(), listener);
 
-				ScriptLoadingContext lcontext = CreateLoadingContext(source);
+				ScriptLoadingContext lcontext = CreateLoadingContext(script, source);
 				lcontext.IsDynamicExpression = true;
 				lcontext.Anonymous = true;
 
@@ -58,7 +58,7 @@ namespace MoonSharp.Interpreter.Tree
 			{
 				LuaParser parser = CreateParser(script, new AntlrInputStream(source.Code), source.SourceID, p => p.chunk(), listener);
 
-				ScriptLoadingContext lcontext = CreateLoadingContext(source);
+				ScriptLoadingContext lcontext = CreateLoadingContext(script, source);
 				ChunkStatement stat;
 
 				using (script.PerformanceStats.StartStopwatch(Diagnostics.PerformanceCounter.AstCreation))
@@ -95,7 +95,7 @@ namespace MoonSharp.Interpreter.Tree
 			{
 				LuaParser parser = CreateParser(script, new AntlrInputStream(source.Code), source.SourceID, p => p.singlefunc(), listener);
 
-				ScriptLoadingContext lcontext = CreateLoadingContext(source);
+				ScriptLoadingContext lcontext = CreateLoadingContext(script, source);
 				FunctionDefinitionExpression fndef;
 
 				using (script.PerformanceStats.StartStopwatch(Diagnostics.PerformanceCounter.AstCreation))
@@ -152,9 +152,9 @@ namespace MoonSharp.Interpreter.Tree
 		}
 
 
-		private static ScriptLoadingContext CreateLoadingContext(SourceCode source)
+		private static ScriptLoadingContext CreateLoadingContext(Script script, SourceCode source)
 		{
-			return new ScriptLoadingContext()
+			return new ScriptLoadingContext(script)
 			{
 				Scope = new BuildTimeScope(),
 				Source = source

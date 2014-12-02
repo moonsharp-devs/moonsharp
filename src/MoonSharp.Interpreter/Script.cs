@@ -26,7 +26,7 @@ namespace MoonSharp.Interpreter
 		/// <summary>
 		/// The version of the MoonSharp engine
 		/// </summary>
-		public const string VERSION = "0.7.0.99";
+		public const string VERSION = "0.7.4.99";
 
 		/// <summary>
 		/// The Lua version being supported
@@ -38,12 +38,16 @@ namespace MoonSharp.Interpreter
 		List<SourceCode> m_Sources = new List<SourceCode>();
 		Table m_GlobalTable;
 		IDebugger m_Debugger;
-		IScriptLoader m_ScriptLoader = DefaultScriptLoader;
 		Table[] m_TypeMetatables = new Table[(int)LuaTypeExtensions.MaxMetaTypes];
-	
+
 		static Script()
 		{
-			DefaultScriptLoader = new ClassicLuaScriptLoader();
+			DefaultOptions = new ScriptOptions()
+			{
+				ScriptLoader = new ClassicLuaScriptLoader(),
+				DebugPrint = s => { Console.WriteLine(s); },
+				DebugInput = () => { return Console.ReadLine(); },
+			};
 		}
 
 
@@ -61,37 +65,27 @@ namespace MoonSharp.Interpreter
 		/// <param name="coreModules">The core modules to be pre-registered in the default global table.</param>
 		public Script(CoreModules coreModules)
 		{
+			Options = new ScriptOptions(DefaultOptions);
 			PerformanceStats = new PerformanceStatistics();
 			Registry = new Table(this);
-
-			DebugPrint = s => { Console.WriteLine(s); };
-			DebugInput = () => { return Console.ReadLine(); };
 
 			m_ByteCode = new ByteCode();
 			m_GlobalTable = new Table(this).RegisterCoreModules(coreModules);
 			m_MainProcessor = new Processor(this, m_GlobalTable, m_ByteCode);
-			ReseedRandomGenerator(DateTime.Now.Millisecond);
 		}
 
-
-		/// <summary>
-		/// Gets or sets the script loader to use. A script loader wraps all code loading from files, so that access
-		/// to the filesystem can be completely overridden.
-		/// </summary>
-		/// <value>
-		/// The current script loader.
-		/// </value>
-		public IScriptLoader ScriptLoader
-		{
-			get { return m_ScriptLoader; }
-			set { m_ScriptLoader = value; }
-		}
 
 		/// <summary>
 		/// Gets or sets the script loader which will be used as the value of the
 		/// ScriptLoader property for all newly created scripts.
 		/// </summary>
-		public static IScriptLoader DefaultScriptLoader { get; set; }
+		public static ScriptOptions DefaultOptions { get; private set; }
+
+		/// <summary>
+		/// Gets access to the script options. 
+		/// </summary>
+		public ScriptOptions Options { get; private set; }
+
 
 		/// <summary>
 		/// Gets access to performance statistics.
@@ -122,13 +116,13 @@ namespace MoonSharp.Interpreter
 
 			SourceCode source = new SourceCode(chunkName, code, m_Sources.Count, this);
 
-			int address = Loader_Antlr.LoadFunction(this, source, m_ByteCode, globalTable ?? m_GlobalTable);
-
 			m_Sources.Add(source);
+
+			int address = Loader_Antlr.LoadFunction(this, source, m_ByteCode, globalTable ?? m_GlobalTable);
 
 			SignalSourceCodeChange(source);
 			SignalByteCodeChange();
-		
+
 			return MakeClosure(address);
 		}
 
@@ -164,12 +158,12 @@ namespace MoonSharp.Interpreter
 
 			SourceCode source = new SourceCode(codeFriendlyName ?? chunkName, code, m_Sources.Count, this);
 
+			m_Sources.Add(source);
+
 			int address = Loader_Antlr.LoadChunk(this,
 				source,
 				m_ByteCode,
 				globalTable ?? m_GlobalTable);
-
-			m_Sources.Add(source);
 
 			SignalSourceCodeChange(source);
 			SignalByteCodeChange();
@@ -188,9 +182,9 @@ namespace MoonSharp.Interpreter
 		/// </returns>
 		public DynValue LoadFile(string filename, Table globalContext = null, string friendlyFilename = null)
 		{
-			filename = m_ScriptLoader.ResolveFileName(filename, globalContext ?? m_GlobalTable);
+			filename = Options.ScriptLoader.ResolveFileName(filename, globalContext ?? m_GlobalTable);
 
-			return LoadString(m_ScriptLoader.LoadFile(filename, globalContext ?? m_GlobalTable), globalContext, friendlyFilename ?? filename);
+			return LoadString(Options.ScriptLoader.LoadFile(filename, globalContext ?? m_GlobalTable), globalContext, friendlyFilename ?? filename);
 		}
 
 
@@ -427,29 +421,15 @@ namespace MoonSharp.Interpreter
 		public DynValue RequireModule(string modname, Table globalContext = null)
 		{
 			Table globals = globalContext ?? m_GlobalTable;
-			string filename = m_ScriptLoader.ResolveModuleName(modname, globals);
+			string filename = Options.ScriptLoader.ResolveModuleName(modname, globals);
 
 			if (filename == null)
 				throw new ScriptRuntimeException("module '{0}' not found", modname);
 
-			DynValue func = LoadString(m_ScriptLoader.LoadFile(filename, globalContext), globalContext, filename);
+			DynValue func = LoadString(Options.ScriptLoader.LoadFile(filename, globalContext), globalContext, filename);
 			return func;
 		}
 
-
-		/// <summary>
-		/// Gets the random generator associated with this Script
-		/// </summary>
-		public Random RandomGenerator { get; private set; }
-
-		/// <summary>
-		/// Reseeds the random generator.
-		/// </summary>
-		/// <param name="seed">The seed.</param>
-		public void ReseedRandomGenerator(double seed)
-		{
-			RandomGenerator = new Random();
-		}
 
 
 		/// <summary>
@@ -482,16 +462,6 @@ namespace MoonSharp.Interpreter
 			else
 				throw new ArgumentException("Specified type not supported : " + type.ToString());
 		}
-
-		/// <summary>
-		/// Gets or sets the debug print handler
-		/// </summary>
-		public Action<string> DebugPrint { get; set; }
-
-		/// <summary>
-		/// Gets or sets the debug input handler
-		/// </summary>
-		public Func<string> DebugInput { get; set; }
 
 
 		/// <summary>
@@ -529,7 +499,7 @@ namespace MoonSharp.Interpreter
 		// Gets an execution context exposing only partial functionality, which should be used ONLY for dynamic expression evaluation.
 		internal ScriptExecutionContext CreateDynamicExecutionContext()
 		{
-			return new ScriptExecutionContext(m_MainProcessor, null);
+			return new ScriptExecutionContext(m_MainProcessor, null, null);
 		}
 
 		/// <summary>

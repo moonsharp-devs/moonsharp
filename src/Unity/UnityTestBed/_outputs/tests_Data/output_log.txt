@@ -20,10 +20,10 @@ Platform assembly: C:\git\moonsharp\src\Unity\UnityTestBed\_outputs\tests_Data\M
 Loading C:\git\moonsharp\src\Unity\UnityTestBed\_outputs\tests_Data\Managed\MoonSharp.Interpreter.Tests.dll into Unity Child Domain
 Platform assembly: C:\git\moonsharp\src\Unity\UnityTestBed\_outputs\tests_Data\Managed\nunit.framework.dll (this message is harmless)
 Loading C:\git\moonsharp\src\Unity\UnityTestBed\_outputs\tests_Data\Managed\nunit.framework.dll into Unity Child Domain
-- Completed reload, in  0.054 seconds
-desktop: 1680x1050 60Hz; virtual: 4240x1050 at -1280,0
+- Completed reload, in  0.053 seconds
 <RI> Initializing input.
 <RI> Input initialized.
+desktop: 1600x900 40Hz; virtual: 1600x900 at 0,0
 Platform assembly: C:\git\moonsharp\src\Unity\UnityTestBed\_outputs\tests_Data\Managed\System.Core.dll (this message is harmless)
 Platform assembly: C:\git\moonsharp\src\Unity\UnityTestBed\_outputs\tests_Data\Managed\System.dll (this message is harmless)
 Platform assembly: C:\git\moonsharp\src\Unity\UnityTestBed\_outputs\tests_Data\Managed\Mono.Security.dll (this message is harmless)

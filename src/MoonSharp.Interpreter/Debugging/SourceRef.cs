@@ -7,6 +7,8 @@ namespace MoonSharp.Interpreter.Debugging
 {
 	public class SourceRef
 	{
+		public bool IsClrLocation { get; private set; }
+
 		public int SourceIdx { get; private set; }
 		public int FromChar { get; private set; }
 		public int ToChar { get; private set; }
@@ -18,6 +20,11 @@ namespace MoonSharp.Interpreter.Debugging
 		public bool CannotBreakpoint { get; private set; }
 
 		public string Type { get; set; }
+
+		internal static SourceRef GetClrLocation()
+		{
+			return new SourceRef(0, 0, 0, 0, 0, false) { IsClrLocation = true };
+		}
 
 		internal SourceRef(int sourceIdx, int from, int to, int fromline, int toline, bool isStepStop)
 		{
@@ -104,13 +111,38 @@ namespace MoonSharp.Interpreter.Debugging
 			return true;
 		}
 
-
-
-
 		public SourceRef SetNoBreakPoint()
 		{
 			CannotBreakpoint = true;
 			return this;
+		}
+
+		public string FormatLocation(Script script, bool forceClassicFormat = false)
+		{
+			SourceCode sc = script.GetSourceCode(this.SourceIdx);
+
+			if (this.IsClrLocation)
+				return "[clr]";
+
+			if (script.Options.UseLuaErrorLocations || forceClassicFormat)
+			{
+				return string.Format("{0}:{1}", sc.Name, this.FromLine);
+			}
+			else if (this.FromLine == this.ToLine)
+			{
+				if (this.FromChar == this.ToChar)
+				{
+					return string.Format("{0}:({1},{2})", sc.Name, this.FromLine, this.FromChar, this.ToLine, this.ToChar);
+				}
+				else
+				{
+					return string.Format("{0}:({1},{2}-{4})", sc.Name, this.FromLine, this.FromChar, this.ToLine, this.ToChar);
+				}
+			}
+			else
+			{
+				return string.Format("{0}:({1},{2}-{3},{4})", sc.Name, this.FromLine, this.FromChar, this.ToLine, this.ToChar);
+			}
 		}
 	}
 }

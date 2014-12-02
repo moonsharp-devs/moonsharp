@@ -15,19 +15,6 @@ namespace MoonSharp
 {
 	class Program
 	{
-		static DynValue Print(ScriptExecutionContext executionContext, CallbackArguments values)
-		{
-			string prn = string.Join(" ", values.GetArray().Where(v => v.IsNotVoid()).Select(v => v.ToPrintString()).ToArray());
-			Console.WriteLine("{0}", prn);
-			return DynValue.Nil;
-		}
-
-		static DynValue Read(ScriptExecutionContext executionContext, CallbackArguments values)
-		{
-			double d = double.Parse(Console.ReadLine());
-			return DynValue.NewNumber(d);
-		}
-
 		static StringBuilder g_TreeDump = new StringBuilder();
 
 		[STAThread]
@@ -45,8 +32,6 @@ namespace MoonSharp
 			{
 				Script script = new Script();
 
-				script.Globals.Set("print", DynValue.NewCallback(new CallbackFunction(Print)));
-
 				script.DoFile(args[0]);
 
 				Console.WriteLine("Done.");
@@ -58,9 +43,7 @@ namespace MoonSharp
 			{
 				Console.WriteLine("Type <enter> twice to execute code.\n");
 
-				Script script = new Script();
-
-				script.Globals.Set("print", DynValue.NewCallback(new CallbackFunction(Print)));
+				Script script = new Script(CoreModules.Preset_Complete);
 
 				string cmd = "";
 
@@ -145,7 +128,7 @@ namespace MoonSharp
 			}
 			if (p == "!")
 			{
-				ParseCommand(S, "debug");
+				//ParseCommand(S, "debug");
 				ParseCommand(S, @"run c:\temp\test.lua");
 			}
 		}

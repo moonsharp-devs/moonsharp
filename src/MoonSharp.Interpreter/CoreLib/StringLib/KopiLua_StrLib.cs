@@ -636,7 +636,7 @@ namespace MoonSharp.Interpreter.CoreLib.StringLib
 
 		public static int str_gmatch(LuaState L)
 		{
-			CallbackFunction C = new CallbackFunction(gmatch_aux_2);
+			CallbackFunction C = new CallbackFunction(gmatch_aux_2, "gmatch");
 			string s = ArgAsType(L, 1, DataType.String, false).String;
 			string p = ArgAsType(L, 2, DataType.String, false).String;
 

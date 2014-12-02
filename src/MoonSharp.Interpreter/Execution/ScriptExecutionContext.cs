@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MoonSharp.Interpreter.Debugging;
 using MoonSharp.Interpreter.Execution.VM;
 using MoonSharp.Interpreter.Interop.LuaStateInterop;
 
@@ -15,10 +16,20 @@ namespace MoonSharp.Interpreter.Execution
 		Processor m_Processor;
 		CallbackFunction m_Callback;
 
-		internal ScriptExecutionContext(Processor p, CallbackFunction callBackFunction)
+		internal ScriptExecutionContext(Processor p, CallbackFunction callBackFunction, SourceRef sourceRef)
 		{
 			m_Processor = p;
 			m_Callback = callBackFunction;
+			CallingLocation = sourceRef;
+		}
+
+		/// <summary>
+		/// Gets the location of the code calling back 
+		/// </summary>
+		public SourceRef CallingLocation
+		{
+			get;
+			private set;
 		}
 
 		/// <summary>
@@ -219,5 +230,20 @@ namespace MoonSharp.Interpreter.Execution
 				else return env.Table;
 			}
 		}
+
+		/// <summary>
+		/// Performs a message decoration before unwinding after an error. To be used in the implementation of xpcall like functions.
+		/// </summary>
+		/// <param name="messageHandler">The message handler.</param>
+		/// <param name="exception">The exception.</param>
+		public void PerformMessageDecorationBeforeUnwind(DynValue messageHandler, ScriptRuntimeException exception)
+		{
+			if (messageHandler != null)
+				exception.DecoratedMessage = m_Processor.PerformMessageDecorationBeforeUnwind(messageHandler, exception.Message, CallingLocation);
+			else
+				exception.DecoratedMessage = exception.Message;
+		}
+
+
 	}
 }

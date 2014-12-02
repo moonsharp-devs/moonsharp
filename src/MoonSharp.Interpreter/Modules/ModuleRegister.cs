@@ -32,6 +32,7 @@ namespace MoonSharp.Interpreter
 			if (modules.Has(CoreModules.OS_System)) RegisterModuleType<OsSystemModule>(table);
 			if (modules.Has(CoreModules.OS_Time)) RegisterModuleType<OsTimeModule>(table);
 			if (modules.Has(CoreModules.IO)) RegisterModuleType<IoModule>(table);
+			if (modules.Has(CoreModules.Debug)) RegisterModuleType<DebugModule>(table);
 
 			return table;
 		}
@@ -73,7 +74,7 @@ namespace MoonSharp.Interpreter
 
 					string name = (!string.IsNullOrEmpty(attr.Name)) ? attr.Name : mi.Name;
 
-					table.Set(name, DynValue.NewCallback(func));
+					table.Set(name, DynValue.NewCallback(func, name));
 				}
 				else if (mi.Name == "MoonSharpInit")
 				{

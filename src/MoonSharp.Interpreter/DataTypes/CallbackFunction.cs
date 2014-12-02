@@ -15,13 +15,17 @@ namespace MoonSharp.Interpreter
 		Func<ScriptExecutionContext, CallbackArguments, DynValue> m_CallBack;
 		private static InteropAccessMode m_DefaultAccessMode = InteropAccessMode.LazyOptimized;
 
+		public string Name { get; private set; }
+
 		/// <summary>
-		/// Initializes a new instance of the <see cref="CallbackFunction"/> class.
+		/// Initializes a new instance of the <see cref="CallbackFunction" /> class.
 		/// </summary>
 		/// <param name="callBack">The callback function to be called.</param>
-		public CallbackFunction(Func<ScriptExecutionContext, CallbackArguments, DynValue> callBack)
+		/// <param name="name">The callback name, used in stacktraces, debugger, etc..</param>
+		public CallbackFunction(Func<ScriptExecutionContext, CallbackArguments, DynValue> callBack, string name = null)
 		{
 			m_CallBack = callBack;
+			Name = name;
 		}
 
 		/// <summary>
@@ -90,7 +94,7 @@ namespace MoonSharp.Interpreter
 				accessMode = m_DefaultAccessMode;
 
 			UserDataMethodDescriptor descr = new UserDataMethodDescriptor(mi, accessMode);
-			return new CallbackFunction(descr.GetCallback(script, null));
+			return new CallbackFunction(descr.GetCallback(script, null), mi.Name);
 		}
 
 		/// <summary>
