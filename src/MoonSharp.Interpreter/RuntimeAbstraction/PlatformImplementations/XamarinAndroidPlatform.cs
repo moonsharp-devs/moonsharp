@@ -5,22 +5,16 @@ using System.Text;
 
 namespace MoonSharp.Interpreter.RuntimeAbstraction
 {
-	class Clr2Platform : Platform
+	class XamarinAndroidPlatform : MonoPlatform
 	{
 		public override string Name
 		{
-			get { return "clr-2"; }
-		}
-
-		public override string GetEnvironmentVariable(string variable)
-		{
-			return Environment.GetEnvironmentVariable(variable);
+			get { return "xamarin-android"; }
 		}
 
 		public override CoreModules FilterSupportedCoreModules(CoreModules module)
 		{
-			return module;
+			return module & (~(CoreModules.IO | CoreModules.OS_System));
 		}
-
 	}
 }

@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("MoonSharp.Interpreter")]
-[assembly: AssemblyDescription("Interpreter for the MoonSharp language")]
+[assembly: AssemblyDescription("An interpreter for the Lua language")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("http://www.moonsharp.org")]
 [assembly: AssemblyProduct("MoonSharp.Interpreter")]

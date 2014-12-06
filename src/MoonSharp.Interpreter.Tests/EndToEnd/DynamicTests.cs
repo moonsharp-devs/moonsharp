@@ -85,5 +85,21 @@ namespace MoonSharp.Interpreter.Tests
 			//Assert.AreEqual(6, res.Number);
 		}
 
+		[Test]
+		public void DynamicAccessFromCSharp()
+		{
+			string code = @"
+				t = { ciao = { 'hello' } }
+				";
+
+			Script script = new Script();
+			script.DoString(code);
+
+			DynValue v = script.CreateDynamicExpression("t.ciao[1] .. ' world'").Evaluate();
+
+			Assert.AreEqual(v.String, "hello world");
+		}
+
+
 	}
 }

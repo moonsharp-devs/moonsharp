@@ -11,6 +11,7 @@ namespace MoonSharp.Interpreter.Debugging
 		void SetSourceCode(SourceCode sourceCode);
 		void SetByteCode(string[] byteCode);
 		bool IsPauseRequested();
+		bool SignalRuntimeException(ScriptRuntimeException ex);
 		DebuggerAction GetAction(int ip, SourceRef sourceref);
 		void SignalExecutionEnded();
 		void Update(WatchType watchType, IEnumerable<WatchItem> items);

@@ -58,11 +58,11 @@ namespace MoonSharp.RemoteDebugger
 			}
 		}
 
-		public void Attach(Script S, string scriptName)
+		public void Attach(Script S, string scriptName, bool freeRunAfterAttach = false)
 		{
 			lock (m_Lock)
 			{
-				DebugServer d = new DebugServer(scriptName, S, m_RpcPortMax, m_Options.NetworkOptions);
+				DebugServer d = new DebugServer(scriptName, S, m_RpcPortMax, m_Options.NetworkOptions, freeRunAfterAttach);
 				S.AttachDebugger(d);
 				m_DebugServers.Add(d);
 			}

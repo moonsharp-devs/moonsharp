@@ -26,6 +26,8 @@ package
 		
 		private var m_InstructionPtrHighlight : Highlight = null;
 		
+		private var m_ErrorRx:String;
+		
 		
 		public function DebuggerViewLogic(view : Main, loaderInfo: LoaderInfo)
 		{
@@ -127,6 +129,10 @@ package
 			else if (cmd == "breakpoints")
 			{
 				refreshBreakpoints(xml);
+			}
+			else if (cmd == "error_rx")
+			{
+				m_ErrorRx = xml.@arg;	
 			}
 		}
 		
@@ -264,14 +270,30 @@ package
 		}	
 		
 		
-		public function toggleBreakpoint(src:int, line:int, col:int) : void
+		public function toggleBreakpoint(src:int, line:int, col:int, action:String) : void
 		{
-			var cmd:XML = <Command cmd="breakpoint" arg="toggle" />;
+			var cmd:XML = <Command cmd="breakpoint" />;
+			cmd.@arg = action;
 			cmd.@src = src;
 			cmd.@line = line;
 			cmd.@col = col;
 			m_Socket.send(cmd);		
 		}	
+		
+		public function getErrorRx():String
+		{
+			return m_ErrorRx;	
+		}
+		
+		public function setErrorRx(val:String):void
+		{
+			m_ErrorRx = val;	
+			var cmd:XML = <Command cmd="error_rx" />;
+			cmd.@arg = val;
+			m_Socket.send(cmd);
+		}
+		
+		
 		
 	}
 }

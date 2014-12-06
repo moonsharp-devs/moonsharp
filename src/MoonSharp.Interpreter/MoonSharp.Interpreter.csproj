@@ -208,6 +208,7 @@
     <Compile Include="RuntimeAbstraction\PlatformImplementations\MonoPlatform.cs" />
     <Compile Include="RuntimeAbstraction\PlatformImplementations\UnityPlatform.cs" />
     <Compile Include="RuntimeAbstraction\PlatformImplementations\UnityWebPlatform.cs" />
+    <Compile Include="RuntimeAbstraction\PlatformImplementations\XamarinAndroidPlatform.cs" />
     <Compile Include="Script.cs" />
     <Compile Include="DataTypes\Table.cs" />
     <Compile Include="Execution\VM\ByteCode.cs" />

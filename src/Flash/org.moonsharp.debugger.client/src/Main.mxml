@@ -51,9 +51,14 @@
 						<menuitem label="(R) - Run" data="run" icon="run" />
 						<menuitem label="(P) - Pause" data="pause" icon="pause" />
 						<menuitem type="separator"/>
-						<menuitem label="(B) - Toggle breakpoint" data="breakpoint" icon="breakpoint" />
-						<menuitem type="separator"/>
 						<menuitem label="(G) - Go to current" data="step_current" icon="step_current" />
+					</menuitem>
+					<menuitem label="Breakpoints" data="top">
+						<menuitem label="(B) - Toggle breakpoint" data="breakpoint" icon="breakpoint" />
+						<menuitem label="Set breakpoint" data="set_breakpoint"  />
+						<menuitem label="Clear breakpoint" data="clear_breakpoint"  />
+						<menuitem type="separator"/>
+						<menuitem label="(E) - Errors break regex..." data="error_rx"   />
 					</menuitem>
 					<menuitem label="Watches" data="top">
 						<menuitem label="(Ins) - Add watches..." data="add" icon="add" />
@@ -238,7 +243,7 @@
 				event.preventDefault();
 			}
 			
-			protected function toggleBreakpoint() : void
+			protected function toggleBreakpoint(cmdType:String) : void
 			{
 				if (m_CurrentSrc == null) return;
 				
@@ -246,7 +251,7 @@
 				var line:int = m_CurrentSrc.inflateLocationLine(cursor);
 				var col:int = m_CurrentSrc.inflateLocationColumn(cursor, line);
 				
-				m_Debugger.toggleBreakpoint(m_CurrentSrc.getId(), line, col);
+				m_Debugger.toggleBreakpoint(m_CurrentSrc.getId(), line, col, cmdType);
 			}
 			
 			protected function moveCaret(where : int) : void
@@ -280,7 +285,24 @@
 				else if (cmd == "run") m_Debugger.run();
 				else if (cmd == "pause") m_Debugger.pause();
 				else if (cmd == "step_current") refreshInstructionPtrHighlight(true);
-				else if (cmd == "breakpoint") toggleBreakpoint();
+				else if (cmd == "breakpoint") toggleBreakpoint("toggle");
+				else if (cmd == "set_breakpoint") toggleBreakpoint("set");
+				else if (cmd == "clear_breakpoint") toggleBreakpoint("clear");
+				else if (cmd == "error_rx")
+				{
+					m_DisableKeys = true;
+					
+					InputBox.show(this, "Error RegEx", 
+						"Insert a regular expression which matches error messages you want to stop on.", m_Debugger.getErrorRx(), 
+						
+					function(str:String):void
+					{
+						m_DisableKeys = false;
+						
+						if (str !== null && str !== "")
+							m_Debugger.setErrorRx(str);
+					});
+				}
 				else if (cmd == "add") 
 				{
 					m_DisableKeys = true;

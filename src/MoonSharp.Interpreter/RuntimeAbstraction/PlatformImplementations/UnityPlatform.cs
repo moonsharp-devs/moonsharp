@@ -9,7 +9,7 @@ namespace MoonSharp.Interpreter.RuntimeAbstraction
 	{
 		public override string Name
 		{
-			get { return "Unity"; }
+			get { return "unity"; }
 		}
 
 

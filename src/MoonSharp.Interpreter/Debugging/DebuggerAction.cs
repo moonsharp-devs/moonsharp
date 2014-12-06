@@ -17,6 +17,8 @@ namespace MoonSharp.Interpreter.Debugging
 			StepOut,
 			Run,
 			ToggleBreakpoint,
+			SetBreakpoint,
+			ClearBreakpoint,
 			Refresh,
 			HardRefresh,
 			None,
@@ -39,7 +41,7 @@ namespace MoonSharp.Interpreter.Debugging
 
 		public override string ToString()
 		{
-			if (Action == ActionType.ToggleBreakpoint)
+			if (Action == ActionType.ToggleBreakpoint || Action == ActionType.SetBreakpoint || Action == ActionType.ClearBreakpoint)
 			{
 				return string.Format("{0} {1}:({2},{3})", Action, SourceID, SourceLine, SourceCol);
 			}

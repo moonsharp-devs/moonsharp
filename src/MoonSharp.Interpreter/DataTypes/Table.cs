@@ -57,7 +57,32 @@ namespace MoonSharp.Interpreter
 		}
 
 		/// <summary>
-		/// Gets or sets the <see cref="System.Object"/> with the specified key.
+		/// Gets or sets the <see cref="System.Object"/> with the specified key(s).
+		/// This will marshall CLR and MoonSharp objects in the best possible way.
+		/// Multiple keys can be used to access subtables.
+		/// </summary>
+		/// <value>
+		/// The <see cref="System.Object"/>.
+		/// </value>
+		/// <param name="key">The key.</param>
+		/// <returns></returns>
+		public object this[object key, params object[] subkeys]
+		{
+			get
+			{
+				Table t = ResolveMultipleKeys(ref key, subkeys);
+				return t.GetAsObject(key);
+			}
+
+			set
+			{
+				Table t = ResolveMultipleKeys(ref key, subkeys);
+				t.SetAsObject(key, value);
+			}
+		}
+
+		/// <summary>
+		/// Gets or sets the <see cref="System.Object"/> with the specified key(s).
 		/// This will marshall CLR and MoonSharp objects in the best possible way.
 		/// </summary>
 		/// <value>
@@ -69,27 +94,74 @@ namespace MoonSharp.Interpreter
 		{
 			get
 			{
-				if (key is string)
-					return Get((string)key).ToObject();
-				else if (key is int)
-					return Get((int)key).ToObject();
-
-				DynValue dynkey = DynValue.FromObject(this.OwnerScript, key);
-				return Get(dynkey).ToObject();
+				return this.GetAsObject(key);
 			}
 
 			set
 			{
-				DynValue dynval = DynValue.FromObject(this.OwnerScript, value);
-
-				if (key is string)
-					Set((string)key, dynval);
-				else if (key is int)
-					Set((int)key, dynval);
-				else
-					Set(DynValue.FromObject(this.OwnerScript, key), dynval);
+				this.SetAsObject(key, value);
 			}
 		}
+
+		private Table ResolveMultipleKeys(ref object key, object[] subkeys)
+		{
+			if (subkeys.Length == 0)
+				return this;
+
+			Table t = this;
+			int i = -1;
+
+			do
+			{
+				DynValue vt = t.GetWithObjectKey(key);
+
+				if (vt.Type != DataType.Table)
+					throw new ScriptRuntimeException("Key '{0}' did not point to a table");
+
+				t = vt.Table;
+				key = subkeys[++i];
+			}
+			while (i < subkeys.Length - 1);
+
+			return t;
+		}
+
+		public DynValue GetWithObjectKey(object key)
+		{
+			if (key is string)
+				return Get((string)key);
+			else if (key is int)
+				return Get((int)key);
+
+			DynValue dynkey = DynValue.FromObject(this.OwnerScript, key);
+			return Get(dynkey);
+		}
+
+
+		public object GetAsObject(object key)
+		{
+			if (key is string)
+				return Get((string)key).ToObject();
+			else if (key is int)
+				return Get((int)key).ToObject();
+
+			DynValue dynkey = DynValue.FromObject(this.OwnerScript, key);
+			return Get(dynkey).ToObject();
+		}
+
+		public void SetAsObject(object key, object value)
+		{
+			DynValue dynval = DynValue.FromObject(this.OwnerScript, value);
+
+			if (key is string)
+				Set((string)key, dynval);
+			else if (key is int)
+				Set((int)key, dynval);
+			else
+				Set(DynValue.FromObject(this.OwnerScript, key), dynval);
+		}
+
+
 
 
 

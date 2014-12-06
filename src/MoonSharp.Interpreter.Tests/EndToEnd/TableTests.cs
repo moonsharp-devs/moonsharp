@@ -340,5 +340,109 @@ namespace MoonSharp.Interpreter.Tests
 			Assert.AreEqual(DataType.Nil, res.Tuple[0].Type);
 			Assert.AreEqual(DataType.String, res.Tuple[1].Type);
 		}
+
+
+		[Test]
+		public void TableSimplifiedAccess1()
+		{
+			string script = @"    
+			t = {
+				ciao = 'hello'
+			}
+
+			return t;
+		";
+
+			Script s = new Script();
+			DynValue t = s.DoString(script);
+
+			Assert.AreEqual("hello", t.Table["ciao"]);
+		}
+
+		[Test]
+		public void TableSimplifiedAccess2()
+		{
+			string script = @"    
+			t = {
+				ciao = x
+			}
+
+			return t;
+		";
+
+			Script s = new Script();
+			s.Globals["x"] = "hello";
+			DynValue t = s.DoString(script);
+
+			Assert.AreEqual("hello", t.Table["ciao"]);
+		}
+
+		[Test]
+		public void TableSimplifiedAccess3()
+		{
+			string script = @"    
+			t = {
+			}
+
+			return t;
+		";
+
+			Script s = new Script();
+			DynValue t = s.DoString(script);
+
+			s.Globals["t", "ciao"] = "hello";
+
+			Assert.AreEqual("hello", t.Table["ciao"]);
+		}
+
+		[Test]
+		public void TableSimplifiedAccess4()
+		{
+			string script = @"    
+			t = {
+			}
+		";
+
+			Script s = new Script();
+			s.DoString(script);
+
+			s.Globals["t", "ciao"] = "hello";
+
+			Assert.AreEqual("hello", s.Globals["t", "ciao"]);
+		}
+
+
+		[Test]
+		public void TableSimplifiedAccess5()
+		{
+			string script = @"    
+			t = {
+				ciao = 'hello'
+			}
+		";
+
+			Script s = new Script();
+			s.DoString(script);
+
+			Assert.AreEqual("hello", s.Globals["t", "ciao"]);
+		}
+
+		[Test]
+		public void TableSimplifiedAccess6()
+		{
+			string script = @"    
+			t = {
+				ciao = 
+				{	'hello' }
+			}
+		";
+
+			Script s = new Script();
+			s.DoString(script);
+
+			Assert.AreEqual("hello", s.Globals["t", "ciao", 1]);
+		}
+
+
 	}
 }

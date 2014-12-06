@@ -118,7 +118,7 @@ namespace MoonSharp
 			if (p == "debug" && m_Debugger == null)
 			{
 				m_Debugger = new RemoteDebuggerService();
-				m_Debugger.Attach(S, "MoonSharp REPL interpreter");
+				m_Debugger.Attach(S, "MoonSharp REPL interpreter", false);
 				Process.Start(m_Debugger.HttpUrlStringLocalHost);
 			}
 			if (p.StartsWith("run"))
@@ -128,7 +128,7 @@ namespace MoonSharp
 			}
 			if (p == "!")
 			{
-				//ParseCommand(S, "debug");
+				ParseCommand(S, "debug");
 				ParseCommand(S, @"run c:\temp\test.lua");
 			}
 		}

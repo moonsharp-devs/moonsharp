@@ -6,6 +6,9 @@ using MoonSharp.Interpreter.Loaders;
 
 namespace MoonSharp.Interpreter
 {
+	/// <summary>
+	/// This class contains options to customize behaviour of Script objects.
+	/// </summary>
 	public class ScriptOptions
 	{
 		internal ScriptOptions()

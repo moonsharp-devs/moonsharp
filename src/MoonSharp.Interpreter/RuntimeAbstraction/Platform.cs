@@ -25,7 +25,19 @@ namespace MoonSharp.Interpreter.RuntimeAbstraction
 				}
 				else
 				{
-					s_Current = new MonoPlatform();
+					bool onXamarinDroid = AppDomain.CurrentDomain
+						.GetAssemblies()
+						.SelectMany(a => a.GetTypes())
+						.Any(t => t.FullName.StartsWith("Android.App."));
+
+					if (onXamarinDroid)
+					{
+						s_Current = new XamarinAndroidPlatform();
+					}
+					else
+					{
+						s_Current = new MonoPlatform();
+					}
 				}
 			}
 			else if (onUnity)

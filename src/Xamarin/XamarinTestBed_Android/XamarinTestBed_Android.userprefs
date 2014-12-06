@@ -1,0 +1,14 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" ActiveRuntime="MS.NET" PreferredExecutionTarget="Android.3230994d2d6010bd" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="XamarinTestBed_Android\MainActivity.cs">
+    <Files>
+      <File FileName="XamarinTestBed_Android\MainActivity.cs" Line="22" Column="22" />
+      <File FileName="XamarinTestBed_Android\XamarinLoader.cs" Line="1" Column="1" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.ItemProperties.XamarinTestBed__Android MonoForAntroid.PreferredDevice="Nexus 4" AndroidDeviceId-Debug="emulator-5554" />
+</Properties>

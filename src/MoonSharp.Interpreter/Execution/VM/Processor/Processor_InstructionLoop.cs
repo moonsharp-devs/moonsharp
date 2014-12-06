@@ -234,6 +234,17 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 				if (!(ex is ScriptRuntimeException)) throw;
 
+				if (m_Debug.DebuggerAttached != null)
+				{
+					if (m_Debug.DebuggerAttached.SignalRuntimeException((ScriptRuntimeException)ex))
+					{
+						if (instructionPtr >= 0 && instructionPtr < this.m_RootChunk.Code.Count)
+						{
+							ListenDebugger(m_RootChunk.Code[instructionPtr], instructionPtr);
+						}
+					}
+				}
+
 				for (int i = 0; i < m_ExecutionStack.Count; i++)
 				{
 					var c = m_ExecutionStack.Peek(i);

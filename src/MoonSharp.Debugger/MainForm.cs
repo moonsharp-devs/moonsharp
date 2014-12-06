@@ -428,5 +428,12 @@ namespace MoonSharp.Debugger
 		public void RefreshBreakpoints(IEnumerable<SourceRef> refs)
 		{
 		}
+
+
+		public bool SignalRuntimeException(ScriptRuntimeException ex)
+		{
+			Console_WriteLine("Error: {0}", ex.DecoratedMessage);
+			return true;
+		}
 	}
 }

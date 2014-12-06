@@ -9,7 +9,7 @@ namespace MoonSharp.Interpreter.RuntimeAbstraction
 	{
 		public override string Name
 		{
-			get { return "UnityWeb"; }
+			get { return "unity-web"; }
 		}
 
 		public override string GetEnvironmentVariable(string variable)

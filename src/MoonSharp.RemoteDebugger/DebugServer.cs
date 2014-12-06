@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Xml;
 using MoonSharp.Interpreter;
@@ -26,9 +27,11 @@ namespace MoonSharp.RemoteDebugger
 		bool m_HostBusySent = false;
 		private bool m_RequestPause = false;
 		string[] m_CachedWatches = new string[(int)WatchType.MaxValue];
+		bool m_FreeRunAfterAttach;
+		Regex m_ErrorRegEx = new Regex(@"\A.*\Z");
 
 
-		public DebugServer(string appName, Script script, int port, Utf8TcpServerOptions options)
+		public DebugServer(string appName, Script script, int port, Utf8TcpServerOptions options, bool freeRunAfterAttach)
 		{
 			m_AppName = appName;
 
@@ -36,6 +39,7 @@ namespace MoonSharp.RemoteDebugger
 			m_Server.Start();
 			m_Server.DataReceived += m_Server_DataReceived;
 			m_Script = script;
+			m_FreeRunAfterAttach = freeRunAfterAttach;
 		}
 
 		public string AppName { get { return m_AppName; } }
@@ -111,9 +115,10 @@ namespace MoonSharp.RemoteDebugger
 				{
 					xw.Attribute("app", m_AppName)
 						.Attribute("moonsharpver", Assembly.GetAssembly(typeof(Script)).GetName().Version.ToString());
-
 				}
 			});
+
+			SendOption("error_rx", m_ErrorRegEx.ToString());
 		}
 
 		public void Update(WatchType watchType, IEnumerable<WatchItem> items)
@@ -198,6 +203,12 @@ namespace MoonSharp.RemoteDebugger
 		{
 			try
 			{
+				if (m_FreeRunAfterAttach)
+				{
+					m_FreeRunAfterAttach = false;
+					return new DebuggerAction() { Action = DebuggerAction.ActionType.Run };
+				}
+
 				m_InGetActionLoop = true;
 				m_RequestPause = false;
 
@@ -239,7 +250,8 @@ namespace MoonSharp.RemoteDebugger
 						return da;
 					}
 
-					if (da.Action == DebuggerAction.ActionType.ToggleBreakpoint)
+					if (da.Action == DebuggerAction.ActionType.ToggleBreakpoint || da.Action == DebuggerAction.ActionType.SetBreakpoint
+						|| da.Action == DebuggerAction.ActionType.ClearBreakpoint)
 						return da;
 
 					if (da.Age < TimeSpan.FromMilliseconds(100))
@@ -334,6 +346,10 @@ namespace MoonSharp.RemoteDebugger
 					case "pause":
 						m_RequestPause = true;
 						break;
+					case "error_rx":
+						m_ErrorRegEx = new Regex(arg.Trim());
+						SendOption("error_rx", m_ErrorRegEx.ToString());
+						break;
 					case "addwatch":
 						lock (m_Lock)
 							m_WatchesChanging.UnionWith(arg.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()));
@@ -351,9 +367,14 @@ namespace MoonSharp.RemoteDebugger
 						QueueRefresh();
 						break;
 					case "breakpoint":
+						DebuggerAction.ActionType action = DebuggerAction.ActionType.ToggleBreakpoint;
+
+						if (arg == "set") action = DebuggerAction.ActionType.SetBreakpoint;
+						else if (arg == "clear") action = DebuggerAction.ActionType.ClearBreakpoint;
+
 						QueueAction(new DebuggerAction()
 						{
-							Action = DebuggerAction.ActionType.ToggleBreakpoint,
+							Action = action,
 							SourceID = int.Parse(xdoc.DocumentElement.GetAttribute("src")),
 							SourceLine = int.Parse(xdoc.DocumentElement.GetAttribute("line")),
 							SourceCol = int.Parse(xdoc.DocumentElement.GetAttribute("col")),
@@ -374,6 +395,18 @@ namespace MoonSharp.RemoteDebugger
 
 			QueueAction(new DebuggerAction() { Action = DebuggerAction.ActionType.HardRefresh });
 		}
+
+		private void SendOption(string optionName, string optionVal)
+		{
+			Send(xw =>
+				{
+					using (xw.Element(optionName))
+					{
+						xw.Attribute("arg", optionVal);
+					}
+				});
+		}
+
 
 		private void SendMessage(string text)
 		{
@@ -414,10 +447,11 @@ namespace MoonSharp.RemoteDebugger
 			});
 		}
 
-
-
-
-
-
+		public bool SignalRuntimeException(ScriptRuntimeException ex)
+		{
+			SendMessage(string.Format("Error: {0}", ex.DecoratedMessage));
+			m_RequestPause = m_ErrorRegEx.IsMatch(ex.Message);
+			return IsPauseRequested();
+		}
 	}
 }

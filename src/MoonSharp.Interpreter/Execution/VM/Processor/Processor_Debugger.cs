@@ -77,7 +77,15 @@ namespace MoonSharp.Interpreter.Execution.VM
 						m_Debug.DebuggerCurrentActionTarget = -1;
 						return;
 					case DebuggerAction.ActionType.ToggleBreakpoint:
-						ToggleBreakPoint(action);
+						ToggleBreakPoint(action, null);
+						RefreshDebugger(true, instructionPtr);
+						break;
+					case DebuggerAction.ActionType.SetBreakpoint:
+						ToggleBreakPoint(action, true);
+						RefreshDebugger(true, instructionPtr);
+						break;
+					case DebuggerAction.ActionType.ClearBreakpoint:
+						ToggleBreakPoint(action, false);
 						RefreshDebugger(true, instructionPtr);
 						break;
 					case DebuggerAction.ActionType.Refresh:
@@ -95,7 +103,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 
 
-		private bool ToggleBreakPoint(DebuggerAction action)
+		private bool ToggleBreakPoint(DebuggerAction action, bool? state)
 		{
 			SourceCode src = m_Script.GetSourceCode(action.SourceID);
 
@@ -111,7 +119,10 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 					System.Diagnostics.Debug.WriteLine(string.Format("BRK: found {0} for {1} on contains", srf, srf.Type));
 
-					srf.Breakpoint = !srf.Breakpoint;
+					if (state == null)
+						srf.Breakpoint = !srf.Breakpoint;
+					else
+						srf.Breakpoint = state.Value;
 
 					if (srf.Breakpoint)
 					{
@@ -147,7 +158,10 @@ namespace MoonSharp.Interpreter.Execution.VM
 				{
 					System.Diagnostics.Debug.WriteLine(string.Format("BRK: found {0} for {1} on distance {2}", nearest, nearest.Type, minDistance));
 
-					nearest.Breakpoint = !nearest.Breakpoint;
+					if (state == null)
+						nearest.Breakpoint = !nearest.Breakpoint;
+					else
+						nearest.Breakpoint = state.Value;
 
 					if (nearest.Breakpoint)
 					{

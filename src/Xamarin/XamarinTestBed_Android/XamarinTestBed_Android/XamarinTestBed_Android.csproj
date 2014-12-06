@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectTypeGuids>{EFBA0AD7-5A72-4C68-AF49-83D382785DCF};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <ProjectGuid>{7E437BCC-8483-45C1-8F90-BCE931749061}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>XamarinTestBed_Android</RootNamespace>
+    <MonoAndroidResourcePrefix>Resources</MonoAndroidResourcePrefix>
+    <MonoAndroidAssetsPrefix>Assets</MonoAndroidAssetsPrefix>
+    <AndroidUseLatestPlatformSdk>True</AndroidUseLatestPlatformSdk>
+    <AndroidApplication>True</AndroidApplication>
+    <AndroidResgenFile>Resources\Resource.designer.cs</AndroidResgenFile>
+    <AndroidResgenClass>Resource</AndroidResgenClass>
+    <AssemblyName>XamarinTestBed_Android</AssemblyName>
+    <TargetFrameworkVersion>v4.4</TargetFrameworkVersion>
+    <AndroidManifest>Properties\AndroidManifest.xml</AndroidManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AndroidLinkMode>None</AndroidLinkMode>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>full</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Core" />
+    <Reference Include="Mono.Android" />
+    <Reference Include="Antlr4.Runtime.net35">
+      <HintPath>..\..\..\MoonSharpTests\bin\Debug\Antlr4.Runtime.net35.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.framework">
+      <HintPath>..\..\..\MoonSharpTests\bin\Debug\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="MoonSharp.Interpreter.Tests">
+      <HintPath>..\..\..\MoonSharpTests\bin\Debug\MoonSharp.Interpreter.Tests.dll</HintPath>
+    </Reference>
+    <Reference Include="MoonSharp.Interpreter">
+      <HintPath>..\..\..\MoonSharpTests\bin\Debug\MoonSharp.Interpreter.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="MainActivity.cs" />
+    <Compile Include="Resources\Resource.designer.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="XamarinLoader.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AboutResources.txt" />
+    <None Include="Properties\AndroidManifest.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\Main.axml" />
+    <AndroidResource Include="Resources\values\Strings.xml" />
+    <AndroidResource Include="Resources\drawable\Icon.png" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />
+  <ItemGroup>
+    <AndroidAsset Include="..\..\..\MoonSharpTests\bin\Debug\TestMore\000-sanity.t">
+      <Link>Assets\000-sanity.t</Link>
+    </AndroidAsset>
+    <AndroidAsset Include="..\..\..\MoonSharpTests\bin\Debug\TestMore\001-if.t">
+      <Link>Assets\001-if.t</Link>
+    </AndroidAsset>
+    <AndroidAsset Include="..\..\..\MoonSharpTests\bin\Debug\TestMore\002-table.t">
+      <Link>Assets\002-table.t</Link>
+    </AndroidAsset>
+    <AndroidAsset Include="..\..\..\MoonSharpTests\bin\Debug\TestMore\011-while.t">
+      <Link>Assets\011-while.t</Link>
+    </AndroidAsset>
+    <AndroidAsset Include="..\..\..\MoonSharpTests\bin\Debug\TestMore\012-repeat.t">
+      <Link>Assets\012-repeat.t</Link>
+    </AndroidAsset>
+    <AndroidAsset Include="..\..\..\MoonSharpTests\bin\Debug\TestMore\014-fornum.t">
+      <Link>Assets\014-fornum.t</Link>
+    </AndroidAsset>
+    <AndroidAsset Include="..\..\..\MoonSharpTests\bin\Debug\TestMore\015-forlist.t">
+      <Link>Assets\015-forlist.t</Link>
+    </AndroidAsset>
+    <AndroidAsset Include="..\..\..\MoonSharpTests\bin\Debug\TestMore\101-boolean.t">
+      <Link>Assets\101-boolean.t</Link>
+    </AndroidAsset>
+    <AndroidAsset Include="..\..\..\MoonSharpTests\bin\Debug\TestMore\102-function.t">
+      <Link>Assets\102-function.t</Link>
+    </AndroidAsset>
+    <AndroidAsset Include="..\..\..\MoonSharpTests\bin\Debug\TestMore\103-nil.t">
+      <Link>Assets\103-nil.t</Link>
+    </AndroidAsset>
+    <AndroidAsset Include="..\..\..\MoonSharpTests\bin\Debug\TestMore\104-number.t">
+      <Link>Assets\104-number.t</Link>
+    </AndroidAsset>
+    <AndroidAsset Include="..\..\..\MoonSharpTests\bin\Debug\TestMore\105-string.t">
+      <Link>Assets\105-string.t</Link>
+    </AndroidAsset>
+    <AndroidAsset Include="..\..\..\MoonSharpTests\bin\Debug\TestMore\106-table.t">
+      <Link>Assets\106-table.t</Link>
+    </AndroidAsset>
+    <AndroidAsset Include="..\..\..\MoonSharpTests\bin\Debug\TestMore\107-thread.t">
+      <Link>Assets\107-thread.t</Link>
+    </AndroidAsset>
+    <AndroidAsset Include="..\..\..\MoonSharpTests\bin\Debug\TestMore\108-userdata.t">
+      <Link>Assets\108-userdata.t</Link>
+    </AndroidAsset>
+    <AndroidAsset Include="..\..\..\MoonSharpTests\bin\Debug\TestMore\200-examples.t">
+      <Link>Assets\200-examples.t</Link>
+    </AndroidAsset>
+    <AndroidAsset Include="..\..\..\MoonSharpTests\bin\Debug\TestMore\201-assign.t">
+      <Link>Assets\201-assign.t</Link>
+    </AndroidAsset>
+    <AndroidAsset Include="..\..\..\MoonSharpTests\bin\Debug\TestMore\202-expr.t">
+      <Link>Assets\202-expr.t</Link>
+    </AndroidAsset>
+    <AndroidAsset Include="..\..\..\MoonSharpTests\bin\Debug\TestMore\203-lexico.t">
+      <Link>Assets\203-lexico.t</Link>
+    </AndroidAsset>
+    <AndroidAsset Include="..\..\..\MoonSharpTests\bin\Debug\TestMore\204-grammar.t">
+      <Link>Assets\204-grammar.t</Link>
+    </AndroidAsset>
+    <AndroidAsset Include="..\..\..\MoonSharpTests\bin\Debug\TestMore\211-scope.t">
+      <Link>Assets\211-scope.t</Link>
+    </AndroidAsset>
+    <AndroidAsset Include="..\..\..\MoonSharpTests\bin\Debug\TestMore\212-function.t">
+      <Link>Assets\212-function.t</Link>
+    </AndroidAsset>
+    <AndroidAsset Include="..\..\..\MoonSharpTests\bin\Debug\TestMore\213-closure.t">
+      <Link>Assets\213-closure.t</Link>
+    </AndroidAsset>
+    <AndroidAsset Include="..\..\..\MoonSharpTests\bin\Debug\TestMore\214-coroutine.t">
+      <Link>Assets\214-coroutine.t</Link>
+    </AndroidAsset>
+    <AndroidAsset Include="..\..\..\MoonSharpTests\bin\Debug\TestMore\221-table.t">
+      <Link>Assets\221-table.t</Link>
+    </AndroidAsset>
+    <AndroidAsset Include="..\..\..\MoonSharpTests\bin\Debug\TestMore\222-constructor.t">
+      <Link>Assets\222-constructor.t</Link>
+    </AndroidAsset>
+    <AndroidAsset Include="..\..\..\MoonSharpTests\bin\Debug\TestMore\223-iterator.t">
+      <Link>Assets\223-iterator.t</Link>
+    </AndroidAsset>
+    <AndroidAsset Include="..\..\..\MoonSharpTests\bin\Debug\TestMore\231-metatable.t">
+      <Link>Assets\231-metatable.t</Link>
+    </AndroidAsset>
+    <AndroidAsset Include="..\..\..\MoonSharpTests\bin\Debug\TestMore\232-object.t">
+      <Link>Assets\232-object.t</Link>
+    </AndroidAsset>
+    <AndroidAsset Include="..\..\..\MoonSharpTests\bin\Debug\TestMore\301-basic.t">
+      <Link>Assets\301-basic.t</Link>
+    </AndroidAsset>
+    <AndroidAsset Include="..\..\..\MoonSharpTests\bin\Debug\TestMore\304-string.t">
+      <Link>Assets\304-string.t</Link>
+    </AndroidAsset>
+    <AndroidAsset Include="..\..\..\MoonSharpTests\bin\Debug\TestMore\305-table.t">
+      <Link>Assets\305-table.t</Link>
+    </AndroidAsset>
+    <AndroidAsset Include="..\..\..\MoonSharpTests\bin\Debug\TestMore\306-math.t">
+      <Link>Assets\306-math.t</Link>
+    </AndroidAsset>
+    <AndroidAsset Include="..\..\..\MoonSharpTests\bin\Debug\TestMore\307-bit.t">
+      <Link>Assets\307-bit.t</Link>
+    </AndroidAsset>
+    <AndroidAsset Include="..\..\..\MoonSharpTests\bin\Debug\TestMore\308-io.t">
+      <Link>Assets\308-io.t</Link>
+    </AndroidAsset>
+    <AndroidAsset Include="..\..\..\MoonSharpTests\bin\Debug\TestMore\309-os.t">
+      <Link>Assets\309-os.t</Link>
+    </AndroidAsset>
+    <AndroidAsset Include="..\..\..\MoonSharpTests\bin\Debug\TestMore\310-debug.t">
+      <Link>Assets\310-debug.t</Link>
+    </AndroidAsset>
+    <AndroidAsset Include="..\..\..\MoonSharpTests\bin\Debug\TestMore\314-regex.t">
+      <Link>Assets\314-regex.t</Link>
+    </AndroidAsset>
+    <AndroidAsset Include="..\..\..\MoonSharpTests\bin\Debug\TestMore\320-stdin.t">
+      <Link>Assets\320-stdin.t</Link>
+    </AndroidAsset>
+    <AndroidAsset Include="..\..\..\MoonSharpTests\bin\Debug\TestMore\Modules\Test\Builder.lua">
+      <Link>Assets\Builder.lua</Link>
+    </AndroidAsset>
+    <AndroidAsset Include="..\..\..\MoonSharpTests\bin\Debug\TestMore\Modules\Test\More.lua">
+      <Link>Assets\More.lua</Link>
+    </AndroidAsset>
+    <AndroidAsset Include="Assets\AboutAssets.txt" />
+  </ItemGroup>
+</Project>
