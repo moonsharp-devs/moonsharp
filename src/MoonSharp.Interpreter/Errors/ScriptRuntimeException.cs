@@ -186,7 +186,7 @@ namespace MoonSharp.Interpreter
 
 		public static ScriptRuntimeException CannotYield()
 		{
-			return new ScriptRuntimeException("cannot yield to parent coroutine as it would cross a script-clr boundary");
+			return new ScriptRuntimeException("attempt to yield across a CLR-call boundary");
 		}
 
 		public static ScriptRuntimeException CannotYieldMain()

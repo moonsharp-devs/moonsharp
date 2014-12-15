@@ -14,6 +14,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		FastStack<DynValue> m_ValueStack = new FastStack<DynValue>(131072);
 		FastStack<CallStackItem> m_ExecutionStack = new FastStack<CallStackItem>(131072);
+		List<Processor> m_CoroutinesStack;
 
 		Table m_GlobalTable;
 		Script m_Script;
@@ -25,6 +26,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		public Processor(Script script, Table globalContext, ByteCode byteCode)
 		{
+			m_CoroutinesStack = new List<Processor>();
+
 			m_Debug = new DebugContext();
 			m_RootChunk = byteCode;
 			m_GlobalTable = globalContext;
@@ -47,6 +50,11 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		public DynValue Call(DynValue function, DynValue[] args)
 		{
+			List<Processor> coroutinesStack = m_Parent != null ? m_Parent.m_CoroutinesStack : this.m_CoroutinesStack;
+
+			if (coroutinesStack.Count > 0 && coroutinesStack[coroutinesStack.Count - 1] != this)
+				return coroutinesStack[coroutinesStack.Count - 1].Call(function, args);
+
 			EnterProcessor();
 
 			try
@@ -57,7 +65,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 				try
 				{
-					int entrypoint = PushClrToScriptStackFrame(function, args);
+					int entrypoint = PushClrToScriptStackFrame(CallStackItemFlags.CallEntryPoint, function, args);
 					return Processing_Loop(entrypoint);
 				}
 				finally
@@ -76,7 +84,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		// pushes all what's required to perform a clr-to-script function call. function can be null if it's already
 		// at vstack top.
-		private int PushClrToScriptStackFrame(DynValue function, DynValue[] args)
+		private int PushClrToScriptStackFrame(CallStackItemFlags flags, DynValue function, DynValue[] args)
 		{
 			if (function == null) 
 				function = m_ValueStack.Peek();
@@ -96,7 +104,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 				Debug_EntryPoint = function.Function.EntryPointByteCodeLocation,
 				ReturnAddress = -1,
 				ClosureScope = function.Function.ClosureContext,
-				CallingSourceRef = SourceRef.GetClrLocation()
+				CallingSourceRef = SourceRef.GetClrLocation(),
+				Flags = flags
 			});
 
 			return function.Function.EntryPointByteCodeLocation;
@@ -109,6 +118,11 @@ namespace MoonSharp.Interpreter.Execution.VM
 		private void LeaveProcessor()
 		{
 			m_ExecutionNesting -= 1;
+
+			if (m_Parent != null)
+			{
+				m_Parent.m_CoroutinesStack.RemoveAt(m_Parent.m_CoroutinesStack.Count - 1);
+			}
 
 			if (m_ExecutionNesting == 0 && m_Debug != null && m_Debug.DebuggerAttached != null)
 			{
@@ -129,6 +143,11 @@ namespace MoonSharp.Interpreter.Execution.VM
 			m_OwningThreadID = threadID;
 
 			m_ExecutionNesting += 1;
+
+			if (m_Parent != null)
+			{
+				m_Parent.m_CoroutinesStack.Add(this);
+			}
 		}
 
 		internal SourceRef GetCoroutineSuspendedLocation()

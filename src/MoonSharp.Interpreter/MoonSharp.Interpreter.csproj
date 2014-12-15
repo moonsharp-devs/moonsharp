@@ -103,6 +103,7 @@
     <Compile Include="DataTypes\TypeValidationFlags.cs" />
     <Compile Include="Errors\DynamicExpressionException.cs" />
     <Compile Include="Execution\DynamicExpression.cs" />
+    <Compile Include="Execution\VM\CallStackItemFlags.cs" />
     <Compile Include="Interop\AnonWrapper.cs" />
     <Compile Include="Interop\LuaStateInterop\CharPtr.cs" />
     <Compile Include="Interop\LuaStateInterop\LuaBase.cs" />
@@ -178,6 +179,7 @@
     <Compile Include="Interop\LuaStateInterop\LuaState.cs" />
     <Compile Include="Interop\MoonSharpUserDataAttribute.cs" />
     <Compile Include="Interop\MoonSharpVisibleAttribute.cs" />
+    <Compile Include="Interop\Portable.cs" />
     <Compile Include="Interop\UserDataDelegateDescriptor.cs" />
     <Compile Include="Interop\UserDataDescriptor.cs" />
     <Compile Include="DataTypes\InteropAccessMode.cs" />

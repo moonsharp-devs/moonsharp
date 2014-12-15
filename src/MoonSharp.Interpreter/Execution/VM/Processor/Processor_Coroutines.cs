@@ -39,7 +39,9 @@ namespace MoonSharp.Interpreter.Execution.VM
 					throw ScriptRuntimeException.CannotResumeNotSuspended(m_State);
 
 				if (m_State == CoroutineState.NotStarted)
-					entrypoint = PushClrToScriptStackFrame(null, args);
+				{
+					entrypoint = PushClrToScriptStackFrame(CallStackItemFlags.ResumeEntryPoint, null, args);
+				}
 				else
 				{
 					m_ValueStack.Push(DynValue.NewTuple(args));
@@ -59,6 +61,12 @@ namespace MoonSharp.Interpreter.Execution.VM
 					m_State = CoroutineState.Dead;
 					return retVal;
 				}
+			}
+			catch (Exception)
+			{
+				// Unhandled exception - move to dead
+				m_State = CoroutineState.Dead;
+				throw;
 			}
 			finally
 			{

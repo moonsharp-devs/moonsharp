@@ -87,6 +87,87 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			Assert.AreEqual("1-5;2-6;3-7;4-8;", res.String);
 		}
 
+		[Test]
+		public void Coroutine_ClrBoundaryHandling()
+		{
+			string code = @"
+				function a()
+					callback(b)
+				end
+
+				function b()
+					coroutine.yield();
+				end						
+
+				c = coroutine.create(a);
+
+				return coroutine.resume(c);		
+				";
+
+			// Load the code and get the returned function
+			Script script = new Script();
+
+			script.Globals["callback"] = DynValue.NewCallback(
+				(ctx, args) => args[0].Function.Call()
+				);
+
+			DynValue ret = script.DoString(code);
+
+			Assert.AreEqual(DataType.Tuple, ret.Type);
+			Assert.AreEqual(2, ret.Tuple.Length);
+			Assert.AreEqual(DataType.Boolean, ret.Tuple[0].Type);
+			Assert.AreEqual(false, ret.Tuple[0].Boolean);
+			Assert.AreEqual(DataType.String, ret.Tuple[1].Type);
+			Assert.AreEqual("attempt to yield across a CLR-call boundary", ret.Tuple[1].String);
+		}
+
+		[Test]
+		public void Coroutine_VariousErrorHandling()
+		{
+			string code = @"
+
+function checkresume(step, ex, ey)
+	local x, y = coroutine.resume(c)
+	
+	assert(x == ex, 'Step ' .. step .. ': ' .. tostring(ex) .. ' was expected, got ' .. tostring(x));
+	assert(y == ey, 'Step ' .. step .. ': ' .. tostring(ey) .. ' was expected, got ' .. tostring(y));
+end
+
+
+t = { }
+m = { __tostring = function() print('2'); coroutine.yield(); print('3'); end }
+
+setmetatable(t, m);
+
+
+function a()
+	checkresume(1, false, 'cannot resume non-suspended coroutine');
+	coroutine.yield('ok');
+	print(t);
+	coroutine.yield('ok'); 
+end
+
+c = coroutine.create(a);
+
+checkresume(2, true, 'ok');
+checkresume(3, false, 'attempt to yield across a CLR-call boundary');
+checkresume(4, false, 'cannot resume dead coroutine');
+checkresume(5, false, 'cannot resume dead coroutine');
+checkresume(6, false, 'cannot resume dead coroutine');
+
+				";
+
+			// Load the code and get the returned function
+			Script script = new Script();
+
+			script.DoString(code);
+		}
+
+
+
+
+
+
 
 	}
 }

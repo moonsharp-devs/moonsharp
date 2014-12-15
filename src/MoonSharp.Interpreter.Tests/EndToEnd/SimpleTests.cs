@@ -969,23 +969,6 @@ namespace MoonSharp.Interpreter.Tests
 
 
 		[Test]
-		public void PCallOnClrFunction()
-		{
-			string script = @"
-				r, msg = pcall(assert, false, 'catched')
-				return r, msg;
-								";
-
-			DynValue res = Script.RunString(script);
-
-			Assert.AreEqual(DataType.Tuple, res.Type);
-			Assert.AreEqual(2, res.Tuple.Length);
-			Assert.AreEqual(DataType.Boolean, res.Tuple[0].Type);
-			Assert.AreEqual(DataType.String, res.Tuple[1].Type);
-			Assert.AreEqual(false, res.Tuple[0].Boolean);
-		}
-
-		[Test]
 		public void ArgsDoNotChange()
 		{
 			string script = @"

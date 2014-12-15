@@ -36,7 +36,7 @@ namespace PerformanceComparison
 
 	class CallbacksAndForthTests
 	{
-		public static void Main()
+		public static void xxMain()
 		{
 			(new CallbacksAndForthTests()).Start();
 			//Console.ReadLine();

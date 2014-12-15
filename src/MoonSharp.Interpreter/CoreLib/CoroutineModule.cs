@@ -55,6 +55,7 @@ namespace MoonSharp.Interpreter.CoreLib
 					for (int i = 0; i < ret.Tuple.Length; i++)
 					{
 						var v = ret.Tuple[i];
+
 						if ((i == ret.Tuple.Length - 1) && (v.Type == DataType.Tuple))
 						{
 							retval.AddRange(v.Tuple);

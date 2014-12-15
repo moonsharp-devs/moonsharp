@@ -859,7 +859,6 @@ namespace MoonSharp.Interpreter
 			throw ScriptRuntimeException.BadArgumentUserData(argNum, funcName, typeof(T), o, allowNil);
 		}
 
-
 	}
 
 

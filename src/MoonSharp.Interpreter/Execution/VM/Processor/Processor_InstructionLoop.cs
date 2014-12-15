@@ -276,13 +276,13 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 						goto repeat_execution;
 					}
+					else if ((csi.Flags & CallStackItemFlags.EntryPoint) != 0)
+					{
+						throw;
+					}
 				}
 
-				if (m_ExecutionStack.Count == 0)
-				{
-					throw;
-				}
-
+				throw;
 			}
 
 		return_to_native_code:
