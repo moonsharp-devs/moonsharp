@@ -200,8 +200,23 @@ namespace MoonSharp.Interpreter
 			CheckValueOwner(key);
 			CheckValueOwner(value);
 
-			if (m_ValueMap.Set(key, new TablePair(key, value)))
+			PerformTableSet(m_ValueMap, key, key, value, false);
+		}
+
+		private void PerformTableSet<T>(LinkedListIndex<T, TablePair> listIndex, T key, DynValue keyDynValue, DynValue value, bool isNumber)
+		{
+			TablePair prev = listIndex.Set(key, new TablePair(keyDynValue, value));
+
+			if (prev.Value == null || prev.Value.IsNil())
+			{
 				CollectDeadKeys();
+
+				if (isNumber)
+					m_CachedLength = -1;
+			}
+
+			if (isNumber && value.IsNil())
+				m_CachedLength = -1;
 		}
 
 		/// <summary>
@@ -243,9 +258,7 @@ namespace MoonSharp.Interpreter
 		public void Set(string key, DynValue value)
 		{
 			CheckValueOwner(value);
-
-			if (m_StringMap.Set(key, new TablePair(DynValue.NewString(key), value)))
-				CollectDeadKeys();
+			PerformTableSet(m_StringMap, key, DynValue.NewString(key), value, false);
 		}
 
 		/// <summary>
@@ -282,14 +295,7 @@ namespace MoonSharp.Interpreter
 		public void Set(int key, DynValue value)
 		{
 			CheckValueOwner(value);
-
-			if (m_ArrayMap.Set(key, new TablePair(DynValue.NewNumber(key), value)))
-			{
-				CollectDeadKeys();
-				m_CachedLength = -1;
-			}
-			else if (value.IsNil())
-				m_CachedLength = -1;
+			PerformTableSet(m_ArrayMap, key, DynValue.NewNumber(key), value, true);
 		}
 
 		/// <summary>

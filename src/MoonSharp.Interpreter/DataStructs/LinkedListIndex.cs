@@ -48,20 +48,21 @@ namespace MoonSharp.Interpreter.DataStructs
 		/// </summary>
 		/// <param name="key">The key.</param>
 		/// <param name="value">The value.</param>
-		/// <returns>True if the value has been created</returns>
-		public bool Set(TKey key, TValue value)
+		/// <returns>The previous value of the element</returns>
+		public TValue Set(TKey key, TValue value)
 		{
 			LinkedListNode<TValue> node = Find(key);
 
 			if (node == null)
 			{
 				Add(key, value);
-				return true;
+				return default(TValue);
 			}
 			else
 			{
+				TValue val = node.Value;
 				node.Value = value;
-				return false;
+				return val;
 			}
 		}
 
@@ -94,6 +95,7 @@ namespace MoonSharp.Interpreter.DataStructs
 				m_Map.Remove(key);
 			}
 		}
+
 
 		/// <summary>
 		/// Determines whether the index contains the specified key.

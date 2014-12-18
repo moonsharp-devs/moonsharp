@@ -30,7 +30,7 @@ namespace PerformanceComparison
 			function move(n, src, dst, via)
 				if n > 0 then
 					move(n - 1, src, via, dst)
-					print(src, 'to', dst)
+					check(src, 'to', dst)
 					move(n - 1, via, dst, src)
 				end
 			end
@@ -91,7 +91,7 @@ end
 		static StringBuilder g_MoonSharpStr = new StringBuilder();
 		static StringBuilder g_NLuaStr = new StringBuilder();
 
-		public static DynValue Print(ScriptExecutionContext executionContext, CallbackArguments values)
+		public static DynValue Check(ScriptExecutionContext executionContext, CallbackArguments values)
 		{
 			foreach (var val in values.GetArray())
 			{
@@ -103,7 +103,7 @@ end
 		}
 
 
-		public static void NPrint(params object[] values)
+		public static void NCheck(params object[] values)
 		{
 			foreach (var val in values)
 			{
@@ -112,7 +112,7 @@ end
 			g_NLuaStr.AppendLine();
 		}
 
-		public static void PrintX(int from, string mid, int to)
+		public static void XCheck(int from, string mid, int to)
 		{
 			g_MoonSharpStr.Append(from);
 			g_MoonSharpStr.Append(mid);
@@ -123,7 +123,7 @@ end
 		static Lua lua = new Lua();
 		static string testString = "world";
 
-		static void xxMain(string[] args)
+		static void Main(string[] args)
 		{
 			Stopwatch sw;
 
@@ -139,7 +139,7 @@ end
 			sw = Stopwatch.StartNew();
 
 			var script = new Script();
-			script.Globals.Set("print", DynValue.NewCallback(new CallbackFunction(Print)));
+			script.Globals.Set("check", DynValue.NewCallback(new CallbackFunction(Check)));
 			CallbackFunction.DefaultAccessMode = InteropAccessMode.Preoptimized;
 
 			//script.Globals["print"] = (Action<int, string, int>)PrintX;

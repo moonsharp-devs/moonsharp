@@ -20,7 +20,7 @@ namespace PerformanceComparison
 		//     3
 		//     hello world
 		//     Done
-		public static void Main()
+		public static void xxMain()
 		{
 			string code = @"
 				x = 3
