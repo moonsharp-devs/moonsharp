@@ -57,14 +57,16 @@ namespace MoonSharp.Interpreter
 		}
 
 		/// <summary>
-		/// Gets or sets the <see cref="System.Object"/> with the specified key(s).
+		/// Gets or sets the 
+		/// <see cref="System.Object" /> with the specified key(s).
 		/// This will marshall CLR and MoonSharp objects in the best possible way.
 		/// Multiple keys can be used to access subtables.
 		/// </summary>
 		/// <value>
-		/// The <see cref="System.Object"/>.
+		/// The <see cref="System.Object" />.
 		/// </value>
 		/// <param name="key">The key.</param>
+		/// <param name="subkeys">Optional subkeys to access subtables</param>
 		/// <returns></returns>
 		public object this[object key, params object[] subkeys]
 		{
@@ -75,7 +77,7 @@ namespace MoonSharp.Interpreter
 			}
 
 			set
-			{
+			{ 
 				Table t = ResolveMultipleKeys(ref key, subkeys);
 				t.SetAsObject(key, value);
 			}

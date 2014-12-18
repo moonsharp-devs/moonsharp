@@ -93,23 +93,23 @@ end
 
 		public static DynValue Check(ScriptExecutionContext executionContext, CallbackArguments values)
 		{
-			foreach (var val in values.GetArray())
-			{
-				g_MoonSharpStr.Append(val.ToPrintString());
-			}
+			//foreach (var val in values.GetArray())
+			//{
+			//	g_MoonSharpStr.Append(val.ToPrintString());
+			//}
 
-			g_MoonSharpStr.AppendLine();
+			//g_MoonSharpStr.AppendLine();
 			return DynValue.Nil;
 		}
 
 
 		public static void NCheck(params object[] values)
 		{
-			foreach (var val in values)
-			{
-				g_NLuaStr.Append(val.ToString());
-			}
-			g_NLuaStr.AppendLine();
+			//foreach (var val in values)
+			//{
+			//	g_NLuaStr.Append(val.ToString());
+			//}
+			//g_NLuaStr.AppendLine();
 		}
 
 		public static void XCheck(int from, string mid, int to)
@@ -162,7 +162,7 @@ end
 			Console.WriteLine("MoonSharp : {0} ms", sw.ElapsedMilliseconds);
 
 
-			lua.RegisterFunction("print", typeof(Program).GetMethod("NPrint"));
+			lua.RegisterFunction("check", typeof(Program).GetMethod("NCheck"));
 
 			File.WriteAllText(@"c:\temp\hanoi.lua", scriptText);
 

@@ -35,9 +35,6 @@ namespace PerformanceComparison
 				DynValue x = coroutine.Coroutine.Resume();
 				Console.WriteLine("{0}", x);
 			}
-
-
-			Console.ReadKey();
 		}
 
 
