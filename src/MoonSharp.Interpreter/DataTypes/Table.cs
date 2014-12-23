@@ -359,7 +359,12 @@ namespace MoonSharp.Interpreter
 				if (node == null)
 					return TablePair.Nil;
 				else
-					return node.Value;
+				{
+					if (node.Value.Value.IsNil())
+						return NextKey(node.Value.Key);
+					else
+						return node.Value;
+				}
 			}
 
 			if (v.Type == DataType.String)
@@ -382,13 +387,19 @@ namespace MoonSharp.Interpreter
 
 		private TablePair? GetNextOf(LinkedListNode<TablePair> linkedListNode)
 		{
-			if (linkedListNode == null)
-				return null;
+			while (true)
+			{
+				if (linkedListNode == null)
+					return null;
 
-			if (linkedListNode.Next == null)
-				return TablePair.Nil;
+				if (linkedListNode.Next == null)
+					return TablePair.Nil;
 
-			return linkedListNode.Next.Value;
+				linkedListNode = linkedListNode.Next;
+
+				if (!linkedListNode.Value.Value.IsNil())
+					return linkedListNode.Value;
+			}
 		}
 
 

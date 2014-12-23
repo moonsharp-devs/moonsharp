@@ -444,5 +444,37 @@ namespace MoonSharp.Interpreter.Tests
 		}
 
 
+		[Test]
+		public void TestNilRemovesEntryForPairs()
+		{
+			string script = @"
+				str = ''
+
+				function showTable(t)
+					for i, j in pairs(t) do
+						str = str .. i;
+					end
+					str = str .. '$'
+				end
+
+				tb = {}
+				tb['id'] = 3
+
+				showTable(tb)
+
+				tb['id'] = nil
+
+				showTable(tb)
+
+				return str
+			";
+
+			DynValue res = Script.RunString(script);
+
+			Assert.AreEqual(DataType.String, res.Type);
+			Assert.AreEqual("id$$", res.String);
+		}
+
+
 	}
 }
