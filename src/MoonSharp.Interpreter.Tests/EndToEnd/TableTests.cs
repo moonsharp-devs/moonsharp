@@ -475,6 +475,19 @@ namespace MoonSharp.Interpreter.Tests
 			Assert.AreEqual("id$$", res.String);
 		}
 
+		[Test]
+		public void TestUnpack()
+		{
+			string script = @"
+				return unpack({3,4})
+			";
 
+			DynValue res = Script.RunString(script);
+
+			Assert.AreEqual(DataType.Tuple, res.Type);
+			Assert.AreEqual(2, res.Tuple.Length);
+			Assert.AreEqual(3, res.Tuple[0].Number);
+			Assert.AreEqual(4, res.Tuple[1].Number);
+		}
 	}
 }

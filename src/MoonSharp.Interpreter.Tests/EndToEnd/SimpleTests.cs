@@ -1042,6 +1042,30 @@ namespace MoonSharp.Interpreter.Tests
 		}
 
 		[Test]
+		public void VarArgsSum2()
+		{
+			string script = @"
+					function x(m, ...)
+						local t = pack(...);
+						local sum = 0;
+
+						for i = 1, #t do
+							sum = sum + t[i];
+						end
+	
+						return sum * m;
+					end
+
+					return x(5,1,2,3,4);
+								";
+
+			DynValue res = Script.RunString(script);
+
+			Assert.AreEqual(DataType.Number, res.Type);
+			Assert.AreEqual(50, res.Number);
+		}
+
+		[Test]
 		public void VarArgsSumTb()
 		{
 			string script = @"
@@ -1197,6 +1221,22 @@ namespace MoonSharp.Interpreter.Tests
 
 			Assert.AreEqual(DataType.String, res.Type);
 			Assert.AreEqual("aABCz", res.String);
+		}
+
+		[Test]
+		public void HomonymArguments()
+		{
+			string script = @"    
+				function test(_,value,_) return _; end
+
+				return test(1, 2, 3);	
+			";
+
+			Script S = new Script(CoreModules.None);
+			DynValue res = S.DoString(script);
+
+			Assert.AreEqual(DataType.Number, res.Type);
+			Assert.AreEqual(3, res.Number);
 		}
 
 

@@ -15,6 +15,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			public int? NIntProp { get; set; }
 			public object ObjProp { get; set; }
 			public static string StaticProp { get; set; }
+			private string PrivateProp { get { return "Hello"; } }
 
 			public static IEnumerable<int> Numbers
 			{

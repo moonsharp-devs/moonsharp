@@ -45,13 +45,21 @@ namespace MoonSharp.Interpreter.Interop
 
 				foreach (PropertyInfo pi in type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
 				{
-					if (CheckVisibility(pi.GetCustomAttributes(true), pi.GetGetMethod().IsPublic || pi.GetSetMethod().IsPublic))
+					if (CheckVisibility(pi.GetCustomAttributes(true), IsPropertyInfoPublic(pi)))
 					{
 						var pd = new UserDataPropertyDescriptor(pi, this.AccessMode);
 						m_Properties.Add(pd.Name, pd);
 					}
 				}
 			}
+		}
+
+		private bool IsPropertyInfoPublic(PropertyInfo pi)
+		{
+			MethodInfo getter = pi.GetGetMethod();
+			MethodInfo setter = pi.GetSetMethod();
+
+			return (getter != null && getter.IsPublic) || (setter != null && setter.IsPublic);
 		}
 
 		private bool CheckVisibility(object[] attributes, bool isPublic)

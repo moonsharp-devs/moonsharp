@@ -107,10 +107,17 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 		private SymbolRef[] DefineArguments(List<string> paramnames, ScriptLoadingContext lcontext)
 		{
+			HashSet<string> names = new HashSet<string>();
+
 			SymbolRef[] ret = new SymbolRef[paramnames.Count];
 
-			for (int i = 0; i < paramnames.Count; i++)
+			for (int i = paramnames.Count - 1; i >= 0; i--)
+			{
+				if (!names.Add(paramnames[i]))
+					paramnames[i] = paramnames[i] + "@" + i.ToString();
+				
 				ret[i] = lcontext.Scope.DefineLocal(paramnames[i]);
+			}
 
 			return ret;
 		}

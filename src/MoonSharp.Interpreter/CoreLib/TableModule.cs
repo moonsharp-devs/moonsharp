@@ -24,7 +24,7 @@ namespace MoonSharp.Interpreter.CoreLib
 
 			DynValue[] v = new DynValue[ij - ii + 1];
 
-			int tidx = 1;
+			int tidx = 0;
 			for (int i = ii; i <= ij; i++)
 				v[tidx++] = t.Get(i);
 
