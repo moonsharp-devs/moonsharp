@@ -426,9 +426,9 @@ namespace MoonSharp.Interpreter
 				if (m_Object is UserData)
 				{
 					UserData ud = (UserData)m_Object;
-
-					if (ud.Object != null)
-						return ud.Object.ToString();
+					string str = ud.Descriptor.AsString(ud.Object);
+					if (str != null)
+						return str;
 				}
 
 				return refid.FormatTypeString(typeString);

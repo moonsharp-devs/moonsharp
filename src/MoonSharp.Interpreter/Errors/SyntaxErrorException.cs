@@ -21,5 +21,17 @@ namespace MoonSharp.Interpreter
 		{
 
 		}
+
+		internal SyntaxErrorException(string message)
+			: base(message)
+		{
+
+		}
+
+		internal SyntaxErrorException(IParseTree tree, string message)
+			: base(tree, message)
+		{
+
+		}
 	}
 }

@@ -6,7 +6,8 @@ using System.Text;
 namespace MoonSharp.Interpreter
 {
 	/// <summary>
-	/// Enumerations of the possible strategies to marshal CLR objects to MoonSharp userdata and functions.
+	/// Enumerations of the possible strategies to marshal CLR objects to MoonSharp userdata and functions
+	/// when using automatic descriptors.
 	/// See also : <seealso cref="CallbackFunction"/> and <seealso cref="UserData"/> .
 	/// </summary>
 	public enum InteropAccessMode

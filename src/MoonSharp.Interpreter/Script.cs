@@ -26,7 +26,7 @@ namespace MoonSharp.Interpreter
 		/// <summary>
 		/// The version of the MoonSharp engine
 		/// </summary>
-		public const string VERSION = "0.8.1.0";
+		public const string VERSION = "0.8.5.0"; 
 
 		/// <summary>
 		/// The Lua version being supported
@@ -47,6 +47,7 @@ namespace MoonSharp.Interpreter
 				ScriptLoader = new ClassicLuaScriptLoader(),
 				DebugPrint = s => { Console.WriteLine(s); },
 				DebugInput = () => { return Console.ReadLine(); },
+				CheckThreadAccess = true,
 			};
 		}
 

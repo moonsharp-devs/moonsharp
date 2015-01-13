@@ -79,15 +79,27 @@ namespace MoonSharp.Interpreter.CoreLib
 			}
 		}
 
+		private static DynValue MakeReturnTuple(bool retstatus, CallbackArguments args)
+		{
+			DynValue[] rets = new DynValue[args.Count + 1];
+
+			for (int i = 0; i < args.Count; i++)
+				rets[i + 1] = args[i];
+
+			rets[0] = DynValue.NewBoolean(retstatus);
+
+			return DynValue.NewTuple(rets);
+		}
+
 
 		public static DynValue pcall_continuation(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
-			return DynValue.NewTupleNested(DynValue.True, args[0]);
+			return MakeReturnTuple(true, args);			
 		}
 
 		public static DynValue pcall_onerror(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
-			return DynValue.NewTupleNested(DynValue.False, args[0]);
+			return MakeReturnTuple(false, args);
 		}
 
 

@@ -16,6 +16,12 @@ namespace MoonSharp.Interpreter
 		{
 		}
 
+		public ScriptRuntimeException(string message)
+			: base(message)
+		{
+
+		}
+
 		public ScriptRuntimeException(string format, params object[] args)
 			: base(format, args)
 		{

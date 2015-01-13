@@ -19,12 +19,14 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		RuntimeScopeFrame m_StackFrame;
 		Table m_GlobalEnv;
 		SymbolRef m_Env;
+		SymbolRef m_VarArgs;
 
 		public ChunkStatement(LuaParser.ChunkContext context, ScriptLoadingContext lcontext, Table globalEnv)
 			: base(context, lcontext)
 		{
-			lcontext.Scope.PushFunction(this, false);
+			lcontext.Scope.PushFunction(this, true);
 			m_Env = lcontext.Scope.DefineLocal(WellKnownSymbols.ENV);
+			m_VarArgs = lcontext.Scope.DefineLocal(WellKnownSymbols.VARARGS);
 			
 			m_GlobalEnv = globalEnv;
 
@@ -35,6 +37,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		public override void Compile(Execution.VM.ByteCode bc)
 		{
 			bc.Emit_BeginFn(m_StackFrame, "<chunk-root>");
+			bc.Emit_Args(m_VarArgs);
 
 			bc.Emit_Literal(DynValue.NewTable(m_GlobalEnv));
 			bc.Emit_Store(m_Env, 0, 0);

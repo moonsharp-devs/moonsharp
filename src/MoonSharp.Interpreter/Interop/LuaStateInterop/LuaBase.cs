@@ -251,6 +251,12 @@ namespace MoonSharp.Interpreter.Interop.LuaStateInterop
 			return LuaLCheckLString(L, p, out dummy);
 		}
 
+		protected static string LuaLCheckStringStr(LuaState L, lua_Integer p)
+		{
+			uint dummy;
+			return LuaLCheckLString(L, p, out dummy);
+		}
+
 		protected static void LuaLArgError(LuaState L, lua_Integer arg, string p)
 		{
 			throw ScriptRuntimeException.BadArgument(arg - 1, L.FunctionName, p);

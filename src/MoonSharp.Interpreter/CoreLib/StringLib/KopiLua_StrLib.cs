@@ -521,7 +521,8 @@ namespace MoonSharp.Interpreter.CoreLib.StringLib
 		{
 			uint l1, l2;
 			CharPtr s = LuaLCheckLString(L, 1, out l1);
-			CharPtr p = LuaLCheckLString(L, 2, out l2);
+			CharPtr p = PatchPattern(LuaLCheckLString(L, 2, out l2));
+
 			ptrdiff_t init = posrelat(LuaLOptInteger(L, 3, 1), l1) - 1;
 			if (init < 0) init = 0;
 			else if ((uint)(init) > l1) init = (ptrdiff_t)l1;
@@ -638,7 +639,7 @@ namespace MoonSharp.Interpreter.CoreLib.StringLib
 		{
 			CallbackFunction C = new CallbackFunction(gmatch_aux_2, "gmatch");
 			string s = ArgAsType(L, 1, DataType.String, false).String;
-			string p = ArgAsType(L, 2, DataType.String, false).String;
+			string p = PatchPattern(ArgAsType(L, 2, DataType.String, false).String);
 
 
 			C.AdditionalData = new GMatchAuxData()
@@ -739,7 +740,7 @@ namespace MoonSharp.Interpreter.CoreLib.StringLib
 		{
 			uint srcl;
 			CharPtr src = LuaLCheckLString(L, 1, out srcl);
-			CharPtr p = LuaLCheckString(L, 2);
+			CharPtr p = PatchPattern(LuaLCheckStringStr(L, 2));
 			int tr = LuaType(L, 3);
 			int max_s = LuaLOptInt(L, 4, (int)(srcl + 1));
 			int anchor = 0;
@@ -990,7 +991,10 @@ namespace MoonSharp.Interpreter.CoreLib.StringLib
 		}
 
 
-
+		private static string PatchPattern(string charPtr)
+		{
+			return charPtr.Replace("\0", "%z");
+		}
 
 
 	}

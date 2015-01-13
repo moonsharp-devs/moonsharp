@@ -118,6 +118,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 		private void LeaveProcessor()
 		{
 			m_ExecutionNesting -= 1;
+			m_OwningThreadID = -1;
 
 			if (m_Parent != null)
 			{
@@ -134,7 +135,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 		{
 			int threadID = Thread.CurrentThread.ManagedThreadId;
 
-			if (m_OwningThreadID >= 0 && m_OwningThreadID != threadID)
+			if (m_OwningThreadID >= 0 && m_OwningThreadID != threadID && m_Script.Options.CheckThreadAccess)
 			{
 				string msg = string.Format("Cannot enter the same MoonSharp processor from two different threads : {0} and {1}", m_OwningThreadID, threadID);
 				throw new InvalidOperationException(msg);

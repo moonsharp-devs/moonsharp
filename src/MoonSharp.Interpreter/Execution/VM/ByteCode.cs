@@ -180,7 +180,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			return AppendInstruction(new Instruction(m_CurrentSourceRef) { OpCode = OpCode.Closure, SymbolList = symbols, NumVal = jmpnum });
 		}
 
-		public Instruction Emit_Args(SymbolRef[] symbols)
+		public Instruction Emit_Args(params SymbolRef[] symbols)
 		{
 			return AppendInstruction(new Instruction(m_CurrentSourceRef) { OpCode = OpCode.Args, SymbolList = symbols });
 		}

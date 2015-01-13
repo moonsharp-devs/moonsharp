@@ -12,5 +12,10 @@ namespace MoonSharp.Interpreter
 		{
 
 		}
+		public DynamicExpressionException(string message)
+			: base("<dynamic>: " + message)
+		{
+
+		}
 	}
 }

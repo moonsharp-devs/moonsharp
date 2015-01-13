@@ -14,8 +14,20 @@ namespace MoonSharp.Interpreter
 
 		}
 
+		protected InterpreterException(string message)
+			: base(message)
+		{
+
+		}
+
 		protected InterpreterException(string format, params object[] args)
 			: base(string.Format(format, args))
+		{
+
+		}
+
+		protected InterpreterException(IParseTree tree, string message)
+			: base(message + FormatTree(tree))
 		{
 
 		}

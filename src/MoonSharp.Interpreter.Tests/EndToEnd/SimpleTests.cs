@@ -1239,6 +1239,51 @@ namespace MoonSharp.Interpreter.Tests
 			Assert.AreEqual(3, res.Number);
 		}
 
+		[Test]
+		public void VarArgsSumMainChunk()
+		{
+			string script = @"
+					local t = pack(...);
+					local sum = 0;
+
+					for i = 1, #t do
+						sum = sum + t[i];
+					end
+	
+					return sum;
+								";
+
+			DynValue fn = new Script().LoadString(script);
+
+			DynValue res = fn.Function.Call(1, 2, 3, 4);
+
+			Assert.AreEqual(DataType.Number, res.Type);
+			Assert.AreEqual(10, res.Number);
+		}
+
+		[Test]
+		[ExpectedException(ExpectedException = typeof(SyntaxErrorException))]
+		public void VarArgsInNoVarArgsReturnsError()
+		{
+			string script = @"
+					function x()
+						local t = {...};
+						local sum = 0;
+
+						for i = 1, #t do
+							sum = sum + t[i];
+						end
+	
+						return sum;
+					end
+
+					return x(1,2,3,4);
+								";
+
+			DynValue res = Script.RunString(script);
+		}
+
+
 
 	}
 }

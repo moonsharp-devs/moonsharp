@@ -95,24 +95,18 @@
     <Compile Include="CoreLib\MetaTableModule.cs" />
     <Compile Include="CoreLib\OsSystemModule.cs" />
     <Compile Include="CoreLib\OsTimeModule.cs" />
-    <Compile Include="CoreLib\StringLib\CaptureInfo.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="CoreLib\StringLib\KopiLua_StrLib.cs" />
+    <Compile Include="Interop\InteropRegistrationPolicy.cs" />
+    <Compile Include="Interop\IUserDataType.cs" />
     <Compile Include="DataTypes\ScriptFunctionDelegate.cs" />
     <Compile Include="DataTypes\TypeValidationFlags.cs" />
     <Compile Include="Errors\DynamicExpressionException.cs" />
     <Compile Include="Execution\DynamicExpression.cs" />
     <Compile Include="Execution\VM\CallStackItemFlags.cs" />
-    <Compile Include="Interop\AnonWrapper.cs" />
+    <Compile Include="Interop\PredefinedUserData\AnonWrapper.cs" />
+    <Compile Include="Interop\IUserDataDescriptor.cs" />
     <Compile Include="Interop\LuaStateInterop\CharPtr.cs" />
     <Compile Include="Interop\LuaStateInterop\LuaBase.cs" />
-    <Compile Include="CoreLib\StringLib\MatchState.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="CoreLib\StringLib\PatternMatching.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="CoreLib\StringLib\StringRange.cs" />
     <Compile Include="Interop\LuaStateInterop\Tools.cs" />
     <Compile Include="CoreLib\StringModule.cs" />
@@ -171,20 +165,24 @@
     <Compile Include="Execution\VM\Processor\Processor_Coroutines.cs" />
     <Compile Include="Execution\VM\Processor\Processor_Errors.cs" />
     <Compile Include="Interface\IteratorHelper.cs" />
-    <Compile Include="Interop\ConversionHelper.cs" />
-    <Compile Include="Interop\EnumerableWrapper.cs" />
-    <Compile Include="Interop\LinqHelpers.cs" />
+    <Compile Include="Interop\Converters\ConversionHelper.cs" />
+    <Compile Include="Interop\PredefinedUserData\EnumerableWrapper.cs" />
+    <Compile Include="Interop\Converters\LinqHelpers.cs" />
     <Compile Include="Interop\LuaStateInterop\LuaBase_CLib.cs" />
     <Compile Include="Interop\LuaStateInterop\LuaLBuffer.cs" />
     <Compile Include="Interop\LuaStateInterop\LuaState.cs" />
-    <Compile Include="Interop\MoonSharpUserDataAttribute.cs" />
-    <Compile Include="Interop\MoonSharpVisibleAttribute.cs" />
-    <Compile Include="Interop\Portable.cs" />
-    <Compile Include="Interop\UserDataDelegateDescriptor.cs" />
-    <Compile Include="Interop\UserDataDescriptor.cs" />
-    <Compile Include="DataTypes\InteropAccessMode.cs" />
-    <Compile Include="Interop\UserDataMethodDescriptor.cs" />
-    <Compile Include="Interop\UserDataPropertyDescriptor.cs">
+    <Compile Include="Interop\Attributes\MoonSharpUserDataAttribute.cs" />
+    <Compile Include="Interop\Attributes\MoonSharpVisibleAttribute.cs" />
+    <Compile Include="Interop\StandardDescriptors\AutoDescribingUserDataDescriptor.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Interop\StandardDescriptors\CompositeUserDataDescriptor.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Interop\StandardDescriptors\UserDataDescriptor.cs" />
+    <Compile Include="Interop\InteropAccessMode.cs" />
+    <Compile Include="Interop\StandardDescriptors\UserDataMethodDescriptor.cs" />
+    <Compile Include="Interop\StandardDescriptors\UserDataPropertyDescriptor.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Loaders\ClassicLuaScriptLoader.cs" />

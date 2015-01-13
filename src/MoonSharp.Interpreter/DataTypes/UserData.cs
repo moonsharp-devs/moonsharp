@@ -18,31 +18,27 @@ namespace MoonSharp.Interpreter
 		public DynValue UserValue { get; set; }
 
 		public object Object { get; set; }
-		internal UserDataDescriptor Descriptor { get; set; }
+		internal IUserDataDescriptor Descriptor { get; set; }
 
-#if USE_RW_LOCK
-		private static ReaderWriterLockSlim m_Lock = new ReaderWriterLockSlim();
-#else
-		private static object m_Lock = new object();
-#endif
-		private static Dictionary<Type, UserDataDescriptor> s_Registry = new Dictionary<Type, UserDataDescriptor>();
-		private static InteropAccessMode m_DefaultAccessMode;
+		private static object s_Lock = new object();
+		private static Dictionary<Type, IUserDataDescriptor> s_Registry = new Dictionary<Type, IUserDataDescriptor>();
+		private static InteropAccessMode s_DefaultAccessMode;
 
 		static UserData()
 		{
 			RegisterType<AnonWrapper>(InteropAccessMode.HideMembers);
 			RegisterType<EnumerableWrapper>(InteropAccessMode.HideMembers);
-			m_DefaultAccessMode = InteropAccessMode.LazyOptimized;
+			s_DefaultAccessMode = InteropAccessMode.LazyOptimized;
 		}
 
 		public static void RegisterType<T>(InteropAccessMode accessMode = InteropAccessMode.Default, string friendlyName = null)
 		{
-			RegisterType_Impl(typeof(T), accessMode, friendlyName);
+			RegisterType_Impl(typeof(T), accessMode, friendlyName, null);
 		}
 
 		public static void RegisterType(Type type, InteropAccessMode accessMode = InteropAccessMode.Default, string friendlyName = null)
 		{
-			RegisterType_Impl(type, accessMode, friendlyName);
+			RegisterType_Impl(type, accessMode, friendlyName, null);
 		}
 
 		public static void RegisterAssembly(Assembly asm = null)
@@ -63,6 +59,17 @@ namespace MoonSharp.Interpreter
 			}
 		}
 
+		public static void UnregisterType<T>()
+		{
+			UnregisterType(typeof(T));
+		}
+
+		public static void UnregisterType(Type t)
+		{
+			lock (s_Lock)
+				if (s_Registry.ContainsKey(t))
+					s_Registry.Remove(t);
+		}
 
 		public static DynValue Create(object o)
 		{
@@ -93,21 +100,23 @@ namespace MoonSharp.Interpreter
 			return CreateStatic(typeof(T));
 		}
 
+		public static InteropRegistrationPolicy RegistrationPolicy { get; set; }
+
 		public static InteropAccessMode DefaultAccessMode
 		{
-			get { return m_DefaultAccessMode; }
+			get { return s_DefaultAccessMode; }
 			set
 			{
 				if (value == InteropAccessMode.Default)
 					throw new ArgumentException("DefaultAccessMode");
 
-				m_DefaultAccessMode = value;
+				s_DefaultAccessMode = value;
 			}
 		}
 
 
 
-		private static void RegisterType_Impl(Type type, InteropAccessMode accessMode, string friendlyName)
+		private static IUserDataDescriptor RegisterType_Impl(Type type, InteropAccessMode accessMode, string friendlyName, IUserDataDescriptor descriptor)
 		{
 			if (accessMode == InteropAccessMode.Default)
 			{
@@ -120,86 +129,107 @@ namespace MoonSharp.Interpreter
 
 
 			if (accessMode == InteropAccessMode.Default)
-				accessMode = m_DefaultAccessMode;
+				accessMode = s_DefaultAccessMode;
 
-#if USE_RW_LOCK
-			m_Lock.EnterWriteLock();
-#else
-			Monitor.Enter(m_Lock);
-#endif
-
-			try
+			lock(s_Lock)
 			{
 				if (!s_Registry.ContainsKey(type))
 				{
-					UserDataDescriptor udd = new UserDataDescriptor(type, accessMode, friendlyName);
-					s_Registry.Add(udd.Type, udd);
-
-					if (accessMode == InteropAccessMode.BackgroundOptimized)
+					if (descriptor == null)
 					{
-						ThreadPool.QueueUserWorkItem(o => udd.Optimize());
+						if (type.GetInterfaces().Any(ii => ii == typeof(IUserDataType)))
+						{
+							AutoDescribingUserDataDescriptor audd = new AutoDescribingUserDataDescriptor(type, friendlyName);
+							s_Registry.Add(audd.Type, audd);
+							return audd;
+						}
+						else
+						{
+							StandardUserDataDescriptor udd = new StandardUserDataDescriptor(type, accessMode, friendlyName);
+							s_Registry.Add(udd.Type, udd);
+
+							if (accessMode == InteropAccessMode.BackgroundOptimized)
+							{
+								ThreadPool.QueueUserWorkItem(o => udd.Optimize());
+							}
+
+							return udd;
+						}
+					}
+					else
+					{
+						s_Registry.Add(descriptor.Type, descriptor);
+						return descriptor;
 					}
 				}
-			}
-			finally
-			{
-#if USE_RW_LOCK
-				m_Lock.ExitWriteLock();
-#else
-				Monitor.Exit(m_Lock);
-#endif
+				else return s_Registry[type];
 			}
 		}
 
-		private static UserDataDescriptor GetDescriptorForType<T>(bool deepSearch = true)
+		private static IUserDataDescriptor GetDescriptorForType<T>(bool searchInterfaces)
 		{
-			return GetDescriptorForType(typeof(T), deepSearch);
+			return GetDescriptorForType(typeof(T), searchInterfaces);
 		}
 
-		private static UserDataDescriptor GetDescriptorForType(Type type, bool deepSearch = true)
+		private static IUserDataDescriptor GetDescriptorForType(Type type, bool searchInterfaces)
 		{
-#if USE_RW_LOCK
-			m_Lock.EnterReadLock();
-#else
-			Monitor.Enter(m_Lock);
-#endif
-
-			try
+			lock(s_Lock)
 			{
-				if (!deepSearch)
-					return s_Registry.ContainsKey(type) ? s_Registry[type] : null;
+				IUserDataDescriptor typeDescriptor = null;
 
-				for (Type t = type; t != typeof(object); t = t.BaseType)
+				// if the type has been explicitly registered, return its descriptor as it's complete
+				if (s_Registry.ContainsKey(type))
+					return s_Registry[type];
+
+				if (RegistrationPolicy == InteropRegistrationPolicy.Automatic)
 				{
-					UserDataDescriptor u;
+					return RegisterType_Impl(type, DefaultAccessMode, type.FullName, null);
+				}
+
+				// search for the base object descriptors
+				for (Type t = type; t != null; t = t.BaseType)
+				{
+					IUserDataDescriptor u;
 
 					if (s_Registry.TryGetValue(t, out u))
-						return u;
+					{
+						typeDescriptor = u;
+						break;
+					}
 				}
 
-				foreach (Type t in type.GetInterfaces())
+				// we should not search interfaces (for example, it's just for statics..), no need to look further
+				if (!searchInterfaces)
+					return typeDescriptor;
+
+				List<IUserDataDescriptor> descriptors = new List<IUserDataDescriptor>();
+
+				if (typeDescriptor != null)
+					descriptors.Add(typeDescriptor);
+
+
+				if (searchInterfaces)
 				{
-					if (s_Registry.ContainsKey(t))
-						return s_Registry[t];
+					foreach (Type t in type.GetInterfaces())
+					{
+						IUserDataDescriptor u;
+
+						if (s_Registry.TryGetValue(t, out u))
+							descriptors.Add(u);
+					}
 				}
 
-				if (s_Registry.ContainsKey(typeof(object)))
-					return s_Registry[type];
+				if (descriptors.Count == 1)
+					return descriptors[0];
+				else if (descriptors.Count == 0)
+					return null;
+				else
+					return new CompositeUserDataDescriptor(descriptors, type);
 			}
-			finally
-			{
-#if USE_RW_LOCK
-				m_Lock.ExitReadLock();
-#else
-				Monitor.Exit(m_Lock);
-#endif
-			}
-
-			return null;
 		}
 
 
-		private static UserDataDescriptor GetDescriptorForObject(object o)
+		private static IUserDataDescriptor GetDescriptorForObject(object o)
 		{
 			return GetDescriptorForType(o.GetType(), true);
 		}

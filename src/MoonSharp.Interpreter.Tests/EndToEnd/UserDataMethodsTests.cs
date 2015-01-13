@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MoonSharp.Interpreter.Interop;
 using NUnit.Framework;
 
 namespace MoonSharp.Interpreter.Tests.EndToEnd
@@ -16,8 +17,13 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 				return string.Format("{0}%{1}", p1, p2);
 			}
 
+			public int SomeMethodWithLongName(int i)
+			{
+				return i * 2;
+			}
 
-			public static StringBuilder ConcatS(int p1, string p2, IComparable p3, bool p4, List<object> p5, IEnumerable<object> p6, 
+
+			public static StringBuilder ConcatS(int p1, string p2, IComparable p3, bool p4, List<object> p5, IEnumerable<object> p6,
 				StringBuilder p7, Dictionary<object, object> p8, SomeClass p9, int p10 = 1994)
 			{
 				p7.Append(p1);
@@ -68,9 +74,66 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			}
 		}
 
+		public interface Interface1
+		{
+			string Test1();
+		}
+
+		public interface Interface2
+		{
+			string Test2();
+		}
+
+		public class SomeOtherClass
+		{
+			public string Test1()
+			{
+				return "Test1";
+			}
+
+			public string Test2()
+			{
+				return "Test2";
+			}
+		}
+
+		public class SelfDescribingClass : IUserDataType
+		{
+			public DynValue Index(Script script, DynValue index)
+			{
+				return DynValue.NewNumber(index.Number * 3);
+			}
+
+			public bool SetIndex(Script script, DynValue index, DynValue value)
+			{
+				throw new NotImplementedException();
+			}
+
+			public DynValue MetaIndex(Script script, string metaname)
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public class SomeOtherClassWithDualInterfaces : Interface1, Interface2
+		{
+			public string Test1()
+			{
+				return "Test1";
+			}
+
+			public string Test2()
+			{
+				return "Test2";
+			}
+		}
+
+
 
 		public void Test_ConcatMethodStatic(InteropAccessMode opt)
 		{
+			UserData.UnregisterType<SomeClass>();
+
 			string script = @"    
 				t = { 'asd', 'qwe', 'zxc', ['x'] = 'X', ['y'] = 'Y' };
 				x = static.ConcatS(1, 'ciao', myobj, true, t, t, 'eheh', t, myobj);
@@ -90,8 +153,11 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			Assert.AreEqual(DataType.String, res.Type);
 			Assert.AreEqual("eheh1ciao!SOMECLASS!True|asdqwezxc|asdqwezxc|123xy|asdqweXYzxc|!SOMECLASS!1994", res.String);
 		}
+
 		public void Test_ConcatMethod(InteropAccessMode opt)
 		{
+			UserData.UnregisterType<SomeClass>();
+
 			string script = @"    
 				t = { 'asd', 'qwe', 'zxc', ['x'] = 'X', ['y'] = 'Y' };
 				x = myobj.ConcatI(1, 'ciao', myobj, true, t, t, 'eheh', t, myobj);
@@ -110,8 +176,11 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			Assert.AreEqual(DataType.String, res.Type);
 			Assert.AreEqual("eheh1ciao!SOMECLASS!True|asdqwezxc|asdqwezxc|123xy|asdqweXYzxc|!SOMECLASS!1912", res.String);
 		}
+
 		public void Test_ConcatMethodSemicolon(InteropAccessMode opt)
 		{
+			UserData.UnregisterType<SomeClass>();
+
 			string script = @"    
 				t = { 'asd', 'qwe', 'zxc', ['x'] = 'X', ['y'] = 'Y' };
 				x = myobj:ConcatI(1, 'ciao', myobj, true, t, t, 'eheh', t, myobj);
@@ -133,6 +202,8 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 		public void Test_ConcatMethodStaticSimplifiedSyntax(InteropAccessMode opt)
 		{
+			UserData.UnregisterType<SomeClass>();
+
 			string script = @"    
 				t = { 'asd', 'qwe', 'zxc', ['x'] = 'X', ['y'] = 'Y' };
 				x = static.ConcatS(1, 'ciao', myobj, true, t, t, 'eheh', t, myobj);
@@ -155,6 +226,8 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 		public void Test_DelegateMethod(InteropAccessMode opt)
 		{
+			UserData.UnregisterType<SomeClass>();
+
 			string script = @"    
 				x = concat(1, 2);
 				return x;";
@@ -173,6 +246,8 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 		public void Test_ListMethod(InteropAccessMode opt)
 		{
+			UserData.UnregisterType<SomeClass>();
+
 			string script = @"    
 				x = mklist(1, 4);
 				sum = 0;				
@@ -305,5 +380,110 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		{
 			Test_ListMethod(InteropAccessMode.Preoptimized);
 		}
+
+		[Test]
+		public void Interop_TestAutoregisterPolicy()
+		{
+			try
+			{
+				string script = @"return myobj:Test1()";
+
+				UserData.RegistrationPolicy = InteropRegistrationPolicy.Automatic;
+
+				Script S = new Script();
+
+				SomeOtherClass obj = new SomeOtherClass();
+
+				S.Globals.Set("myobj", UserData.Create(obj));
+
+				DynValue res = S.DoString(script);
+
+				Assert.AreEqual(DataType.String, res.Type);
+				Assert.AreEqual("Test1", res.String);
+			}
+			finally
+			{
+				UserData.RegistrationPolicy = InteropRegistrationPolicy.Explicit;
+			}
+		}
+
+		[Test]
+		public void Interop_TestAutoregisterPolicyWithDualInterfaces()
+		{
+			string script = @"return myobj:Test1() .. myobj:Test2()";
+
+			Script S = new Script();
+
+			UserData.RegisterType<Interface1>();
+			UserData.RegisterType<Interface2>();
+
+			SomeOtherClassWithDualInterfaces obj = new SomeOtherClassWithDualInterfaces();
+
+			S.Globals.Set("myobj", UserData.Create(obj));
+
+			DynValue res = S.DoString(script);
+
+			Assert.AreEqual(DataType.String, res.Type);
+			Assert.AreEqual("Test1Test2", res.String);
+		}
+
+		[Test]
+		public void Interop_TestNamesCamelized()
+		{
+			UserData.UnregisterType<SomeClass>();
+
+			string script = @"    
+				a = myobj:SomeMethodWithLongName(1);
+				b = myobj:someMethodWithLongName(2);
+				c = myobj:some_method_with_long_name(3);
+				d = myobj:Some_method_withLong_name(4);
+				
+				return a + b + c + d;
+			";
+
+			Script S = new Script();
+
+			SomeClass obj = new SomeClass();
+
+			UserData.RegisterType<SomeClass>();
+
+			S.Globals.Set("myobj", UserData.Create(obj));
+
+			DynValue res = S.DoString(script);
+
+			Assert.AreEqual(DataType.Number, res.Type);
+			Assert.AreEqual(20, res.Number);
+
+		}
+
+		[Test]
+		public void Interop_TestSelfDescribingType()
+		{
+			UserData.UnregisterType<SelfDescribingClass>();
+
+			string script = @"    
+				a = myobj[1];
+				b = myobj[2];
+				c = myobj[3];
+				
+				return a + b + c;
+			";
+
+			Script S = new Script();
+
+			SelfDescribingClass obj = new SelfDescribingClass();
+
+			UserData.RegisterType<SelfDescribingClass>();
+
+			S.Globals.Set("myobj", UserData.Create(obj));
+
+			DynValue res = S.DoString(script);
+
+			Assert.AreEqual(DataType.Number, res.Type);
+			Assert.AreEqual(18, res.Number);
+
+		}
+
+
 	}
 }

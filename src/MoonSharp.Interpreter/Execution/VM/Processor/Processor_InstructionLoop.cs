@@ -1130,10 +1130,11 @@ namespace MoonSharp.Interpreter.Execution.VM
 				{
 					UserData ud = obj.UserData;
 
-					if (idx.Type != DataType.String)
-						throw ScriptRuntimeException.BadArgument(1, string.Format("userdata<{0}>.__newindex", ud.Descriptor.Name), "string", idx.Type.ToLuaTypeString(), false);
+					if (!ud.Descriptor.SetIndex(this.GetScript(), ud.Object, idx, value))
+					{
+						throw ScriptRuntimeException.UserDataMissingField(ud.Descriptor.Name, idx.String);
+					}
 
-					ud.Descriptor.SetIndex(this.GetScript(), ud.Object, idx.String, value);
 					return instructionPtr;
 				}
 				else
@@ -1197,10 +1198,11 @@ namespace MoonSharp.Interpreter.Execution.VM
 				{
 					UserData ud = obj.UserData;
 
-					if (idx.Type != DataType.String)
-						throw ScriptRuntimeException.BadArgument(1, string.Format("userdata<{0}>.__index", ud.Descriptor.Name), "string", idx.Type.ToLuaTypeString(), false);
+					var v = ud.Descriptor.Index(this.GetScript(), ud.Object, idx);
 
-					var v = ud.Descriptor.Index(this.GetScript(), ud.Object, idx.String);
+					if (v == null)
+						throw ScriptRuntimeException.UserDataMissingField(ud.Descriptor.Name, idx.String);
+
 					m_ValueStack.Push(v.AsReadOnly());
 					return instructionPtr;
 				}
