@@ -41,6 +41,16 @@ namespace MoonSharp.Interpreter
 			RegisterType_Impl(type, accessMode, friendlyName, null);
 		}
 
+		public static void RegisterType<T>(IUserDataDescriptor customDescriptor)
+		{
+			RegisterType_Impl(typeof(T), InteropAccessMode.Default, null, customDescriptor);
+		}
+
+		public static void RegisterType(Type type, IUserDataDescriptor customDescriptor)
+		{
+			RegisterType_Impl(type, InteropAccessMode.Default, null, customDescriptor);
+		}
+
 		public static void RegisterAssembly(Assembly asm = null)
 		{
 			asm = asm ?? Assembly.GetCallingAssembly();
@@ -140,13 +150,13 @@ namespace MoonSharp.Interpreter
 						if (type.GetInterfaces().Any(ii => ii == typeof(IUserDataType)))
 						{
 							AutoDescribingUserDataDescriptor audd = new AutoDescribingUserDataDescriptor(type, friendlyName);
-							s_Registry.Add(audd.Type, audd);
+							s_Registry.Add(type, audd);
 							return audd;
 						}
 						else
 						{
 							StandardUserDataDescriptor udd = new StandardUserDataDescriptor(type, accessMode, friendlyName);
-							s_Registry.Add(udd.Type, udd);
+							s_Registry.Add(type, udd);
 
 							if (accessMode == InteropAccessMode.BackgroundOptimized)
 							{
@@ -158,7 +168,7 @@ namespace MoonSharp.Interpreter
 					}
 					else
 					{
-						s_Registry.Add(descriptor.Type, descriptor);
+						s_Registry.Add(type, descriptor);
 						return descriptor;
 					}
 				}

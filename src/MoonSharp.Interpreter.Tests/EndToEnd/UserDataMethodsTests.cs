@@ -84,6 +84,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			string Test2();
 		}
 
+
 		public class SomeOtherClass
 		{
 			public string Test1()
@@ -96,6 +97,47 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 				return "Test2";
 			}
 		}
+
+
+		public class SomeOtherClassCustomDescriptor
+		{
+		}
+
+		public class CustomDescriptor : IUserDataDescriptor
+		{
+			public string Name
+			{
+				get { return "ciao"; }
+			}
+
+			public Type Type
+			{
+				get { return typeof(SomeOtherClassCustomDescriptor); }
+			}
+
+			public DynValue Index(Script script, object obj, DynValue index)
+			{
+				return DynValue.NewNumber(index.Number * 4);
+			}
+
+			public bool SetIndex(Script script, object obj, DynValue index, DynValue value)
+			{
+				throw new NotImplementedException();
+			}
+
+			public string AsString(object obj)
+			{
+				return null;
+			}
+
+			public DynValue MetaIndex(Script script, object obj, string metaname)
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+
+
 
 		public class SelfDescribingClass : IUserDataType
 		{
@@ -481,9 +523,34 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 			Assert.AreEqual(DataType.Number, res.Type);
 			Assert.AreEqual(18, res.Number);
-
 		}
 
+		[Test]
+		public void Interop_TestCustomDescribedType()
+		{
+			UserData.UnregisterType<SomeOtherClassCustomDescriptor>();
+
+			string script = @"    
+				a = myobj[1];
+				b = myobj[2];
+				c = myobj[3];
+				
+				return a + b + c;
+			";
+
+			Script S = new Script();
+
+			SomeOtherClassCustomDescriptor obj = new SomeOtherClassCustomDescriptor();
+
+			UserData.RegisterType<SomeOtherClassCustomDescriptor>(new CustomDescriptor());
+
+			S.Globals.Set("myobj", UserData.Create(obj));
+
+			DynValue res = S.DoString(script);
+
+			Assert.AreEqual(DataType.Number, res.Type);
+			Assert.AreEqual(24, res.Number);
+		}
 
 	}
 }
