@@ -603,7 +603,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 						varargs[ii] = m_ValueStack.Peek(numargs - i - ii).CloneAsWritable();
 					}
 
-					this.AssignLocal(I.SymbolList[i], DynValue.NewTuple(varargs));
+					this.AssignLocal(I.SymbolList[i], DynValue.NewTuple(Internal_AdjustTuple(varargs)));
 				}
 				else
 				{
