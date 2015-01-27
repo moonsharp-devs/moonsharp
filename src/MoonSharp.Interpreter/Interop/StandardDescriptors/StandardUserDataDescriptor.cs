@@ -15,11 +15,14 @@ namespace MoonSharp.Interpreter.Interop
 		public InteropAccessMode AccessMode { get; private set; }
 		public string FriendlyName { get; private set; }
 
-		private Dictionary<string, UserDataMethodDescriptor> m_Methods = new Dictionary<string, UserDataMethodDescriptor>();
-		private Dictionary<string, UserDataPropertyDescriptor> m_Properties = new Dictionary<string, UserDataPropertyDescriptor>();
+		private Dictionary<string, StandardUserDataMethodDescriptor> m_Methods = new Dictionary<string, StandardUserDataMethodDescriptor>();
+		private Dictionary<string, StandardUserDataPropertyDescriptor> m_Properties = new Dictionary<string, StandardUserDataPropertyDescriptor>();
 
 		protected internal StandardUserDataDescriptor(Type type, InteropAccessMode accessMode, string friendlyName)
 		{
+			if (accessMode == InteropAccessMode.Default)
+				accessMode = UserData.DefaultAccessMode;
+
 			Type = type;
 			Name = type.FullName;
 			AccessMode = accessMode;
@@ -34,7 +37,7 @@ namespace MoonSharp.Interpreter.Interop
 						if (mi.IsSpecialName)
 							continue;
 
-						var md = new UserDataMethodDescriptor(mi, this.AccessMode);
+						var md = new StandardUserDataMethodDescriptor(mi, this.AccessMode);
 
 						if (m_Methods.ContainsKey(md.Name))
 							continue;
@@ -48,7 +51,7 @@ namespace MoonSharp.Interpreter.Interop
 				{
 					if (CheckVisibility(pi.GetCustomAttributes(true), IsPropertyInfoPublic(pi)))
 					{
-						var pd = new UserDataPropertyDescriptor(pi, this.AccessMode);
+						var pd = new StandardUserDataPropertyDescriptor(pi, this.AccessMode);
 						m_Properties.Add(pd.Name, pd);
 					}
 				}
@@ -89,12 +92,12 @@ namespace MoonSharp.Interpreter.Interop
 
 		protected virtual DynValue TryIndex(Script script, object obj, string indexName)
 		{
-			UserDataMethodDescriptor mdesc;
+			StandardUserDataMethodDescriptor mdesc;
 
 			if (m_Methods.TryGetValue(indexName, out mdesc))
 				return DynValue.NewCallback(mdesc.GetCallback(script, obj));
 
-			UserDataPropertyDescriptor pdesc;
+			StandardUserDataPropertyDescriptor pdesc;
 
 			if (m_Properties.TryGetValue(indexName, out pdesc))
 			{
@@ -120,7 +123,7 @@ namespace MoonSharp.Interpreter.Interop
 
 		protected virtual bool TrySetIndex(Script script, object obj, string indexName, DynValue value)
 		{
-			UserDataPropertyDescriptor pdesc;
+			StandardUserDataPropertyDescriptor pdesc;
 
 			if (m_Properties.TryGetValue(indexName, out pdesc))
 			{

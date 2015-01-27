@@ -149,8 +149,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			bc.PopSourceRef();
 			bc.PushSourceRef(m_End);
 
-			if (bc.GetLastInstruction().OpCode != OpCode.Ret)
-				bc.Emit_Ret(0);
+			bc.Emit_Ret(0);
 
 			bc.LoopTracker.Loops.Pop();
 

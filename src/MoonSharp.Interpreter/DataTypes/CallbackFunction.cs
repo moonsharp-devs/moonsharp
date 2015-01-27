@@ -71,31 +71,30 @@ namespace MoonSharp.Interpreter
 			if (accessMode == InteropAccessMode.Default)
 				accessMode = m_DefaultAccessMode;
 
-			UserDataMethodDescriptor descr = new UserDataMethodDescriptor(del.Method, accessMode);
-			return new CallbackFunction(descr.GetCallback(script, del.Target));
+			StandardUserDataMethodDescriptor descr = new StandardUserDataMethodDescriptor(del.Method, accessMode);
+			return descr.GetCallbackFunction(script, del.Target);
 		}
 
 
 		/// <summary>
-		/// Creates a CallbackFunction from a MethodInfo relative to a static function.
+		/// Creates a CallbackFunction from a MethodInfo relative to a function.
 		/// </summary>
 		/// <param name="script">The script.</param>
 		/// <param name="mi">The MethodInfo object.</param>
+		/// <param name="obj">The object to which the function applies, or null for static methods.</param>
 		/// <param name="accessMode">The access mode.</param>
 		/// <returns></returns>
 		/// <exception cref="System.ArgumentException">The method is not static.</exception>
-		public static CallbackFunction FromMethodInfo(Script script, System.Reflection.MethodInfo mi, InteropAccessMode accessMode = InteropAccessMode.Default)
+		public static CallbackFunction FromMethodInfo(Script script, System.Reflection.MethodInfo mi, object obj = null, InteropAccessMode accessMode = InteropAccessMode.Default)
 		{
-			if (!mi.IsStatic)
-				throw new ArgumentException("MethodInfo");
-
-
 			if (accessMode == InteropAccessMode.Default)
 				accessMode = m_DefaultAccessMode;
 
-			UserDataMethodDescriptor descr = new UserDataMethodDescriptor(mi, accessMode);
-			return new CallbackFunction(descr.GetCallback(script, null), mi.Name);
+			StandardUserDataMethodDescriptor descr = new StandardUserDataMethodDescriptor(mi, accessMode);
+			return descr.GetCallbackFunction(script, obj);
 		}
+
+
 
 		/// <summary>
 		/// Gets or sets an object used as additional data to the callback function (available in the execution context).

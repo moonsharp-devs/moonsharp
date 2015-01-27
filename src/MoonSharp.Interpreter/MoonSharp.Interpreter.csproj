@@ -179,10 +179,10 @@
     <Compile Include="Interop\StandardDescriptors\CompositeUserDataDescriptor.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Interop\StandardDescriptors\UserDataDescriptor.cs" />
+    <Compile Include="Interop\StandardDescriptors\StandardUserDataDescriptor.cs" />
     <Compile Include="Interop\InteropAccessMode.cs" />
-    <Compile Include="Interop\StandardDescriptors\UserDataMethodDescriptor.cs" />
-    <Compile Include="Interop\StandardDescriptors\UserDataPropertyDescriptor.cs">
+    <Compile Include="Interop\StandardDescriptors\StandardUserDataMethodDescriptor.cs" />
+    <Compile Include="Interop\StandardDescriptors\StandardUserDataPropertyDescriptor.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Loaders\ClassicLuaScriptLoader.cs" />

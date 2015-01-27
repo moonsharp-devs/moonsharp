@@ -66,7 +66,7 @@ namespace MoonSharp.Debugger
 
 		private void DebugScript(string filename)
 		{
-			m_Script = new Script(CoreModules.Preset_Complete);
+			m_Script = new Script(CoreModules.Basic);
 			m_Script.Options.UseLuaErrorLocations = true;
 			m_Script.Options.DebugPrint = s => { Console_WriteLine("{0}", s); };
 

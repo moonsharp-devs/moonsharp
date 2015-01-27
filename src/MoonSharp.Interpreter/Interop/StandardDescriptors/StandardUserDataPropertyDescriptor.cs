@@ -9,7 +9,7 @@ using MoonSharp.Interpreter.Diagnostics;
 
 namespace MoonSharp.Interpreter.Interop
 {
-	internal class UserDataPropertyDescriptor
+	internal class StandardUserDataPropertyDescriptor
 	{
 		internal PropertyInfo PropertyInfo { get; private set; }
 		internal InteropAccessMode AccessMode { get; private set; }
@@ -20,7 +20,7 @@ namespace MoonSharp.Interpreter.Interop
 		Action<object, object> m_OptimizedSetter = null;
 
 
-		internal UserDataPropertyDescriptor(PropertyInfo pi, InteropAccessMode accessMode)
+		internal StandardUserDataPropertyDescriptor(PropertyInfo pi, InteropAccessMode accessMode)
 		{
 			this.PropertyInfo = pi;
 			this.AccessMode = accessMode;

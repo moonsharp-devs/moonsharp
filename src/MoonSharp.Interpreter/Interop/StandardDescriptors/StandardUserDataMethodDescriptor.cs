@@ -10,12 +10,12 @@ using MoonSharp.Interpreter.Execution;
 
 namespace MoonSharp.Interpreter.Interop
 {
-	internal class UserDataMethodDescriptor
+	public class StandardUserDataMethodDescriptor
 	{
-		internal MethodInfo MethodInfo { get; private set; }
-		internal InteropAccessMode AccessMode { get; private set; }
-		internal bool IsStatic { get; private set; }
-		internal string Name { get; private set; }
+		public MethodInfo MethodInfo { get; private set; }
+		public InteropAccessMode AccessMode { get; private set; }
+		public bool IsStatic { get; private set; }
+		public string Name { get; private set; }
 
 		private Type[] m_Arguments;
 		private object[] m_Defaults;
@@ -23,8 +23,14 @@ namespace MoonSharp.Interpreter.Interop
 		private Action<object, object[]> m_OptimizedAction = null;
 		private bool m_IsAction = false;
 
-		internal UserDataMethodDescriptor(MethodInfo mi, InteropAccessMode accessMode)
+		public StandardUserDataMethodDescriptor(MethodInfo mi, InteropAccessMode accessMode = InteropAccessMode.Default)
 		{
+			if (accessMode == InteropAccessMode.Default)
+				accessMode = UserData.DefaultAccessMode;
+
+			if (accessMode == InteropAccessMode.HideMembers)
+				throw new ArgumentException("Invalid accessMode");
+
 			this.MethodInfo = mi;
 			this.AccessMode = accessMode;
 			this.Name = mi.Name;
@@ -39,9 +45,25 @@ namespace MoonSharp.Interpreter.Interop
 				Optimize();
 		}
 
-		internal Func<ScriptExecutionContext, CallbackArguments, DynValue> GetCallback(Script script, object obj)
+		public Func<ScriptExecutionContext, CallbackArguments, DynValue> GetCallback(Script script, object obj = null)
 		{
 			return (c, a) => Callback(script, obj, c, a);
+		}
+
+		public CallbackFunction GetCallbackFunction(Script script, object obj = null)
+		{
+			return new CallbackFunction(GetCallback(script, obj), this.MethodInfo.Name);
+		}
+
+		public DynValue GetCallbackAsDynValue(Script script, object obj = null)
+		{
+			return DynValue.NewCallback(this.GetCallbackFunction(script, obj));
+		}
+
+		public static DynValue CreateCallbackDynValue(Script script, MethodInfo mi, object obj = null)
+		{
+			var desc = new StandardUserDataMethodDescriptor(mi);
+			return desc.GetCallbackAsDynValue(script, obj);
 		}
 
 		DynValue Callback(Script script, object obj, ScriptExecutionContext context, CallbackArguments args)
