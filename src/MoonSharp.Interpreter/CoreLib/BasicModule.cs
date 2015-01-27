@@ -123,9 +123,17 @@ namespace MoonSharp.Interpreter.CoreLib
 		[MoonSharpMethod]
 		public static DynValue select(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
-			
 			if (args[0].Type == DataType.String && args[0].String == "#")
-				return DynValue.NewNumber(args.Count - 1);
+			{
+				if (args[args.Count - 1].Type == DataType.Tuple)
+				{
+					return DynValue.NewNumber(args.Count - 1 + args[args.Count - 1].Tuple.Length);
+				}
+				else
+				{
+					return DynValue.NewNumber(args.Count - 1);
+				}
+			}
 
 			DynValue v_num = args.AsType(0, "select", DataType.Number, false);
 			int num = (int)v_num.Number;
