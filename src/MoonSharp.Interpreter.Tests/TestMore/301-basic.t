@@ -310,6 +310,12 @@ is(tonumber('  3.14  '), 3.14)
 is(tonumber(111, 2), 7)
 is(tonumber('111', 2), 7)
 is(tonumber('  111  ', 2), 7)
+is(tonumber('78', 9), 71)
+is(tonumber('111  ', 3), 13)
+is(tonumber('111', 4), 21)
+is(tonumber('1234', 5), 194)
+is(tonumber('54321', 6), 7465)
+
 a = {}
 is(tonumber(a), nil)
 
@@ -319,6 +325,10 @@ error_like(function () tonumber() end,
 
 error_like(function () tonumber('111', 200) end,
            "^[^:]+:%d+: bad argument #2 to 'tonumber' %(base out of range%)",
+           "function tonumber (bad base)")
+
+error_like(function () tonumber('17', 6) end,
+           "^[^:]+:%d+: bad argument #1 to 'tonumber' %(invalid character%)",
            "function tonumber (bad base)")
 
 is(tostring('text'), 'text', "function tostring")
