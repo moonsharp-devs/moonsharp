@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using MoonSharp.Interpreter.CoreLib.IO;
@@ -10,7 +11,7 @@ namespace MoonSharp.Interpreter.CoreLib
 	[MoonSharpModule(Namespace = "io")]
 	public class IoModule
 	{
-		enum DefaultFiles
+		public enum DefaultFiles
 		{
 			In,
 			Out,
@@ -26,9 +27,9 @@ namespace MoonSharp.Interpreter.CoreLib
 			meta.Set("__index", __index);
 			ioTable.MetaTable = meta;
 
-			stdin = new StdinFileUserData();
-			stdout = new StdoutFileUserData();
-			stderr = new StderrFileUserData();
+			stdin = StandardIOFileUserDataBase.CreateInputStream(Console.OpenStandardInput());
+			stdout = StandardIOFileUserDataBase.CreateOutputStream(Console.OpenStandardOutput());
+			stderr = StandardIOFileUserDataBase.CreateOutputStream(Console.OpenStandardError());
 		}
 
 		private static DynValue __index_callback(ScriptExecutionContext executionContext, CallbackArguments args)
@@ -77,10 +78,22 @@ namespace MoonSharp.Interpreter.CoreLib
 
 		static void SetDefaultFile(ScriptExecutionContext executionContext, DefaultFiles file, FileUserDataBase fileHandle)
 		{
-			Table R = executionContext.GetScript().Registry;
+			SetDefaultFile(executionContext.GetScript(), file, fileHandle);
+		}
+
+		public static void SetDefaultFile(Script script, DefaultFiles file, FileUserDataBase fileHandle)
+		{
+			Table R = script.Registry;
 			R.Set("853BEAAF298648839E2C99D005E1DF94_" + file.ToString(), UserData.Create(fileHandle));
 		}
 
+		public static void SetDefaultFile(Script script, DefaultFiles file, Stream stream)
+		{
+			if (file == DefaultFiles.In)
+				SetDefaultFile(script, file, StandardIOFileUserDataBase.CreateInputStream(stream));
+			else
+				SetDefaultFile(script, file, StandardIOFileUserDataBase.CreateOutputStream(stream));
+		}
 
 
 		[MoonSharpMethod]

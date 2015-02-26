@@ -5,12 +5,10 @@ using System.Text;
 
 namespace MoonSharp.Interpreter.Execution.VM
 {
-
-	internal enum OpCode
+	internal enum OpCode 
 	{
 		// Meta-opcodes
 		Nop,		// Does not perform any operation.
-		Invalid,	// Crashes the executor with an unrecoverable NotImplementedException.
 		Debug,		// Does not perform any operation. Used to help debugging.
 
 		// Stack ops and assignment
@@ -31,6 +29,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 		Enter,		// Enters a new stack frame
 		Leave,		// Leaves a stack frame
 		Exit,		// Leaves every stack frame up and including the topmost function frame, plus it exits the topmost closure
+		FuncMeta,	// Injects function metadata used for reflection things (dumping, debugging)
 		BeginFn,	// Adjusts for start of function, taking in parameters and allocating locals
 		Args,		// Takes the arguments passed to a function and sets the appropriate symbols in the local scope
 		Call,		// Calls the function specified on the specified element from the top of the v-stack. If the function is a MoonSharp function, it pushes its numeric value on the v-stack, then pushes the current PC onto the x-stack, enters the function closure and jumps to the function first instruction. If the function is a CLR function, it pops the function value from the v-stack, then invokes the function synchronously and finally pushes the result on the v-stack.
@@ -74,5 +73,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 		// Iterators
 		IterPrep,   // Prepares an iterator for execution 
 		IterUpd,	// Updates the var part of an iterator
+
+		// Meta
+		Invalid,	// Crashes the executor with an unrecoverable NotImplementedException. This MUST always be the last opcode in enum
 	}
 }

@@ -28,9 +28,10 @@ namespace MoonSharp.Interpreter.Loaders
 			}
 		}
 
-		public virtual string LoadFile(string file, Table globalContext)
+		public virtual object LoadFile(string file, Table globalContext)
 		{
-			return File.ReadAllText(file);
+			var stream = new FileStream(file, FileMode.Open, FileAccess.Read);
+			return stream;
 		}
 
 		public virtual string ResolveFileName(string filename, Table globalContext)

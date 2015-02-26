@@ -4,6 +4,7 @@ using MoonSharp.Interpreter.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Diagnostics;
+using System.IO;
 
 namespace MoonSharp.Interpreter
 {
@@ -54,6 +55,38 @@ namespace MoonSharp.Interpreter
 				return string.Format("{2} : {0} / {1}", i_Type, i_Env, i_Name);
 			else
 				return string.Format("{2} : {0}[{1}]", i_Type, i_Index, i_Name);
+		}
+
+		internal void WriteBinary(BinaryWriter bw)
+		{
+			bw.Write((byte)this.i_Type);
+			bw.Write(i_Index);
+			bw.Write(i_Name);
+		}
+
+		internal static SymbolRef ReadBinary(BinaryReader br)
+		{
+			SymbolRef that = new SymbolRef();
+			that.i_Type = (SymbolRefType)br.ReadByte();
+			that.i_Index = br.ReadInt32();
+			that.i_Name = br.ReadString();
+			return that;
+		}
+
+		internal void WriteBinaryEnv(BinaryWriter bw, Dictionary<SymbolRef, int> symbolMap)
+		{
+			if (this.i_Env != null)
+				bw.Write(symbolMap[i_Env]);
+			else
+				bw.Write(-1);
+		}
+
+		internal void ReadBinaryEnv(BinaryReader br, SymbolRef[] symbolRefs)
+		{
+			int idx = br.ReadInt32();
+
+			if (idx >= 0)
+				i_Env = symbolRefs[idx];
 		}
 	}
 }

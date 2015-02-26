@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using MoonSharp.Interpreter.Loaders;
@@ -52,6 +53,9 @@ namespace MoonSharp.Interpreter
 		/// </summary>
 		public bool UseLuaErrorLocations { get; set; }
 
+		public Stream Stdin { get; set; }
+		public Stream Stdout { get; set; }
+		public Stream Stderr { get; set; }
 
 		/// <summary>
 		/// Gets or sets a value indicating whether the thread check is enabled.

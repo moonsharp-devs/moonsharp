@@ -220,16 +220,24 @@ namespace MoonSharp.Interpreter.Execution.VM
 			return AppendInstruction(new Instruction(m_CurrentSourceRef) { OpCode = OpCode.IterUpd });
 		}
 
+		public Instruction Emit_FuncMeta(string funcName)
+		{
+			return AppendInstruction(new Instruction(m_CurrentSourceRef)
+			{
+				OpCode = OpCode.FuncMeta,
+				Name = funcName
+			});
+		}
 
-		public Instruction Emit_BeginFn(RuntimeScopeFrame m_StackFrame, string funcName)
+
+		public Instruction Emit_BeginFn(RuntimeScopeFrame stackFrame)
 		{
 			return AppendInstruction(new Instruction(m_CurrentSourceRef)
 			{
 				OpCode = OpCode.BeginFn,
-				SymbolList = m_StackFrame.DebugSymbols.ToArray(),
-				NumVal = m_StackFrame.Count,
-				NumVal2 = m_StackFrame.ToFirstBlock,
-				Name = funcName
+				SymbolList = stackFrame.DebugSymbols.ToArray(),
+				NumVal = stackFrame.Count,
+				NumVal2 = stackFrame.ToFirstBlock,
 			});
 		}
 

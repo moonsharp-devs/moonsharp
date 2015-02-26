@@ -124,11 +124,16 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 		public int CompileBody(ByteCode bc, string friendlyName)
 		{
+			string funcName = friendlyName ?? "<" + this.m_Begin.FormatLocation(this.LoadingContext.Script, true) + ">";
+
 			bc.PushSourceRef(m_Begin);
 
 			Instruction I = bc.Emit_Jump(OpCode.Jump, -1);
 
-			bc.Emit_BeginFn(m_StackFrame, friendlyName ?? "<" + this.m_Begin.FormatLocation(this.LoadingContext.Script, true) + ">");
+			Instruction meta = bc.Emit_FuncMeta(funcName);
+			int metaip = bc.GetJumpPointForLastInstruction();
+
+			bc.Emit_BeginFn(m_StackFrame);
 
 			bc.LoopTracker.Loops.Push(new LoopBoundary());
 
@@ -154,6 +159,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			bc.LoopTracker.Loops.Pop();
 
 			I.NumVal = bc.GetJumpPointForNextInstruction();
+			meta.NumVal = bc.GetJumpPointForLastInstruction() - metaip;
 
 			bc.PopSourceRef();
 

@@ -30,6 +30,16 @@ namespace MoonSharp.Interpreter.Interop
 
 			if (AccessMode != InteropAccessMode.HideMembers)
 			{
+				foreach (ConstructorInfo ci in type.GetConstructors(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
+				{
+					if (CheckVisibility(ci.GetCustomAttributes(true), ci.IsPublic))
+					{
+						var md = new StandardUserDataMethodDescriptor(ci, this.AccessMode);
+						m_Methods.Add("__new", md);
+						break;
+					}
+				}
+
 				foreach (MethodInfo mi in type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.InvokeMethod | BindingFlags.Instance | BindingFlags.Static))
 				{
 					if (CheckVisibility(mi.GetCustomAttributes(true), mi.IsPublic))

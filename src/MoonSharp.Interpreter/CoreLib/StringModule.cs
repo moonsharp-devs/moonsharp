@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using MoonSharp.Interpreter.CoreLib.StringLib;
@@ -10,12 +11,39 @@ namespace MoonSharp.Interpreter.CoreLib
 	[MoonSharpModule(Namespace="string")]
 	public class StringModule
 	{
+		public const string BASE64_DUMP_HEADER = "MoonSharp_dump_b64::";
+
 		public static void MoonSharpInit(Table globalTable, Table stringTable)
 		{
 			Table stringMetatable = new Table(globalTable.OwnerScript);
 			stringMetatable.Set("__index", DynValue.NewTable(stringTable));
 			globalTable.OwnerScript.SetTypeMetatable(DataType.String, stringMetatable);
 		}
+
+
+		[MoonSharpMethod]
+		public static DynValue dump(ScriptExecutionContext executionContext, CallbackArguments args)
+		{
+			DynValue fn = args.AsType(0, "dump", DataType.Function, false);
+
+			try
+			{
+				byte[] bytes;
+				using (MemoryStream ms = new MemoryStream())
+				{
+					executionContext.GetScript().Dump(fn, ms);
+					ms.Seek(0, SeekOrigin.Begin);
+					bytes = ms.GetBuffer();
+				}
+				string base64 = Convert.ToBase64String(bytes);
+				return DynValue.NewString(BASE64_DUMP_HEADER + base64);
+			}
+			catch (Exception ex)
+			{
+				throw new ScriptRuntimeException(ex.Message);
+			}
+		}
+
 
 		[MoonSharpMethod]
 		public static DynValue @char(ScriptExecutionContext executionContext, CallbackArguments args)

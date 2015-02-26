@@ -5,11 +5,13 @@ using System.Linq;
 using System.Text;
 using Antlr4.Runtime;
 using MoonSharp.Interpreter.CoreLib;
+using MoonSharp.Interpreter.DataStructs;
 using MoonSharp.Interpreter.Debugging;
 using MoonSharp.Interpreter.Diagnostics;
 using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Execution.VM;
 using MoonSharp.Interpreter.Interop;
+using MoonSharp.Interpreter.IO;
 using MoonSharp.Interpreter.Loaders;
 using MoonSharp.Interpreter.Tree;
 using MoonSharp.Interpreter.Tree.Expressions;
@@ -26,7 +28,7 @@ namespace MoonSharp.Interpreter
 		/// <summary>
 		/// The version of the MoonSharp engine
 		/// </summary>
-		public const string VERSION = "0.8.5.0"; 
+		public const string VERSION = "0.8.6.0"; 
 
 		/// <summary>
 		/// The Lua version being supported
@@ -155,6 +157,14 @@ namespace MoonSharp.Interpreter
 		/// </returns>
 		public DynValue LoadString(string code, Table globalTable = null, string codeFriendlyName = null)
 		{
+			if (code.StartsWith(StringModule.BASE64_DUMP_HEADER))
+			{
+				code = code.Substring(StringModule.BASE64_DUMP_HEADER.Length);
+				byte[] data = Convert.FromBase64String(code);
+				using (MemoryStream ms = new MemoryStream(data))
+					return LoadStream(ms, globalTable, codeFriendlyName);
+			}
+
 			string chunkName = string.Format("{0}", codeFriendlyName ?? "chunk_" + m_Sources.Count.ToString());
 
 			SourceCode source = new SourceCode(codeFriendlyName ?? chunkName, code, m_Sources.Count, this);
@@ -173,6 +183,72 @@ namespace MoonSharp.Interpreter
 		}
 
 		/// <summary>
+		/// Loads a Lua/MoonSharp script from a System.IO.Stream. NOTE: This will *NOT* close the stream!
+		/// </summary>
+		/// <param name="stream">The stream containing code.</param>
+		/// <param name="globalTable">The global table to bind to this chunk.</param>
+		/// <param name="codeFriendlyName">Name of the code - used to report errors, etc.</param>
+		/// <returns>
+		/// A DynValue containing a function which will execute the loaded code.
+		/// </returns>
+		public DynValue LoadStream(Stream stream, Table globalTable = null, string codeFriendlyName = null)
+		{
+			Stream codeStream = new UndisposableStream(stream);
+
+			if (!Processor.IsDumpStream(codeStream))
+			{
+				using (StreamReader sr = new StreamReader(codeStream))
+				{
+					string scriptCode = sr.ReadToEnd();
+					return LoadString(scriptCode, globalTable, codeFriendlyName);
+				}
+			}
+			else
+			{
+				string chunkName = string.Format("{0}", codeFriendlyName ?? "dump_" + m_Sources.Count.ToString());
+
+				SourceCode source = new SourceCode(codeFriendlyName ?? chunkName, 
+					string.Format("-- This script was decoded from a binary dump - dump_{0}", m_Sources.Count),
+					m_Sources.Count, this);
+
+				m_Sources.Add(source);
+
+				bool hasUpvalues;
+				int address = m_MainProcessor.Undump(codeStream, m_Sources.Count - 1, globalTable ?? m_GlobalTable, out hasUpvalues);
+
+				SignalSourceCodeChange(source);
+				SignalByteCodeChange();
+
+				if (hasUpvalues)
+					return MakeClosure(address, globalTable ?? m_GlobalTable);
+				else
+					return MakeClosure(address);
+			}
+		}
+
+		/// <summary>
+		/// Dumps on the specified stream.
+		/// </summary>
+		/// <param name="stream">The stream.</param>
+		public void Dump(DynValue function, Stream stream)
+		{
+			if (function.Type != DataType.Function)
+				throw new ArgumentException("function arg is not a function!");
+
+			if (!stream.CanWrite)
+				throw new ArgumentException("stream is readonly!");
+
+			ClosureContext.UpvaluesType upvaluesType = function.Function.ClosureContext.GetUpvaluesType();
+
+			if (upvaluesType == ClosureContext.UpvaluesType.Closure)
+				throw new ArgumentException("function arg has upvalues other than _ENV");
+
+			UndisposableStream outStream = new UndisposableStream(stream);
+			m_MainProcessor.Dump(outStream, function.Function.EntryPointByteCodeLocation, upvaluesType == ClosureContext.UpvaluesType.Environment);
+		}
+
+
+		/// <summary>
 		/// Loads a string containing a Lua/MoonSharp script.
 		/// </summary>
 		/// <param name="filename">The code.</param>
@@ -184,8 +260,35 @@ namespace MoonSharp.Interpreter
 		public DynValue LoadFile(string filename, Table globalContext = null, string friendlyFilename = null)
 		{
 			filename = Options.ScriptLoader.ResolveFileName(filename, globalContext ?? m_GlobalTable);
+			object code = Options.ScriptLoader.LoadFile(filename, globalContext ?? m_GlobalTable);
 
-			return LoadString(Options.ScriptLoader.LoadFile(filename, globalContext ?? m_GlobalTable), globalContext, friendlyFilename ?? filename);
+			if (code is string)
+			{
+				return LoadString((string)code, globalContext, friendlyFilename ?? filename);
+			}
+			else if (code is byte[])
+			{
+				using(MemoryStream ms = new MemoryStream((byte[])code))
+					return LoadStream(ms, globalContext, friendlyFilename ?? filename);
+			}
+			else if (code is Stream)
+			{
+				try
+				{
+					return LoadStream((Stream)code, globalContext, friendlyFilename ?? filename);
+				}
+				finally
+				{
+					((Stream)code).Dispose();
+				}
+			}
+			else
+			{
+				if (code == null)
+					throw new InvalidCastException("Unexpected null from IScriptLoader.LoadFile");
+				else
+					throw new InvalidCastException(string.Format("Unsupported return type from IScriptLoader.LoadFile : {0}", code.GetType()));
+			}
 		}
 
 
@@ -202,6 +305,22 @@ namespace MoonSharp.Interpreter
 			DynValue func = LoadString(code, globalContext);
 			return Call(func);
 		}
+
+
+		/// <summary>
+		/// Loads and executes a stream containing a Lua/MoonSharp script.
+		/// </summary>
+		/// <param name="stream">The stream.</param>
+		/// <param name="globalContext">The global context.</param>
+		/// <returns>
+		/// A DynValue containing the result of the processing of the loaded chunk.
+		/// </returns>
+		public DynValue DoStream(Stream stream, Table globalContext = null)
+		{
+			DynValue func = LoadStream(stream, globalContext);
+			return Call(func);
+		}
+
 
 		/// <summary>
 		/// Loads and executes a file containing a Lua/MoonSharp script.
@@ -244,12 +363,26 @@ namespace MoonSharp.Interpreter
 		/// Creates a closure from a bytecode address.
 		/// </summary>
 		/// <param name="address">The address.</param>
+		/// <param name="envTable">The env table to create a 0-upvalue</param>
 		/// <returns></returns>
-		private DynValue MakeClosure(int address)
+		private DynValue MakeClosure(int address, Table envTable = null)
 		{
-			Closure c = new Closure(this, address,
-				new SymbolRef[0],
-				new DynValue[0]);
+			Closure c;
+
+			if (envTable == null)
+				c = new Closure(this, address, new SymbolRef[0], new DynValue[0]);
+			else
+			{
+				var syms = new SymbolRef[1] {
+					new SymbolRef() { i_Env = null, i_Index= 0, i_Name = WellKnownSymbols.ENV, i_Type =  SymbolRefType.DefaultEnv },
+				};
+
+				var vals = new DynValue[1] {
+					DynValue.NewTable(envTable)
+				};
+
+				c = new Closure(this, address, syms, vals);
+			}
 
 			return DynValue.NewClosure(c);
 		}
@@ -427,7 +560,7 @@ namespace MoonSharp.Interpreter
 			if (filename == null)
 				throw new ScriptRuntimeException("module '{0}' not found", modname);
 
-			DynValue func = LoadString(Options.ScriptLoader.LoadFile(filename, globalContext), globalContext, filename);
+			DynValue func = LoadFile(filename, globalContext, filename);
 			return func;
 		}
 

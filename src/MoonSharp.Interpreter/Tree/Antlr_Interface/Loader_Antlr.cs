@@ -138,7 +138,7 @@ namespace MoonSharp.Interpreter.Tree
 			//bytecode.Dump(string.Format(@"c:\temp\codedump_{0}.txt", sourceIdx));
 		}
 
-		//[Conditional("DEBUG_COMPILER")]
+		[Conditional("DEBUG_COMPILER")]
 		private static void Debug_DumpAst(LuaParser parser, int sourceIdx, Func<LuaParser, IParseTree> dumper)
 		{
 			try

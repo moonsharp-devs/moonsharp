@@ -12,10 +12,11 @@ namespace MoonSharp.Interpreter.Interop
 {
 	public class StandardUserDataMethodDescriptor
 	{
-		public MethodInfo MethodInfo { get; private set; }
+		public MethodBase MethodInfo { get; private set; }
 		public InteropAccessMode AccessMode { get; private set; }
 		public bool IsStatic { get; private set; }
 		public string Name { get; private set; }
+		public bool IsConstructor { get; private set; }
 
 		private Type[] m_Arguments;
 		private object[] m_Defaults;
@@ -23,7 +24,7 @@ namespace MoonSharp.Interpreter.Interop
 		private Action<object, object[]> m_OptimizedAction = null;
 		private bool m_IsAction = false;
 
-		public StandardUserDataMethodDescriptor(MethodInfo mi, InteropAccessMode accessMode = InteropAccessMode.Default)
+		public StandardUserDataMethodDescriptor(MethodBase mi, InteropAccessMode accessMode = InteropAccessMode.Default)
 		{
 			if (accessMode == InteropAccessMode.Default)
 				accessMode = UserData.DefaultAccessMode;
@@ -34,9 +35,19 @@ namespace MoonSharp.Interpreter.Interop
 			this.MethodInfo = mi;
 			this.AccessMode = accessMode;
 			this.Name = mi.Name;
-			this.IsStatic = mi.IsStatic;
 
-			m_IsAction = mi.ReturnType == typeof(void);
+			IsConstructor = (mi is ConstructorInfo);
+
+			this.IsStatic = mi.IsStatic || IsConstructor; // we consider the constructor to be a static method as far interop is concerned.
+
+			if (mi is ConstructorInfo)
+			{
+				m_IsAction = false;
+			}
+			else
+			{
+				m_IsAction = ((MethodInfo)mi).ReturnType == typeof(void);
+			}
 
 			m_Arguments = mi.GetParameters().Select(pi => pi.ParameterType).ToArray();
 			m_Defaults = mi.GetParameters().Select(pi => pi.DefaultValue).ToArray();
@@ -52,7 +63,7 @@ namespace MoonSharp.Interpreter.Interop
 
 		public CallbackFunction GetCallbackFunction(Script script, object obj = null)
 		{
-			return new CallbackFunction(GetCallback(script, obj), this.MethodInfo.Name);
+			return new CallbackFunction(GetCallback(script, obj), this.Name);
 		}
 
 		public DynValue GetCallbackAsDynValue(Script script, object obj = null)
@@ -117,7 +128,10 @@ namespace MoonSharp.Interpreter.Interop
 			}
 			else
 			{
-				retv = MethodInfo.Invoke(obj, pars);
+				if (IsConstructor)
+					retv = ((ConstructorInfo)MethodInfo).Invoke(pars);
+				else
+					retv = MethodInfo.Invoke(obj, pars);
 			}
 
 			return ConversionHelper.ClrObjectToComplexMoonSharpValue(script, retv);
@@ -125,6 +139,11 @@ namespace MoonSharp.Interpreter.Interop
 
 		internal void Optimize()
 		{
+			MethodInfo methodInfo = this.MethodInfo as MethodInfo;
+
+			if (methodInfo == null)
+				return;
+
 			using (PerformanceStatistics.StartGlobalStopwatch(PerformanceCounter.AdaptersCompilation))
 			{
 				var ep = Expression.Parameter(typeof(object[]), "pars");
@@ -143,15 +162,15 @@ namespace MoonSharp.Interpreter.Interop
 
 				if (IsStatic)
 				{
-					fn = Expression.Call(MethodInfo, args);
+					fn = Expression.Call(methodInfo, args);
 				}
 				else
 				{
-					fn = Expression.Call(inst, MethodInfo, args);
+					fn = Expression.Call(inst, methodInfo, args);
 				}
 
 
-				if (MethodInfo.ReturnType == typeof(void))
+				if (this.m_IsAction)
 				{
 					var lambda = Expression.Lambda<Action<object, object[]>>(fn, objinst, ep);
 					Interlocked.Exchange(ref m_OptimizedAction, lambda.Compile());

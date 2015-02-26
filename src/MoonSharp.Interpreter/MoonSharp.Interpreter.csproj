@@ -87,7 +87,7 @@
     <Compile Include="CoreLib\IO\FileUserData.cs" />
     <Compile Include="CoreLib\IoModule.cs" />
     <Compile Include="CoreLib\IO\FileUserDataBase.cs" />
-    <Compile Include="CoreLib\IO\StdioFileUserData.cs" />
+    <Compile Include="CoreLib\IO\StandardIOFileUserDataBase.cs" />
     <Compile Include="CoreLib\IO\StreamFileUserDataBase.cs" />
     <Compile Include="CoreLib\LoadModule.cs" />
     <Compile Include="CoreLib\Bit32Module.cs" />
@@ -96,6 +96,13 @@
     <Compile Include="CoreLib\OsSystemModule.cs" />
     <Compile Include="CoreLib\OsTimeModule.cs" />
     <Compile Include="CoreLib\StringLib\KopiLua_StrLib.cs" />
+    <Compile Include="IO\BinDumpBinaryReader.cs" />
+    <Compile Include="IO\BinDumpBinaryWriter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IO\UndisposableStream.cs" />
+    <Compile Include="Execution\InstructionFieldUsage.cs" />
+    <Compile Include="Execution\VM\Processor\Processor_BinaryDump.cs" />
     <Compile Include="Interop\InteropRegistrationPolicy.cs" />
     <Compile Include="Interop\IUserDataType.cs" />
     <Compile Include="DataTypes\ScriptFunctionDelegate.cs" />

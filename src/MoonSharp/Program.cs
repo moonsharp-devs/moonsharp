@@ -128,9 +128,22 @@ namespace MoonSharp
 			}
 			if (p == "!")
 			{
-				ParseCommand(S, "debug");
-				ParseCommand(S, @"run c:\temp\test.lua");
+				//ParseCommand(S, "debug");
+				//ParseCommand(S, @"run c:\temp\test.lua");
 			}
+			if (p == "wb")
+			{
+				DynValue chunk = S.LoadFile(@"c:\temp\test.lua");
+
+				using (Stream stream = new FileStream(@"c:\temp\test.bin", FileMode.Create, FileAccess.Write))
+					S.Dump(chunk, stream);
+			}
+			if (p == "rb")
+			{
+				DynValue chunk = S.LoadFile(@"c:\temp\test.bin");
+				chunk.Function.Call();
+			}
+
 		}
 
 		static void m_Server_DataReceivedAny(object sender, Utf8TcpPeerEventArgs e)

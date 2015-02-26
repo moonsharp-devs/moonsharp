@@ -6,7 +6,7 @@ using System.Text;
 
 namespace MoonSharp.Interpreter.CoreLib.IO
 {
-	class FileUserData : StreamFileUserDataBase
+	public class FileUserData : StreamFileUserDataBase
 	{
 		public FileUserData(string filename, Encoding encoding, string mode)
 		{

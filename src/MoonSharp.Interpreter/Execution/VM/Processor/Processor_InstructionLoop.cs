@@ -36,6 +36,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 					{
 						case OpCode.Nop:
 						case OpCode.Debug:
+						case OpCode.FuncMeta:
 							break;
 						case OpCode.Pop:
 							m_ValueStack.RemoveLast(i.NumVal);
@@ -548,8 +549,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 			DynValue v = m_ValueStack.Pop().ToScalar();
 			m_ValueStack.Push(DynValue.NewBoolean(!(v.CastToBool())));
 		}
-
-
 
 		private void ExecBeginFn(Instruction i)
 		{
