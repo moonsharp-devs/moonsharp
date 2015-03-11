@@ -231,5 +231,53 @@ namespace MoonSharp.Interpreter.Tree
 
 			return new Expression[] { CreateExpression(tree, lcontext) };
 		}
+
+		public static Expression[] CreateExpessionArray(IList<IParseTree> expressionNodes, ScriptLoadingContext lcontext)
+		{
+			List<Expression> exps = new List<Expression>();
+
+			foreach (var c in expressionNodes)
+			{
+				var e = NodeFactory.CreateExpression(c, lcontext);
+
+				if (e != null)
+					exps.Add(e);
+			}
+
+			return exps.ToArray();
+		}
+
+		public static IVariable[] CreateVariablesArray(IList<LuaParser.VarContext> expressionNodes, ScriptLoadingContext lcontext)
+		{
+			List<IVariable> exps = new List<IVariable>();
+
+			foreach (var c in expressionNodes)
+			{
+				var e = NodeFactory.CreateVariableExpression(c, lcontext) as IVariable;
+
+				if (e != null)
+					exps.Add(e);
+			}
+
+			return exps.ToArray();
+		}
+
+
+		internal static IVariable[] CreateVariablesArray(IParseTree context, ITerminalNode[] terminalNodes, ScriptLoadingContext lcontext)
+		{
+			List<IVariable> exps = new List<IVariable>();
+
+			foreach (var n in terminalNodes)
+			{
+				string name = n.GetText();
+				var localVar = lcontext.Scope.TryDefineLocal(name);
+				var symbol = new SymbolRefExpression(context, lcontext, localVar) as IVariable;
+
+				if (symbol != null)
+					exps.Add(symbol);
+			}
+
+			return exps.ToArray();
+		}
 	}
 }

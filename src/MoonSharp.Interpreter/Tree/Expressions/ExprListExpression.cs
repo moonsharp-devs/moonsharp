@@ -14,10 +14,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 		public ExprListExpression(LuaParser.ExplistContext tree, ScriptLoadingContext lcontext)
 			: base(tree, lcontext)
 		{
-			expressions = tree.children
-				.Select(t => NodeFactory.CreateExpression(t, lcontext))
-				.Where(e => e != null)
-				.ToArray();
+			expressions = NodeFactory.CreateExpessionArray(tree.children, lcontext);
 		}
 
 

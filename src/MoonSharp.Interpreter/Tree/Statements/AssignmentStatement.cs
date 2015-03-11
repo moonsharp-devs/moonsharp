@@ -18,15 +18,8 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		public AssignmentStatement(LuaParser.Stat_assignmentContext context, ScriptLoadingContext lcontext)
 			: base(context, lcontext)
 		{
-			m_LValues = context.varlist().var()
-				.Select(v => NodeFactory.CreateVariableExpression(v, lcontext))
-				.Cast<IVariable>()
-				.ToArray();
-
-			m_RValues = context.explist()
-				.exp()
-				.Select(e => NodeFactory.CreateExpression(e, lcontext))
-				.ToArray();
+			m_LValues = NodeFactory.CreateVariablesArray(context.varlist().var(), lcontext);
+			m_RValues = NodeFactory.CreateExpessionArray(context.explist().exp(), lcontext);
 
 			m_Ref = BuildSourceRef(context.Start, context.Stop);
 		}
@@ -38,20 +31,14 @@ namespace MoonSharp.Interpreter.Tree.Statements
 
 			if (explist != null)
 			{
-				m_RValues = explist
-				.exp()
-				.Select(e => NodeFactory.CreateExpression(e, lcontext))
-				.ToArray();
+				m_RValues = NodeFactory.CreateExpessionArray(explist.exp(), lcontext);
 			}
 			else
+			{
 				m_RValues = new Expression[0];
+			}
 
-			m_LValues = context.namelist().NAME()
-				.Select(n => n.GetText())
-				.Select(n => lcontext.Scope.TryDefineLocal(n))
-				.Select(s => new SymbolRefExpression(context, lcontext, s))
-				.Cast<IVariable>()
-				.ToArray();
+			m_LValues = NodeFactory.CreateVariablesArray(context, context.namelist().NAME(), lcontext);
 
 			m_Ref = BuildSourceRef(context.Start, context.Stop);
 		}

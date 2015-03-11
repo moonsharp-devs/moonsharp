@@ -42,6 +42,7 @@ namespace MoonSharp
 			else
 			{
 				Console.WriteLine("Type <enter> twice to execute code.\n");
+				Console.WriteLine("Type !help to see help.");
 
 				Script script = new Script(CoreModules.Preset_Complete);
 

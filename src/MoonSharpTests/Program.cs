@@ -10,23 +10,34 @@ using System.Text;
 using MoonSharp.Interpreter.Tests;
 using NUnit.Framework;
 using System.Diagnostics;
+using System.IO;
 
 namespace MoonSharpTests
 {
 	class Program
 	{
-		public const string RESTRICT_TEST = null;
+		public const string RESTRICT_TEST = "ClosureNoTable";
+
 
 		static void Main(string[] args)
 		{
-			TestRunner T = new TestRunner(Log);
-
-			T.Test(RESTRICT_TEST);
-
-			if (Debugger.IsAttached)
+			try
 			{
-				Console.WriteLine("Press any key...");
-				Console.ReadKey();
+				TestRunner T = new TestRunner(Log);
+
+				//File.WriteAllText("moonsharp_tests.log", "");
+
+				T.Test(RESTRICT_TEST);
+
+				if (Debugger.IsAttached)
+				{
+					Console.WriteLine("Press any key...");
+					Console.ReadKey();
+				}
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex.ToString());
 			}
 		}
 
@@ -37,25 +48,35 @@ namespace MoonSharpTests
 				Console.ForegroundColor = ConsoleColor.Red;
 
 				if (r.Exception!= null)
-					Console.WriteLine("{0} - {1}", r.TestName, r.Exception);
+					Console_WriteLine("{0} - {1}", r.TestName, r.Exception);
 				else
-					Console.WriteLine("{0} - {1}", r.TestName, r.Message);
+					Console_WriteLine("{0} - {1}", r.TestName, r.Message);
 			}
 			else if (r.Type == TestResultType.Ok)
 			{
 				Console.ForegroundColor = ConsoleColor.DarkGreen;
-				Console.WriteLine("{0} - {1}", r.TestName, r.Message);
+				Console_WriteLine("{0} - {1}", r.TestName, r.Message);
 			}
 			else if (r.Type == TestResultType.Skipped)
 			{
 				Console.ForegroundColor = ConsoleColor.Yellow;
-				Console.WriteLine("{0} - {1}", r.TestName, r.Message);
+				Console_WriteLine("{0} - {1}", r.TestName, r.Message);
 			}
 			else
 			{
 				Console.ForegroundColor = ConsoleColor.Gray;
-				Console.WriteLine("{0}", r.Message);
+				Console_WriteLine("{0}", r.Message);
 			}
+		}
+
+		private static void Console_WriteLine(string format, params object[] args)
+		{
+			string txt = string.Format(format, args);
+
+			Console.WriteLine(txt);
+
+			//File.AppendAllText("moonsharp_tests.log", txt);
+			//File.AppendAllText("moonsharp_tests.log", "\n\n");
 		}
 
 
