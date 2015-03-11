@@ -10,7 +10,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 {
 	class CompositeStatement : Statement 
 	{
-		Statement[] m_Statements;
+		List<Statement> m_Statements = new List<Statement>();
 
 		public CompositeStatement(LuaParser.StatContext context, ScriptLoadingContext lcontext)
 			: base(context, lcontext)
@@ -20,7 +20,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 				m_Statements = context.children
 					.Select(t => NodeFactory.CreateStatement(t, lcontext))
 					.Where(s => s != null)
-					.ToArray();
+					.ToList();
 			}
 		}
 
@@ -32,7 +32,24 @@ namespace MoonSharp.Interpreter.Tree.Statements
 				m_Statements = context.children
 					.Select(t => NodeFactory.CreateStatement(t, lcontext))
 					.Where(s => s != null)
-					.ToArray();
+					.ToList();
+			}
+		}
+
+		public CompositeStatement(ScriptLoadingContext lcontext)
+			: base(lcontext)
+		{
+			while (true)
+			{
+				Token t = lcontext.Lexer.PeekToken();
+				if (t.IsEndOfBlock()) break;
+
+				bool forceLast;
+				
+				Statement s = Statement.CreateStatement(lcontext, out forceLast);
+				m_Statements.Add(s);
+
+				if (forceLast) break;
 			}
 		}
 

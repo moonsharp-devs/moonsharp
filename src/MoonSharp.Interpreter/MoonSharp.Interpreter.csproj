@@ -254,7 +254,6 @@
     <Compile Include="Tree\Expressions\DynamicExpression.cs" />
     <Compile Include="Tree\Expressions\PowerOperatorExpression.cs" />
     <Compile Include="Tree\Expressions\UnaryOperatorExpression.cs" />
-    <Compile Include="Tree\Fast_Interface\llex.cs" />
     <Compile Include="Tree\IVariable.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tree\Expressions\ExprListExpression.cs" />
@@ -267,6 +266,10 @@
     <Compile Include="Tree\Expressions\OperatorExpression.cs" />
     <Compile Include="Tree\Expressions\SymbolRefExpression.cs" />
     <Compile Include="Tree\Antlr_Interface\Loader_Antlr.cs" />
+    <Compile Include="Tree\Lexer\Lexer.cs" />
+    <Compile Include="Tree\Lexer\LexerBackDoor.cs" />
+    <Compile Include="Tree\Lexer\Token.cs" />
+    <Compile Include="Tree\Lexer\TokenType.cs" />
     <Compile Include="Tree\Loop.cs" />
     <Compile Include="Tree\NodeBase.cs" />
     <Compile Include="Tree\NodeFactory.cs" />
@@ -302,6 +305,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Tree\Fast_Interface\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

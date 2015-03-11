@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using MoonSharp.Interpreter.Debugging;
+using MoonSharp.Interpreter.Tree;
 
 namespace MoonSharp.Interpreter.Execution
 {
@@ -13,6 +14,7 @@ namespace MoonSharp.Interpreter.Execution
 		public SourceCode Source { get; set; }
 		public bool Anonymous { get; set; }
 		public bool IsDynamicExpression { get; set; }
+		public Lexer Lexer { get; set; }
 
 		public ScriptLoadingContext(Script s)
 		{

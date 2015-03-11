@@ -26,6 +26,8 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			m_StackFrame = lcontext.Scope.PopBlock();
 		}
 
+
+
 		public override void Compile(Execution.VM.ByteCode bc)
 		{
 			using(bc.EnterSource(m_Do))

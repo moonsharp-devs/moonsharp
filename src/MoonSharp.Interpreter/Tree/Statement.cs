@@ -19,6 +19,43 @@ namespace MoonSharp.Interpreter.Tree
 			: base(tree, lcontext)
 		{ }
 
+		public Statement(ScriptLoadingContext lcontext)
+			: base(null, lcontext)
+		{ }
+
+
+		protected static Statement CreateStatement(ScriptLoadingContext lcontext, out bool forceLast)
+		{
+			Token tkn = lcontext.Lexer.PeekToken();
+
+			forceLast = false;
+
+			switch (tkn.Type)
+			{
+				case TokenType.If:
+					throw new NotImplementedException();
+				case TokenType.While:
+					throw new NotImplementedException();
+				case TokenType.Do:
+					throw new NotImplementedException();
+				case TokenType.For:
+					throw new NotImplementedException();
+				case TokenType.Repeat:
+					throw new NotImplementedException();
+				case TokenType.Function:
+					throw new NotImplementedException();
+				case TokenType.Local:
+					throw new NotImplementedException();
+				case TokenType.Return:
+					forceLast = true;
+					throw new NotImplementedException();
+				case TokenType.Break:
+					forceLast = true;
+					throw new NotImplementedException();
+				default:
+					throw new NotImplementedException();
+			}
+		}
 	}
 
 

@@ -21,6 +21,21 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		SymbolRef m_Env;
 		SymbolRef m_VarArgs;
 
+		public ChunkStatement(Lexer lexer, ScriptLoadingContext lcontext, Table globalEnv)
+			: base(lcontext)
+		{
+			//lcontext.Scope.PushFunction(this, true);
+			//m_Env = lcontext.Scope.DefineLocal(WellKnownSymbols.ENV);
+			//m_VarArgs = lcontext.Scope.DefineLocal(WellKnownSymbols.VARARGS);
+
+			//m_GlobalEnv = globalEnv;
+
+			//m_Block = new CompositeStatement(lexer, lcontext);
+
+			//m_StackFrame = lcontext.Scope.PopFunction();
+		}
+
+
 		public ChunkStatement(LuaParser.ChunkContext context, ScriptLoadingContext lcontext, Table globalEnv)
 			: base(context, lcontext)
 		{

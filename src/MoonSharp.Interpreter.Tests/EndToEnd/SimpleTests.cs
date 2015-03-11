@@ -9,6 +9,12 @@ namespace MoonSharp.Interpreter.Tests
 	[TestFixture]
 	public class SimpleTests
 	{
+		[Test]
+		public void EmptyChunk()
+		{
+			Script S = new Script(CoreModules.None);
+			DynValue res = S.DoString("");
+		}
 
 		[Test]
 		public void CSharpStaticFunctionCallStatement()
