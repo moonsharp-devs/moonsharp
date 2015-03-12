@@ -62,6 +62,39 @@ namespace MoonSharp.Interpreter.Tests
 		}
 
 		[Test]
+		public void CSharpStaticFunctionCall4()
+		{
+			string script = "return callback()();";
+
+			var callback2 = DynValue.NewCallback(new CallbackFunction((_x, a) => { return DynValue.NewNumber(1234.0); }));
+			var callback = DynValue.NewCallback(new CallbackFunction((_x, a) => { return callback2; }));
+
+			var S = new Script();
+			S.Globals.Set("callback", callback);
+
+			DynValue res = S.DoString(script);
+
+			Assert.AreEqual(DataType.Number, res.Type);
+			Assert.AreEqual(1234.0, res.Number);
+		}
+
+		[Test]
+		public void CSharpStaticFunctionCall3()
+		{
+			string script = "return callback();";
+
+			var callback = DynValue.NewCallback(new CallbackFunction((_x, a) => { return DynValue.NewNumber(1234.0); }));
+
+			var S = new Script();
+			S.Globals.Set("callback", callback);
+
+			DynValue res = S.DoString(script);
+
+			Assert.AreEqual(DataType.Number, res.Type);
+			Assert.AreEqual(1234.0, res.Number);
+		}
+
+		[Test]
 		public void CSharpStaticFunctionCall2()
 		{
 			IList<DynValue> args = null;

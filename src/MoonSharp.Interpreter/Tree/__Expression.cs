@@ -36,7 +36,7 @@ namespace MoonSharp.Interpreter.Tree
 		{
 			List<Expression> exps = new List<Expression>();
 
-			while(true)
+			while (true)
 			{
 				exps.Add(Expr(lcontext));
 
@@ -44,7 +44,7 @@ namespace MoonSharp.Interpreter.Tree
 					break;
 
 				lcontext.Lexer.Next();
-			} 
+			}
 
 			return exps; //+++
 		}
@@ -165,30 +165,35 @@ namespace MoonSharp.Interpreter.Tree
 				{
 					case TokenType.Dot:
 						{
-							Token name = lcontext.Lexer.Next();
+							lcontext.Lexer.Next();
+							Token name = lcontext.Lexer.Current();
 							CheckTokenType(name, TokenType.Name);
 							LiteralExpression le = new LiteralExpression(lcontext, DynValue.NewString(name.Text));
 							lcontext.Lexer.Next();
-							return new IndexExpression(e, le, lcontext);
+							e = new IndexExpression(e, le, lcontext);
 						}
+						break;
 					case TokenType.Brk_Open_Square:
 						{
 							lcontext.Lexer.Next(); // skip bracket
 							Expression index = Expr(lcontext);
 							CheckMatch(lcontext, T.Text, TokenType.Brk_Close_Square);
-							return new IndexExpression(e, index, lcontext);
+							e = new IndexExpression(e, index, lcontext);
 						}
+						break;
 					case TokenType.Colon:
-							thisCallName = lcontext.Lexer.Next();
-							CheckTokenType(thisCallName, TokenType.Name);
-							lcontext.Lexer.Next();
-							goto case TokenType.Brk_Open_Round;
+						lcontext.Lexer.Next();
+						thisCallName = lcontext.Lexer.Current();
+						CheckTokenType(thisCallName, TokenType.Name);
+						lcontext.Lexer.Next();
+						goto case TokenType.Brk_Open_Round;
 					case TokenType.Brk_Open_Round:
 					case TokenType.String:
 					case TokenType.String_Long:
 					case TokenType.Brk_Open_Curly:
-							return new FunctionCallExpression(lcontext, e, thisCallName);
-					default: 
+						e = new FunctionCallExpression(lcontext, e, thisCallName);
+						break;
+					default:
 						return e;
 				}
 			}
@@ -226,10 +231,7 @@ namespace MoonSharp.Interpreter.Tree
 			lcontext.Lexer.Next();
 		}
 
-		private static Expression SingleVar(ScriptLoadingContext lcontext)
-		{
-			throw new NotImplementedException();
-		}
+
 
 	}
 }

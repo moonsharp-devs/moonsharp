@@ -35,16 +35,9 @@ namespace MoonSharp.Interpreter.Tree
 			return T;
 		}
 
-		public Token Next()
+		public void Next()
 		{
-			if (m_Current != null)
-			{
-				Token t = m_Current;
-				m_Current = null;
-				return t;
-			}
-			else
-				return LogAndReadToken();
+			m_Current = LogAndReadToken();
 		}
 
 		private void CursorNext()

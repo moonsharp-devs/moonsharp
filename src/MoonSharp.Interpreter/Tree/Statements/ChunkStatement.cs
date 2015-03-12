@@ -32,14 +32,12 @@ namespace MoonSharp.Interpreter.Tree.Statements
 
 			m_Block = new CompositeStatement(lcontext);
 
-			Token T = lcontext.Lexer.Current();
+			while (lcontext.Lexer.Current().Type == TokenType.SemiColon)
+				lcontext.Lexer.Next();
 
-			while (T.Type == TokenType.SemiColon)
-				T = lcontext.Lexer.Next();
-
-			if (T.Type != TokenType.Eof)
+			if (lcontext.Lexer.Current().Type != TokenType.Eof)
 			{
-				throw new SyntaxErrorException("<eof> expected near '{0}'", T.Text);
+				throw new SyntaxErrorException("<eof> expected near '{0}'", lcontext.Lexer.Current().Text);
 			}
 
 			m_StackFrame = lcontext.Scope.PopFunction();

@@ -25,8 +25,17 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			{
 				case TokenType.Brk_Open_Round:
 					lcontext.Lexer.Next();
-					m_Arguments = ExprList(lcontext);
-					CheckMatch(lcontext, "(", TokenType.Brk_Close_Round);
+					Token t = lcontext.Lexer.Current();
+					if (t.Type == TokenType.Brk_Close_Round)
+					{
+						m_Arguments = new List<Expression>();
+						lcontext.Lexer.Next();
+					}
+					else
+					{
+						m_Arguments = ExprList(lcontext);
+						CheckMatch(lcontext, "(", TokenType.Brk_Close_Round);
+					}
 					break;
 				case TokenType.String:
 				case TokenType.String_Long:

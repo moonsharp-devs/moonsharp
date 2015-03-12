@@ -19,7 +19,8 @@ namespace MoonSharp.Interpreter.Tree
 			{
 				while (true)
 				{
-					Token tkn = lexer.Next();
+					Token tkn = lexer.Current();
+					lexer.Next();
 					output.Add(tkn.ToString());
 					if (tkn.Type == TokenType.Eof)
 						break;
