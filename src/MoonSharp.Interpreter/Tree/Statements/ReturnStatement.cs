@@ -14,6 +14,24 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		Expression m_Expression = null;
 		SourceRef m_Ref;
 
+		public ReturnStatement(ScriptLoadingContext lcontext)
+			: base(lcontext)
+		{
+			lcontext.Lexer.Next();
+
+			Token cur = lcontext.Lexer.Current();
+
+			if (cur.IsEndOfBlock() || cur.Type == TokenType.SemiColon)
+			{
+				m_Expression = null;
+			}
+			else
+			{
+				m_Expression = new ExprListExpression(Expression.ExprList(lcontext), lcontext);
+			}
+		}
+
+
 		public ReturnStatement(LuaParser.RetstatContext context, ScriptLoadingContext lcontext)
 			: base(context, lcontext)
 		{

@@ -13,6 +13,29 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 		SymbolRef m_Ref;
 		string m_VarName;
 
+		public SymbolRefExpression(Token T, ScriptLoadingContext lcontext)
+			: base(lcontext)
+		{
+			m_VarName = T.Text;
+
+			if (T.Type == TokenType.VarArgs)
+			{
+				m_Ref = lcontext.Scope.TryDefineLocal(WellKnownSymbols.VARARGS);
+
+				if (!lcontext.Scope.CurrentFunctionHasVarArgs())
+					throw new SyntaxErrorException("error:0: cannot use '...' outside a vararg function");
+
+				if (lcontext.IsDynamicExpression)
+					throw new DynamicExpressionException("Cannot use '...' in a dynamic expression.");
+			}
+			else
+			{
+				if (!lcontext.IsDynamicExpression)
+					m_Ref = lcontext.Scope.Find(m_VarName);
+			}
+		}
+
+
 		public SymbolRefExpression(IParseTree context, ScriptLoadingContext lcontext, SymbolRef refr)
 			: base(context, lcontext)
 		{

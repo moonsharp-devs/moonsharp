@@ -14,6 +14,15 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 		Expression m_Exp;
 		string m_OpText;
 
+		public UnaryOperatorExpression(ScriptLoadingContext lcontext, Expression subExpression, Token unaryOpToken)
+			: base(lcontext)
+		{
+			m_OpText = unaryOpToken.Text;
+			m_Exp = subExpression;
+		}
+
+
+
 		public UnaryOperatorExpression(IParseTree tree, ScriptLoadingContext lcontext)
 			: base(tree, lcontext)
 		{

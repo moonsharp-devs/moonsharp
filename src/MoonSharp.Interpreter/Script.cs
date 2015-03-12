@@ -15,6 +15,7 @@ using MoonSharp.Interpreter.IO;
 using MoonSharp.Interpreter.Loaders;
 using MoonSharp.Interpreter.Tree;
 using MoonSharp.Interpreter.Tree.Expressions;
+using MoonSharp.Interpreter.Tree.Fast_Interface;
 using MoonSharp.Interpreter.Tree.Statements;
 
 namespace MoonSharp.Interpreter
@@ -171,7 +172,7 @@ namespace MoonSharp.Interpreter
 
 			m_Sources.Add(source);
 
-			int address = Loader_Antlr.LoadChunk(this,
+			int address = Loader_Fast.LoadChunk(this,
 				source,
 				m_ByteCode,
 				globalTable ?? m_GlobalTable);

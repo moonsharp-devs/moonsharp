@@ -10,13 +10,13 @@ using MoonSharp.Interpreter.Tree.Expressions;
 
 namespace MoonSharp.Interpreter.Tree
 {
-	class FunctionCall : NodeBase
+	class ANTLR_FunctionCall : NodeBase
 	{
 		Expression[] m_Arguments;
 		string m_Name;
 		string m_DebugErr;
 
-		public FunctionCall(LuaParser.NameAndArgsContext nameAndArgs, ScriptLoadingContext lcontext)
+		public ANTLR_FunctionCall(LuaParser.NameAndArgsContext nameAndArgs, ScriptLoadingContext lcontext)
 			: base(nameAndArgs, lcontext)
 		{
 			var name = nameAndArgs.NAME();

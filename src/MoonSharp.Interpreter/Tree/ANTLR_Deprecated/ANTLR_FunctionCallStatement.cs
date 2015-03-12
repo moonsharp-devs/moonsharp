@@ -11,15 +11,15 @@ using MoonSharp.Interpreter.Tree.Expressions;
 
 namespace MoonSharp.Interpreter.Tree.Statements
 {
-	class FunctionCallStatement : Statement
+	class ANTLR_FunctionCallStatement : Statement
 	{
-		FunctionCallChainExpression m_FunctionCallChain;
+		ANTLR_FunctionCallChainExpression m_FunctionCallChain;
 		SourceRef m_SourceRef;
 
-		public FunctionCallStatement(LuaParser.Stat_functioncallContext context, ScriptLoadingContext lcontext)
+		public ANTLR_FunctionCallStatement(LuaParser.Stat_functioncallContext context, ScriptLoadingContext lcontext)
 			: base(context, lcontext)
 		{
-			m_FunctionCallChain = new FunctionCallChainExpression(context, lcontext);
+			m_FunctionCallChain = new ANTLR_FunctionCallChainExpression(context, lcontext);
 			m_SourceRef = BuildSourceRef(context.Start, context.Stop);
 		}
 

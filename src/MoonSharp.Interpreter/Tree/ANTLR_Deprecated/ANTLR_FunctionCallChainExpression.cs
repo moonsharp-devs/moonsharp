@@ -9,33 +9,33 @@ using MoonSharp.Interpreter.Grammar;
 
 namespace MoonSharp.Interpreter.Tree.Expressions
 {
-	class FunctionCallChainExpression : Expression
+	class ANTLR_FunctionCallChainExpression : Expression
 	{
 		Expression m_StartingExpression;
-		List<FunctionCall> m_CallChain;
+		List<ANTLR_FunctionCall> m_CallChain;
 
-		private FunctionCallChainExpression(IParseTree context, ScriptLoadingContext lcontext, 
+		private ANTLR_FunctionCallChainExpression(IParseTree context, ScriptLoadingContext lcontext, 
 			LuaParser.VarOrExpContext varOrExp, IEnumerable<LuaParser.NameAndArgsContext> nameAndArgs)
 			: base(context, lcontext)
 		{
 			m_StartingExpression = NodeFactory.CreateExpression(varOrExp, lcontext);
-			m_CallChain = nameAndArgs.Select(naa => new FunctionCall(naa, lcontext)).ToList();
+			m_CallChain = nameAndArgs.Select(naa => new ANTLR_FunctionCall(naa, lcontext)).ToList();
 		}
 
-		public FunctionCallChainExpression(IParseTree context, ScriptLoadingContext lcontext,
+		public ANTLR_FunctionCallChainExpression(IParseTree context, ScriptLoadingContext lcontext,
 			Expression startingExpression, IEnumerable<LuaParser.NameAndArgsContext> nameAndArgs)
 			: base(context, lcontext)
 		{
 			m_StartingExpression = startingExpression;
-			m_CallChain = nameAndArgs.Select(naa => new FunctionCall(naa, lcontext)).ToList();
+			m_CallChain = nameAndArgs.Select(naa => new ANTLR_FunctionCall(naa, lcontext)).ToList();
 		}
 
 
-		public FunctionCallChainExpression(LuaParser.Stat_functioncallContext context, ScriptLoadingContext lcontext)
+		public ANTLR_FunctionCallChainExpression(LuaParser.Stat_functioncallContext context, ScriptLoadingContext lcontext)
 			: this(context, lcontext, context.varOrExp(), context.nameAndArgs())
 		{ }
 
-		public FunctionCallChainExpression(LuaParser.PrefixexpContext context, ScriptLoadingContext lcontext)
+		public ANTLR_FunctionCallChainExpression(LuaParser.PrefixexpContext context, ScriptLoadingContext lcontext)
 			: this(context, lcontext, context.varOrExp(), context.nameAndArgs())
 		{ }
 
@@ -44,7 +44,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 		{
 			m_StartingExpression.Compile(bc);
 
-			foreach (FunctionCall fn in m_CallChain)
+			foreach (ANTLR_FunctionCall fn in m_CallChain)
 			{
 				fn.Compile(bc);
 			}

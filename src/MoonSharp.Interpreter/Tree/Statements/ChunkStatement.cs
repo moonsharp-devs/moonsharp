@@ -21,18 +21,28 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		SymbolRef m_Env;
 		SymbolRef m_VarArgs;
 
-		public ChunkStatement(Lexer lexer, ScriptLoadingContext lcontext, Table globalEnv)
+		public ChunkStatement(ScriptLoadingContext lcontext, Table globalEnv)
 			: base(lcontext)
 		{
-			//lcontext.Scope.PushFunction(this, true);
-			//m_Env = lcontext.Scope.DefineLocal(WellKnownSymbols.ENV);
-			//m_VarArgs = lcontext.Scope.DefineLocal(WellKnownSymbols.VARARGS);
+			lcontext.Scope.PushFunction(this, true);
+			m_Env = lcontext.Scope.DefineLocal(WellKnownSymbols.ENV);
+			m_VarArgs = lcontext.Scope.DefineLocal(WellKnownSymbols.VARARGS);
 
-			//m_GlobalEnv = globalEnv;
+			m_GlobalEnv = globalEnv;
 
-			//m_Block = new CompositeStatement(lexer, lcontext);
+			m_Block = new CompositeStatement(lcontext);
 
-			//m_StackFrame = lcontext.Scope.PopFunction();
+			Token T = lcontext.Lexer.Current();
+
+			while (T.Type == TokenType.SemiColon)
+				T = lcontext.Lexer.Next();
+
+			if (T.Type != TokenType.Eof)
+			{
+				throw new SyntaxErrorException("<eof> expected near '{0}'", T.Text);
+			}
+
+			m_StackFrame = lcontext.Scope.PopFunction();
 		}
 
 

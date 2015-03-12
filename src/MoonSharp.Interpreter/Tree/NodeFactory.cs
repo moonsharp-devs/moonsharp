@@ -31,7 +31,7 @@ namespace MoonSharp.Interpreter.Tree
 				return new FunctionDefinitionStatement((LuaParser.Stat_localfuncdefContext)tree, lcontext);
 
 			if (tree is LuaParser.Stat_functioncallContext)
-				return new FunctionCallStatement((LuaParser.Stat_functioncallContext)tree, lcontext);
+				return new ANTLR_FunctionCallStatement((LuaParser.Stat_functioncallContext)tree, lcontext);
 
 			if (tree is LuaParser.RetstatContext)
 				return new ReturnStatement((LuaParser.RetstatContext)tree, lcontext);
@@ -141,7 +141,7 @@ namespace MoonSharp.Interpreter.Tree
 			if (tree is LuaParser.Exp_tabctorContext) tree = ((LuaParser.Exp_tabctorContext)tree).tableconstructor();
 			if (tree is LuaParser.Exp_powerContext) return new PowerOperatorExpression(tree, lcontext);
 			if (tree is LuaParser.Exp_unaryContext) return new UnaryOperatorExpression(tree, lcontext);
-			if (tree is LuaParser.Exp_binaryContext) return BinaryOperatorExpression.CreateSubTree(tree, lcontext);
+			if (tree is LuaParser.Exp_binaryContext) return ANTLR_BinaryOperatorExpression.CreateSubTree(tree, lcontext);
 
 			if (tree is Antlr4.Runtime.Tree.TerminalNodeImpl)
 			{
@@ -157,7 +157,7 @@ namespace MoonSharp.Interpreter.Tree
 			{
 				var prefix = (LuaParser.PrefixexpContext)tree;
 				if (tree.EnumChilds().OfType<LuaParser.NameAndArgsContext>().Any())
-					return new FunctionCallChainExpression(prefix, lcontext);
+					return new ANTLR_FunctionCallChainExpression(prefix, lcontext);
 				else
 					return CreateExpression(prefix.varOrExp(), lcontext);
 			}
@@ -213,7 +213,7 @@ namespace MoonSharp.Interpreter.Tree
 
 				if (nameAndArgs != null && nameAndArgs.Length > 0)
 				{
-					varExp = new FunctionCallChainExpression(suffix, lcontext, varExp, nameAndArgs);
+					varExp = new ANTLR_FunctionCallChainExpression(suffix, lcontext, varExp, nameAndArgs);
 				}
 
 				varExp = new IndexExpression(suffix, lcontext, varExp, indexExp);

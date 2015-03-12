@@ -56,16 +56,68 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			ITerminalNode normStr = context.NORMALSTRING();
 
 			if (charStr != null)
-				m_Value = DynValue.NewString(NormalizeNormStr(charStr.GetText())).AsReadOnly();
+				m_Value = DynValue.NewString(NormalizeNormStr(charStr.GetText(), true)).AsReadOnly();
 			else if (longStr != null)
 				m_Value = DynValue.NewString(NormalizeLongStr(longStr.GetText())).AsReadOnly();
 			else if (normStr != null)
-				m_Value = DynValue.NewString(NormalizeNormStr(normStr.GetText())).AsReadOnly();
+				m_Value = DynValue.NewString(NormalizeNormStr(normStr.GetText(), true)).AsReadOnly();
 		}
 
-		private string NormalizeNormStr(string str)
+		public LiteralExpression(ScriptLoadingContext lcontext, DynValue value)
+			: base(lcontext)
 		{
-			str = str.Substring(1, str.Length - 2); // removes "/'
+			m_Value = value;
+		}
+
+
+		public LiteralExpression(ScriptLoadingContext lcontext, Token t)
+			: base(lcontext)
+		{
+			if (t.Type == TokenType.Number)
+			{
+				TryParse(t.Text, s => double.Parse(s, CultureInfo.InvariantCulture));
+			}
+			else if (t.Type == TokenType.Number_Hex)
+			{
+				TryParse(t.Text, s => (double)ulong.Parse(RemoveHexHeader(s), NumberStyles.HexNumber, CultureInfo.InvariantCulture));
+			}
+			else if (t.Type == TokenType.Number_HexFloat)
+			{
+				TryParse(t.Text, s => ParseHexFloat(s));
+			}
+			else if (t.Type == TokenType.String)
+			{
+				m_Value = DynValue.NewString(NormalizeNormStr(t.Text, false)).AsReadOnly();
+			}
+			else if (t.Type == TokenType.String_Long)
+			{
+				m_Value = DynValue.NewString(NormalizeLongStr(t.Text)).AsReadOnly();
+			}
+			else if (t.Type == TokenType.True)
+			{
+				m_Value = DynValue.True;
+			}
+			else if (t.Type == TokenType.False)
+			{
+				m_Value = DynValue.False;
+			}
+			else if (t.Type == TokenType.Nil)
+			{
+				m_Value = DynValue.Nil;
+			}
+			else
+			{
+				throw new InternalErrorException("Type mismatch");
+			}
+
+			if (m_Value == null)
+				throw new SyntaxErrorException("unknown number format near '{0}'", t.Text);
+		}
+
+		private string NormalizeNormStr(string str, bool cutPrefix)
+		{
+			if (cutPrefix) // ANTLR ONLY -- TO REMOVE
+				str = str.Substring(1, str.Length - 2); // removes "/'
 
 			if (!str.Contains('\\'))
 				return str;
@@ -244,6 +296,12 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			return str;
 		}
 
+		private void TryParse(string txt, Func<string, double> parser)
+		{
+			double val = parser(txt);
+			m_Value = DynValue.NewNumber(val).AsReadOnly();
+		}
+
 
 		private void TryParse(ITerminalNode terminalNode, Func<string, double> parser)
 		{
@@ -251,8 +309,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 				return;
 
 			string txt = terminalNode.GetText();
-			double val = parser(txt);
-			m_Value = DynValue.NewNumber(val).AsReadOnly();
+			TryParse(txt, parser);
 		}
 
 		public override void Compile(Execution.VM.ByteCode bc)

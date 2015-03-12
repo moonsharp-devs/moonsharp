@@ -12,6 +12,14 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 		List<Expression> m_PositionalValues = new List<Expression>();
 		List<KeyValuePair<Expression, Expression>> m_CtorArgs = new List<KeyValuePair<Expression, Expression>>();
 
+		public TableConstructor(ScriptLoadingContext lcontext)
+			: base(lcontext)
+		{
+			// here lexer is at the '{'
+			throw new NotImplementedException("TableConstructor");
+		}
+
+
 		public TableConstructor(LuaParser.TableconstructorContext context, ScriptLoadingContext lcontext)
 			: base(context, lcontext)
 		{

@@ -20,5 +20,18 @@ namespace MoonSharp.Interpreter.Execution
 		{
 			Script = s;
 		}
+
+		public void EnterLevel()
+		{
+			//if (++ls.L.nCcalls > LUAI_MAXCCALLS)
+			//	LuaXLexError(ls, "chunk has too many syntax levels", 0);
+		}
+
+		public void LeaveLevel()
+		{
+			//ls.L.nCcalls--;
+		}
+
+
 	}
 }

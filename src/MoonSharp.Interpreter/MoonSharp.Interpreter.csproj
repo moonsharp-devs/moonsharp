@@ -251,18 +251,21 @@
     <Compile Include="Tree\Antlr_Interface\AntlrErrorListener.cs" />
     <Compile Include="Tree\Expressions\AdjustmentExpression.cs" />
     <Compile Include="Tree\Expressions\BinaryOperatorExpression.cs" />
+    <Compile Include="Tree\ANTLR_Deprecated\ANTLR_BinaryOperatorExpression.cs" />
     <Compile Include="Tree\Expressions\DynamicExpression.cs" />
+    <Compile Include="Tree\Expressions\FunctionCallExpression.cs" />
     <Compile Include="Tree\Expressions\PowerOperatorExpression.cs" />
     <Compile Include="Tree\Expressions\UnaryOperatorExpression.cs" />
+    <Compile Include="Tree\Fast_Interface\Loader_Fast.cs" />
     <Compile Include="Tree\IVariable.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tree\Expressions\ExprListExpression.cs" />
     <Compile Include="Tree\Expressions\FunctionDefinitionExpression.cs" />
     <Compile Include="Tree\Expressions\LiteralExpression.cs" />
     <Compile Include="Tree\Expressions\IndexExpression.cs" />
-    <Compile Include="Tree\FunctionCall.cs" />
-    <Compile Include="Tree\Expressions\FunctionCallChainExpression.cs" />
-    <Compile Include="Tree\Expression.cs" />
+    <Compile Include="Tree\ANTLR_Deprecated\ANTLR_FunctionCall.cs" />
+    <Compile Include="Tree\ANTLR_Deprecated\ANTLR_FunctionCallChainExpression.cs" />
+    <Compile Include="Tree\__Expression.cs" />
     <Compile Include="Tree\Expressions\OperatorExpression.cs" />
     <Compile Include="Tree\Expressions\SymbolRefExpression.cs" />
     <Compile Include="Tree\Antlr_Interface\Loader_Antlr.cs" />
@@ -281,7 +284,7 @@
     <Compile Include="Tree\Statements\BreakStatement.cs" />
     <Compile Include="Tree\Statements\ForEachLoopStatement.cs" />
     <Compile Include="Tree\Statements\ForLoopStatement.cs" />
-    <Compile Include="Tree\Statements\FunctionCallStatement.cs" />
+    <Compile Include="Tree\ANTLR_Deprecated\ANTLR_FunctionCallStatement.cs" />
     <Compile Include="Tree\Statements\FunctionDefinitionStatement.cs" />
     <Compile Include="Tree\Statements\IfStatement.cs" />
     <Compile Include="Tree\Statement.cs" />
@@ -306,9 +309,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Tree\Fast_Interface\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

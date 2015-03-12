@@ -13,6 +13,13 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 	{
 		Expression m_Exp1, m_Exp2;
 
+		public PowerOperatorExpression(Expression e1, Expression e2, ScriptLoadingContext lcontext)
+			: base(lcontext)
+		{
+			m_Exp1 = e1;
+			m_Exp2 = e2;
+		}
+
 		public PowerOperatorExpression(IParseTree tree, ScriptLoadingContext lcontext)
 			: base(tree, lcontext)
 		{

@@ -62,6 +62,25 @@ namespace MoonSharp.Interpreter.Tests
 		}
 
 		[Test]
+		public void CSharpStaticFunctionCall2()
+		{
+			IList<DynValue> args = null;
+
+			string script = "return callback 'hello';";
+
+			var S = new Script();
+			S.Globals.Set("callback", DynValue.NewCallback(new CallbackFunction((_x, a) => { args = a.GetArray(); return DynValue.NewNumber(1234.0); })));
+
+			DynValue res = S.DoString(script);
+
+			Assert.AreEqual(1, args.Count);
+			Assert.AreEqual(DataType.String, args[0].Type);
+			Assert.AreEqual("hello", args[0].String);
+			Assert.AreEqual(DataType.Number, res.Type);
+			Assert.AreEqual(1234.0, res.Number);
+		}
+
+		[Test]
 		public void CSharpStaticFunctionCall()
 		{
 			IList<DynValue> args = null;
@@ -151,6 +170,7 @@ namespace MoonSharp.Interpreter.Tests
 		[Test]
 		public void ParserErrorMessage()
 		{
+			bool caught = false;
 			string script = @"    
 				return 'It's a wet floor warning saying wheat flour instead. \
 				Probably, the cook thought it was funny. \
@@ -162,10 +182,25 @@ namespace MoonSharp.Interpreter.Tests
 			}
 			catch (SyntaxErrorException ex)
 			{
+				caught = true;
 				Assert.IsNotNullOrEmpty(ex.Message);
 			}
+
+			Assert.IsTrue(caught);
 		}
 
+		[Test]
+		public void StringsWithBackslashLineEndings2()
+		{
+			string script = @"    
+				return 'a\
+				b\
+				c'";
+
+			DynValue res = Script.RunString(script);
+
+			Assert.AreEqual(DataType.String, res.Type);
+		}
 
 		[Test]
 		public void StringsWithBackslashLineEndings()
@@ -199,6 +234,27 @@ namespace MoonSharp.Interpreter.Tests
 		}
 
 
+		[Test]
+		public void ReturnSimpleUnop()
+		{
+			string script = @"return -42";
+
+			DynValue res = Script.RunString(script);
+
+			Assert.AreEqual(DataType.Number, res.Type);
+			Assert.AreEqual(-42, res.Number);
+		}
+
+		[Test]
+		public void ReturnSimple()
+		{
+			string script = @"return 42";
+
+			DynValue res = Script.RunString(script);
+
+			Assert.AreEqual(DataType.Number, res.Type);
+			Assert.AreEqual(42, res.Number);
+		}
 
 
 		[Test]
@@ -622,6 +678,17 @@ namespace MoonSharp.Interpreter.Tests
 			Assert.AreEqual(12, res.Number);
 		}
 
+		[Test]
+		public void OperatorPrecedence6()
+		{
+			string script = @"return -2^2";
+			Script S = new Script(CoreModules.None);
+
+			DynValue res = S.DoString(script);
+
+			Assert.AreEqual(DataType.Number, res.Type);
+			Assert.AreEqual(-4, res.Number);
+		}
 
 
 		[Test]

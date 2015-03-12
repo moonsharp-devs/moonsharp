@@ -57,10 +57,15 @@ namespace MoonSharp.Interpreter.Tree
 		Op_Mul,
 		Op_MinusOrSub,
 		Op_Add,
-		SimpleString,
 		Comment,
+
+		String,
+		String_Long,
+
 		Number,
-		LongString,
+		Number_HexFloat,
+		Number_Hex,
+		SemiColon,
 	}
 
 

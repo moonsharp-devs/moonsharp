@@ -41,7 +41,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		{
 			while (true)
 			{
-				Token t = lcontext.Lexer.PeekToken();
+				Token t = lcontext.Lexer.Current();
 				if (t.IsEndOfBlock()) break;
 
 				bool forceLast;

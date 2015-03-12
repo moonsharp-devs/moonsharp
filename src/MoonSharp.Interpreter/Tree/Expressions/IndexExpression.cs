@@ -14,6 +14,15 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 		Expression m_BaseExp;
 		Expression m_IndexExp;
 
+
+		public IndexExpression(Expression baseExp, Expression indexExp, ScriptLoadingContext lcontext)
+			: base(lcontext)
+		{
+			m_BaseExp = baseExp;
+			m_IndexExp = indexExp;
+		}
+
+
 		public IndexExpression(IParseTree node, ScriptLoadingContext lcontext, Expression baseExp, Expression indexExp)
 			:base(node, lcontext)
 		{

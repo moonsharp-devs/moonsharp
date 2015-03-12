@@ -33,7 +33,7 @@ namespace MoonSharp.Interpreter.Tree
 		public override string ToString()
 		{
 			string tokenTypeString = (Type.ToString() + "                                                      ").Substring(0, 16);
-			return string.Format("{0}  -  {1}", tokenTypeString, this.Text ?? "");
+			return string.Format("{0}  -  '{1}'", tokenTypeString, this.Text ?? "");
 		}
 
 
@@ -108,6 +108,37 @@ namespace MoonSharp.Interpreter.Tree
 					return false;
 			}
 		}
+
+		public bool IsUnaryOperator()
+		{
+			return Type == TokenType.Op_MinusOrSub || Type == TokenType.Not || Type == TokenType.Op_Len;
+		}
+
+		public bool IsBinaryOperator()
+		{
+			switch (Type)
+			{
+				case TokenType.And:
+				case TokenType.Or:
+				case TokenType.Op_Equal:
+				case TokenType.Op_LessThan:
+				case TokenType.Op_LessThanEqual:
+				case TokenType.Op_GreaterThanEqual:
+				case TokenType.Op_GreaterThan:
+				case TokenType.Op_NotEqual:
+				case TokenType.Op_Concat:
+				case TokenType.Op_Pwr:
+				case TokenType.Op_Mod:
+				case TokenType.Op_Div:
+				case TokenType.Op_Mul:
+				case TokenType.Op_MinusOrSub:
+				case TokenType.Op_Add:
+					return true;
+				default:
+					return false;
+			}
+		}
+
 
 	}
 }

@@ -26,7 +26,7 @@ namespace MoonSharp.Interpreter.Tree
 
 		protected static Statement CreateStatement(ScriptLoadingContext lcontext, out bool forceLast)
 		{
-			Token tkn = lcontext.Lexer.PeekToken();
+			Token tkn = lcontext.Lexer.Current();
 
 			forceLast = false;
 
@@ -48,7 +48,7 @@ namespace MoonSharp.Interpreter.Tree
 					throw new NotImplementedException();
 				case TokenType.Return:
 					forceLast = true;
-					throw new NotImplementedException();
+					return new ReturnStatement(lcontext);
 				case TokenType.Break:
 					forceLast = true;
 					throw new NotImplementedException();
@@ -56,6 +56,8 @@ namespace MoonSharp.Interpreter.Tree
 					throw new NotImplementedException();
 			}
 		}
+
+
 	}
 
 

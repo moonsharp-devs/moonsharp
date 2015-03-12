@@ -16,16 +16,23 @@ namespace MoonSharp.Interpreter.Tree
 
 		public Lexer(string scriptContent)
 		{
-			m_Code = scriptContent; // have a sentinel
+			m_Code = scriptContent; 
 		}
 
 
-		public Token PeekToken()
+		public Token Current()
 		{
 			if (m_Current == null)
-				m_Current = ReadToken();
+				m_Current = LogAndReadToken();
 
 			return m_Current;
+		}
+
+		private Token LogAndReadToken()
+		{
+			Token T = ReadToken();
+			System.Diagnostics.Debug.WriteLine("LEXER : " + T.ToString());
+			return T;
 		}
 
 		public Token Next()
@@ -37,7 +44,7 @@ namespace MoonSharp.Interpreter.Tree
 				return t;
 			}
 			else
-				return ReadToken();
+				return LogAndReadToken();
 		}
 
 		private void CursorNext()
@@ -60,17 +67,16 @@ namespace MoonSharp.Interpreter.Tree
 
 		private char CursorChar()
 		{
-			return m_Code[m_Cursor];
+			if (m_Cursor < m_Code.Length)
+				return m_Code[m_Cursor];
+			else
+				return '\0'; //  sentinel
 		}
 
 		private char CursorCharNext()
 		{
 			m_Cursor += 1;
-
-			if (m_Cursor < m_Code.Length - 1)
-				return m_Code[m_Cursor];
-			else
-				return '\0'; // fictitious sentinel
+			return CursorChar();	
 		}
 
 		private bool CursorMatches(string pattern)
@@ -94,7 +100,7 @@ namespace MoonSharp.Interpreter.Tree
 
 		private bool IsWhiteSpace(char c)
 		{
-			return char.IsWhiteSpace(c) || (c == ';');
+			return char.IsWhiteSpace(c);
 		}
 
 		private void SkipWhiteSpace()
@@ -119,6 +125,9 @@ namespace MoonSharp.Interpreter.Tree
 
 			switch (c)
 			{
+				case ';':
+					CursorCharNext();
+					return CreateToken(TokenType.SemiColon, fromLine, fromCol, ";");
 				case '=':
 					return PotentiallyDoubleCharOperator('=', TokenType.Op_Assignment, TokenType.Op_Equal, fromLine, fromCol);
 				case '<':
@@ -165,8 +174,8 @@ namespace MoonSharp.Interpreter.Tree
 						char next = CursorCharNext();
 						if (next == '=' || next == '[')
 						{
-							string str = ReadLongString();
-							return CreateToken(TokenType.LongString, fromLine, fromCol, str);
+							string str = ReadLongString(null);
+							return CreateToken(TokenType.String_Long, fromLine, fromCol, str);
 						}
 						return CreateToken(TokenType.Brk_Open_Square, fromLine, fromCol, "[");
 					}
@@ -196,8 +205,7 @@ namespace MoonSharp.Interpreter.Tree
 						}
 						else if (char.IsDigit(c))
 						{
-							string number = ReadNumberToken();
-							return CreateToken(TokenType.Number, fromLine, fromCol, number);
+							return ReadNumberToken(fromLine, fromCol);
 						}
 					}
 					throw new SyntaxErrorException("Fallback to default ?!", CursorChar());
@@ -207,31 +215,38 @@ namespace MoonSharp.Interpreter.Tree
 
 		}
 
-		private string ReadLongString()
+		private string ReadLongString(string startpattern)
 		{
 			// here we are at the first '=' or second '['
 			StringBuilder text = new StringBuilder(1024);
 			string end_pattern = "]";
-	
-			for (char c = CursorChar(); ; c = CursorCharNext())
+
+			if (startpattern == null)
 			{
-				if (c == '\0' || !CursorNotEof())
+				for (char c = CursorChar(); ; c = CursorCharNext())
 				{
-					throw new SyntaxErrorException("Unterminated long string or comment"); 
+					if (c == '\0' || !CursorNotEof())
+					{
+						throw new SyntaxErrorException("Unterminated long string");
+					}
+					else if (c == '=')
+					{
+						end_pattern += "=";
+					}
+					else if (c == '[')
+					{
+						end_pattern += "]";
+						break;
+					}
+					else
+					{
+						throw new SyntaxErrorException("Unexpected token in long string prefix: {0}", c);
+					}
 				}
-				else if (c == '=')
-				{
-					end_pattern += "=";
-				}
-				else if (c == '[')
-				{
-					end_pattern += "]";
-					break;
-				}
-				else
-				{
-					throw new SyntaxErrorException("Unexpected token in long string prefix: {0}", c);
-				}
+			}
+			else
+			{
+				end_pattern = startpattern.Replace('[', ']');
 			}
 
 
@@ -255,7 +270,7 @@ namespace MoonSharp.Interpreter.Tree
 			}
 		}
 
-		private string ReadNumberToken()
+		private Token ReadNumberToken(int fromLine, int fromCol)
 		{
 			StringBuilder text = new StringBuilder(32);
 
@@ -309,11 +324,18 @@ namespace MoonSharp.Interpreter.Tree
 				}
 				else
 				{
-					return text.ToString();
+					break;
 				}
 			}
 
-			return text.ToString();
+			TokenType numberType = TokenType.Number;
+
+			if (isHex && (dotAdded || exponentPart))
+				numberType = TokenType.Number_HexFloat;
+			else if (isHex)
+				numberType = TokenType.Number_Hex;
+
+			return CreateToken(numberType, fromLine, fromCol, text.ToString());
 		}
 
 		private bool Char_IsHexDigit(char c)
@@ -334,19 +356,28 @@ namespace MoonSharp.Interpreter.Tree
 		{
 			StringBuilder text = new StringBuilder(32);
 
-			char next1 = CursorCharNext();
+			bool extraneousFound = false;
 
-			// +++ Long comments
-
-			for (char c = CursorChar(); CursorNotEof(); c = CursorCharNext())
+			for (char c = CursorCharNext(); CursorNotEof(); c = CursorCharNext())
 			{
-				if (c == '\n')
+				if (c == '[' && !extraneousFound && text.Length > 0)
 				{
+					text.Append('[');
+					CursorCharNext();
+					string comment = ReadLongString(text.ToString());
+					return CreateToken(TokenType.Comment, fromLine, fromCol, comment);
+				}
+				else if (c == '\n')
+				{
+					extraneousFound = true;
 					CursorCharNext();
 					return CreateToken(TokenType.Comment, fromLine, fromCol, text.ToString());
 				}
 				else if (c != '\r')
 				{
+					if (c != '[' && c != '=')
+						extraneousFound = true;
+
 					text.Append(c);
 				}
 			}
@@ -369,7 +400,7 @@ namespace MoonSharp.Interpreter.Tree
 				else if (c == separator)
 				{
 					CursorCharNext();
-					return CreateToken(TokenType.SimpleString, fromLine, fromCol, text.ToString());
+					return CreateToken(TokenType.String, fromLine, fromCol, text.ToString());
 				}
 				else
 				{
@@ -382,10 +413,17 @@ namespace MoonSharp.Interpreter.Tree
 
 		private Token PotentiallyDoubleCharOperator(char expectedSecondChar, TokenType singleCharToken, TokenType doubleCharToken, int fromLine, int fromCol)
 		{
-			string op = CursorChar().ToString() + CursorCharNext().ToString();
+			string op = CursorChar().ToString();
+			
+			CursorCharNext();
 
-			return CreateToken(CursorChar() == expectedSecondChar ? doubleCharToken : singleCharToken,
-				fromLine, fromCol, op);
+			if (CursorChar() == expectedSecondChar)
+			{
+				CursorCharNext();
+				return CreateToken(doubleCharToken, fromLine, fromCol, op + expectedSecondChar);
+			}
+			else
+				return CreateToken(singleCharToken, fromLine, fromCol, op);
 		}
 
 
