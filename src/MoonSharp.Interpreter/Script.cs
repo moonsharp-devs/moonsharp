@@ -122,7 +122,7 @@ namespace MoonSharp.Interpreter
 
 			m_Sources.Add(source);
 
-			int address = Loader_Antlr.LoadFunction(this, source, m_ByteCode, globalTable ?? m_GlobalTable);
+			int address = Loader_Fast.LoadFunction(this, source, m_ByteCode, globalTable ?? m_GlobalTable);
 
 			SignalSourceCodeChange(source);
 			SignalByteCodeChange();
@@ -616,7 +616,7 @@ namespace MoonSharp.Interpreter
 		/// <returns></returns>
 		public DynamicExpression CreateDynamicExpression(string code)
 		{
-			DynamicExprExpression dee = Loader_Antlr.LoadDynamicExpr(this, new SourceCode("__dynamic", code, -1, this));
+			DynamicExprExpression dee = Loader_Fast.LoadDynamicExpr(this, new SourceCode("__dynamic", code, -1, this));
 			return new DynamicExpression(this, code, dee);
 		}
 

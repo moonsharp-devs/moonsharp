@@ -135,6 +135,7 @@ namespace MoonSharp.Interpreter.Tests
 		}
 
 		[Test]
+		//!!! DO NOT REFORMAT THIS METHOD !!!
 		public void LongStrings()
 		{
 			string script = @"    
@@ -896,6 +897,28 @@ namespace MoonSharp.Interpreter.Tests
 			DynValue res = Script.RunString(script);
 
 			Assert.AreEqual(DataType.Function, res.Type);
+		}
+
+		[Test]
+		public void FunctionWithStringArg2()
+		{
+			string script = @"    
+				x = 0;
+
+				fact = function(y)
+					x = y
+				end
+
+				fact 'ciao';
+
+				return x;
+				";
+
+
+			DynValue res = Script.RunString(script);
+
+			Assert.AreEqual(DataType.String, res.Type);
+			Assert.AreEqual("ciao", res.String);
 		}
 
 		[Test]

@@ -11,6 +11,14 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 	{
 		Expression m_Exp;
 
+		public DynamicExprExpression(Expression exp, ScriptLoadingContext lcontext)
+			: base(lcontext)
+		{
+			lcontext.Anonymous = true;
+			m_Exp = exp;
+		}
+
+
 		public DynamicExprExpression(LuaParser.DynamicexpContext context, ScriptLoadingContext lcontext)
 			: base(context, lcontext)
 		{

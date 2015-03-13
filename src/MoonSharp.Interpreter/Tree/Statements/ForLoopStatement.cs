@@ -19,6 +19,40 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		Expression m_Start, m_End, m_Step;
 		SourceRef m_RefFor, m_RefEnd;
 
+		public ForLoopStatement(ScriptLoadingContext lcontext, Token nameToken)
+			: base(lcontext)
+		{
+			//	for Name ‘=’ exp ‘,’ exp [‘,’ exp] do block end | 
+
+			// lexer already at the '=' ! [due to dispatching vs for-each]
+			CheckTokenType(lcontext, TokenType.Op_Assignment);
+
+			m_Start = Expression.Expr(lcontext);
+			CheckTokenType(lcontext, TokenType.Comma);
+			m_End = Expression.Expr(lcontext);
+
+			if (lcontext.Lexer.Current.Type == TokenType.Comma)
+			{
+				lcontext.Lexer.Next();
+				m_Step = Expression.Expr(lcontext);
+			}
+			else
+			{
+				m_Step = new LiteralExpression(lcontext, DynValue.NewNumber(1));
+			}
+
+			lcontext.Scope.PushBlock();
+			m_VarName = lcontext.Scope.DefineLocal(nameToken.Text);
+			CheckTokenType(lcontext, TokenType.Do);
+			m_InnerBlock = new CompositeStatement(lcontext);
+			CheckTokenType(lcontext, TokenType.End);
+			m_StackFrame = lcontext.Scope.PopBlock();
+
+			//m_RefFor = BuildSourceRef(context.Start, context.FOR());
+			//m_RefEnd = BuildSourceRef(context.Stop, context.END());
+		}		
+
+
 		public ForLoopStatement(LuaParser.Stat_forloopContext context, ScriptLoadingContext lcontext)
 			: base(context, lcontext)
 		{
@@ -30,7 +64,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			if (exps.Length > 2)
 				m_Step = NodeFactory.CreateExpression(exps[2], lcontext);
 			else
-				m_Step = new LiteralExpression(context, lcontext, DynValue.NewNumber(1));
+				m_Step = new ANTLR_LiteralExpression(context, lcontext, DynValue.NewNumber(1));
 
 			lcontext.Scope.PushBlock();
 			m_VarName = lcontext.Scope.DefineLocal(context.NAME().GetText());

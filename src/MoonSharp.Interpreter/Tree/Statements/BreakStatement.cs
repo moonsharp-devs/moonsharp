@@ -13,6 +13,14 @@ namespace MoonSharp.Interpreter.Tree.Statements
 	{
 		SourceRef m_Ref;
 
+		public BreakStatement(ScriptLoadingContext lcontext)
+			: base(lcontext)
+		{
+			CheckTokenType(lcontext, TokenType.Break);
+		}
+
+
+
 		public BreakStatement(LuaParser.Stat_breakContext context, ScriptLoadingContext lcontext)
 			: base(context, lcontext)
 		{

@@ -96,10 +96,10 @@ namespace MoonSharp.Interpreter.Tree
 				LuaParser parser = CreateParser(script, new AntlrInputStream(source.Code), source.SourceID, p => p.singlefunc(), listener);
 
 				ScriptLoadingContext lcontext = CreateLoadingContext(script, source);
-				FunctionDefinitionExpression fndef;
+				ANTLR_FunctionDefinitionExpression fndef;
 
 				using (script.PerformanceStats.StartStopwatch(Diagnostics.PerformanceCounter.AstCreation))
-					fndef = new FunctionDefinitionExpression(parser.anonfunctiondef(), lcontext, false, globalContext);
+					fndef = new ANTLR_FunctionDefinitionExpression(parser.anonfunctiondef(), lcontext, false, globalContext);
 
 				int beginIp = -1;
 

@@ -19,7 +19,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		{
 			lcontext.Lexer.Next();
 
-			Token cur = lcontext.Lexer.Current();
+			Token cur = lcontext.Lexer.Current;
 
 			if (cur.IsEndOfBlock() || cur.Type == TokenType.SemiColon)
 			{

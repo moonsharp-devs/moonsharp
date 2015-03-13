@@ -10,6 +10,7 @@ using MoonSharp.Interpreter.Grammar;
 using MoonSharp.Interpreter.Tree.Statements;
 using MoonSharp.Interpreter.Debugging;
 using Antlr4.Runtime;
+using MoonSharp.Interpreter.Tree.Expressions;
 
 namespace MoonSharp.Interpreter.Tree
 {
@@ -26,36 +27,67 @@ namespace MoonSharp.Interpreter.Tree
 
 		protected static Statement CreateStatement(ScriptLoadingContext lcontext, out bool forceLast)
 		{
-			Token tkn = lcontext.Lexer.Current();
+			Token tkn = lcontext.Lexer.Current;
 
 			forceLast = false;
 
 			switch (tkn.Type)
 			{
+				case TokenType.SemiColon:
+					lcontext.Lexer.Next();
+					return new EmptyStatement(lcontext);
 				case TokenType.If:
-					throw new NotImplementedException();
+					return new IfStatement(lcontext);
 				case TokenType.While:
-					throw new NotImplementedException();
+					return new WhileStatement(lcontext);
 				case TokenType.Do:
-					throw new NotImplementedException();
+					return new ScopeBlockStatement(lcontext);
 				case TokenType.For:
-					throw new NotImplementedException();
+					return DispatchForLoopStatement(lcontext);
 				case TokenType.Repeat:
-					throw new NotImplementedException();
+					return new RepeatStatement(lcontext);
 				case TokenType.Function:
-					throw new NotImplementedException();
+					return new FunctionDefinitionStatement(lcontext, false);
 				case TokenType.Local:
-					throw new NotImplementedException();
+					lcontext.Lexer.Next();
+					if (lcontext.Lexer.Current.Type == TokenType.Function)
+						return new FunctionDefinitionStatement(lcontext, true);
+					else
+						return new AssignmentStatement(lcontext);
 				case TokenType.Return:
 					forceLast = true;
 					return new ReturnStatement(lcontext);
 				case TokenType.Break:
 					forceLast = true;
-					throw new NotImplementedException();
+					return new BreakStatement(lcontext);
 				default:
-					throw new NotImplementedException();
+					{
+						Expression exp = Expression.PrimaryExp(lcontext);
+
+						if (exp is FunctionCallExpression)
+							return new FunctionCallStatement(lcontext, exp);
+						else
+							return new AssignmentStatement(lcontext, exp);
+					}
 			}
 		}
+
+		private static Statement DispatchForLoopStatement(ScriptLoadingContext lcontext)
+		{
+			//	for Name ‘=’ exp ‘,’ exp [‘,’ exp] do block end | 
+			//	for namelist in explist do block end | 		
+
+			CheckTokenType(lcontext, TokenType.For);
+
+			Token name = CheckTokenType(lcontext, TokenType.Name);
+
+			if (lcontext.Lexer.Current.Type == TokenType.Op_Assignment)
+				return new ForLoopStatement(lcontext, name);
+			else
+				return new ForEachLoopStatement(lcontext, name);
+		}
+
+
 
 
 	}

@@ -14,6 +14,20 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		RuntimeScopeBlock m_StackFrame;
 		SourceRef m_Do, m_End;
 
+		public ScopeBlockStatement(ScriptLoadingContext lcontext)
+			: base(lcontext)
+		{
+			lcontext.Scope.PushBlock();
+
+			CheckTokenType(lcontext, TokenType.Do);
+
+			m_Block = new CompositeStatement(lcontext);
+
+			CheckTokenType(lcontext, TokenType.End);
+
+			m_StackFrame = lcontext.Scope.PopBlock();
+		}
+
 		public ScopeBlockStatement(LuaParser.Stat_doblockContext context, ScriptLoadingContext lcontext)
 			: base(context, lcontext)
 		{
@@ -25,7 +39,6 @@ namespace MoonSharp.Interpreter.Tree.Statements
 
 			m_StackFrame = lcontext.Scope.PopBlock();
 		}
-
 
 
 		public override void Compile(Execution.VM.ByteCode bc)

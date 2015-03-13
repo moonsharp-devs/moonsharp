@@ -16,6 +16,24 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		RuntimeScopeBlock m_StackFrame;
 		SourceRef m_Repeat, m_Until;
 
+		public RepeatStatement(ScriptLoadingContext lcontext)
+			: base(lcontext)
+		{
+			CheckTokenType(lcontext, TokenType.Repeat);
+
+			lcontext.Scope.PushBlock();
+			m_Block = new CompositeStatement(lcontext);
+
+			CheckTokenType(lcontext, TokenType.Until);
+
+			m_Condition = Expression.Expr(lcontext);
+
+			m_StackFrame = lcontext.Scope.PopBlock();
+
+			//m_Repeat = BuildSourceRef(context.Start, context.REPEAT());
+			//m_Until = BuildSourceRef(exp.Start, exp.Stop);
+		}
+
 		public RepeatStatement(LuaParser.Stat_repeatuntilloopContext context, ScriptLoadingContext lcontext)
 			: base(context, lcontext)
 		{
@@ -29,7 +47,6 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			m_Repeat = BuildSourceRef(context.Start, context.REPEAT());
 			m_Until = BuildSourceRef(exp.Start, exp.Stop);
 		}
-
 
 		public override void Compile(ByteCode bc)
 		{

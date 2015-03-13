@@ -21,11 +21,11 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			m_DebugErr = function.GetFriendlyDebugName();
 			m_Function = function;
 
-			switch (lcontext.Lexer.Current().Type)
+			switch (lcontext.Lexer.Current.Type)
 			{
 				case TokenType.Brk_Open_Round:
 					lcontext.Lexer.Next();
-					Token t = lcontext.Lexer.Current();
+					Token t = lcontext.Lexer.Current;
 					if (t.Type == TokenType.Brk_Close_Round)
 					{
 						m_Arguments = new List<Expression>();
@@ -41,7 +41,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 				case TokenType.String_Long:
 					{
 						m_Arguments = new List<Expression>();
-						Expression le = new LiteralExpression(lcontext, lcontext.Lexer.Current());
+						Expression le = new LiteralExpression(lcontext, lcontext.Lexer.Current);
 						lcontext.Lexer.Next();
 						m_Arguments.Add(le);
 					}
@@ -49,9 +49,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 				case TokenType.Brk_Open_Curly:
 					{
 						m_Arguments = new List<Expression>();
-						Expression le = new TableConstructor(lcontext);
-						CheckMatch(lcontext, "{", TokenType.Brk_Close_Curly);
-						m_Arguments.Add(le);
+						m_Arguments.Add(new TableConstructor(lcontext));
 					}
 					break;
 				default:

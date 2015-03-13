@@ -57,5 +57,51 @@ namespace MoonSharp.Interpreter.Tree
 			return sourceRef;
 		}
 
+		protected static Token CheckTokenType(ScriptLoadingContext lcontext, TokenType tokenType)
+		{
+			Token t = lcontext.Lexer.Current;
+			if (t.Type != tokenType)
+				throw new SyntaxErrorException("Unexpected token '{0}'", t.Text);
+
+			lcontext.Lexer.Next();
+
+			return t;
+		}
+
+		protected static Token CheckTokenType(ScriptLoadingContext lcontext, TokenType tokenType1, TokenType tokenType2)
+		{
+			Token t = lcontext.Lexer.Current;
+			if (t.Type != tokenType1 && t.Type != tokenType2)
+				throw new SyntaxErrorException("Unexpected token '{0}'", t.Text);
+
+			lcontext.Lexer.Next();
+
+			return t;
+		}
+		protected static Token CheckTokenType(ScriptLoadingContext lcontext, TokenType tokenType1, TokenType tokenType2, TokenType tokenType3)
+		{
+			Token t = lcontext.Lexer.Current;
+			if (t.Type != tokenType1 && t.Type != tokenType2 && t.Type != tokenType3)
+				throw new SyntaxErrorException("Unexpected token '{0}'", t.Text);
+
+			lcontext.Lexer.Next();
+
+			return t;
+		}
+
+		protected static void CheckTokenTypeNotNext(ScriptLoadingContext lcontext, TokenType tokenType)
+		{
+			Token t = lcontext.Lexer.Current;
+			if (t.Type != tokenType)
+				throw new SyntaxErrorException("Unexpected token '{0}'", t.Text);
+		}
+
+		protected static void CheckMatch(ScriptLoadingContext lcontext, string tokenDesc, TokenType tokenType)
+		{
+			if (lcontext.Lexer.Current.Type != tokenType)
+				throw new SyntaxErrorException("Mismatched '{0}' near '{1}'", tokenDesc, lcontext.Lexer.Current.Text);
+
+			lcontext.Lexer.Next();
+		}
 	}
 }

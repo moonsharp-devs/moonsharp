@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Antlr4.Runtime;
 using MoonSharp.Interpreter.Debugging;
 using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Execution.VM;
 using MoonSharp.Interpreter.Grammar;
+using MoonSharp.Interpreter.Tree.Statements;
 
 namespace MoonSharp.Interpreter.Tree.Expressions
 {
@@ -24,45 +24,33 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 		SourceRef m_Begin, m_End;
 
-		public FunctionDefinitionExpression(LuaParser.AnonfunctiondefContext context, ScriptLoadingContext lcontext, bool pushSelfParam = false, Table globalContext = null)
-			: this(context.funcbody(), lcontext, context, pushSelfParam, globalContext)
-		{ }
 
-
-		public FunctionDefinitionExpression(LuaParser.Exp_anonfuncContext context, ScriptLoadingContext lcontext, bool pushSelfParam = false, Table globalContext = null)
-			: this(context.funcbody(), lcontext, context, pushSelfParam, globalContext)
-		{ }
-
-		public FunctionDefinitionExpression(LuaParser.FuncbodyContext context, ScriptLoadingContext lcontext, 
-			ParserRuleContext declarationContext,
-			bool pushSelfParam = false, Table globalContext = null)
-			: base(context, lcontext)
+		public FunctionDefinitionExpression(ScriptLoadingContext lcontext, Table globalContext)
+			: this(lcontext, false, globalContext)
 		{
-			var parlist = context.parlist();
-			List<string> paramnames = new List<string>();
 
-			if (pushSelfParam)
-			{
-				paramnames.Add("self");
-			}
+		}
+
+		public FunctionDefinitionExpression(ScriptLoadingContext lcontext, bool pushSelfParam)
+			: this(lcontext, pushSelfParam, null)
+		{
+
+		}
 
 
-			if (parlist != null)
-			{
-				var namelist = parlist.namelist();
+		private FunctionDefinitionExpression(ScriptLoadingContext lcontext, bool pushSelfParam, Table globalContext)
+			: base(lcontext)
+		{
+			if (globalContext != null)
+				CheckTokenType(lcontext, TokenType.Function);
 
-				if (namelist != null)
-				{
-					paramnames.AddRange(namelist.NAME()
-						.Select(t => t.GetText()));
-				}
-			}
+			// here lexer should be at the '('.
+			CheckTokenType(lcontext, TokenType.Brk_Open_Round);
 
-			m_HasVarArgs = (parlist != null && parlist.vararg() != null);
+			List<string> paramnames = BuildParamList(lcontext, pushSelfParam);
+			// here lexer is at first token of body
 
-			if (m_HasVarArgs)
-				paramnames.Add(WellKnownSymbols.VARARGS);
-
+			// create scope
 			lcontext.Scope.PushFunction(this, m_HasVarArgs);
 
 			if (globalContext != null)
@@ -77,12 +65,85 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 			m_ParamNames = DefineArguments(paramnames, lcontext);
 
-			m_Statement = NodeFactory.CreateStatement(context.block(), lcontext);
+			m_Statement = CreateBody(lcontext);
 
 			m_StackFrame = lcontext.Scope.PopFunction();
 
-			m_Begin = BuildSourceRef(declarationContext.Start, context.PAREN_CLOSE().Symbol);
-			m_End = BuildSourceRef(context.Stop, context.END());
+			//m_Begin = BuildSourceRef(declarationContext.Start, context.PAREN_CLOSE().Symbol);
+			//m_End = BuildSourceRef(context.Stop, context.END());
+		}
+
+		private Statement CreateBody(ScriptLoadingContext lcontext)
+		{
+			Statement s = new CompositeStatement(lcontext);
+
+			if (lcontext.Lexer.Current.Type != TokenType.End)
+				throw new SyntaxErrorException("'end' expected near '{0}'", lcontext.Lexer.Current.Text);
+
+			lcontext.Lexer.Next();
+			return s;
+		}
+
+		private List<string> BuildParamList(ScriptLoadingContext lcontext, bool pushSelfParam)
+		{
+			List<string> paramnames = new List<string>();
+
+			// method decls with ':' must push an implicit 'self' param
+			if (pushSelfParam)
+				paramnames.Add("self");
+
+			while (lcontext.Lexer.Current.Type != TokenType.Brk_Close_Round)
+			{
+				Token t = lcontext.Lexer.Current;
+
+				if (t.Type == TokenType.Name)
+				{
+					paramnames.Add(t.Text);
+				}
+				else if (t.Type == TokenType.VarArgs)
+				{
+					m_HasVarArgs = true;
+					paramnames.Add(WellKnownSymbols.VARARGS);
+				}
+				else
+					throw new SyntaxErrorException("unexpected symbol near '{0}'", t.Text);
+
+				lcontext.Lexer.Next();
+
+				t = lcontext.Lexer.Current;
+
+				if (t.Type == TokenType.Comma)
+				{
+					lcontext.Lexer.Next();
+				}
+				else
+				{
+					CheckMatch(lcontext, "(", TokenType.Brk_Close_Round);
+					break;
+				}
+			}
+
+			if (lcontext.Lexer.Current.Type == TokenType.Brk_Close_Round)
+				lcontext.Lexer.Next();
+
+			return paramnames;
+		}
+
+		private SymbolRef[] DefineArguments(List<string> paramnames, ScriptLoadingContext lcontext)
+		{
+			HashSet<string> names = new HashSet<string>();
+
+			SymbolRef[] ret = new SymbolRef[paramnames.Count];
+
+			for (int i = paramnames.Count - 1; i >= 0; i--)
+			{
+				if (!names.Add(paramnames[i]))
+					paramnames[i] = paramnames[i] + "@" + i.ToString();
+
+				ret[i] = lcontext.Scope.DefineLocal(paramnames[i]);
+			}
+
+			return ret;
 		}
 
 		public SymbolRef CreateUpvalue(BuildTimeScope scope, SymbolRef symbol)
@@ -105,26 +166,14 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			return SymbolRef.Upvalue(symbol.i_Name, m_Closure.Count - 1);
 		}
 
-		private SymbolRef[] DefineArguments(List<string> paramnames, ScriptLoadingContext lcontext)
+		public override DynValue Eval(ScriptExecutionContext context)
 		{
-			HashSet<string> names = new HashSet<string>();
-
-			SymbolRef[] ret = new SymbolRef[paramnames.Count];
-
-			for (int i = paramnames.Count - 1; i >= 0; i--)
-			{
-				if (!names.Add(paramnames[i]))
-					paramnames[i] = paramnames[i] + "@" + i.ToString();
-				
-				ret[i] = lcontext.Scope.DefineLocal(paramnames[i]);
-			}
-
-			return ret;
+			throw new DynamicExpressionException("Dynamic Expressions cannot define new functions.");
 		}
 
 		public int CompileBody(ByteCode bc, string friendlyName)
 		{
-			string funcName = friendlyName ?? "<" + this.m_Begin.FormatLocation(this.LoadingContext.Script, true) + ">";
+			string funcName = "TODO!"; // friendlyName ?? "<" + this.m_Begin.FormatLocation(this.LoadingContext.Script, true) + ">";
 
 			bc.PushSourceRef(m_Begin);
 
@@ -144,8 +193,8 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 				bc.Emit_Literal(DynValue.NewTable(m_GlobalEnv));
 				bc.Emit_Store(m_Env, 0, 0);
 				bc.Emit_Pop();
-			} 
-			
+			}
+
 			if (m_ParamNames.Length > 0)
 				bc.Emit_Args(m_ParamNames);
 
@@ -187,12 +236,6 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 		public override void Compile(ByteCode bc)
 		{
 			Compile(bc, () => 0, null);
-		}
-
-
-		public override DynValue Eval(ScriptExecutionContext context)
-		{
-			throw new DynamicExpressionException("Dynamic Expressions cannot define new functions.");
 		}
 	}
 }

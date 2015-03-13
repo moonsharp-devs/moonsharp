@@ -16,6 +16,23 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		RuntimeScopeBlock m_StackFrame;
 		SourceRef m_Start, m_End;
 
+		public WhileStatement(ScriptLoadingContext lcontext)
+			: base(lcontext)
+		{
+			CheckTokenType(lcontext, TokenType.While);
+
+			m_Condition = Expression.Expr(lcontext);
+
+			//m_Start = BuildSourceRef(context.Start, exp.Stop);
+			//m_End = BuildSourceRef(context.Stop, context.END());
+
+			lcontext.Scope.PushBlock();
+			CheckTokenType(lcontext, TokenType.Do);
+			m_Block = new CompositeStatement(lcontext);
+			CheckTokenType(lcontext, TokenType.End);
+			m_StackFrame = lcontext.Scope.PopBlock();
+		}
+
 		public WhileStatement(LuaParser.Stat_whiledoloopContext context, ScriptLoadingContext lcontext)
 			: base(context, lcontext)
 		{

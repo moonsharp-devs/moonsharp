@@ -15,8 +15,80 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 		public TableConstructor(ScriptLoadingContext lcontext)
 			: base(lcontext)
 		{
-			// here lexer is at the '{'
-			throw new NotImplementedException("TableConstructor");
+			// here lexer is at the '{', go on
+			CheckTokenType(lcontext, TokenType.Brk_Open_Curly);
+
+			while (lcontext.Lexer.Current.Type != TokenType.Brk_Close_Curly)
+			{
+				switch (lcontext.Lexer.Current.Type)
+				{
+					case TokenType.Name:
+						{
+							Token assign = lcontext.Lexer.PeekNext();
+
+							if (assign.Type == TokenType.Op_Assignment)
+								StructField(lcontext);
+							else
+								ArrayField(lcontext);
+						}
+						break;
+					case TokenType.Brk_Open_Square:
+						MapField(lcontext);
+						break;
+					default:
+						ArrayField(lcontext);
+						break;
+				}
+
+				Token curr = lcontext.Lexer.Current;
+
+				if (curr.Type == TokenType.Comma || curr.Type == TokenType.SemiColon)
+				{
+					lcontext.Lexer.Next();
+				}
+				else
+				{
+					CheckTokenType(lcontext, TokenType.Brk_Close_Curly);
+					break;
+				}
+			}
+
+			if (lcontext.Lexer.Current.Type == TokenType.Brk_Close_Curly)
+				lcontext.Lexer.Next();
+		}
+
+		private void MapField(ScriptLoadingContext lcontext)
+		{
+			lcontext.Lexer.Next(); // skip '['
+
+			Expression key = Expr(lcontext);
+
+			CheckTokenType(lcontext, TokenType.Brk_Close_Square);
+
+			CheckTokenType(lcontext, TokenType.Op_Assignment);
+
+			Expression value = Expr(lcontext);
+
+			m_CtorArgs.Add(new KeyValuePair<Expression, Expression>(key, value));
+		}
+
+		private void StructField(ScriptLoadingContext lcontext)
+		{
+			Expression key = new LiteralExpression(lcontext, DynValue.NewString(lcontext.Lexer.Current.Text));
+			lcontext.Lexer.Next();
+
+			CheckTokenType(lcontext, TokenType.Op_Assignment);
+
+			Expression value = Expr(lcontext);
+
+			m_CtorArgs.Add(new KeyValuePair<Expression, Expression>(key, value));
+		}
+
+
+		private void ArrayField(ScriptLoadingContext lcontext)
+		{
+			Expression e = Expr(lcontext);
+			m_PositionalValues.Add(e);
 		}
 
 
@@ -43,7 +115,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 					else if (name != null)
 					{
 						m_CtorArgs.Add(new KeyValuePair<Expression, Expression>(
-							new LiteralExpression(field, lcontext, DynValue.NewString(name.GetText())),
+							new ANTLR_LiteralExpression(field, lcontext, DynValue.NewString(name.GetText())),
 							NodeFactory.CreateExpression(field.namedexp, lcontext)));
 					}
 					else 

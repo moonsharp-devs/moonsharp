@@ -21,10 +21,52 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		}
 
 		List<IfBlock> m_Ifs = new List<IfBlock>();
-		Statement m_Else = null;
-		SourceRef m_End, m_ElseRef;
-		RuntimeScopeBlock m_ElseStackFrame;
+		IfBlock m_Else = null;
+		SourceRef m_End;
 
+		public IfStatement(ScriptLoadingContext lcontext)
+			: base(lcontext)
+		{
+			while (lcontext.Lexer.Current.Type != TokenType.Else && lcontext.Lexer.Current.Type != TokenType.End)
+			{
+				m_Ifs.Add(CreateIfBlock(lcontext));
+			}
+
+			if (lcontext.Lexer.Current.Type == TokenType.Else)
+			{
+				m_Else = CreateElseBlock(lcontext);
+			}
+
+			CheckTokenType(lcontext, TokenType.End);
+		}
+
+		IfBlock CreateIfBlock(ScriptLoadingContext lcontext)
+		{
+			Token type = CheckTokenType(lcontext, TokenType.If, TokenType.ElseIf);
+
+			lcontext.Scope.PushBlock();
+
+			var ifblock = new IfBlock();
+
+			ifblock.Exp = Expression.Expr(lcontext);
+			CheckTokenType(lcontext, TokenType.Then);
+			ifblock.Block = new CompositeStatement(lcontext);
+			ifblock.StackFrame = lcontext.Scope.PopBlock();
+
+			return ifblock;
+		}
+
+		IfBlock CreateElseBlock(ScriptLoadingContext lcontext)
+		{
+			Token type = CheckTokenType(lcontext, TokenType.Else);
+
+			lcontext.Scope.PushBlock();
+
+			var ifblock = new IfBlock();
+			ifblock.Block = new CompositeStatement(lcontext);
+			ifblock.StackFrame = lcontext.Scope.PopBlock();
+			return ifblock;
+		}
 
 		public IfStatement(LuaParser.Stat_ifblockContext context, ScriptLoadingContext lcontext)
 			: base(context,lcontext)
@@ -54,9 +96,11 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			if (bcount > ecount)
 			{
 				lcontext.Scope.PushBlock();
-				m_Else = NodeFactory.CreateStatement(context.block()[bcount - 1], lcontext);
-				m_ElseStackFrame = lcontext.Scope.PopBlock();
-				m_ElseRef = BuildSourceRef(context.ELSE()); 
+				m_Else = new IfBlock();
+
+				m_Else.Block = NodeFactory.CreateStatement(context.block()[bcount - 1], lcontext);
+				m_Else.StackFrame = lcontext.Scope.PopBlock();
+				m_Else.Source = BuildSourceRef(context.ELSE()); 
 			}
 
 			m_End = BuildSourceRef(context.Stop, context.END());
@@ -92,14 +136,14 @@ namespace MoonSharp.Interpreter.Tree.Statements
 
 			if (m_Else != null)
 			{
-				using (bc.EnterSource(m_ElseRef))
+				using (bc.EnterSource(m_Else.Source))
 				{
-					bc.Emit_Enter(m_ElseStackFrame);
-					m_Else.Compile(bc);
+					bc.Emit_Enter(m_Else.StackFrame);
+					m_Else.Block.Compile(bc);
 				}
 
 				using (bc.EnterSource(m_End))
-					bc.Emit_Leave(m_ElseStackFrame);
+					bc.Emit_Leave(m_Else.StackFrame);
 			}
 
 			foreach(var endjmp in endJumps)

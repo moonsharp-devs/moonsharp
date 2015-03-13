@@ -8,37 +8,63 @@ namespace MoonSharp.Interpreter.Tree
 	class Lexer
 	{
 		Token m_Current = null;
-
 		string m_Code;
 		int m_Cursor = 0;
 		int m_Line = 0;
 		int m_Col = 0;
+		bool m_AutoSkipComments = false;
 
-		public Lexer(string scriptContent)
+		public Lexer(string scriptContent, bool autoSkipComments)
 		{
-			m_Code = scriptContent; 
+			m_Code = scriptContent;
+			m_AutoSkipComments = autoSkipComments;
+			Next();
 		}
 
-
-		public Token Current()
+		public Token Current
 		{
-			if (m_Current == null)
-				m_Current = LogAndReadToken();
-
-			return m_Current;
+			get
+			{
+				return m_Current;
+			}
 		}
 
-		private Token LogAndReadToken()
+		private Token FetchNewToken()
 		{
-			Token T = ReadToken();
-			System.Diagnostics.Debug.WriteLine("LEXER : " + T.ToString());
-			return T;
+			while (true)
+			{
+				Token T = ReadToken();
+	
+				System.Diagnostics.Debug.WriteLine("LEXER : " + T.ToString());
+
+				if (T.Type != TokenType.Comment || (!m_AutoSkipComments))
+					return T;
+			}
 		}
 
 		public void Next()
 		{
-			m_Current = LogAndReadToken();
+			m_Current = FetchNewToken();
 		}
+
+		public Token PeekNext()
+		{
+			int snapshot = m_Cursor;
+			Token current = m_Current;
+			int line = m_Line;
+			int col = m_Col;
+
+			Next();
+			Token t = Current;
+
+			m_Cursor = snapshot;
+			m_Current = current;
+			m_Line = line;
+			m_Col = col;
+
+			return t;
+		}
+
 
 		private void CursorNext()
 		{
@@ -243,7 +269,7 @@ namespace MoonSharp.Interpreter.Tree
 			}
 
 
-			for (char c = CursorChar(); ; c = CursorCharNext())
+			for (char c = CursorCharNext(); ; c = CursorCharNext())
 			{
 				if (c == '\0' || !CursorNotEof())
 				{

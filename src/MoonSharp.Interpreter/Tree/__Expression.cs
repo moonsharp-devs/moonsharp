@@ -40,7 +40,7 @@ namespace MoonSharp.Interpreter.Tree
 			{
 				exps.Add(Expr(lcontext));
 
-				if (lcontext.Lexer.Current().Type != TokenType.Comma)
+				if (lcontext.Lexer.Current.Type != TokenType.Comma)
 					break;
 
 				lcontext.Lexer.Next();
@@ -58,16 +58,16 @@ namespace MoonSharp.Interpreter.Tree
 		{
 			Expression e = null;
 
-			Token T = lcontext.Lexer.Current();
+			Token T = lcontext.Lexer.Current;
 
 			if (T.IsUnaryOperator())
 			{
 				lcontext.Lexer.Next();
 				e = SubExpr(lcontext, false);
 
-				// check for power operator "damnedness"
+				// check for power operator -- it be damned forever and ever for being higher priority than unary ops
 				Token unaryOp = T;
-				T = lcontext.Lexer.Current();
+				T = lcontext.Lexer.Current;
 
 				if (isPrimary && T.Type == TokenType.Op_Pwr)
 				{
@@ -78,14 +78,14 @@ namespace MoonSharp.Interpreter.Tree
 					{
 						lcontext.Lexer.Next();
 						powerChain.Add(SubExpr(lcontext, false));
-						T = lcontext.Lexer.Current();
+						T = lcontext.Lexer.Current;
 					}
 
 					e = powerChain[powerChain.Count - 1];
 
 					for (int i = powerChain.Count - 2; i >= 0; i--)
 					{
-						e = new PowerOperatorExpression(powerChain[i], e, lcontext);
+						e = BinaryOperatorExpression.CreatePowerExpression(powerChain[i], e, lcontext);
 					}
 				}
 
@@ -96,7 +96,7 @@ namespace MoonSharp.Interpreter.Tree
 				e = SimpleExp(lcontext);
 			}
 
-			T = lcontext.Lexer.Current();
+			T = lcontext.Lexer.Current;
 
 			if (isPrimary && T.IsBinaryOperator())
 			{
@@ -110,7 +110,7 @@ namespace MoonSharp.Interpreter.Tree
 					lcontext.Lexer.Next();
 					Expression right = SubExpr(lcontext, false);
 					BinaryOperatorExpression.AddExpressionToChain(chain, right);
-					T = lcontext.Lexer.Current();
+					T = lcontext.Lexer.Current;
 				}
 
 				e = BinaryOperatorExpression.CommitOperatorChain(chain, lcontext);
@@ -121,7 +121,7 @@ namespace MoonSharp.Interpreter.Tree
 
 		internal static Expression SimpleExp(ScriptLoadingContext lcontext)
 		{
-			Token t = lcontext.Lexer.Current();
+			Token t = lcontext.Lexer.Current;
 
 			switch (t.Type)
 			{
@@ -139,26 +139,23 @@ namespace MoonSharp.Interpreter.Tree
 					lcontext.Lexer.Next();
 					return new SymbolRefExpression(t, lcontext);
 				case TokenType.Brk_Open_Curly:
-					{
-						Expression tc = new TableConstructor(lcontext);
-						CheckMatch(lcontext, "{", TokenType.Brk_Close_Curly);
-						return tc;
-					}
+					return new TableConstructor(lcontext);
 				case TokenType.Function:
-					throw new NotImplementedException();
+					lcontext.Lexer.Next();
+					return new FunctionDefinitionExpression(lcontext, false);
 				default:
 					return PrimaryExp(lcontext);
 			}
 
 		}
 
-		private static Expression PrimaryExp(ScriptLoadingContext lcontext)
+		internal static Expression PrimaryExp(ScriptLoadingContext lcontext)
 		{
 			Expression e = PrefixExp(lcontext);
 
 			while (true)
 			{
-				Token T = lcontext.Lexer.Current();
+				Token T = lcontext.Lexer.Current;
 				Token thisCallName = null;
 
 				switch (T.Type)
@@ -166,10 +163,8 @@ namespace MoonSharp.Interpreter.Tree
 					case TokenType.Dot:
 						{
 							lcontext.Lexer.Next();
-							Token name = lcontext.Lexer.Current();
-							CheckTokenType(name, TokenType.Name);
+							Token name = CheckTokenType(lcontext, TokenType.Name);
 							LiteralExpression le = new LiteralExpression(lcontext, DynValue.NewString(name.Text));
-							lcontext.Lexer.Next();
 							e = new IndexExpression(e, le, lcontext);
 						}
 						break;
@@ -183,9 +178,7 @@ namespace MoonSharp.Interpreter.Tree
 						break;
 					case TokenType.Colon:
 						lcontext.Lexer.Next();
-						thisCallName = lcontext.Lexer.Current();
-						CheckTokenType(thisCallName, TokenType.Name);
-						lcontext.Lexer.Next();
+						thisCallName = CheckTokenType(lcontext, TokenType.Name);
 						goto case TokenType.Brk_Open_Round;
 					case TokenType.Brk_Open_Round:
 					case TokenType.String:
@@ -199,15 +192,11 @@ namespace MoonSharp.Interpreter.Tree
 			}
 		}
 
-		private static void CheckTokenType(Token t, TokenType tokenType)
-		{
-			if (t.Type != tokenType)
-				throw new SyntaxErrorException("Unexpected token '{0}'", t.Text);
-		}
+
 
 		private static Expression PrefixExp(ScriptLoadingContext lcontext)
 		{
-			Token T = lcontext.Lexer.Current();
+			Token T = lcontext.Lexer.Current;
 			switch (T.Type)
 			{
 				case TokenType.Brk_Open_Round:
@@ -223,13 +212,7 @@ namespace MoonSharp.Interpreter.Tree
 			}
 		}
 
-		protected static void CheckMatch(ScriptLoadingContext lcontext, string tokenDesc, TokenType tokenType)
-		{
-			if (lcontext.Lexer.Current().Type != tokenType)
-				throw new SyntaxErrorException("Mismatched '{0}' near '{1}'", tokenDesc, lcontext.Lexer.Current().Text);
 
-			lcontext.Lexer.Next();
-		}
 
 
 

@@ -35,6 +35,17 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			}
 		}
 
+		public SymbolRefExpression(ScriptLoadingContext lcontext, SymbolRef refr)
+			: base(lcontext)
+		{
+			m_Ref = refr;
+
+			if (lcontext.IsDynamicExpression)
+			{
+				throw new DynamicExpressionException("Unsupported symbol reference expression detected.");
+			}
+		}
+
 
 		public SymbolRefExpression(IParseTree context, ScriptLoadingContext lcontext, SymbolRef refr)
 			: base(context, lcontext)

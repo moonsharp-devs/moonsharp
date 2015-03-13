@@ -13,13 +13,13 @@ namespace MoonSharp.Interpreter.Tree
 			string code = File.ReadAllText(@"c:\temp\test.lua");
 			List<string> output = new List<string>();
 
-			Lexer lexer = new Lexer(code);
+			Lexer lexer = new Lexer(code, false);
 
 			try
 			{
 				while (true)
 				{
-					Token tkn = lexer.Current();
+					Token tkn = lexer.Current;
 					lexer.Next();
 					output.Add(tkn.ToString());
 					if (tkn.Type == TokenType.Eof)

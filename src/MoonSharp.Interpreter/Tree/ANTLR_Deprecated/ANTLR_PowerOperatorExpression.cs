@@ -9,18 +9,11 @@ using MoonSharp.Interpreter.Grammar;
 
 namespace MoonSharp.Interpreter.Tree.Expressions
 {
-	class PowerOperatorExpression : Expression
+	class ANTLR_PowerOperatorExpression : Expression
 	{
 		Expression m_Exp1, m_Exp2;
 
-		public PowerOperatorExpression(Expression e1, Expression e2, ScriptLoadingContext lcontext)
-			: base(lcontext)
-		{
-			m_Exp1 = e1;
-			m_Exp2 = e2;
-		}
-
-		public PowerOperatorExpression(IParseTree tree, ScriptLoadingContext lcontext)
+		public ANTLR_PowerOperatorExpression(IParseTree tree, ScriptLoadingContext lcontext)
 			: base(tree, lcontext)
 		{
 			m_Exp1 = NodeFactory.CreateExpression(tree.GetChild(0), lcontext);

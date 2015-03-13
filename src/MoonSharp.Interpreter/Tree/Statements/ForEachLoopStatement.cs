@@ -20,6 +20,48 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		string m_DebugText;
 		SourceRef m_RefFor, m_RefEnd;
 
+		public ForEachLoopStatement(ScriptLoadingContext lcontext, Token firstNameToken)
+			: base(lcontext)
+		{
+			//	for namelist in explist do block end | 		
+
+			List<string> names = new List<string>();
+			names.Add(firstNameToken.Text);
+
+			while (lcontext.Lexer.Current.Type == TokenType.Comma)
+			{
+				lcontext.Lexer.Next();
+				Token name = CheckTokenType(lcontext, TokenType.Name);
+				names.Add(name.Text);
+			}
+
+			CheckTokenType(lcontext, TokenType.In);
+
+			m_RValues = new ExprListExpression(Expression.ExprList(lcontext), lcontext);
+
+			lcontext.Scope.PushBlock();
+
+			m_Names = names
+				.Select(n => lcontext.Scope.DefineLocal(n))
+				.ToArray();
+
+			m_NameExps = m_Names
+				.Select(s => new SymbolRefExpression(lcontext, s))
+				.Cast<IVariable>()
+				.ToArray();
+
+			CheckTokenType(lcontext, TokenType.Do);
+
+			m_Block = new CompositeStatement(lcontext);
+
+			CheckTokenType(lcontext, TokenType.End);
+
+			m_StackFrame = lcontext.Scope.PopBlock();
+			m_DebugText = "???";
+
+			//m_RefFor = BuildSourceRef(context.Start, context.FOR());
+			//m_RefEnd = BuildSourceRef(context.Stop, context.END());
+		}
 
 		public ForEachLoopStatement(LuaParser.Stat_foreachloopContext context, ScriptLoadingContext lcontext)
 			: base(context, lcontext)

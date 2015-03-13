@@ -41,7 +41,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		{
 			while (true)
 			{
-				Token t = lcontext.Lexer.Current();
+				Token t = lcontext.Lexer.Current;
 				if (t.IsEndOfBlock()) break;
 
 				bool forceLast;
@@ -51,6 +51,10 @@ namespace MoonSharp.Interpreter.Tree.Statements
 
 				if (forceLast) break;
 			}
+
+			// eat away all superfluos ';'s
+			while (lcontext.Lexer.Current.Type == TokenType.SemiColon)
+				lcontext.Lexer.Next();
 		}
 
 

@@ -25,10 +25,10 @@ namespace MoonSharp.Interpreter.Tree
 			//	return new ChunkStatement((LuaParser.ChunkContext)tree, lcontext, null);
 
 			if (tree is LuaParser.Stat_funcdefContext)
-				return new FunctionDefinitionStatement((LuaParser.Stat_funcdefContext)tree, lcontext);
+				return new ANTLR_FunctionDefinitionStatement((LuaParser.Stat_funcdefContext)tree, lcontext);
 
 			if (tree is LuaParser.Stat_localfuncdefContext)
-				return new FunctionDefinitionStatement((LuaParser.Stat_localfuncdefContext)tree, lcontext);
+				return new ANTLR_FunctionDefinitionStatement((LuaParser.Stat_localfuncdefContext)tree, lcontext);
 
 			if (tree is LuaParser.Stat_functioncallContext)
 				return new ANTLR_FunctionCallStatement((LuaParser.Stat_functioncallContext)tree, lcontext);
@@ -128,18 +128,18 @@ namespace MoonSharp.Interpreter.Tree
 			//	return new OperatorExpression(tree, lcontext);
 			//}
 
-			if (tree is LuaParser.Exp_nilContext) return new LiteralExpression(tree, lcontext, DynValue.Nil);
-			if (tree is LuaParser.Exp_trueContext) return new LiteralExpression(tree, lcontext, DynValue.True);
-			if (tree is LuaParser.Exp_falseContext) return new LiteralExpression(tree, lcontext, DynValue.False);
+			if (tree is LuaParser.Exp_nilContext) return new ANTLR_LiteralExpression(tree, lcontext, DynValue.Nil);
+			if (tree is LuaParser.Exp_trueContext) return new ANTLR_LiteralExpression(tree, lcontext, DynValue.True);
+			if (tree is LuaParser.Exp_falseContext) return new ANTLR_LiteralExpression(tree, lcontext, DynValue.False);
 
 			if (tree is LuaParser.Exp_numberContext) tree = ((LuaParser.Exp_numberContext)tree).number();
 			if (tree is LuaParser.Exp_stringContext) tree = ((LuaParser.Exp_stringContext)tree).@string();
 			if (tree is LuaParser.Exp_varargsContext) tree = ((LuaParser.Exp_varargsContext)tree).vararg();
 
-			if (tree is LuaParser.Exp_anonfuncContext) return new FunctionDefinitionExpression(((LuaParser.Exp_anonfuncContext)tree), lcontext);
+			if (tree is LuaParser.Exp_anonfuncContext) return new ANTLR_FunctionDefinitionExpression(((LuaParser.Exp_anonfuncContext)tree), lcontext);
 			if (tree is LuaParser.Exp_prefixexpContext) tree = ((LuaParser.Exp_prefixexpContext)tree).prefixexp();
 			if (tree is LuaParser.Exp_tabctorContext) tree = ((LuaParser.Exp_tabctorContext)tree).tableconstructor();
-			if (tree is LuaParser.Exp_powerContext) return new PowerOperatorExpression(tree, lcontext);
+			if (tree is LuaParser.Exp_powerContext) return new ANTLR_PowerOperatorExpression(tree, lcontext);
 			if (tree is LuaParser.Exp_unaryContext) return new UnaryOperatorExpression(tree, lcontext);
 			if (tree is LuaParser.Exp_binaryContext) return ANTLR_BinaryOperatorExpression.CreateSubTree(tree, lcontext);
 
@@ -169,13 +169,13 @@ namespace MoonSharp.Interpreter.Tree
 				return new ExprListExpression((LuaParser.ExplistContext)tree, lcontext);
 
 			if (tree is LuaParser.AnonfunctiondefContext)
-				return new FunctionDefinitionExpression((LuaParser.AnonfunctiondefContext)tree, lcontext);
+				return new ANTLR_FunctionDefinitionExpression((LuaParser.AnonfunctiondefContext)tree, lcontext);
 
 			if (tree is LuaParser.StringContext)
-				return new LiteralExpression((LuaParser.StringContext)tree, lcontext);
+				return new ANTLR_LiteralExpression((LuaParser.StringContext)tree, lcontext);
 
 			if (tree is LuaParser.NumberContext)
-				return new LiteralExpression((LuaParser.NumberContext)tree, lcontext);
+				return new ANTLR_LiteralExpression((LuaParser.NumberContext)tree, lcontext);
 
 			if (tree is LuaParser.TableconstructorContext)
 				return new TableConstructor((LuaParser.TableconstructorContext)tree, lcontext);
@@ -209,7 +209,7 @@ namespace MoonSharp.Interpreter.Tree
 				if (exp != null)
 					indexExp = CreateExpression(exp, lcontext);
 				else
-					indexExp = new LiteralExpression(suff_NAME, lcontext, DynValue.NewString(suff_NAME.GetText()));
+					indexExp = new ANTLR_LiteralExpression(suff_NAME, lcontext, DynValue.NewString(suff_NAME.GetText()));
 
 				if (nameAndArgs != null && nameAndArgs.Length > 0)
 				{
@@ -263,7 +263,7 @@ namespace MoonSharp.Interpreter.Tree
 		}
 
 
-		internal static IVariable[] CreateVariablesArray(IParseTree context, ITerminalNode[] terminalNodes, ScriptLoadingContext lcontext)
+		internal static IVariable[] CreateLocalVariablesArray(IParseTree context, ITerminalNode[] terminalNodes, ScriptLoadingContext lcontext)
 		{
 			List<IVariable> exps = new List<IVariable>();
 

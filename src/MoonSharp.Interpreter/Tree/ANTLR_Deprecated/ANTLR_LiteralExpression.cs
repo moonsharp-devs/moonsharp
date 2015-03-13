@@ -9,7 +9,7 @@ using MoonSharp.Interpreter.Grammar;
 
 namespace MoonSharp.Interpreter.Tree.Expressions
 {
-	class LiteralExpression: Expression
+	class ANTLR_LiteralExpression : Expression
 	{
 		DynValue m_Value;
 
@@ -17,6 +17,26 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 		{
 			get { return m_Value; }
 		}
+
+		public ANTLR_LiteralExpression(IParseTree context, ScriptLoadingContext lcontext, DynValue rvalue)
+			: base(context, lcontext)
+		{
+			m_Value = rvalue.AsReadOnly();
+		}
+
+
+		public ANTLR_LiteralExpression(LuaParser.NumberContext context, ScriptLoadingContext lcontext)
+			: base(context, lcontext)
+		{
+			if (m_Value == null) TryParse(context.FLOAT(), s => double.Parse(s, CultureInfo.InvariantCulture));
+			if (m_Value == null) TryParse(context.HEX(), s => (double)ulong.Parse(RemoveHexHeader(s), NumberStyles.HexNumber, CultureInfo.InvariantCulture));
+			if (m_Value == null) TryParse(context.INT(), s => double.Parse(s, CultureInfo.InvariantCulture));
+			if (m_Value == null) TryParse(context.HEX_FLOAT(), s => ParseHexFloat(s));
+
+			if (m_Value == null)
+				throw new SyntaxErrorException("unknown number format near '{0}'", context.GetText());
+		}
+
 
 		private string RemoveHexHeader(string s)
 		{
@@ -27,49 +47,23 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			return s;
 		}
 
-		public LiteralExpression(ScriptLoadingContext lcontext, DynValue value)
-			: base(lcontext)
+
+		public ANTLR_LiteralExpression(LuaParser.StringContext context, ScriptLoadingContext lcontext)
+			: base(context, lcontext)
 		{
-			m_Value = value;
+			ITerminalNode charStr = context.CHARSTRING();
+			ITerminalNode longStr = context.LONGSTRING();
+			ITerminalNode normStr = context.NORMALSTRING();
+
+			if (charStr != null)
+				m_Value = DynValue.NewString(NormalizeNormStr(charStr.GetText(), true)).AsReadOnly();
+			else if (longStr != null)
+				m_Value = DynValue.NewString(NormalizeLongStr_ANTLR(longStr.GetText())).AsReadOnly();
+			else if (normStr != null)
+				m_Value = DynValue.NewString(NormalizeNormStr(normStr.GetText(), true)).AsReadOnly();
 		}
 
 
-		public LiteralExpression(ScriptLoadingContext lcontext, Token t)
-			: base(lcontext)
-		{
-			switch (t.Type)
-			{
-				case TokenType.Number:
-					TryParse(t.Text, s => double.Parse(s, CultureInfo.InvariantCulture));
-					break;
-				case TokenType.Number_Hex:
-					TryParse(t.Text, s => (double)ulong.Parse(RemoveHexHeader(s), NumberStyles.HexNumber, CultureInfo.InvariantCulture));
-					break;
-				case TokenType.Number_HexFloat:
-					TryParse(t.Text, s => ParseHexFloat(s));
-					break;
-				case TokenType.String:
-					m_Value = DynValue.NewString(NormalizeNormStr(t.Text, false)).AsReadOnly();
-					break;
-				case TokenType.String_Long:
-					m_Value = DynValue.NewString(NormalizeLongStr(t.Text)).AsReadOnly();
-					break;
-				case TokenType.True:
-					m_Value = DynValue.True;
-					break;
-				case TokenType.False:
-					m_Value = DynValue.False;
-					break;
-				case TokenType.Nil:
-					m_Value = DynValue.Nil;
-					break;
-				default:
-					throw new InternalErrorException("Type mismatch");
-			}
-
-			if (m_Value == null)
-				throw new SyntaxErrorException("unknown number format near '{0}'", t.Text);
-		}
 
 		private string NormalizeNormStr(string str, bool cutPrefix)
 		{

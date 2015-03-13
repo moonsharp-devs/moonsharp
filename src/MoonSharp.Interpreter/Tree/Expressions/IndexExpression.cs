@@ -36,9 +36,9 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 		{
 			m_BaseExp.Compile(bc);
 
-			if (m_IndexExp is LiteralExpression)
+			if (m_IndexExp is ANTLR_LiteralExpression)
 			{
-				LiteralExpression lit = (LiteralExpression)m_IndexExp;
+				ANTLR_LiteralExpression lit = (ANTLR_LiteralExpression)m_IndexExp;
 				bc.Emit_Index(lit.Value);
 			}
 			else
@@ -52,9 +52,9 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 		{
 			m_BaseExp.Compile(bc);
 
-			if (m_IndexExp is LiteralExpression)
+			if (m_IndexExp is ANTLR_LiteralExpression)
 			{
-				LiteralExpression lit = (LiteralExpression)m_IndexExp;
+				ANTLR_LiteralExpression lit = (ANTLR_LiteralExpression)m_IndexExp;
 				bc.Emit_IndexSet(stackofs, tupleidx, lit.Value);
 			}
 			else
