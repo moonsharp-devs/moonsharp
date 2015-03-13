@@ -253,7 +253,6 @@
     <Compile Include="Tree\Statements\FunctionCallStatement.cs" />
     <Compile Include="Tree\Statements\FunctionDefinitionStatement.cs" />
     <Compile Include="Tree\Expression_.cs" />
-    <Compile Include="Tree\Expressions\OperatorExpression.cs" />
     <Compile Include="Tree\Expressions\SymbolRefExpression.cs" />
     <Compile Include="Tree\Lexer\Lexer.cs" />
     <Compile Include="Tree\Lexer\LexerBackDoor.cs" />

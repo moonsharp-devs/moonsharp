@@ -1,9 +1,6 @@
 Copyright (c) 2014, Marco Mastropaolo
 All rights reserved.
 
-This work is based on the ANTLR4 Lua grammar 
-Copyright (c) 2013, Kazunori Sakamoto
-
 Parts of the string library are based on the KopiLua project (https://github.com/NLua/KopiLua)
 Copyright (c) 2012 LoDC
 
