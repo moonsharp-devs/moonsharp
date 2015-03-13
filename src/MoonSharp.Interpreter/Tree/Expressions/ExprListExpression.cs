@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using MoonSharp.Interpreter.Execution;
-using MoonSharp.Interpreter.Grammar;
 
 namespace MoonSharp.Interpreter.Tree.Expressions
 {
@@ -15,12 +14,6 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			: base(lcontext)
 		{
 			expressions = exps;
-		}
-
-		public ExprListExpression(LuaParser.ExplistContext tree, ScriptLoadingContext lcontext)
-			: base(tree, lcontext)
-		{
-			expressions = NodeFactory.CreateExpessionArray(tree.children, lcontext).ToList();
 		}
 
 

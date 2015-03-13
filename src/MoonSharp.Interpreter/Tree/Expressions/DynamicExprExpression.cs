@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using MoonSharp.Interpreter.Execution;
-using MoonSharp.Interpreter.Grammar;
 
 namespace MoonSharp.Interpreter.Tree.Expressions
 {
@@ -18,13 +17,6 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			m_Exp = exp;
 		}
 
-
-		public DynamicExprExpression(LuaParser.DynamicexpContext context, ScriptLoadingContext lcontext)
-			: base(context, lcontext)
-		{
-			lcontext.Anonymous = true;
-			m_Exp = NodeFactory.CreateExpression(context.exp(), lcontext);
-		}
 
 		public override DynValue Eval(ScriptExecutionContext context)
 		{

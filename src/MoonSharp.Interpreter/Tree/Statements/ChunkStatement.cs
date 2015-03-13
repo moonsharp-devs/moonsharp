@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using Antlr4.Runtime;
 using MoonSharp.Interpreter.Debugging;
 using MoonSharp.Interpreter.Diagnostics;
 using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Execution.VM;
-using MoonSharp.Interpreter.Grammar;
 using MoonSharp.Interpreter.Tree.Statements;
 
 namespace MoonSharp.Interpreter.Tree.Statements
@@ -38,19 +36,6 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			m_StackFrame = lcontext.Scope.PopFunction();
 		}
 
-
-		public ChunkStatement(LuaParser.ChunkContext context, ScriptLoadingContext lcontext, Table globalEnv)
-			: base(context, lcontext)
-		{
-			lcontext.Scope.PushFunction(this, true);
-			m_Env = lcontext.Scope.DefineLocal(WellKnownSymbols.ENV);
-			m_VarArgs = lcontext.Scope.DefineLocal(WellKnownSymbols.VARARGS);
-			
-			m_GlobalEnv = globalEnv;
-
-			m_Block = NodeFactory.CreateStatement(context.block(), lcontext);
-			m_StackFrame = lcontext.Scope.PopFunction();
-		}
 
 		public override void Compile(Execution.VM.ByteCode bc)
 		{

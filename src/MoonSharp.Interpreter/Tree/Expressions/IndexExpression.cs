@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Antlr4.Runtime.Tree;
 using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Execution.VM;
-using MoonSharp.Interpreter.Grammar;
 
 namespace MoonSharp.Interpreter.Tree.Expressions
 {
@@ -23,22 +21,13 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 		}
 
 
-		public IndexExpression(IParseTree node, ScriptLoadingContext lcontext, Expression baseExp, Expression indexExp)
-			:base(node, lcontext)
-		{
-			m_BaseExp = baseExp;
-			m_IndexExp = indexExp;
-		}
-
-
-
 		public override void Compile(ByteCode bc)
 		{
 			m_BaseExp.Compile(bc);
 
-			if (m_IndexExp is ANTLR_LiteralExpression)
+			if (m_IndexExp is LiteralExpression)
 			{
-				ANTLR_LiteralExpression lit = (ANTLR_LiteralExpression)m_IndexExp;
+				LiteralExpression lit = (LiteralExpression)m_IndexExp;
 				bc.Emit_Index(lit.Value);
 			}
 			else
@@ -52,9 +41,9 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 		{
 			m_BaseExp.Compile(bc);
 
-			if (m_IndexExp is ANTLR_LiteralExpression)
+			if (m_IndexExp is LiteralExpression)
 			{
-				ANTLR_LiteralExpression lit = (ANTLR_LiteralExpression)m_IndexExp;
+				LiteralExpression lit = (LiteralExpression)m_IndexExp;
 				bc.Emit_IndexSet(stackofs, tupleidx, lit.Value);
 			}
 			else

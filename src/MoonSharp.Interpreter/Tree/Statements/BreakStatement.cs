@@ -5,7 +5,7 @@ using System.Text;
 using MoonSharp.Interpreter.Debugging;
 using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Execution.VM;
-using MoonSharp.Interpreter.Grammar;
+
 
 namespace MoonSharp.Interpreter.Tree.Statements
 {
@@ -17,14 +17,6 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			: base(lcontext)
 		{
 			CheckTokenType(lcontext, TokenType.Break);
-		}
-
-
-
-		public BreakStatement(LuaParser.Stat_breakContext context, ScriptLoadingContext lcontext)
-			: base(context, lcontext)
-		{
-			m_Ref = BuildSourceRef(context.Start, context.Stop);
 		}
 
 

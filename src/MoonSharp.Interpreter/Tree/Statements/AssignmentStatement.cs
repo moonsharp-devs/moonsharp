@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using MoonSharp.Interpreter.Debugging;
 using MoonSharp.Interpreter.Execution;
-using MoonSharp.Interpreter.Grammar;
+
 using MoonSharp.Interpreter.Tree.Expressions;
 
 namespace MoonSharp.Interpreter.Tree.Statements
@@ -64,35 +64,6 @@ namespace MoonSharp.Interpreter.Tree.Statements
 				throw new SyntaxErrorException("unexpected symbol near '{0}' - not a l-value", lcontext.Lexer.Current);
 
 			return v;
-		}
-
-
-		public AssignmentStatement(LuaParser.Stat_assignmentContext context, ScriptLoadingContext lcontext)
-			: base(context, lcontext)
-		{
-			m_LValues = NodeFactory.CreateVariablesArray(context.varlist().var(), lcontext).ToList();
-			m_RValues = NodeFactory.CreateExpessionArray(context.explist().exp(), lcontext).ToList();
-
-			m_Ref = BuildSourceRef(context.Start, context.Stop);
-		}
-
-		public AssignmentStatement(LuaParser.Stat_localassignmentContext context, ScriptLoadingContext lcontext)
-			: base(context, lcontext)
-		{
-			var explist = context.explist();
-
-			if (explist != null)
-			{
-				m_RValues = NodeFactory.CreateExpessionArray(explist.exp(), lcontext).ToList();
-			}
-			else
-			{
-				m_RValues = new Expression[0].ToList();
-			}
-
-			m_LValues = NodeFactory.CreateLocalVariablesArray(context, context.namelist().NAME(), lcontext).ToList();
-
-			m_Ref = BuildSourceRef(context.Start, context.Stop);
 		}
 
 

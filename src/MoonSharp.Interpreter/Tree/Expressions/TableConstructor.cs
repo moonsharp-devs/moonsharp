@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using MoonSharp.Interpreter.Execution;
-using MoonSharp.Interpreter.Grammar;
 
 namespace MoonSharp.Interpreter.Tree.Expressions
 {
@@ -90,43 +89,6 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			Expression e = Expr(lcontext);
 			m_PositionalValues.Add(e);
 		}
-
-
-		public TableConstructor(LuaParser.TableconstructorContext context, ScriptLoadingContext lcontext)
-			: base(context, lcontext)
-		{
-			var fieldlist = context.fieldlist();
-
-			if (fieldlist != null)
-			{
-				foreach (var field in fieldlist.field())
-				{
-					var keyval = field.keyexp;
-					var name = field.NAME();
-
-					if (keyval != null)
-					{
-						Expression exp = NodeFactory.CreateExpression(keyval, lcontext);
-
-						m_CtorArgs.Add(new KeyValuePair<Expression,Expression>(
-							exp,
-							NodeFactory.CreateExpression(field.keyedexp, lcontext)));
-					}
-					else if (name != null)
-					{
-						m_CtorArgs.Add(new KeyValuePair<Expression, Expression>(
-							new ANTLR_LiteralExpression(field, lcontext, DynValue.NewString(name.GetText())),
-							NodeFactory.CreateExpression(field.namedexp, lcontext)));
-					}
-					else 
-					{
-						m_PositionalValues.Add(NodeFactory.CreateExpression(field.positionalexp, lcontext));
-					}
-				}
-
-			}
-		}
-
 
 
 		public override void Compile(Execution.VM.ByteCode bc)

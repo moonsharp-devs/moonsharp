@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Antlr4.Runtime.Tree;
 using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Execution.VM;
-using MoonSharp.Interpreter.Grammar;
 
 namespace MoonSharp.Interpreter.Tree.Expressions
 {
@@ -21,17 +19,6 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			m_Exp = subExpression;
 		}
 
-
-
-		public UnaryOperatorExpression(IParseTree tree, ScriptLoadingContext lcontext)
-			: base(tree, lcontext)
-		{
-			var child0 = tree.GetChild(0);
-
-			m_OpText = child0.GetText();
-
-			m_Exp = NodeFactory.CreateExpression(tree.GetChild(1), lcontext);
-		}
 
 
 		public override void Compile(ByteCode bc)

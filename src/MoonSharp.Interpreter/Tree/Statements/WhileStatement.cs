@@ -5,7 +5,7 @@ using System.Text;
 using MoonSharp.Interpreter.Debugging;
 using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Execution.VM;
-using MoonSharp.Interpreter.Grammar;
+
 
 namespace MoonSharp.Interpreter.Tree.Statements
 {
@@ -30,20 +30,6 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			CheckTokenType(lcontext, TokenType.Do);
 			m_Block = new CompositeStatement(lcontext);
 			CheckTokenType(lcontext, TokenType.End);
-			m_StackFrame = lcontext.Scope.PopBlock();
-		}
-
-		public WhileStatement(LuaParser.Stat_whiledoloopContext context, ScriptLoadingContext lcontext)
-			: base(context, lcontext)
-		{
-			var exp = context.exp();
-			m_Condition = NodeFactory.CreateExpression(exp, lcontext);
-
-			m_Start = BuildSourceRef(context.Start, exp.Stop);
-			m_End = BuildSourceRef(context.Stop, context.END());
-
-			lcontext.Scope.PushBlock();
-			m_Block = NodeFactory.CreateStatement(context.block(), lcontext);
 			m_StackFrame = lcontext.Scope.PopBlock();
 		}
 

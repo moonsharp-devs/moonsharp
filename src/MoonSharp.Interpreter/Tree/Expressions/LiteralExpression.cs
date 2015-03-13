@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using Antlr4.Runtime.Tree;
 using MoonSharp.Interpreter.Execution;
-using MoonSharp.Interpreter.Grammar;
 
 namespace MoonSharp.Interpreter.Tree.Expressions
 {
@@ -269,15 +267,6 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			m_Value = DynValue.NewNumber(val).AsReadOnly();
 		}
 
-
-		private void TryParse(ITerminalNode terminalNode, Func<string, double> parser)
-		{
-			if (terminalNode == null)
-				return;
-
-			string txt = terminalNode.GetText();
-			TryParse(txt, parser);
-		}
 
 		public override void Compile(Execution.VM.ByteCode bc)
 		{

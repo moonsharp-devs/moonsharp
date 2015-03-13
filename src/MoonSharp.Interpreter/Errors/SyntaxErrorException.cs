@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using Antlr4.Runtime.Tree;
-
 namespace MoonSharp.Interpreter
 {
 	[Serializable]
@@ -16,22 +14,11 @@ namespace MoonSharp.Interpreter
 
 		}
 
-		internal SyntaxErrorException(IParseTree tree, string format, params object[] args)
-			: base(tree, format, args)
-		{
-
-		}
-
 		internal SyntaxErrorException(string message)
 			: base(message)
 		{
 
 		}
 
-		internal SyntaxErrorException(IParseTree tree, string message)
-			: base(tree, message)
-		{
-
-		}
 	}
 }

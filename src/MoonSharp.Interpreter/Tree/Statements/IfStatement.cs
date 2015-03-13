@@ -5,7 +5,7 @@ using System.Text;
 using MoonSharp.Interpreter.Debugging;
 using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Execution.VM;
-using MoonSharp.Interpreter.Grammar;
+
 using MoonSharp.Interpreter.Tree.Expressions;
 
 namespace MoonSharp.Interpreter.Tree.Statements
@@ -66,44 +66,6 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			ifblock.Block = new CompositeStatement(lcontext);
 			ifblock.StackFrame = lcontext.Scope.PopBlock();
 			return ifblock;
-		}
-
-		public IfStatement(LuaParser.Stat_ifblockContext context, ScriptLoadingContext lcontext)
-			: base(context,lcontext)
-		{
-			int ecount = context.exp().Length;
-			int bcount = context.block().Length;
-
-			for(int i = 0; i < ecount; i++)
-			{
-				var exp = context.exp()[i];
-				var blk = context.block()[i];
-
-				lcontext.Scope.PushBlock();
-				var ifblock = new IfBlock() 
-				{ 
-					Exp = NodeFactory.CreateExpression(exp, lcontext), 
-					Block = NodeFactory.CreateStatement(blk, lcontext),
-					Source = BuildSourceRef(
-						i == 0 ? context.IF().Symbol : context.ELSEIF()[i - 1].Symbol 
-						, exp.Stop)
-				};
-				ifblock.StackFrame = lcontext.Scope.PopBlock();
-
-				m_Ifs.Add(ifblock);
-			}
-
-			if (bcount > ecount)
-			{
-				lcontext.Scope.PushBlock();
-				m_Else = new IfBlock();
-
-				m_Else.Block = NodeFactory.CreateStatement(context.block()[bcount - 1], lcontext);
-				m_Else.StackFrame = lcontext.Scope.PopBlock();
-				m_Else.Source = BuildSourceRef(context.ELSE()); 
-			}
-
-			m_End = BuildSourceRef(context.Stop, context.END());
 		}
 
 

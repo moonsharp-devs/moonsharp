@@ -5,7 +5,7 @@ using System.Text;
 using MoonSharp.Interpreter.Debugging;
 using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Execution.VM;
-using MoonSharp.Interpreter.Grammar;
+
 using MoonSharp.Interpreter.Tree.Expressions;
 
 namespace MoonSharp.Interpreter.Tree.Statements
@@ -52,28 +52,6 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			//m_RefEnd = BuildSourceRef(context.Stop, context.END());
 		}		
 
-
-		public ForLoopStatement(LuaParser.Stat_forloopContext context, ScriptLoadingContext lcontext)
-			: base(context, lcontext)
-		{
-			var exps = context.exp();
-
-			m_Start = NodeFactory.CreateExpression(exps[0], lcontext);
-			m_End = NodeFactory.CreateExpression(exps[1], lcontext);
-
-			if (exps.Length > 2)
-				m_Step = NodeFactory.CreateExpression(exps[2], lcontext);
-			else
-				m_Step = new ANTLR_LiteralExpression(context, lcontext, DynValue.NewNumber(1));
-
-			lcontext.Scope.PushBlock();
-			m_VarName = lcontext.Scope.DefineLocal(context.NAME().GetText());
-			m_InnerBlock = NodeFactory.CreateStatement(context.block(), lcontext);
-			m_StackFrame = lcontext.Scope.PopBlock();
-
-			m_RefFor = BuildSourceRef(context.Start, context.FOR());
-			m_RefEnd = BuildSourceRef(context.Stop, context.END());
-		}
 
 		public override void Compile(ByteCode bc)
 		{

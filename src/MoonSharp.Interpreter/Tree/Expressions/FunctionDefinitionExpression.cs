@@ -5,7 +5,7 @@ using System.Text;
 using MoonSharp.Interpreter.Debugging;
 using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Execution.VM;
-using MoonSharp.Interpreter.Grammar;
+
 using MoonSharp.Interpreter.Tree.Statements;
 
 namespace MoonSharp.Interpreter.Tree.Expressions

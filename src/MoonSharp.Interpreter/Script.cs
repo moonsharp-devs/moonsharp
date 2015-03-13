@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Antlr4.Runtime;
 using MoonSharp.Interpreter.CoreLib;
 using MoonSharp.Interpreter.DataStructs;
 using MoonSharp.Interpreter.Debugging;

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using MoonSharp.Interpreter.Debugging;
 using MoonSharp.Interpreter.Execution;
-using MoonSharp.Interpreter.Grammar;
 
 namespace MoonSharp.Interpreter.Tree.Statements
 {
@@ -28,17 +27,6 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			m_StackFrame = lcontext.Scope.PopBlock();
 		}
 
-		public ScopeBlockStatement(LuaParser.Stat_doblockContext context, ScriptLoadingContext lcontext)
-			: base(context, lcontext)
-		{
-			lcontext.Scope.PushBlock();
-			m_Block = NodeFactory.CreateStatement(context.block(), lcontext);
-
-			m_Do = BuildSourceRef(context.Start, context.DO());
-			m_End = BuildSourceRef(context.Stop, context.END());
-
-			m_StackFrame = lcontext.Scope.PopBlock();
-		}
 
 
 		public override void Compile(Execution.VM.ByteCode bc)

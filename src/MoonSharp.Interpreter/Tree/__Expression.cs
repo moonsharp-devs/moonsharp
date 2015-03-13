@@ -2,21 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Antlr4.Runtime.Tree;
 using MoonSharp.Interpreter.Execution;
-using MoonSharp.Interpreter.Grammar;
 using MoonSharp.Interpreter.Tree.Expressions;
 
 namespace MoonSharp.Interpreter.Tree
 {
 	abstract class Expression : NodeBase
 	{
-		protected Expression(IParseTree node, ScriptLoadingContext lcontext)
-			: base(node, lcontext)
-		{ }
-
 		public Expression(ScriptLoadingContext lcontext)
-			: base(null, lcontext)
+			: base(lcontext)
 		{ }
 
 		public virtual string GetFriendlyDebugName()
