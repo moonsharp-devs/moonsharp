@@ -8,6 +8,7 @@ namespace MoonSharp.Interpreter.Tree
 	enum TokenType
 	{
 		Eof,
+		HashBang,
 		Name,
 		And,
 		Break,

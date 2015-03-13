@@ -1,9 +1,7 @@
-﻿#if false
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Antlr4.Runtime.Tree;
 using MoonSharp.Interpreter.Execution;
 
 
@@ -13,10 +11,10 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 	{
 		private Expression expression;
 
-		public AdjustmentExpression(IParseTree tree, ScriptLoadingContext lcontext, IParseTree subtree)
-			: base(tree, lcontext)
+		public AdjustmentExpression(ScriptLoadingContext lcontext, Expression exp)
+			: base(lcontext)
 		{
-			expression = NodeFactory.CreateExpression(subtree, lcontext);
+			expression = exp;
 		}
 
 		public override void Compile(Execution.VM.ByteCode bc)
@@ -31,5 +29,3 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 		}
 	}
 }
-
-#endif

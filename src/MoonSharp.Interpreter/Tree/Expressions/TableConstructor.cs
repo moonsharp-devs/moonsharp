@@ -47,13 +47,11 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 				}
 				else
 				{
-					CheckTokenType(lcontext, TokenType.Brk_Close_Curly);
 					break;
 				}
 			}
 
-			if (lcontext.Lexer.Current.Type == TokenType.Brk_Close_Curly)
-				lcontext.Lexer.Next();
+			CheckTokenType(lcontext, TokenType.Brk_Close_Curly);
 		}
 
 		private void MapField(ScriptLoadingContext lcontext)

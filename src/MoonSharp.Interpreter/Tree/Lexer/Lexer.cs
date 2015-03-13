@@ -17,7 +17,13 @@ namespace MoonSharp.Interpreter.Tree
 		public Lexer(string scriptContent, bool autoSkipComments)
 		{
 			m_Code = scriptContent;
+
+			// remove unicode BOM if any
+			if (m_Code.Length > 0 && m_Code[0] == 0xFEFF)
+				m_Code = m_Code.Substring(1);
+
 			m_AutoSkipComments = autoSkipComments;
+
 			Next();
 		}
 
@@ -37,7 +43,7 @@ namespace MoonSharp.Interpreter.Tree
 	
 				System.Diagnostics.Debug.WriteLine("LEXER : " + T.ToString());
 
-				if (T.Type != TokenType.Comment || (!m_AutoSkipComments))
+				if ((T.Type != TokenType.Comment && T.Type != TokenType.HashBang) || (!m_AutoSkipComments))
 					return T;
 			}
 		}
@@ -138,7 +144,7 @@ namespace MoonSharp.Interpreter.Tree
 			int fromCol = m_Col;
 
 			if (!CursorNotEof())
-				return new Token(TokenType.Eof);
+				return new Token(TokenType.Eof) { Text = "<eof>" };
 
 			char c = CursorChar();
 
@@ -187,6 +193,9 @@ namespace MoonSharp.Interpreter.Tree
 				case '^':
 					return CreateSingleCharToken(TokenType.Op_Pwr, fromLine, fromCol);
 				case '#':
+					if (m_Cursor == 0 && m_Code.Length > 1 && m_Code[1] == '!')
+						return ReadHashBang(fromLine, fromCol);
+
 					return CreateSingleCharToken(TokenType.Op_Len, fromLine, fromCol);
 				case '[':
 					{
@@ -308,6 +317,7 @@ namespace MoonSharp.Interpreter.Tree
 			bool isHex = false;
 			bool dotAdded = false;
 			bool exponentPart = false;
+			bool exponentSignAllowed = false;
 
 			text.Append(CursorChar());
 
@@ -322,7 +332,12 @@ namespace MoonSharp.Interpreter.Tree
 
 			for (char c = CursorChar(); CursorNotEof(); c = CursorCharNext())
 			{
-				if (char.IsDigit(c))
+				if (exponentSignAllowed && (c == '+' || c == '-'))
+				{
+					exponentSignAllowed = false;
+					text.Append(c);
+				}
+				else if (char.IsDigit(c))
 				{
 					text.Append(c);
 				}
@@ -339,6 +354,7 @@ namespace MoonSharp.Interpreter.Tree
 				{
 					text.Append(c);
 					exponentPart = true;
+					exponentSignAllowed = true;
 					dotAdded = true;
 				}
 				else
@@ -370,6 +386,27 @@ namespace MoonSharp.Interpreter.Tree
 			CursorCharNext();
 			return CreateToken(tokenType, fromLine, fromCol, c.ToString());
 		}
+
+		private Token ReadHashBang(int fromLine, int fromCol)
+		{
+			StringBuilder text = new StringBuilder(32);
+
+			for (char c = CursorChar(); CursorNotEof(); c = CursorCharNext())
+			{
+				if (c == '\n')
+				{
+					CursorCharNext();
+					return CreateToken(TokenType.HashBang, fromLine, fromCol, text.ToString());
+				}
+				else if (c != '\r')
+				{
+					text.Append(c);
+				}
+			}
+
+			return CreateToken(TokenType.HashBang, fromLine, fromCol, text.ToString());
+		}
+
 
 		private Token ReadComment(int fromLine, int fromCol)
 		{

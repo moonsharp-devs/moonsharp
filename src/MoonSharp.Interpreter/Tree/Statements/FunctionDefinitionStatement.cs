@@ -15,6 +15,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		SourceRef m_SourceRef;
 
 		bool m_Local = false;
+		bool m_IsMethodCallingConvention = false;
 		string m_MethodName = null;
 
 		string m_FriendlyName;
@@ -63,6 +64,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 						if (separator.Type == TokenType.Colon)
 						{
 							m_MethodName = field.Text;
+							m_IsMethodCallingConvention = true;
 							break;
 						}
 						else
@@ -70,10 +72,16 @@ namespace MoonSharp.Interpreter.Tree.Statements
 							m_TableAccessors.Add(field.Text);
 						}
 					}
+
+					if (m_MethodName == null && m_TableAccessors.Count > 0)
+					{
+						m_MethodName = m_TableAccessors[m_TableAccessors.Count - 1];
+						m_TableAccessors.RemoveAt(m_TableAccessors.Count - 1);
+					}
 				}
 			}
 
-			m_FuncDef = new FunctionDefinitionExpression(lcontext, m_MethodName != null);
+			m_FuncDef = new FunctionDefinitionExpression(lcontext, m_IsMethodCallingConvention);
 		}
 
 		public override void Compile(Execution.VM.ByteCode bc)

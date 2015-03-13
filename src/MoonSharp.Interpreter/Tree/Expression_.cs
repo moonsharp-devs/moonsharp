@@ -196,6 +196,7 @@ namespace MoonSharp.Interpreter.Tree
 				case TokenType.Brk_Open_Round:
 					lcontext.Lexer.Next();
 					Expression e = Expr(lcontext);
+					e = new AdjustmentExpression(lcontext, e);
 					CheckMatch(lcontext, T.Text, TokenType.Brk_Close_Round);
 					return e;
 				case TokenType.Name:

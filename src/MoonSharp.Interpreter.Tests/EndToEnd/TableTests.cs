@@ -437,7 +437,7 @@ namespace MoonSharp.Interpreter.Tests
 			}
 		";
 
-			Script s = new Script();
+			Script s = new Script(CoreModules.None);
 			s.DoString(script);
 
 			Assert.AreEqual("hello", s.Globals["t", "ciao", 1]);

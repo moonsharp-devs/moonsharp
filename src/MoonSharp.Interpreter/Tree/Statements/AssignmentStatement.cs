@@ -19,13 +19,12 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		public AssignmentStatement(ScriptLoadingContext lcontext)
 			: base(lcontext)
 		{
+			List<string> names = new List<string>();
+
 			while (true)
 			{
 				Token name = CheckTokenType(lcontext, TokenType.Name);
-
-				var localVar = lcontext.Scope.TryDefineLocal(name.Text);
-				var symbol = new SymbolRefExpression(lcontext, localVar);
-				m_LValues.Add(symbol);
+				names.Add(name.Text);
 
 				if (lcontext.Lexer.Current.Type != TokenType.Comma)
 					break;
@@ -33,9 +32,23 @@ namespace MoonSharp.Interpreter.Tree.Statements
 				lcontext.Lexer.Next();
 			}
 
-			CheckTokenType(lcontext, TokenType.Op_Assignment);
+			if (lcontext.Lexer.Current.Type == TokenType.Op_Assignment)
+			{
+				CheckTokenType(lcontext, TokenType.Op_Assignment);
+				m_RValues = Expression.ExprList(lcontext);
+			}
+			else
+			{
+				m_RValues = new List<Expression>();
+			}
 
-			m_RValues = Expression.ExprList(lcontext);
+			foreach (string name in names)
+			{
+				var localVar = lcontext.Scope.TryDefineLocal(name);
+				var symbol = new SymbolRefExpression(lcontext, localVar);
+				m_LValues.Add(symbol);
+			}
+
 		}
 
 

@@ -83,7 +83,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				wr.Write(this.NumVal2);
 
 			if ((usage & ((int)InstructionFieldUsage.Name)) != 0)
-				wr.Write(Name);
+				wr.Write(Name ?? "");
 
 			if ((usage & ((int)InstructionFieldUsage.Value)) != 0)
 				DumpValue(wr, Value);
