@@ -41,7 +41,7 @@ namespace MoonSharp.Interpreter.Tree
 			{
 				Token T = ReadToken();
 	
-				System.Diagnostics.Debug.WriteLine("LEXER : " + T.ToString());
+				//System.Diagnostics.Debug.WriteLine("LEXER : " + T.ToString());
 
 				if ((T.Type != TokenType.Comment && T.Type != TokenType.HashBang) || (!m_AutoSkipComments))
 					return T;
