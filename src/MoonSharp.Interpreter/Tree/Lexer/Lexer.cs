@@ -289,7 +289,7 @@ namespace MoonSharp.Interpreter.Tree
 					for (int i = 0; i < end_pattern.Length; i++)
 						CursorCharNext();
 
-					return text.ToString();
+					return LexerUtils.AdjustLuaLongString(text.ToString());
 				}
 				else
 				{
@@ -346,7 +346,7 @@ namespace MoonSharp.Interpreter.Tree
 					dotAdded = true;
 					text.Append(c);
 				}
-				else if (Char_IsHexDigit(c) && isHex && !exponentPart)
+				else if (LexerUtils.CharIsHexDigit(c) && isHex && !exponentPart)
 				{
 					text.Append(c);
 				}
@@ -371,13 +371,6 @@ namespace MoonSharp.Interpreter.Tree
 				numberType = TokenType.Number_Hex;
 
 			return CreateToken(numberType, fromLine, fromCol, text.ToString());
-		}
-
-		private bool Char_IsHexDigit(char c)
-		{
-			return char.IsDigit(c) ||
-				c == 'a' || c == 'b' || c == 'c' || c == 'd' || c == 'e' || c == 'f' ||
-				c == 'A' || c == 'B' || c == 'C' || c == 'D' || c == 'E' || c == 'F';
 		}
 
 		private Token CreateSingleCharToken(TokenType tokenType, int fromLine, int fromCol)
@@ -456,7 +449,7 @@ namespace MoonSharp.Interpreter.Tree
 				else if (c == separator)
 				{
 					CursorCharNext();
-					return CreateToken(TokenType.String, fromLine, fromCol, text.ToString());
+					return CreateToken(TokenType.String, fromLine, fromCol, LexerUtils.UnescapeLuaString(text.ToString()));
 				}
 				else
 				{

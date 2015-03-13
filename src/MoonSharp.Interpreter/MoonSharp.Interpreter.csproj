@@ -248,6 +248,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tree\Expressions\ExprListExpression.cs" />
     <Compile Include="Tree\Expressions\IndexExpression.cs" />
+    <Compile Include="Tree\Lexer\LexerUtils.cs" />
     <Compile Include="Tree\Statements\EmptyStatement.cs" />
     <Compile Include="Tree\Statements\FunctionCallStatement.cs" />
     <Compile Include="Tree\Statements\FunctionDefinitionStatement.cs" />
