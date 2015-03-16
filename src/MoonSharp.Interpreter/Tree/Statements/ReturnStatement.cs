@@ -24,10 +24,12 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			if (cur.IsEndOfBlock() || cur.Type == TokenType.SemiColon)
 			{
 				m_Expression = null;
+				m_Ref = cur.GetSourceRef();
 			}
 			else
 			{
 				m_Expression = new ExprListExpression(Expression.ExprList(lcontext), lcontext);
+				m_Ref = cur.GetSourceRefUpTo(lcontext.Lexer.Current);
 			}
 		}
 

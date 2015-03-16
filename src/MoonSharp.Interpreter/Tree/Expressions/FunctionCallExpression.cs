@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MoonSharp.Interpreter.Debugging;
 using MoonSharp.Interpreter.Execution;
 
 namespace MoonSharp.Interpreter.Tree.Expressions
@@ -13,10 +14,14 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 		string m_Name;
 		string m_DebugErr;
 
+		internal SourceRef SourceRef { get; private set; }
+
 
 		public FunctionCallExpression(ScriptLoadingContext lcontext, Expression function, Token thisCallName)
 			: base(lcontext)
 		{
+			Token callToken = thisCallName ?? lcontext.Lexer.Current;
+
 			m_Name = thisCallName != null ? thisCallName.Text : null;
 			m_DebugErr = function.GetFriendlyDebugName();
 			m_Function = function;
@@ -30,12 +35,13 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 					if (t.Type == TokenType.Brk_Close_Round)
 					{
 						m_Arguments = new List<Expression>();
+						SourceRef = callToken.GetSourceRef(t);
 						lcontext.Lexer.Next();
 					}
 					else
 					{
 						m_Arguments = ExprList(lcontext);
-						CheckMatch(lcontext, openBrk, TokenType.Brk_Close_Round, ")");
+						SourceRef = callToken.GetSourceRef(CheckMatch(lcontext, openBrk, TokenType.Brk_Close_Round, ")"));
 					}
 					break;
 				case TokenType.String:
@@ -44,12 +50,14 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 						m_Arguments = new List<Expression>();
 						Expression le = new LiteralExpression(lcontext, lcontext.Lexer.Current);
 						m_Arguments.Add(le);
+						SourceRef = callToken.GetSourceRef(lcontext.Lexer.Current);
 					}
 					break;
 				case TokenType.Brk_Open_Curly:
 					{
 						m_Arguments = new List<Expression>();
 						m_Arguments.Add(new TableConstructor(lcontext));
+						SourceRef = callToken.GetSourceRefUpTo(lcontext.Lexer.Current);
 					}
 					break;
 				default:

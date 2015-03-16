@@ -4,14 +4,15 @@ using System.Linq;
 using System.Text;
 using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Execution.VM;
+using MoonSharp.Interpreter.Tree.Expressions;
 
 namespace MoonSharp.Interpreter.Tree.Statements
 {
 	class FunctionCallStatement : Statement
 	{
-		Expression m_FunctionCallExpression;
+		FunctionCallExpression m_FunctionCallExpression;
 
-		public FunctionCallStatement(ScriptLoadingContext lcontext, Expression functionCallExpression)
+		public FunctionCallStatement(ScriptLoadingContext lcontext, FunctionCallExpression functionCallExpression)
 			: base(lcontext)
 		{
 			m_FunctionCallExpression = functionCallExpression;
@@ -20,8 +21,11 @@ namespace MoonSharp.Interpreter.Tree.Statements
 
 		public override void Compile(ByteCode bc)
 		{
-			m_FunctionCallExpression.Compile(bc);
-			bc.Emit_Pop();
+			using (bc.EnterSource(m_FunctionCallExpression.SourceRef))
+			{
+				m_FunctionCallExpression.Compile(bc);
+				bc.Emit_Pop();
+			}
 		}
 	}
 }

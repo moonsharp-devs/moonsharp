@@ -2,30 +2,38 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MoonSharp.Interpreter.Debugging;
 using MoonSharp.Interpreter.Execution;
+using MoonSharp.Interpreter.Execution.VM;
 
 namespace MoonSharp.Interpreter.Tree.Statements
 {
-	class LabelStatement : Statement
+	class GotoStatement : Statement
 	{
+		SourceRef m_Ref;
 		public string Label { get; private set; }
 
-
-		public LabelStatement(ScriptLoadingContext lcontext)
+		public GotoStatement(ScriptLoadingContext lcontext)
 			: base(lcontext)
 		{
-			CheckTokenType(lcontext, TokenType.DoubleColon);
+			m_Ref = CheckTokenType(lcontext, TokenType.Goto).GetSourceRef();
 			Token name = CheckTokenType(lcontext, TokenType.Name);
-			CheckTokenType(lcontext, TokenType.DoubleColon);
 
 			Label = name.Text;
 		}
 
+		public override void Compile(ByteCode bc)
+		{
+			
+		}
 
-		public override void Compile(Execution.VM.ByteCode bc)
+
+
+
+
+		internal void ResolveLabel(LabelStatement labelStatement)
 		{
 			throw new NotImplementedException();
 		}
 	}
 }
-

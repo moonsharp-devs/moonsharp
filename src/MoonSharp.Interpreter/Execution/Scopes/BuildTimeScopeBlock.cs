@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MoonSharp.Interpreter.DataStructs;
+using MoonSharp.Interpreter.Tree.Statements;
 
 namespace MoonSharp.Interpreter.Execution.Scopes
 {
@@ -13,6 +15,9 @@ namespace MoonSharp.Interpreter.Execution.Scopes
 		internal RuntimeScopeBlock ScopeBlock { get; private set; }
 
 		Dictionary<string, SymbolRef> m_DefinedNames = new Dictionary<string, SymbolRef>();
+
+		MultiDictionary<string, GotoStatement> m_PendingGotos;
+		Dictionary<string, LabelStatement> m_DefineLabels;
 
 		internal BuildTimeScopeBlock(BuildTimeScopeBlock parent)
 		{
@@ -69,5 +74,44 @@ namespace MoonSharp.Interpreter.Execution.Scopes
 
 			return lastVal;
 		}
+
+
+		public void DefineLabel(LabelStatement label)
+		{
+			if (m_DefineLabels.ContainsKey(label.Label))
+			{
+				throw new SyntaxErrorException(null, "label 'label' already defined on line 3");
+			}
+			else
+			{
+				m_DefineLabels.Add(label.Label, label);
+
+				foreach (GotoStatement gotostat in m_PendingGotos.Find(label.Label))
+				{
+					gotostat.ResolveLabel(label);
+				}
+
+				m_PendingGotos.Remove(label.Label);
+			}
+		}
+
+		public void ResolveGotoOrPending(GotoStatement gotostat)
+		{
+			if (m_DefineLabels.ContainsKey(gotostat.Label))
+			{
+				gotostat.ResolveLabel(m_DefineLabels[gotostat.Label]);
+			}
+			else
+			{
+				m_PendingGotos.Add(gotostat.Label, gotostat);
+			}
+		}
+
+
+
+
+
+
+
 	}
 }

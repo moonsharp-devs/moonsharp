@@ -18,11 +18,11 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		{
 			lcontext.Scope.PushBlock();
 
-			CheckTokenType(lcontext, TokenType.Do);
+			m_Do = CheckTokenType(lcontext, TokenType.Do).GetSourceRef();
 
 			m_Block = new CompositeStatement(lcontext);
 
-			CheckTokenType(lcontext, TokenType.End);
+			m_End = CheckTokenType(lcontext, TokenType.End).GetSourceRef();
 
 			m_StackFrame = lcontext.Scope.PopBlock();
 		}

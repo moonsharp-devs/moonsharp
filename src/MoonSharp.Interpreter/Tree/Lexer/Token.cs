@@ -29,7 +29,12 @@ namespace MoonSharp.Interpreter.Tree
 		public override string ToString()
 		{
 			string tokenTypeString = (Type.ToString() + "                                                      ").Substring(0, 16);
-			return string.Format("{0}  -  '{1}'", tokenTypeString, this.Text ?? "");
+
+			string location = string.Format("{0}:{1}-{2}:{3}", FromLine, FromCol, ToLine, ToCol);
+
+			location = (location + "                                                      ").Substring(0, 10);
+
+			return string.Format("{0}  - {1} - '{2}'", tokenTypeString, location, this.Text ?? "");
 		}
 
 		public static TokenType? GetReservedTokenType(string reservedWord)
@@ -144,10 +149,19 @@ namespace MoonSharp.Interpreter.Tree
 		}
 
 
-
 		internal Debugging.SourceRef GetSourceRef(bool isStepStop = true)
 		{
 			return new Debugging.SourceRef(this.SourceId, this.FromCol, this.ToCol, this.FromLine, this.ToLine, isStepStop);
+		}
+
+		internal Debugging.SourceRef GetSourceRef(Token to, bool isStepStop = true)
+		{
+			return new Debugging.SourceRef(this.SourceId, this.FromCol, to.ToCol, this.FromLine, to.ToLine, isStepStop);
+		}
+
+		internal Debugging.SourceRef GetSourceRefUpTo(Token to, bool isStepStop = true)
+		{
+			return new Debugging.SourceRef(this.SourceId, this.FromCol, to.FromCol, this.FromLine, to.FromLine, isStepStop);
 		}
 	}
 }

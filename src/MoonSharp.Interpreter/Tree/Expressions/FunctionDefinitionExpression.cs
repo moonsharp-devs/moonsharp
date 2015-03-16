@@ -50,6 +50,8 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			List<string> paramnames = BuildParamList(lcontext, pushSelfParam, openRound);
 			// here lexer is at first token of body
 
+			m_Begin = openRound.GetSourceRefUpTo(lcontext.Lexer.Current);
+
 			// create scope
 			lcontext.Scope.PushFunction(this, m_HasVarArgs);
 
@@ -68,9 +70,6 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			m_Statement = CreateBody(lcontext);
 
 			m_StackFrame = lcontext.Scope.PopFunction();
-
-			//m_Begin = BuildSourceRef(declarationContext.Start, context.PAREN_CLOSE().Symbol);
-			//m_End = BuildSourceRef(context.Stop, context.END());
 		}
 
 		private Statement CreateBody(ScriptLoadingContext lcontext)
@@ -79,6 +78,8 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 			if (lcontext.Lexer.Current.Type != TokenType.End)
 				throw new SyntaxErrorException(lcontext.Lexer.Current, "'end' expected near '{0}'", lcontext.Lexer.Current.Text);
+
+			m_End = lcontext.Lexer.Current.GetSourceRef();
 
 			lcontext.Lexer.Next();
 			return s;

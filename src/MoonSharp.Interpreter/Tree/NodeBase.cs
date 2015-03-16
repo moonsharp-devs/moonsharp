@@ -83,14 +83,17 @@ namespace MoonSharp.Interpreter.Tree
 				throw new SyntaxErrorException(t, "unexpected symbol near '{0}'", t.Text);
 		}
 
-		protected static void CheckMatch(ScriptLoadingContext lcontext, Token originalToken, TokenType expectedTokenType, string expectedTokenText)
+		protected static Token CheckMatch(ScriptLoadingContext lcontext, Token originalToken, TokenType expectedTokenType, string expectedTokenText)
 		{
-			if (lcontext.Lexer.Current.Type != expectedTokenType)
+			Token t = lcontext.Lexer.Current;
+			if (t.Type != expectedTokenType)
 				throw new SyntaxErrorException(lcontext.Lexer.Current,
 					"'{0}' expected (to close '{1}' at line {2}) near '{3}'",
-					expectedTokenText, originalToken.Text, originalToken.FromLine, lcontext.Lexer.Current.Text);
+					expectedTokenText, originalToken.Text, originalToken.FromLine, t.Text);
 
 			lcontext.Lexer.Next();
+
+			return t;
 		}
 	}
 }

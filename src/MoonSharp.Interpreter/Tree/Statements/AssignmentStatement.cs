@@ -16,10 +16,12 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		SourceRef m_Ref;
 
 
-		public AssignmentStatement(ScriptLoadingContext lcontext)
+		public AssignmentStatement(ScriptLoadingContext lcontext, Token startToken)
 			: base(lcontext)
 		{
 			List<string> names = new List<string>();
+
+			Token first = startToken;
 
 			while (true)
 			{
@@ -49,10 +51,12 @@ namespace MoonSharp.Interpreter.Tree.Statements
 				m_LValues.Add(symbol);
 			}
 
+			Token last = lcontext.Lexer.Current;
+			m_Ref = first.GetSourceRefUpTo(last);
 		}
 
 
-		public AssignmentStatement(ScriptLoadingContext lcontext, Expression firstExpression)
+		public AssignmentStatement(ScriptLoadingContext lcontext, Expression firstExpression, Token first)
 			: base(lcontext)
 		{
 			m_LValues.Add(CheckVar(lcontext, firstExpression));
@@ -67,6 +71,9 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			CheckTokenType(lcontext, TokenType.Op_Assignment);
 
 			m_RValues = Expression.ExprList(lcontext);
+
+			Token last = lcontext.Lexer.Current;
+			m_Ref = first.GetSourceRefUpTo(last);
 		}
 
 		private IVariable CheckVar(ScriptLoadingContext lcontext, Expression firstExpression)

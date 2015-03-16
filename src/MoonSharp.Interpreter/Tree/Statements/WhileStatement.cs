@@ -19,9 +19,11 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		public WhileStatement(ScriptLoadingContext lcontext)
 			: base(lcontext)
 		{
-			CheckTokenType(lcontext, TokenType.While);
+			Token whileTk = CheckTokenType(lcontext, TokenType.While);
 
 			m_Condition = Expression.Expr(lcontext);
+
+			m_Start = whileTk.GetSourceRefUpTo(lcontext.Lexer.Current);
 
 			//m_Start = BuildSourceRef(context.Start, exp.Stop);
 			//m_End = BuildSourceRef(context.Stop, context.END());
@@ -29,7 +31,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			lcontext.Scope.PushBlock();
 			CheckTokenType(lcontext, TokenType.Do);
 			m_Block = new CompositeStatement(lcontext);
-			CheckTokenType(lcontext, TokenType.End);
+			m_End = CheckTokenType(lcontext, TokenType.End).GetSourceRef();
 			m_StackFrame = lcontext.Scope.PopBlock();
 		}
 

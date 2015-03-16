@@ -19,19 +19,18 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		public RepeatStatement(ScriptLoadingContext lcontext)
 			: base(lcontext)
 		{
-			CheckTokenType(lcontext, TokenType.Repeat);
+			m_Repeat = CheckTokenType(lcontext, TokenType.Repeat).GetSourceRef();
 
 			lcontext.Scope.PushBlock();
 			m_Block = new CompositeStatement(lcontext);
 
-			CheckTokenType(lcontext, TokenType.Until);
+			Token until = CheckTokenType(lcontext, TokenType.Until);
 
 			m_Condition = Expression.Expr(lcontext);
 
-			m_StackFrame = lcontext.Scope.PopBlock();
+			m_Until = until.GetSourceRefUpTo(lcontext.Lexer.Current);
 
-			//m_Repeat = BuildSourceRef(context.Start, context.REPEAT());
-			//m_Until = BuildSourceRef(exp.Start, exp.Stop);
+			m_StackFrame = lcontext.Scope.PopBlock();
 		}
 
 		public override void Compile(ByteCode bc)

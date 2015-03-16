@@ -19,7 +19,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		Expression m_Start, m_End, m_Step;
 		SourceRef m_RefFor, m_RefEnd;
 
-		public ForLoopStatement(ScriptLoadingContext lcontext, Token nameToken)
+		public ForLoopStatement(ScriptLoadingContext lcontext, Token nameToken, Token forToken)
 			: base(lcontext)
 		{
 			//	for Name ‘=’ exp ‘,’ exp [‘,’ exp] do block end | 
@@ -43,13 +43,10 @@ namespace MoonSharp.Interpreter.Tree.Statements
 
 			lcontext.Scope.PushBlock();
 			m_VarName = lcontext.Scope.DefineLocal(nameToken.Text);
-			CheckTokenType(lcontext, TokenType.Do);
+			m_RefFor = forToken.GetSourceRef(CheckTokenType(lcontext, TokenType.Do));
 			m_InnerBlock = new CompositeStatement(lcontext);
-			CheckTokenType(lcontext, TokenType.End);
+			m_RefEnd = CheckTokenType(lcontext, TokenType.End).GetSourceRef();
 			m_StackFrame = lcontext.Scope.PopBlock();
-
-			//m_RefFor = BuildSourceRef(context.Start, context.FOR());
-			//m_RefEnd = BuildSourceRef(context.Stop, context.END());
 		}		
 
 

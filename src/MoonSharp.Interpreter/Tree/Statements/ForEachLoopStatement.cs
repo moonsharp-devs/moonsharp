@@ -20,7 +20,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		string m_DebugText;
 		SourceRef m_RefFor, m_RefEnd;
 
-		public ForEachLoopStatement(ScriptLoadingContext lcontext, Token firstNameToken)
+		public ForEachLoopStatement(ScriptLoadingContext lcontext, Token firstNameToken, Token forToken)
 			: base(lcontext)
 		{
 			//	for namelist in explist do block end | 		
@@ -50,17 +50,14 @@ namespace MoonSharp.Interpreter.Tree.Statements
 				.Cast<IVariable>()
 				.ToArray();
 
-			CheckTokenType(lcontext, TokenType.Do);
+			m_RefFor = forToken.GetSourceRef(CheckTokenType(lcontext, TokenType.Do));
 
 			m_Block = new CompositeStatement(lcontext);
 
-			CheckTokenType(lcontext, TokenType.End);
+			m_RefEnd = CheckTokenType(lcontext, TokenType.End).GetSourceRef();
 
 			m_StackFrame = lcontext.Scope.PopBlock();
 			m_DebugText = "???";
-
-			//m_RefFor = BuildSourceRef(context.Start, context.FOR());
-			//m_RefEnd = BuildSourceRef(context.Stop, context.END());
 		}
 
 
@@ -87,7 +84,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			bc.Emit_Enter(m_StackFrame);
 
 			// expand the tuple - stack : iterator-tuple, f, var, s
-			bc.Emit_ExpTuple(0);  
+			bc.Emit_ExpTuple(0);
 
 			// calls f(s, var) - stack : iterator-tuple, iteration result
 			bc.Emit_Call(2, m_DebugText);

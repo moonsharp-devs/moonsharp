@@ -129,8 +129,8 @@ namespace MoonSharp
 			}
 			if (p == "!")
 			{
-				//ParseCommand(S, "debug");
-				//ParseCommand(S, @"run c:\temp\test.lua");
+				ParseCommand(S, "debug");
+				ParseCommand(S, @"run c:\temp\test.lua");
 			}
 			if (p == "wb")
 			{

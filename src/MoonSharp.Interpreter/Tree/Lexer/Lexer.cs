@@ -103,7 +103,7 @@ namespace MoonSharp.Interpreter.Tree
 
 		private char CursorCharNext()
 		{
-			m_Cursor += 1;
+			CursorNext();
 			return CursorChar();
 		}
 

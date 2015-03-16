@@ -26,6 +26,8 @@ namespace MoonSharp.Interpreter.Tree
 
 			switch (tkn.Type)
 			{
+				case TokenType.Goto:
+					return new GotoStatement(lcontext);
 				case TokenType.SemiColon:
 					lcontext.Lexer.Next();
 					return new EmptyStatement(lcontext);
@@ -40,13 +42,14 @@ namespace MoonSharp.Interpreter.Tree
 				case TokenType.Repeat:
 					return new RepeatStatement(lcontext);
 				case TokenType.Function:
-					return new FunctionDefinitionStatement(lcontext, false);
+					return new FunctionDefinitionStatement(lcontext, false, null);
 				case TokenType.Local:
+					Token localToken = lcontext.Lexer.Current;
 					lcontext.Lexer.Next();
 					if (lcontext.Lexer.Current.Type == TokenType.Function)
-						return new FunctionDefinitionStatement(lcontext, true);
+						return new FunctionDefinitionStatement(lcontext, true, localToken);
 					else
-						return new AssignmentStatement(lcontext);
+						return new AssignmentStatement(lcontext, localToken);
 				case TokenType.Return:
 					forceLast = true;
 					return new ReturnStatement(lcontext);
@@ -54,12 +57,14 @@ namespace MoonSharp.Interpreter.Tree
 					return new BreakStatement(lcontext);
 				default:
 					{
+						Token l = lcontext.Lexer.Current;
 						Expression exp = Expression.PrimaryExp(lcontext);
+						FunctionCallExpression fnexp = exp as FunctionCallExpression;
 
-						if (exp is FunctionCallExpression)
-							return new FunctionCallStatement(lcontext, exp);
+						if (fnexp != null)
+							return new FunctionCallStatement(lcontext, fnexp);
 						else
-							return new AssignmentStatement(lcontext, exp);
+							return new AssignmentStatement(lcontext, exp, l);
 					}
 			}
 		}
@@ -69,14 +74,14 @@ namespace MoonSharp.Interpreter.Tree
 			//	for Name ‘=’ exp ‘,’ exp [‘,’ exp] do block end | 
 			//	for namelist in explist do block end | 		
 
-			CheckTokenType(lcontext, TokenType.For);
+			Token forTkn = CheckTokenType(lcontext, TokenType.For);
 
 			Token name = CheckTokenType(lcontext, TokenType.Name);
 
 			if (lcontext.Lexer.Current.Type == TokenType.Op_Assignment)
-				return new ForLoopStatement(lcontext, name);
+				return new ForLoopStatement(lcontext, name, forTkn);
 			else
-				return new ForEachLoopStatement(lcontext, name);
+				return new ForEachLoopStatement(lcontext, name, forTkn);
 		}
 
 

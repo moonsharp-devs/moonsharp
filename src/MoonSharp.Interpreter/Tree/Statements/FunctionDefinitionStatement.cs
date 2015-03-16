@@ -22,11 +22,12 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		List<string> m_TableAccessors;
 		FunctionDefinitionExpression m_FuncDef;
 
-		public FunctionDefinitionStatement(ScriptLoadingContext lcontext, bool local)
+		public FunctionDefinitionStatement(ScriptLoadingContext lcontext, bool local, Token localToken)
 			: base(lcontext)
 		{
 			// here lexer must be at the 'function' keyword
-			CheckTokenType(lcontext, TokenType.Function);
+			Token funcKeyword = CheckTokenType(lcontext, TokenType.Function);
+			funcKeyword = localToken ?? funcKeyword; // for debugger purposes
 			
 			m_Local = local;
 
@@ -35,11 +36,14 @@ namespace MoonSharp.Interpreter.Tree.Statements
 				Token name = CheckTokenType(lcontext, TokenType.Name);
 				m_FuncSymbol = lcontext.Scope.TryDefineLocal(name.Text);
 				m_FriendlyName = string.Format("{0} (local)", name.Text);
+				m_SourceRef = funcKeyword.GetSourceRef(name);
 			}
 			else
 			{
 				Token name = CheckTokenType(lcontext, TokenType.Name);
 				string firstName = name.Text;
+
+				m_SourceRef = funcKeyword.GetSourceRef(name);
 
 				m_FuncSymbol = lcontext.Scope.Find(firstName);
 				m_FriendlyName = firstName;
@@ -60,6 +64,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 						Token field = CheckTokenType(lcontext, TokenType.Name);
 
 						m_FriendlyName += separator.Text + field.Text;
+						m_SourceRef = funcKeyword.GetSourceRef(field);
 
 						if (separator.Type == TokenType.Colon)
 						{

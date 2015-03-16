@@ -37,7 +37,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 				m_Else = CreateElseBlock(lcontext);
 			}
 
-			CheckTokenType(lcontext, TokenType.End);
+			m_End = CheckTokenType(lcontext, TokenType.End).GetSourceRef();
 		}
 
 		IfBlock CreateIfBlock(ScriptLoadingContext lcontext)
@@ -49,9 +49,10 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			var ifblock = new IfBlock();
 
 			ifblock.Exp = Expression.Expr(lcontext);
-			CheckTokenType(lcontext, TokenType.Then);
+			ifblock.Source = type.GetSourceRef(CheckTokenType(lcontext, TokenType.Then));
 			ifblock.Block = new CompositeStatement(lcontext);
 			ifblock.StackFrame = lcontext.Scope.PopBlock();
+			
 
 			return ifblock;
 		}
@@ -65,6 +66,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			var ifblock = new IfBlock();
 			ifblock.Block = new CompositeStatement(lcontext);
 			ifblock.StackFrame = lcontext.Scope.PopBlock();
+			ifblock.Source = type.GetSourceRef();
 			return ifblock;
 		}
 

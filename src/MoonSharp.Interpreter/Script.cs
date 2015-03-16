@@ -229,7 +229,15 @@ namespace MoonSharp.Interpreter
 		/// <summary>
 		/// Dumps on the specified stream.
 		/// </summary>
+		/// <param name="function">The function.</param>
 		/// <param name="stream">The stream.</param>
+		/// <exception cref="System.ArgumentException">
+		/// function arg is not a function!
+		/// or
+		/// stream is readonly!
+		/// or
+		/// function arg has upvalues other than _ENV
+		/// </exception>
 		public void Dump(DynValue function, Stream stream)
 		{
 			if (function.Type != DataType.Function)
