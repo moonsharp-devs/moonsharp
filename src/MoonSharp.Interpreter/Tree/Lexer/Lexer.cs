@@ -10,27 +10,30 @@ namespace MoonSharp.Interpreter.Tree
 		Token m_Current = null;
 		string m_Code;
 		int m_Cursor = 0;
-		int m_Line = 0;
+		int m_Line = 1;
 		int m_Col = 0;
+		int m_SourceId;
 		bool m_AutoSkipComments = false;
 
-		public Lexer(string scriptContent, bool autoSkipComments)
+		public Lexer(int sourceID, string scriptContent, bool autoSkipComments)
 		{
 			m_Code = scriptContent;
+			m_SourceId = sourceID;
 
 			// remove unicode BOM if any
 			if (m_Code.Length > 0 && m_Code[0] == 0xFEFF)
 				m_Code = m_Code.Substring(1);
 
 			m_AutoSkipComments = autoSkipComments;
-
-			Next();
 		}
 
 		public Token Current
 		{
 			get
 			{
+				if (m_Current == null)
+					Next();
+
 				return m_Current;
 			}
 		}
@@ -40,7 +43,7 @@ namespace MoonSharp.Interpreter.Tree
 			while (true)
 			{
 				Token T = ReadToken();
-	
+
 				//System.Diagnostics.Debug.WriteLine("LEXER : " + T.ToString());
 
 				if ((T.Type != TokenType.Comment && T.Type != TokenType.HashBang) || (!m_AutoSkipComments))
@@ -101,7 +104,7 @@ namespace MoonSharp.Interpreter.Tree
 		private char CursorCharNext()
 		{
 			m_Cursor += 1;
-			return CursorChar();	
+			return CursorChar();
 		}
 
 		private bool CursorMatches(string pattern)
@@ -144,7 +147,7 @@ namespace MoonSharp.Interpreter.Tree
 			int fromCol = m_Col;
 
 			if (!CursorNotEof())
-				return new Token(TokenType.Eof) { Text = "<eof>" };
+				return CreateToken(TokenType.Eof, fromLine, fromCol, "<eof>");
 
 			char c = CursorChar();
 
@@ -162,7 +165,8 @@ namespace MoonSharp.Interpreter.Tree
 				case '~':
 				case '!':
 					if (CursorCharNext() != '=')
-						throw new SyntaxErrorException("Expected '=', {0} was found", CursorChar());
+						throw new SyntaxErrorException(CreateToken(TokenType.Invalid, fromLine, fromCol), "unexpected symbol near '{0}'", c);
+
 					CursorCharNext();
 					return CreateToken(TokenType.Op_NotEqual, fromLine, fromCol, "~=");
 				case '.':
@@ -202,7 +206,7 @@ namespace MoonSharp.Interpreter.Tree
 						char next = CursorCharNext();
 						if (next == '=' || next == '[')
 						{
-							string str = ReadLongString(null);
+							string str = ReadLongString(fromLine, fromCol, null, "string");
 							return CreateToken(TokenType.String_Long, fromLine, fromCol, str);
 						}
 						return CreateToken(TokenType.Brk_Open_Square, fromLine, fromCol, "[");
@@ -236,14 +240,14 @@ namespace MoonSharp.Interpreter.Tree
 							return ReadNumberToken(fromLine, fromCol);
 						}
 					}
-					throw new SyntaxErrorException("Fallback to default ?!", CursorChar());
+					throw new SyntaxErrorException(CreateToken(TokenType.Invalid, fromLine, fromCol), "unexpected symbol near '{0}'", CursorChar());
 			}
 
 
 
 		}
 
-		private string ReadLongString(string startpattern)
+		private string ReadLongString(int fromLine, int fromCol, string startpattern, string subtypeforerrors)
 		{
 			// here we are at the first '=' or second '['
 			StringBuilder text = new StringBuilder(1024);
@@ -255,7 +259,9 @@ namespace MoonSharp.Interpreter.Tree
 				{
 					if (c == '\0' || !CursorNotEof())
 					{
-						throw new SyntaxErrorException("Unterminated long string");
+						throw new SyntaxErrorException(
+							CreateToken(TokenType.Invalid, fromLine, fromCol),
+							"unfinished long {0} near '<eof>'", subtypeforerrors);
 					}
 					else if (c == '=')
 					{
@@ -268,7 +274,9 @@ namespace MoonSharp.Interpreter.Tree
 					}
 					else
 					{
-						throw new SyntaxErrorException("Unexpected token in long string prefix: {0}", c);
+						throw new SyntaxErrorException(
+							CreateToken(TokenType.Invalid, fromLine, fromCol),
+							"invalid long {0} delimiter near '{1}'", subtypeforerrors, c);
 					}
 				}
 			}
@@ -280,9 +288,14 @@ namespace MoonSharp.Interpreter.Tree
 
 			for (char c = CursorCharNext(); ; c = CursorCharNext())
 			{
+				if (c == '\r') // XXI century and we still debate on how a newline is made. throw new DeveloperExtremelyAngryException.
+					continue;
+
 				if (c == '\0' || !CursorNotEof())
 				{
-					throw new SyntaxErrorException("Unterminated long string or comment");
+					throw new SyntaxErrorException(
+							CreateToken(TokenType.Invalid, fromLine, fromCol),
+							"unfinished long {0} near '{1}'", subtypeforerrors, text.ToString());
 				}
 				else if (c == ']' && CursorMatches(end_pattern))
 				{
@@ -413,7 +426,7 @@ namespace MoonSharp.Interpreter.Tree
 				{
 					text.Append('[');
 					CursorCharNext();
-					string comment = ReadLongString(text.ToString());
+					string comment = ReadLongString(fromLine, fromCol, text.ToString(), "comment");
 					return CreateToken(TokenType.Comment, fromLine, fromCol, comment);
 				}
 				else if (c == '\n')
@@ -441,15 +454,46 @@ namespace MoonSharp.Interpreter.Tree
 
 			for (char c = CursorCharNext(); CursorNotEof(); c = CursorCharNext())
 			{
+			redo_Loop:
+
 				if (c == '\\')
 				{
 					text.Append(c);
-					text.Append(CursorCharNext());
+					c = CursorCharNext();
+					text.Append(c);
+
+					if (c == '\r')
+					{
+						c = CursorCharNext();
+						if (c == '\n')
+							text.Append(c);
+						else
+							goto redo_Loop;
+					}
+					else if (c == 'z')
+					{
+						c = CursorCharNext();
+
+						if (char.IsWhiteSpace(c))
+							SkipWhiteSpace();
+
+						c = CursorChar();
+
+						goto redo_Loop;
+					}
+				}
+				else if (c == '\n' || c == '\r')
+				{
+					throw new SyntaxErrorException(
+						CreateToken(TokenType.Invalid, fromLine, fromCol),
+						"unfinished string near '{0}'", text.ToString());
 				}
 				else if (c == separator)
 				{
 					CursorCharNext();
-					return CreateToken(TokenType.String, fromLine, fromCol, LexerUtils.UnescapeLuaString(text.ToString()));
+					Token t = CreateToken(TokenType.String, fromLine, fromCol);
+					t.Text = LexerUtils.UnescapeLuaString(t, text.ToString());
+					return t;
 				}
 				else
 				{
@@ -457,13 +501,15 @@ namespace MoonSharp.Interpreter.Tree
 				}
 			}
 
-			throw new SyntaxErrorException("Unterminated string");
+			throw new SyntaxErrorException(
+				CreateToken(TokenType.Invalid, fromLine, fromCol),
+				"unfinished string near '{0}'", text.ToString());
 		}
 
 		private Token PotentiallyDoubleCharOperator(char expectedSecondChar, TokenType singleCharToken, TokenType doubleCharToken, int fromLine, int fromCol)
 		{
 			string op = CursorChar().ToString();
-			
+
 			CursorCharNext();
 
 			if (CursorChar() == expectedSecondChar)
@@ -494,7 +540,7 @@ namespace MoonSharp.Interpreter.Tree
 
 		private Token CreateToken(TokenType tokenType, int fromLine, int fromCol, string text = null)
 		{
-			return new Token(tokenType, fromLine, fromCol, m_Line, m_Col)
+			return new Token(tokenType, m_SourceId, fromLine, fromCol, m_Line, m_Col)
 			{
 				Text = text
 			};

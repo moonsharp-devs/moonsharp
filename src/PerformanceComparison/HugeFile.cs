@@ -10,7 +10,7 @@ namespace PerformanceComparison
 {
 	public class HugeFile
 	{
-		static void xxxxMain(string[] args)
+		static void Main(string[] args)
 		{
 			Console.WriteLine("Started...");
 			Script.WarmUp();
@@ -23,10 +23,10 @@ namespace PerformanceComparison
 			Stopwatch sw = Stopwatch.StartNew();
 
 			//for (int i = 0; i < 10; i++)
-			var v = s.LoadFile(@"C:\temp\test3.lua");
+				var v = s.LoadFile(@"C:\temp\test3.lua");
 
-			for(int i = 0; i < 1000; i++)
-				s.Call(v);
+			//for(int i = 0; i < 1000; i++)
+			//	s.Call(v);
 
 			sw.Stop();
 

@@ -13,7 +13,7 @@ namespace MoonSharp.Interpreter.Tree
 			string code = File.ReadAllText(@"c:\temp\test.lua");
 			List<string> output = new List<string>();
 
-			Lexer lexer = new Lexer(code, false);
+			Lexer lexer = new Lexer(0, code, false);
 
 			try
 			{

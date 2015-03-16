@@ -53,7 +53,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 						Token separator = lcontext.Lexer.Current;
 	
 						if (separator.Type != TokenType.Colon && separator.Type != TokenType.Dot)
-							throw new SyntaxErrorException("unexpected symbol near '{0}'", separator.Text);
+							throw new SyntaxErrorException(separator, "unexpected symbol near '{0}'", separator.Text);
 						
 						lcontext.Lexer.Next();
 

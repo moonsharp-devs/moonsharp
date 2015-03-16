@@ -7,7 +7,7 @@ using MoonSharp.Interpreter.Execution;
 
 namespace MoonSharp.Interpreter.Tree.Expressions
 {
-	class LiteralExpression: Expression
+	class LiteralExpression : Expression
 	{
 		DynValue m_Value;
 
@@ -16,14 +16,6 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			get { return m_Value; }
 		}
 
-		private string RemoveHexHeader(string s)
-		{
-			s = s.ToUpperInvariant();
-			if (s.StartsWith("0X"))
-				s = s.Substring(2);
-
-			return s;
-		}
 
 		public LiteralExpression(ScriptLoadingContext lcontext, DynValue value)
 			: base(lcontext)
@@ -38,17 +30,11 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			switch (t.Type)
 			{
 				case TokenType.Number:
-					TryParse(t.Text, s => double.Parse(s, CultureInfo.InvariantCulture));
-					break;
 				case TokenType.Number_Hex:
-					TryParse(t.Text, s => (double)ulong.Parse(RemoveHexHeader(s), NumberStyles.HexNumber, CultureInfo.InvariantCulture));
-					break;
 				case TokenType.Number_HexFloat:
-					TryParse(t.Text, s => ParseHexFloat(s));
+					m_Value = DynValue.NewNumber(t.GetNumberValue()).AsReadOnly();
 					break;
 				case TokenType.String:
-					m_Value = DynValue.NewString(t.Text).AsReadOnly();
-					break;
 				case TokenType.String_Long:
 					m_Value = DynValue.NewString(t.Text).AsReadOnly();
 					break;
@@ -62,28 +48,18 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 					m_Value = DynValue.Nil;
 					break;
 				default:
-					throw new InternalErrorException("Type mismatch");
+					throw new InternalErrorException("type mismatch");
 			}
 
 			if (m_Value == null)
-				throw new SyntaxErrorException("unknown number format near '{0}'", t.Text);
-		}
+				throw new SyntaxErrorException(t, "unknown literal format near '{0}'", t.Text);
 
-		private void TryParse(string txt, Func<string, double> parser)
-		{
-			double val = parser(txt);
-			m_Value = DynValue.NewNumber(val).AsReadOnly();
+			lcontext.Lexer.Next();
 		}
-
 
 		public override void Compile(Execution.VM.ByteCode bc)
 		{
 			bc.Emit_Literal(m_Value);
-		}
-
-		private double ParseHexFloat(string s)
-		{
-			throw new SyntaxErrorException("hex floats are not supported: '{0}'", s);
 		}
 
 		public override DynValue Eval(ScriptExecutionContext context)

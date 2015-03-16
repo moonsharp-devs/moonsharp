@@ -40,7 +40,7 @@ namespace MoonSharp.Interpreter.Tree
 				lcontext.Lexer.Next();
 			}
 
-			return exps; //+++
+			return exps; 
 		}
 
 		internal static Expression Expr(ScriptLoadingContext lcontext)
@@ -127,10 +127,8 @@ namespace MoonSharp.Interpreter.Tree
 				case TokenType.Nil:
 				case TokenType.True:
 				case TokenType.False:
-					lcontext.Lexer.Next();
 					return new LiteralExpression(lcontext, t);
 				case TokenType.VarArgs:
-					lcontext.Lexer.Next();
 					return new SymbolRefExpression(t, lcontext);
 				case TokenType.Brk_Open_Curly:
 					return new TableConstructor(lcontext);
@@ -143,6 +141,11 @@ namespace MoonSharp.Interpreter.Tree
 
 		}
 
+		/// <summary>
+		/// Primaries the exp.
+		/// </summary>
+		/// <param name="lcontext">The lcontext.</param>
+		/// <returns></returns>
 		internal static Expression PrimaryExp(ScriptLoadingContext lcontext)
 		{
 			Expression e = PrefixExp(lcontext);
@@ -164,9 +167,10 @@ namespace MoonSharp.Interpreter.Tree
 						break;
 					case TokenType.Brk_Open_Square:
 						{
+							Token openBrk = lcontext.Lexer.Current;
 							lcontext.Lexer.Next(); // skip bracket
 							Expression index = Expr(lcontext);
-							CheckMatch(lcontext, T.Text, TokenType.Brk_Close_Square);
+							CheckMatch(lcontext, openBrk, TokenType.Brk_Close_Square, "]");
 							e = new IndexExpression(e, index, lcontext);
 						}
 						break;
@@ -197,13 +201,12 @@ namespace MoonSharp.Interpreter.Tree
 					lcontext.Lexer.Next();
 					Expression e = Expr(lcontext);
 					e = new AdjustmentExpression(lcontext, e);
-					CheckMatch(lcontext, T.Text, TokenType.Brk_Close_Round);
+					CheckMatch(lcontext, T, TokenType.Brk_Close_Round, ")");
 					return e;
 				case TokenType.Name:
-					lcontext.Lexer.Next();
 					return new SymbolRefExpression(T, lcontext);
 				default:
-					throw new SyntaxErrorException("unexpected symbol near '{0}'", T.Text);
+					throw new SyntaxErrorException(T, "unexpected symbol near '{0}'", T.Text);
 			}
 		}
 

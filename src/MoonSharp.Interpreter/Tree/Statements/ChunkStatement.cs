@@ -31,7 +31,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			m_Block = new CompositeStatement(lcontext);
 
 			if (lcontext.Lexer.Current.Type != TokenType.Eof)
-				throw new SyntaxErrorException("<eof> expected near '{0}'", lcontext.Lexer.Current.Text);
+				throw new SyntaxErrorException(lcontext.Lexer.Current, "<eof> expected near '{0}'", lcontext.Lexer.Current.Text);
 
 			m_StackFrame = lcontext.Scope.PopFunction();
 		}

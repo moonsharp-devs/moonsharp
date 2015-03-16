@@ -67,6 +67,7 @@ namespace MoonSharp.Interpreter.Tree
 		Number_HexFloat,
 		Number_Hex,
 		SemiColon,
+		Invalid,
 	}
 
 

@@ -155,7 +155,7 @@ namespace MoonSharp.Interpreter.Tests
 			Assert.AreEqual(DataType.String, res.Tuple[0].Type);
 			Assert.AreEqual(DataType.String, res.Tuple[1].Type);
 			Assert.AreEqual(DataType.String, res.Tuple[2].Type);
-			Assert.AreEqual("\t\t\t\t\tciao\r\n\t\t\t\t", res.Tuple[0].String);
+			Assert.AreEqual("\t\t\t\t\tciao\n\t\t\t\t", res.Tuple[0].String);
 			Assert.AreEqual(" [[uh]] ", res.Tuple[1].String);
 			Assert.AreEqual("[==[[=[[[eheh]]=]=]", res.Tuple[2].String);
 		}
@@ -724,6 +724,17 @@ namespace MoonSharp.Interpreter.Tests
 			Assert.AreEqual(-4, res.Number);
 		}
 
+		[Test]
+		public void OperatorPrecedence7()
+		{
+			string script = @"return -7 / 0.5";
+			Script S = new Script(CoreModules.None);
+
+			DynValue res = S.DoString(script);
+
+			Assert.AreEqual(DataType.Number, res.Type);
+			Assert.AreEqual(-14, res.Number);
+		}
 
 		[Test]
 		public void OperatorPrecedenceAndAssociativity()
@@ -1063,21 +1074,6 @@ namespace MoonSharp.Interpreter.Tests
 			Assert.AreEqual(1, res.Number);
 		}
 
-		[Test]
-		[ExpectedException(ExpectedException=typeof(SyntaxErrorException))]
-		public void HexFloatsReportError()
-		{
-			string script = @"
-					function x(a, b)
-			
-					end
-
-					x(0x0.1E, 0x1E / 0x100);
-								";
-
-			DynValue res = Script.RunString(script);
-		}
-
 
 		[Test]
 		public void ExpressionReducesTuples2()
@@ -1411,6 +1407,31 @@ namespace MoonSharp.Interpreter.Tests
 
 			DynValue res = Script.RunString(script);
 		}
+
+		[Test]
+		public void HexFloats_1()
+		{
+			string script = "return 0x0.1E";
+			DynValue result = Script.RunString(script);
+			Assert.AreEqual((double)0x1E / (double)0x100, result.Number);
+		}
+
+		[Test]
+		public void HexFloats_2()
+		{
+			string script = "return 0xA23p-4";
+			DynValue result = Script.RunString(script);
+			Assert.AreEqual((double)0xA23 / 16.0, result.Number);
+		}
+
+		[Test]
+		public void HexFloats_3()
+		{
+			string script = "return 0X1.921FB54442D18P+1";
+			DynValue result = Script.RunString(script);
+			Assert.AreEqual((1 + (double)0x921FB54442D18 / (double)0x10000000000000) * 2, result.Number);
+		}
+
 
 
 

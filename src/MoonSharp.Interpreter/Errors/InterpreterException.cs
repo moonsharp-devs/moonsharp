@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MoonSharp.Interpreter.Debugging;
 
 namespace MoonSharp.Interpreter
 {
@@ -31,7 +32,18 @@ namespace MoonSharp.Interpreter
 
 		public string DecoratedMessage { get; internal set; }
 
+		internal void DecorateMessage(Script script, SourceRef sref, int ip = -1)
+		{
+			if (sref != null)
+			{
+				this.DecoratedMessage = string.Format("{0}: {1}", sref.FormatLocation(script), this.Message);
+			}
+			else
+			{
+				this.DecoratedMessage = string.Format("bytecode:{0}: {1}", ip, this.Message);
+			}
 
+		}
 
 
 	}

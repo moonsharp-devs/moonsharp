@@ -54,7 +54,11 @@ error_like(function () string.char(0, 'bad') end,
            "function char (bad arg)")
 
 		   
---[[		   MoonSharp intentional : string.dump not supported, unicode chars supported!
+--[[		   
+MoonSharp intentional : 
+
+1) unicode chars supported!
+2) plan has upvalues, and by Lua spec it shouldn't be supported!
 		   
 error_like(function () string.char(0, 9999) end,
            "^[^:]+:%d+: bad argument #2 to 'char' %(.-value.-%)",

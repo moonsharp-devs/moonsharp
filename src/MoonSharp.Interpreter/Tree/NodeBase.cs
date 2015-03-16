@@ -10,23 +10,14 @@ namespace MoonSharp.Interpreter.Tree
 {
 	abstract class NodeBase
 	{
-		public NodeBase(ScriptLoadingContext lcontext)
-		{ 
-		
-		}
-
+		public Script Script { get; private set; }
 		protected ScriptLoadingContext LoadingContext { get; private set; }
 
-		public Exception SyntaxError(string format, params object[] args)
+		public NodeBase(ScriptLoadingContext lcontext)
 		{
-			return new SyntaxErrorException(format, args);
+			Script = lcontext.Script;
 		}
 
-		public void SyntaxAssert(bool condition, string format, params object[] args)
-		{
-			if (!condition)
-				throw  SyntaxError(format, args);
-		}
 
 		public abstract void Compile(ByteCode bc);
 
@@ -57,7 +48,7 @@ namespace MoonSharp.Interpreter.Tree
 		{
 			Token t = lcontext.Lexer.Current;
 			if (t.Type != tokenType)
-				throw new SyntaxErrorException("Unexpected token '{0}'", t.Text);
+				throw new SyntaxErrorException(t, "unexpected symbol near '{0}'", t.Text);
 
 			lcontext.Lexer.Next();
 
@@ -68,7 +59,7 @@ namespace MoonSharp.Interpreter.Tree
 		{
 			Token t = lcontext.Lexer.Current;
 			if (t.Type != tokenType1 && t.Type != tokenType2)
-				throw new SyntaxErrorException("Unexpected token '{0}'", t.Text);
+				throw new SyntaxErrorException(t, "unexpected symbol near '{0}'", t.Text);
 
 			lcontext.Lexer.Next();
 
@@ -78,7 +69,7 @@ namespace MoonSharp.Interpreter.Tree
 		{
 			Token t = lcontext.Lexer.Current;
 			if (t.Type != tokenType1 && t.Type != tokenType2 && t.Type != tokenType3)
-				throw new SyntaxErrorException("Unexpected token '{0}'", t.Text);
+				throw new SyntaxErrorException(t, "unexpected symbol near '{0}'", t.Text);
 
 			lcontext.Lexer.Next();
 
@@ -89,13 +80,15 @@ namespace MoonSharp.Interpreter.Tree
 		{
 			Token t = lcontext.Lexer.Current;
 			if (t.Type != tokenType)
-				throw new SyntaxErrorException("Unexpected token '{0}'", t.Text);
+				throw new SyntaxErrorException(t, "unexpected symbol near '{0}'", t.Text);
 		}
 
-		protected static void CheckMatch(ScriptLoadingContext lcontext, string tokenDesc, TokenType tokenType)
+		protected static void CheckMatch(ScriptLoadingContext lcontext, Token originalToken, TokenType expectedTokenType, string expectedTokenText)
 		{
-			if (lcontext.Lexer.Current.Type != tokenType)
-				throw new SyntaxErrorException("Mismatched '{0}' near '{1}'", tokenDesc, lcontext.Lexer.Current.Text);
+			if (lcontext.Lexer.Current.Type != expectedTokenType)
+				throw new SyntaxErrorException(lcontext.Lexer.Current,
+					"'{0}' expected (to close '{1}' at line {2}) near '{3}'",
+					expectedTokenText, originalToken.Text, originalToken.FromLine, lcontext.Lexer.Current.Text);
 
 			lcontext.Lexer.Next();
 		}

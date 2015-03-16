@@ -74,7 +74,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			IVariable v = firstExpression as IVariable;
 
 			if (v == null)
-				throw new SyntaxErrorException("unexpected symbol near '{0}' - not a l-value", lcontext.Lexer.Current);
+				throw new SyntaxErrorException(lcontext.Lexer.Current, "unexpected symbol near '{0}' - not a l-value", lcontext.Lexer.Current);
 
 			return v;
 		}

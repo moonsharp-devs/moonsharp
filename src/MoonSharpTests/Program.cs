@@ -16,7 +16,7 @@ namespace MoonSharpTests
 {
 	class Program
 	{
-		public const string RESTRICT_TEST = "ClosureNoTable";
+		public const string RESTRICT_TEST = null; //"ClosureNoTable";
 
 
 		static void Main(string[] args)

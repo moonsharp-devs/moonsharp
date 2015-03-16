@@ -130,7 +130,7 @@ end)
 eq_array({co("Hello")}, {"Hello"})
 eq_array({co("World")}, {true, "World"})
 
---[[
+--[[ ]]
 co = coroutine.wrap(function(...)
   function backtrace ()
     return 'not a back trace'
@@ -141,7 +141,7 @@ co = coroutine.wrap(function(...)
 end)
 eq_array({co("Hello")}, {"Hello"})
 eq_array({co("World")}, {true, "World"})
-]]
+
 
 --[[ ]]
 local output = {}

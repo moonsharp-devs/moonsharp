@@ -51,7 +51,6 @@ namespace MoonSharp.Interpreter.Tree
 					forceLast = true;
 					return new ReturnStatement(lcontext);
 				case TokenType.Break:
-					forceLast = true;
 					return new BreakStatement(lcontext);
 				default:
 					{

@@ -21,16 +21,18 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 				m_Ref = lcontext.Scope.TryDefineLocal(WellKnownSymbols.VARARGS);
 
 				if (!lcontext.Scope.CurrentFunctionHasVarArgs())
-					throw new SyntaxErrorException("error:0: cannot use '...' outside a vararg function");
+					throw new SyntaxErrorException(T, "cannot use '...' outside a vararg function");
 
 				if (lcontext.IsDynamicExpression)
-					throw new DynamicExpressionException("Cannot use '...' in a dynamic expression.");
+					throw new DynamicExpressionException("cannot use '...' in a dynamic expression.");
 			}
 			else
 			{
 				if (!lcontext.IsDynamicExpression)
 					m_Ref = lcontext.Scope.Find(m_VarName);
 			}
+
+			lcontext.Lexer.Next();
 		}
 
 		public SymbolRefExpression(ScriptLoadingContext lcontext, SymbolRef refr)

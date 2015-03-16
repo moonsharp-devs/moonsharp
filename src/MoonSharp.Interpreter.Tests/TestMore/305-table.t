@@ -171,7 +171,7 @@ for name, line in pairsByKeys(lines, function (a, b) return a < b end) do
 end
 eq_array(output, {'luaH_get', 24, 'luaH_present', 48, 'luaH_set', 10}, "function sort")
 
---[[ +++ Commented for coroutines
+
 
 function permgen (a, n)
     n = n or #a
@@ -223,12 +223,18 @@ eq_array(output, {
     'a b c d e f g', 5040,
 }, "function sort (all permutations)")
 
+--[[
+
+MoonSharp: Sort callbacks work --]]
+
+
 error_like(function ()
     local t = { 1 }
     table.sort( { t, t, t, t, }, function (a, b) return a[1] == b[1] end )
            end,
            "^[^:]+:%d+: invalid order function for sorting",
            "function sort (bad func)")
+
 
 eq_array({table.unpack({})}, {}, "function unpack")
 eq_array({table.unpack({'a'})}, {'a'})
@@ -245,4 +251,3 @@ eq_array({table.unpack({'a','b','c'},2,4)}, {'b','c'})
 -- vim: ft=lua expandtab shiftwidth=4:
 
 
---]]

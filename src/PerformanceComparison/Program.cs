@@ -123,8 +123,10 @@ end
 		static Lua lua = new Lua();
 		static string testString = "world";
 
-		static void Main(string[] args)
+		static void xxMain(string[] args)
 		{
+			Script.WarmUp();
+
 			Stopwatch sw;
 
 			sw = Stopwatch.StartNew();

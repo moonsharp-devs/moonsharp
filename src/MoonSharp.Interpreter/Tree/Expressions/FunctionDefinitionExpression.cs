@@ -45,9 +45,9 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 				CheckTokenType(lcontext, TokenType.Function);
 
 			// here lexer should be at the '('.
-			CheckTokenType(lcontext, TokenType.Brk_Open_Round);
+			Token openRound = CheckTokenType(lcontext, TokenType.Brk_Open_Round);
 
-			List<string> paramnames = BuildParamList(lcontext, pushSelfParam);
+			List<string> paramnames = BuildParamList(lcontext, pushSelfParam, openRound);
 			// here lexer is at first token of body
 
 			// create scope
@@ -78,13 +78,13 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			Statement s = new CompositeStatement(lcontext);
 
 			if (lcontext.Lexer.Current.Type != TokenType.End)
-				throw new SyntaxErrorException("'end' expected near '{0}'", lcontext.Lexer.Current.Text);
+				throw new SyntaxErrorException(lcontext.Lexer.Current, "'end' expected near '{0}'", lcontext.Lexer.Current.Text);
 
 			lcontext.Lexer.Next();
 			return s;
 		}
 
-		private List<string> BuildParamList(ScriptLoadingContext lcontext, bool pushSelfParam)
+		private List<string> BuildParamList(ScriptLoadingContext lcontext, bool pushSelfParam, Token openBracketToken)
 		{
 			List<string> paramnames = new List<string>();
 
@@ -106,7 +106,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 					paramnames.Add(WellKnownSymbols.VARARGS);
 				}
 				else
-					throw new SyntaxErrorException("unexpected symbol near '{0}'", t.Text);
+					throw new SyntaxErrorException(t, "unexpected symbol near '{0}'", t.Text);
 
 				lcontext.Lexer.Next();
 
@@ -118,7 +118,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 				}
 				else
 				{
-					CheckMatch(lcontext, "(", TokenType.Brk_Close_Round);
+					CheckMatch(lcontext, openBracketToken, TokenType.Brk_Close_Round, ")");
 					break;
 				}
 			}

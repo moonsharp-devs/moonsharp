@@ -24,6 +24,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			switch (lcontext.Lexer.Current.Type)
 			{
 				case TokenType.Brk_Open_Round:
+					Token openBrk = lcontext.Lexer.Current;
 					lcontext.Lexer.Next();
 					Token t = lcontext.Lexer.Current;
 					if (t.Type == TokenType.Brk_Close_Round)
@@ -34,7 +35,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 					else
 					{
 						m_Arguments = ExprList(lcontext);
-						CheckMatch(lcontext, "(", TokenType.Brk_Close_Round);
+						CheckMatch(lcontext, openBrk, TokenType.Brk_Close_Round, ")");
 					}
 					break;
 				case TokenType.String:
@@ -42,7 +43,6 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 					{
 						m_Arguments = new List<Expression>();
 						Expression le = new LiteralExpression(lcontext, lcontext.Lexer.Current);
-						lcontext.Lexer.Next();
 						m_Arguments.Add(le);
 					}
 					break;
@@ -53,7 +53,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 					}
 					break;
 				default:
-					throw new SyntaxErrorException("function arguments expected");
+					throw new SyntaxErrorException(lcontext.Lexer.Current, "function arguments expected");
 			}
 		}
 
@@ -66,8 +66,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			if (!string.IsNullOrEmpty(m_Name))
 			{
 				bc.Emit_Copy(0);
-				bc.Emit_Literal(DynValue.NewString(m_Name));
-				bc.Emit_Index();
+				bc.Emit_Index(DynValue.NewString(m_Name));
 				bc.Emit_Swap(0, 1);
 				++argslen;
 			}

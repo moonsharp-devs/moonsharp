@@ -313,6 +313,5 @@ namespace MoonSharp.Interpreter.Execution.VM
 		{
 			return AppendInstruction(new Instruction(m_CurrentSourceRef) { OpCode = OpCode.Swap, NumVal = p1, NumVal2 = p2 });
 		}
-
 	}
 }

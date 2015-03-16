@@ -2,41 +2,35 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MoonSharp.Interpreter.Execution;
 
 namespace MoonSharp.Interpreter.Tree
 {
 	class Token
 	{
+		public readonly int SourceId;
 		public readonly int FromCol, ToCol, FromLine, ToLine;
 		public readonly TokenType Type;
 
 		public string Text { get; set; }
 
-		public Token(TokenType type, int fromLine, int fromCol, int toLine, int toCol)
+		public Token(TokenType type, int sourceId, int fromLine, int fromCol, int toLine, int toCol)
 		{
 			Type = type;
 
+			SourceId = sourceId;
 			FromLine = fromLine;
 			FromCol = fromCol;
 			ToCol = toCol;
 			ToLine = toLine;
 		}
 
-		public Token(TokenType type, int line, int col)
-			: this(type, line, col, line, col)
-		{ }
-
-		public Token(TokenType type)
-			: this(type, -1, -1, -1, -1)
-		{ }
 
 		public override string ToString()
 		{
 			string tokenTypeString = (Type.ToString() + "                                                      ").Substring(0, 16);
 			return string.Format("{0}  -  '{1}'", tokenTypeString, this.Text ?? "");
 		}
-
-
 
 		public static TokenType? GetReservedTokenType(string reservedWord)
 		{
@@ -91,7 +85,17 @@ namespace MoonSharp.Interpreter.Tree
 			}
 		}
 
-
+		public double GetNumberValue()
+		{
+			if (this.Type == TokenType.Number)
+				return LexerUtils.ParseNumber(this);
+			else if (this.Type == TokenType.Number_Hex)
+				return LexerUtils.ParseHexInteger(this);
+			else if (this.Type == TokenType.Number_HexFloat)
+				return LexerUtils.ParseHexFloat(this);
+			else
+				throw new NotSupportedException("GetNumberValue is supported only on numeric tokens");
+		}
 
 
 		public bool IsEndOfBlock()
@@ -140,5 +144,10 @@ namespace MoonSharp.Interpreter.Tree
 		}
 
 
+
+		internal Debugging.SourceRef GetSourceRef(bool isStepStop = true)
+		{
+			return new Debugging.SourceRef(this.SourceId, this.FromCol, this.ToCol, this.FromLine, this.ToLine, isStepStop);
+		}
 	}
 }
