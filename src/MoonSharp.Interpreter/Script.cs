@@ -72,7 +72,7 @@ namespace MoonSharp.Interpreter
 			PerformanceStats = new PerformanceStatistics();
 			Registry = new Table(this);
 
-			m_ByteCode = new ByteCode();
+			m_ByteCode = new ByteCode(this);
 			m_GlobalTable = new Table(this).RegisterCoreModules(coreModules);
 			m_MainProcessor = new Processor(this, m_GlobalTable, m_ByteCode);
 		}

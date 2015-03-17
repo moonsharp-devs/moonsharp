@@ -17,6 +17,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			: base(lcontext)
 		{
 			m_Ref = CheckTokenType(lcontext, TokenType.Break).GetSourceRef();
+			lcontext.Source.Refs.Add(m_Ref);
 		}
 
 

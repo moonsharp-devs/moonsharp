@@ -142,6 +142,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 							break;
 						case OpCode.Leave:
 						case OpCode.Exit:
+						case OpCode.Clean:
 							ClearBlockData(i);
 							break;
 						case OpCode.Closure:
@@ -614,7 +615,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 
 
-		private int Internal_ExecCall(int argsCount, int instructionPtr, CallbackFunction handler = null, CallbackFunction continuation = null, bool thisCall = false, string debugText = null, DynValue unwindHandler = null)
+		private int Internal_ExecCall(int argsCount, int instructionPtr, CallbackFunction handler = null, CallbackFunction continuation = null, 
+			bool thisCall = false, string debugText = null, DynValue unwindHandler = null)
 		{
 			DynValue fn = m_ValueStack.Peek(argsCount);
 

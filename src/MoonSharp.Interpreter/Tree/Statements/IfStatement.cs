@@ -38,6 +38,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			}
 
 			m_End = CheckTokenType(lcontext, TokenType.End).GetSourceRef();
+			lcontext.Source.Refs.Add(m_End);
 		}
 
 		IfBlock CreateIfBlock(ScriptLoadingContext lcontext)
@@ -52,7 +53,8 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			ifblock.Source = type.GetSourceRef(CheckTokenType(lcontext, TokenType.Then));
 			ifblock.Block = new CompositeStatement(lcontext);
 			ifblock.StackFrame = lcontext.Scope.PopBlock();
-			
+			lcontext.Source.Refs.Add(ifblock.Source);
+
 
 			return ifblock;
 		}
@@ -67,6 +69,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			ifblock.Block = new CompositeStatement(lcontext);
 			ifblock.StackFrame = lcontext.Scope.PopBlock();
 			ifblock.Source = type.GetSourceRef();
+			lcontext.Source.Refs.Add(ifblock.Source);
 			return ifblock;
 		}
 

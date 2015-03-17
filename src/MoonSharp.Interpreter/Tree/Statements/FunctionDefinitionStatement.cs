@@ -87,6 +87,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			}
 
 			m_FuncDef = new FunctionDefinitionExpression(lcontext, m_IsMethodCallingConvention);
+			lcontext.Source.Refs.Add(m_SourceRef);
 		}
 
 		public override void Compile(Execution.VM.ByteCode bc)

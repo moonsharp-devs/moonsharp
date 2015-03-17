@@ -26,6 +26,8 @@ namespace MoonSharp.Interpreter.Tree
 
 			switch (tkn.Type)
 			{
+				case TokenType.DoubleColon:
+					return new LabelStatement(lcontext);
 				case TokenType.Goto:
 					return new GotoStatement(lcontext);
 				case TokenType.SemiColon:

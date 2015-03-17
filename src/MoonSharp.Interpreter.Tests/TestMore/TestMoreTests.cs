@@ -147,7 +147,6 @@ namespace MoonSharp.Interpreter.Tests
 		}
 
 		[Test]
-		[Ignore] // Failing because of handling of syntax error messages
 		public void TestMore_204_grammar()
 		{
 			TapRunner.Run(@"TestMore/204-grammar.t");

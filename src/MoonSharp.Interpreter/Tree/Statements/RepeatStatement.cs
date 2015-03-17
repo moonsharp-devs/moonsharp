@@ -31,6 +31,8 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			m_Until = until.GetSourceRefUpTo(lcontext.Lexer.Current);
 
 			m_StackFrame = lcontext.Scope.PopBlock();
+			lcontext.Source.Refs.Add(m_Repeat);
+			lcontext.Source.Refs.Add(m_Until);
 		}
 
 		public override void Compile(ByteCode bc)

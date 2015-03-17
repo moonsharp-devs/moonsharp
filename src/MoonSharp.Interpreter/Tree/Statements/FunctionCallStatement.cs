@@ -16,6 +16,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			: base(lcontext)
 		{
 			m_FunctionCallExpression = functionCallExpression;
+			lcontext.Source.Refs.Add(m_FunctionCallExpression.SourceRef);
 		}
 
 

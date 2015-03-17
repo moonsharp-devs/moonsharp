@@ -47,6 +47,9 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			m_InnerBlock = new CompositeStatement(lcontext);
 			m_RefEnd = CheckTokenType(lcontext, TokenType.End).GetSourceRef();
 			m_StackFrame = lcontext.Scope.PopBlock();
+
+			lcontext.Source.Refs.Add(m_RefFor);
+			lcontext.Source.Refs.Add(m_RefEnd);
 		}		
 
 

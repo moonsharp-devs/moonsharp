@@ -15,11 +15,16 @@ namespace MoonSharp.Interpreter.Execution.VM
 	internal class ByteCode : ITrackableReference
 	{
 		public List<Instruction> Code = new List<Instruction>();
+		public Script Script { get; private set; }
 		private List<SourceRef> m_SourceRefStack = new List<SourceRef>();
 		private SourceRef m_CurrentSourceRef = null;
 
 		internal LoopTracker LoopTracker = new LoopTracker();
 
+		public ByteCode(Script script)
+		{
+			Script = script;
+		}
 
 		#region ITrackableReference
 
@@ -175,6 +180,11 @@ namespace MoonSharp.Interpreter.Execution.VM
 			return AppendInstruction(new Instruction(m_CurrentSourceRef) { OpCode = OpCode.Exit, NumVal = runtimeScopeBlock.From, NumVal2 = runtimeScopeBlock.ToInclusive });
 		}
 
+		public Instruction Emit_Clean(RuntimeScopeBlock runtimeScopeBlock)
+		{
+			return AppendInstruction(new Instruction(m_CurrentSourceRef) { OpCode = OpCode.Clean, NumVal = runtimeScopeBlock.To + 1, NumVal2 = runtimeScopeBlock.ToInclusive });
+		}
+
 		public Instruction Emit_Closure(SymbolRef[] symbols, int jmpnum)
 		{
 			return AppendInstruction(new Instruction(m_CurrentSourceRef) { OpCode = OpCode.Closure, SymbolList = symbols, NumVal = jmpnum });
@@ -313,5 +323,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 		{
 			return AppendInstruction(new Instruction(m_CurrentSourceRef) { OpCode = OpCode.Swap, NumVal = p1, NumVal2 = p2 });
 		}
+
 	}
 }

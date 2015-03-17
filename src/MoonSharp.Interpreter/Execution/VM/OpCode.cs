@@ -5,7 +5,7 @@ using System.Text;
 
 namespace MoonSharp.Interpreter.Execution.VM
 {
-	internal enum OpCode 
+	internal enum OpCode
 	{
 		// Meta-opcodes
 		Nop,		// Does not perform any operation.
@@ -29,6 +29,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 		Enter,		// Enters a new stack frame
 		Leave,		// Leaves a stack frame
 		Exit,		// Leaves every stack frame up and including the topmost function frame, plus it exits the topmost closure
+		Clean,		// Cleansup every stack frame below the specified one
+
 		FuncMeta,	// Injects function metadata used for reflection things (dumping, debugging)
 		BeginFn,	// Adjusts for start of function, taking in parameters and allocating locals
 		Args,		// Takes the arguments passed to a function and sets the appropriate symbols in the local scope

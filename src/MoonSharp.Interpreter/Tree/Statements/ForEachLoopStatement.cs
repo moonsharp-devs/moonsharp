@@ -17,7 +17,6 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		IVariable[] m_NameExps;
 		Expression m_RValues;
 		Statement m_Block;
-		string m_DebugText;
 		SourceRef m_RefFor, m_RefEnd;
 
 		public ForEachLoopStatement(ScriptLoadingContext lcontext, Token firstNameToken, Token forToken)
@@ -57,7 +56,9 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			m_RefEnd = CheckTokenType(lcontext, TokenType.End).GetSourceRef();
 
 			m_StackFrame = lcontext.Scope.PopBlock();
-			m_DebugText = "???";
+
+			lcontext.Source.Refs.Add(m_RefFor);
+			lcontext.Source.Refs.Add(m_RefEnd);
 		}
 
 
@@ -87,7 +88,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			bc.Emit_ExpTuple(0);
 
 			// calls f(s, var) - stack : iterator-tuple, iteration result
-			bc.Emit_Call(2, m_DebugText);
+			bc.Emit_Call(2, "for..in");
 
 			// perform assignment of iteration result- stack : iterator-tuple, iteration result
 			for (int i = 0; i < m_NameExps.Length; i++)

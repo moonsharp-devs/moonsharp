@@ -65,6 +65,7 @@ namespace MoonSharp.Interpreter.Execution
 				case OpCode.Swap:
 				case OpCode.Enter:
 				case OpCode.Leave:
+				case OpCode.Clean:
 				case OpCode.Exit:
 					return InstructionFieldUsage.NumVal | InstructionFieldUsage.NumVal2;
 				case OpCode.Local:

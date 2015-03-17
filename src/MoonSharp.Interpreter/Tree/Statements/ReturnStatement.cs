@@ -17,6 +17,8 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		public ReturnStatement(ScriptLoadingContext lcontext)
 			: base(lcontext)
 		{
+			Token ret = lcontext.Lexer.Current;
+
 			lcontext.Lexer.Next();
 
 			Token cur = lcontext.Lexer.Current;
@@ -24,13 +26,14 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			if (cur.IsEndOfBlock() || cur.Type == TokenType.SemiColon)
 			{
 				m_Expression = null;
-				m_Ref = cur.GetSourceRef();
+				m_Ref = ret.GetSourceRef();
 			}
 			else
 			{
 				m_Expression = new ExprListExpression(Expression.ExprList(lcontext), lcontext);
-				m_Ref = cur.GetSourceRefUpTo(lcontext.Lexer.Current);
+				m_Ref = ret.GetSourceRefUpTo(lcontext.Lexer.Current);
 			}
+			lcontext.Source.Refs.Add(m_Ref);
 		}
 
 

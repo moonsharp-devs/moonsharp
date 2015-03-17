@@ -9,6 +9,8 @@ namespace MoonSharp.Interpreter.Tree
 	{
 		Token m_Current = null;
 		string m_Code;
+		int m_PrevLineTo = 0;
+		int m_PrevColTo = 1;
 		int m_Cursor = 0;
 		int m_Line = 1;
 		int m_Col = 0;
@@ -540,10 +542,13 @@ namespace MoonSharp.Interpreter.Tree
 
 		private Token CreateToken(TokenType tokenType, int fromLine, int fromCol, string text = null)
 		{
-			return new Token(tokenType, m_SourceId, fromLine, fromCol, m_Line, m_Col)
+			Token t = new Token(tokenType, m_SourceId, fromLine, fromCol, m_Line, m_Col, m_PrevLineTo, m_PrevColTo)
 			{
 				Text = text
 			};
+			m_PrevLineTo = m_Line;
+			m_PrevColTo = m_Col;
+			return t;
 		}
 
 		private string ReadNameToken()

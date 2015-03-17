@@ -9,12 +9,12 @@ namespace MoonSharp.Interpreter.Tree
 	class Token
 	{
 		public readonly int SourceId;
-		public readonly int FromCol, ToCol, FromLine, ToLine;
+		public readonly int FromCol, ToCol, FromLine, ToLine, PrevCol, PrevLine;
 		public readonly TokenType Type;
 
 		public string Text { get; set; }
 
-		public Token(TokenType type, int sourceId, int fromLine, int fromCol, int toLine, int toCol)
+		public Token(TokenType type, int sourceId, int fromLine, int fromCol, int toLine, int toCol, int prevLine, int prevCol)
 		{
 			Type = type;
 
@@ -23,6 +23,8 @@ namespace MoonSharp.Interpreter.Tree
 			FromCol = fromCol;
 			ToCol = toCol;
 			ToLine = toLine;
+			PrevCol = prevCol;
+			PrevLine = prevLine;
 		}
 
 
@@ -161,7 +163,7 @@ namespace MoonSharp.Interpreter.Tree
 
 		internal Debugging.SourceRef GetSourceRefUpTo(Token to, bool isStepStop = true)
 		{
-			return new Debugging.SourceRef(this.SourceId, this.FromCol, to.FromCol, this.FromLine, to.FromLine, isStepStop);
+			return new Debugging.SourceRef(this.SourceId, this.FromCol, to.PrevCol, this.FromLine, to.PrevLine, isStepStop);
 		}
 	}
 }

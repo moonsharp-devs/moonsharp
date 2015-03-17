@@ -27,15 +27,11 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 		public FunctionDefinitionExpression(ScriptLoadingContext lcontext, Table globalContext)
 			: this(lcontext, false, globalContext)
-		{
-
-		}
+		{ }
 
 		public FunctionDefinitionExpression(ScriptLoadingContext lcontext, bool pushSelfParam)
 			: this(lcontext, pushSelfParam, null)
-		{
-
-		}
+		{ }
 
 
 		private FunctionDefinitionExpression(ScriptLoadingContext lcontext, bool pushSelfParam, Table globalContext)
@@ -70,6 +66,10 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			m_Statement = CreateBody(lcontext);
 
 			m_StackFrame = lcontext.Scope.PopFunction();
+
+			lcontext.Source.Refs.Add(m_Begin);
+			lcontext.Source.Refs.Add(m_End);
+
 		}
 
 		private Statement CreateBody(ScriptLoadingContext lcontext)
@@ -174,7 +174,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 		public int CompileBody(ByteCode bc, string friendlyName)
 		{
-			string funcName = "TODO!"; // friendlyName ?? "<" + this.m_Begin.FormatLocation(this.LoadingContext.Script, true) + ">";
+			string funcName = friendlyName ?? ("<" + this.m_Begin.FormatLocation(bc.Script, true) + ">");
 
 			bc.PushSourceRef(m_Begin);
 
