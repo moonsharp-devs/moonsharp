@@ -53,7 +53,7 @@ namespace MoonSharp.Interpreter.IO
 			}
 			else
 			{
-				throw new DataMisalignedException("string map failure");
+				throw new IOException("string map failure");
 			}
 		}
 	}

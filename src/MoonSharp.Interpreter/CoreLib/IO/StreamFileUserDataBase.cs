@@ -13,6 +13,7 @@ namespace MoonSharp.Interpreter.CoreLib.IO
 		protected StreamWriter m_Writer;
 		protected bool m_Closed = false;
 
+
 		protected void Initialize(Stream stream, StreamReader reader, StreamWriter writer)
 		{
 			m_Stream = stream;
