@@ -26,10 +26,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 		IndexSet, Index,
 
 		// Stack-frame ops and calls
-		Enter,		// Enters a new stack frame
-		Leave,		// Leaves a stack frame
-		Exit,		// Leaves every stack frame up and including the topmost function frame, plus it exits the topmost closure
-		Clean,		// Cleansup every stack frame below the specified one
+		Clean,		// Cleansup locals setting them as null
 
 		FuncMeta,	// Injects function metadata used for reflection things (dumping, debugging)
 		BeginFn,	// Adjusts for start of function, taking in parameters and allocating locals

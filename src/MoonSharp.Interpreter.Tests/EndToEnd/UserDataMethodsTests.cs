@@ -1,5 +1,4 @@
-﻿#if false
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -186,6 +185,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 			SomeClass obj = new SomeClass();
 
+			UserData.UnregisterType<SomeClass>();
 			UserData.RegisterType<SomeClass>(opt);
 
 			S.Globals.Set("static", UserData.CreateStatic<SomeClass>());
@@ -210,6 +210,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 			SomeClass obj = new SomeClass();
 
+			UserData.UnregisterType<SomeClass>();
 			UserData.RegisterType<SomeClass>(opt);
 
 			S.Globals.Set("myobj", UserData.Create(obj));
@@ -233,6 +234,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 			SomeClass obj = new SomeClass();
 
+			UserData.UnregisterType<SomeClass>();
 			UserData.RegisterType<SomeClass>(opt);
 
 			S.Globals.Set("myobj", UserData.Create(obj));
@@ -257,6 +259,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 			SomeClass obj = new SomeClass();
 
+			UserData.UnregisterType<SomeClass>();
 			UserData.RegisterType<SomeClass>(opt);
 
 			S.Globals["mytype"] = typeof(SomeClass);
@@ -282,6 +285,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 			SomeClass obj = new SomeClass();
 
+			UserData.UnregisterType<SomeClass>();
 			UserData.RegisterType<SomeClass>(opt);
 
 			S.Globals["static"] = typeof(SomeClass);
@@ -504,6 +508,8 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 			Script S = new Script();
 
+			UserData.UnregisterType<Interface1>();
+			UserData.UnregisterType<Interface2>();
 			UserData.RegisterType<Interface1>();
 			UserData.RegisterType<Interface2>();
 
@@ -535,6 +541,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 			SomeClass obj = new SomeClass();
 
+			UserData.UnregisterType<SomeClass>();
 			UserData.RegisterType<SomeClass>();
 
 			S.Globals.Set("myobj", UserData.Create(obj));
@@ -563,6 +570,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 			SelfDescribingClass obj = new SelfDescribingClass();
 
+			UserData.UnregisterType<SelfDescribingClass>();
 			UserData.RegisterType<SelfDescribingClass>();
 
 			S.Globals.Set("myobj", UserData.Create(obj));
@@ -603,4 +611,3 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 	}
 }
 
-#endif

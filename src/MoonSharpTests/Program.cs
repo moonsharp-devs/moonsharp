@@ -11,12 +11,14 @@ using MoonSharp.Interpreter.Tests;
 using NUnit.Framework;
 using System.Diagnostics;
 using System.IO;
+using MoonSharp.Interpreter.RuntimeAbstraction;
 
 namespace MoonSharpTests
 {
 	class Program
 	{
 		public const string RESTRICT_TEST = null; //"ClosureNoTable";
+		public const string LOG_ON_FILE = "moonsharp_tests.log";
 
 
 		static void Main(string[] args)
@@ -25,7 +27,10 @@ namespace MoonSharpTests
 			{
 				TestRunner T = new TestRunner(Log);
 
-				//File.WriteAllText("moonsharp_tests.log", "");
+				if (LOG_ON_FILE != null)
+					File.WriteAllText(LOG_ON_FILE, "");
+
+				Console_WriteLine("Running on AOT : {0}", Platform.Current.IsAOT());
 
 				T.Test(RESTRICT_TEST);
 
@@ -75,8 +80,11 @@ namespace MoonSharpTests
 
 			Console.WriteLine(txt);
 
-			//File.AppendAllText("moonsharp_tests.log", txt);
-			//File.AppendAllText("moonsharp_tests.log", "\n\n");
+			if (LOG_ON_FILE != null)
+			{
+				File.AppendAllText(LOG_ON_FILE, txt);
+				File.AppendAllText(LOG_ON_FILE, "\n\n");
+			}
 		}
 
 

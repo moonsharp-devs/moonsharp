@@ -30,7 +30,7 @@ namespace PerformanceComparison
 			function move(n, src, dst, via)
 				if n > 0 then
 					move(n - 1, src, via, dst)
-					check(src, 'to', dst)
+					--check(src, 'to', dst)
 					move(n - 1, via, dst, src)
 				end
 			end
@@ -123,7 +123,7 @@ end
 		static Lua lua = new Lua();
 		static string testString = "world";
 
-		static void xxMain(string[] args)
+		static void Main(string[] args)
 		{
 			Script.WarmUp();
 

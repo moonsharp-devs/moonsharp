@@ -167,17 +167,17 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		public Instruction Emit_Enter(RuntimeScopeBlock runtimeScopeBlock)
 		{
-			return AppendInstruction(new Instruction(m_CurrentSourceRef) { OpCode = OpCode.Enter, NumVal = runtimeScopeBlock.From, NumVal2 = runtimeScopeBlock.ToInclusive });
+			return AppendInstruction(new Instruction(m_CurrentSourceRef) { OpCode = OpCode.Clean, NumVal = runtimeScopeBlock.From, NumVal2 = runtimeScopeBlock.ToInclusive });
 		}
 
 		public Instruction Emit_Leave(RuntimeScopeBlock runtimeScopeBlock)
 		{
-			return AppendInstruction(new Instruction(m_CurrentSourceRef) { OpCode = OpCode.Leave, NumVal = runtimeScopeBlock.From, NumVal2 = runtimeScopeBlock.To });
+			return AppendInstruction(new Instruction(m_CurrentSourceRef) { OpCode = OpCode.Clean, NumVal = runtimeScopeBlock.From, NumVal2 = runtimeScopeBlock.To });
 		}
 
 		public Instruction Emit_Exit(RuntimeScopeBlock runtimeScopeBlock)
 		{
-			return AppendInstruction(new Instruction(m_CurrentSourceRef) { OpCode = OpCode.Exit, NumVal = runtimeScopeBlock.From, NumVal2 = runtimeScopeBlock.ToInclusive });
+			return AppendInstruction(new Instruction(m_CurrentSourceRef) { OpCode = OpCode.Clean, NumVal = runtimeScopeBlock.From, NumVal2 = runtimeScopeBlock.ToInclusive });
 		}
 
 		public Instruction Emit_Clean(RuntimeScopeBlock runtimeScopeBlock)

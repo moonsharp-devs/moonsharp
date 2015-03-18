@@ -71,6 +71,13 @@ namespace MoonSharp.Interpreter.RuntimeAbstraction
 		public abstract CoreModules FilterSupportedCoreModules(CoreModules module);
 
 
+		public virtual bool IsAOT()
+		{
+			return false;
+		}
+
+
+
 		public bool AreCoreModulesFullySupported(CoreModules modules)
 		{
 			return FilterSupportedCoreModules(modules) == modules;

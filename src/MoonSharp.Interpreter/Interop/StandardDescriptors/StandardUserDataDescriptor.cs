@@ -20,6 +20,9 @@ namespace MoonSharp.Interpreter.Interop
 
 		protected internal StandardUserDataDescriptor(Type type, InteropAccessMode accessMode, string friendlyName)
 		{
+			if (MoonSharp.Interpreter.RuntimeAbstraction.Platform.Current.IsAOT())
+				accessMode = InteropAccessMode.Reflection;
+
 			if (accessMode == InteropAccessMode.Default)
 				accessMode = UserData.DefaultAccessMode;
 

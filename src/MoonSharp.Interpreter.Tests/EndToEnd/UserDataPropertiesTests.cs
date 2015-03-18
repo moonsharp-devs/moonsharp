@@ -36,7 +36,8 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			Script S = new Script();
 
 			SomeClass obj = new SomeClass() {  IntProp = 321 };
-			
+
+			UserData.UnregisterType<SomeClass>();
 			UserData.RegisterType<SomeClass>(opt);
 
 			S.Globals.Set("myobj", UserData.Create(obj));
@@ -59,6 +60,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			SomeClass obj1 = new SomeClass() { NIntProp = 321 };
 			SomeClass obj2 = new SomeClass() { NIntProp = null };
 
+			UserData.UnregisterType<SomeClass>();
 			UserData.RegisterType<SomeClass>(opt);
 
 			S.Globals.Set("myobj1", UserData.Create(obj1));
@@ -85,6 +87,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			SomeClass obj1 = new SomeClass() { ObjProp="ciao" };
 			SomeClass obj2 = new SomeClass() { ObjProp = obj1 };
 
+			UserData.UnregisterType<SomeClass>();
 			UserData.RegisterType<SomeClass>(opt);
 
 			S.Globals.Set("myobj1", UserData.Create(obj1));
@@ -110,6 +113,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 			SomeClass obj = new SomeClass() { IntProp = 321 };
 
+			UserData.UnregisterType<SomeClass>();
 			UserData.RegisterType<SomeClass>(opt);
 
 			S.Globals.Set("myobj", UserData.Create(obj));
@@ -132,6 +136,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			SomeClass obj1 = new SomeClass() { NIntProp = 321 };
 			SomeClass obj2 = new SomeClass() { NIntProp = null };
 
+			UserData.UnregisterType<SomeClass>();
 			UserData.RegisterType<SomeClass>(opt);
 
 			S.Globals.Set("myobj1", UserData.Create(obj1));
@@ -157,6 +162,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			SomeClass obj1 = new SomeClass() { ObjProp = "ciao" };
 			SomeClass obj2 = new SomeClass() { ObjProp = obj1 };
 
+			UserData.UnregisterType<SomeClass>();
 			UserData.RegisterType<SomeClass>(opt);
 
 			S.Globals.Set("myobj1", UserData.Create(obj1));
@@ -180,6 +186,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 			SomeClass obj = new SomeClass() { IntProp = 321 };
 
+			UserData.UnregisterType<SomeClass>();
 			UserData.RegisterType<SomeClass>(opt);
 
 			S.Globals.Set("myobj", UserData.Create(obj));
@@ -200,6 +207,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 			SomeClass.StaticProp = "qweqwe";
 
+			UserData.UnregisterType<SomeClass>();
 			UserData.RegisterType<SomeClass>(opt);
 
 			S.Globals.Set("static", UserData.CreateStatic<SomeClass>());
@@ -225,6 +233,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 			SomeClass obj = new SomeClass();
 
+			UserData.UnregisterType<SomeClass>();
 			UserData.RegisterType<SomeClass>(opt);
 
 			S.Globals.Set("myobj", UserData.Create(obj));
@@ -412,6 +421,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 			SomeClass obj = new SomeClass() { IntProp = 321 };
 
+			UserData.UnregisterType<SomeClass>();
 			UserData.RegisterType<SomeClass>();
 
 			S.Globals["myobj"] = obj;

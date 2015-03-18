@@ -53,8 +53,25 @@ namespace MoonSharp.Interpreter
 		/// </summary>
 		public bool UseLuaErrorLocations { get; set; }
 
+		/// <summary>
+		/// Gets or sets a value indicating whether the script(s) will execute in an AOT environment like Mono --full-aot.
+		/// This usually should be set in the Script.DefaultOptions rather than in the single options of each script.
+		/// </summary>
+		public bool AotExecutionMode { get; set; }
+
+		/// <summary>
+		/// Gets or sets the stream used as stdin. If null, a default console stream is used.
+		/// </summary>
 		public Stream Stdin { get; set; }
+
+		/// <summary>
+		/// Gets or sets the stream used as stdout. If null, a default console stream is used.
+		/// </summary>
 		public Stream Stdout { get; set; }
+
+		/// <summary>
+		/// Gets or sets the stream used as stderr. If null, a default console stream is used.
+		/// </summary>
 		public Stream Stderr { get; set; }
 
 		/// <summary>

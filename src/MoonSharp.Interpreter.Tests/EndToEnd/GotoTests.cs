@@ -179,5 +179,42 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			Assert.AreEqual(3, res.Number);
 		}
 
+		[Test]
+		public void Goto_JumpOutOfScopes()
+		{
+			string script = @"
+				local u = 4
+
+				do
+					local x = 5
+					do
+						local y = 6
+						do
+							goto out
+							local z = 7
+						end
+		
+					end
+				end
+
+				::out::
+
+				do 
+					local a
+					local b = 55
+
+					if (a == nil) then
+						b = b + 12
+					end
+
+					return b
+				end
+
+			";
+
+			DynValue res = Script.RunString(script);
+			Assert.AreEqual(DataType.Number, res.Type);
+			Assert.AreEqual(67, res.Number);
+		}
 	}
 }

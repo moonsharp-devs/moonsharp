@@ -137,11 +137,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 						case OpCode.MkTuple:
 							ExecMkTuple(i);
 							break;
-						case OpCode.Enter:
-							NilifyBlockData(i);
-							break;
-						case OpCode.Leave:
-						case OpCode.Exit:
 						case OpCode.Clean:
 							ClearBlockData(i);
 							break;

@@ -9,7 +9,7 @@ namespace MoonSharp.Interpreter.RuntimeAbstraction
 	{
 		public override string Name
 		{
-			get { return "xamarin-android"; }
+			get { return DecorateName("xamarin-android"); }
 		}
 
 		public override CoreModules FilterSupportedCoreModules(CoreModules module)

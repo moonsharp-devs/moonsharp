@@ -10,7 +10,7 @@ namespace PerformanceComparison
 {
 	public class HugeFile
 	{
-		static void Main(string[] args)
+		static void xxMain(string[] args)
 		{
 			Console.WriteLine("Started...");
 			Script.WarmUp();

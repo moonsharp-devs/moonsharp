@@ -8,20 +8,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 {
 	sealed partial class Processor
 	{
-		private void NilifyBlockData(Instruction I)
-		{
-			int from = I.NumVal;
-			int to = I.NumVal2;
-
-			var array = this.m_ExecutionStack.Peek().LocalScope;
-
-			if (to >= 0 && from >= 0)
-			{
-				for (int i = from; i <= to; i++)
-					array[i] = DynValue.NewNil();
-			}
-		}
-
 		private void ClearBlockData(Instruction I)
 		{
 			int from = I.NumVal;
@@ -29,7 +15,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 			var array = this.m_ExecutionStack.Peek().LocalScope;
 
-			if (to >= 0 && from >= 0)
+			if (to >= 0 && from >= 0 && to >= from)
 			{
 				Array.Clear(array, from, to - from + 1);
 			}
