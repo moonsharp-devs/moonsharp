@@ -63,7 +63,6 @@ namespace MoonSharp.Interpreter.Interop.LuaStateInterop
 			set { chars[index + offset] = value; }
 		}
 
-		[CLSCompliantAttribute(false)]
 		public char this[uint offset]
 		{
 			get { return chars[index + offset]; }
@@ -134,9 +133,7 @@ namespace MoonSharp.Interpreter.Interop.LuaStateInterop
 
 		public static CharPtr operator +(CharPtr ptr, int offset) { return new CharPtr(ptr.chars, ptr.index + offset); }
 		public static CharPtr operator -(CharPtr ptr, int offset) { return new CharPtr(ptr.chars, ptr.index - offset); }
-		[CLSCompliantAttribute(false)]
 		public static CharPtr operator +(CharPtr ptr, uint offset) { return new CharPtr(ptr.chars, ptr.index + (int)offset); }
-		[CLSCompliantAttribute(false)]
 		public static CharPtr operator -(CharPtr ptr, uint offset) { return new CharPtr(ptr.chars, ptr.index - (int)offset); }
 
 		public void inc() { this.index++; }

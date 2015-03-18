@@ -11,6 +11,7 @@ namespace MoonSharp.Interpreter.CoreLib
 	[MoonSharpModule(Namespace = "os")]
 	public class OsSystemModule
 	{
+#if !PCL
 		[MoonSharpMethod]
 		public static DynValue execute(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
@@ -61,7 +62,7 @@ namespace MoonSharp.Interpreter.CoreLib
 		{
 			DynValue varName = args.AsType(0, "getenv", DataType.String, false);
 
-			string val = Environment.GetEnvironmentVariable(varName.String);
+			string val = Script.Platform.GetEnvironmentVariable(varName.String);
 
 			if (val == null)
 				return DynValue.Nil;
@@ -130,6 +131,6 @@ namespace MoonSharp.Interpreter.CoreLib
 		{
 			return DynValue.NewString(Path.GetTempFileName());
 		}
-
+#endif
 	}
 }

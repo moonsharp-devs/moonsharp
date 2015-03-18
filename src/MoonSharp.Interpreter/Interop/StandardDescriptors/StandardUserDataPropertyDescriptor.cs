@@ -22,7 +22,7 @@ namespace MoonSharp.Interpreter.Interop
 
 		internal StandardUserDataPropertyDescriptor(PropertyInfo pi, InteropAccessMode accessMode)
 		{
-			if (MoonSharp.Interpreter.RuntimeAbstraction.Platform.Current.IsAOT())
+			if (Script.Platform.IsRunningOnAOT())
 				accessMode = InteropAccessMode.Reflection;
 
 			this.PropertyInfo = pi;
@@ -45,7 +45,6 @@ namespace MoonSharp.Interpreter.Interop
 
 			if (m_OptimizedGetter != null)
 			{
-				Console.WriteLine("OPTIM!");
 				return m_OptimizedGetter(obj);
 			}
 

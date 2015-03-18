@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("LexerTestBed")]
+[assembly: AssemblyTitle("MoonSharp.Interpreter.net40-client")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("LexerTestBed")]
+[assembly: AssemblyProduct("MoonSharp.Interpreter.net40-client")]
 [assembly: AssemblyCopyright("Copyright ©  2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("c21d5fa2-176d-413c-85bc-9e87b502d4bf")]
+[assembly: Guid("eb83d8ed-c31a-4c98-94f3-ca5a0f192867")]
 
 // Version information for an assembly consists of the following four values:
 //

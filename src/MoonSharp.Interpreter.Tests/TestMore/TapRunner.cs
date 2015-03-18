@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using MoonSharp.Interpreter.CoreLib;
 using MoonSharp.Interpreter.Execution;
-using MoonSharp.Interpreter.Loaders;
+using MoonSharp.Interpreter.Platforms;
 using NUnit.Framework;
 
 namespace MoonSharp.Interpreter.Tests
@@ -28,22 +28,14 @@ namespace MoonSharp.Interpreter.Tests
 		{
 			Script S = new Script();
 
-			//S.Globals["print"] = DynValue.NewCallback(Print);
 			S.Options.DebugPrint = Print;
 
 			S.Options.UseLuaErrorLocations = true;
 
 			S.Globals.Set("arg", DynValue.NewTable(S));
 
-			ClassicLuaScriptLoader L = S.Options.ScriptLoader as ClassicLuaScriptLoader;
+			S.Options.ModulesPaths = new string[] { "TestMore/Modules/?", "TestMore/Modules/?.lua" };
 
-			if (L == null)
-			{
-				L = new ClassicLuaScriptLoader();
-				S.Options.ScriptLoader = L;
-			}
-
-			L.ModulePaths = L.UnpackStringPaths("TestMore/Modules/?;TestMore/Modules/?.lua");
 			S.DoFile(m_File);
 		}
 

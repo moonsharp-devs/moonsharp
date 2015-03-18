@@ -106,9 +106,9 @@
     <Compile Include="Units\InteropTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MoonSharp.Interpreter\MoonSharp.Interpreter.csproj">
+    <ProjectReference Include="..\MoonSharp.Interpreter\MoonSharp.Interpreter.net35-client.csproj">
       <Project>{91ea9b9d-fe03-4273-bdaf-8ad42ede1e59}</Project>
-      <Name>MoonSharp.Interpreter</Name>
+      <Name>MoonSharp.Interpreter.net35-client</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

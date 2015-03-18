@@ -6,7 +6,6 @@ using System.Text;
 using MoonSharp.Interpreter.CoreLib;
 using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Interop;
-using MoonSharp.Interpreter.RuntimeAbstraction;
 
 namespace MoonSharp.Interpreter
 {
@@ -14,7 +13,7 @@ namespace MoonSharp.Interpreter
 	{
 		public static Table RegisterCoreModules(this Table table, CoreModules modules)
 		{
-			modules = Platform.Current.FilterSupportedCoreModules(modules);
+			modules = Script.Platform.FilterSupportedCoreModules(modules);
 
 			if (modules.Has(CoreModules.GlobalConsts)) RegisterConstants(table);
 			if (modules.Has(CoreModules.TableIterators)) RegisterModuleType<TableIteratorsModule>(table);
@@ -50,7 +49,7 @@ namespace MoonSharp.Interpreter
 
 			m.Set("version", DynValue.NewString(Script.VERSION));
 			m.Set("luacompat", DynValue.NewString(Script.LUA_VERSION));
-			m.Set("platform", DynValue.NewString(Platform.Current.Name));
+			// m.Set("platform", DynValue.NewString(Platform.Current.Name)); +++
 
 			return table;
 		}
@@ -61,7 +60,7 @@ namespace MoonSharp.Interpreter
 		{
 			Table table = CreateModuleNamespace(gtable, t);
 
-			foreach (MethodInfo mi in t.GetMethods(BindingFlags.Static | BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.NonPublic))
+			foreach (MethodInfo mi in t.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic))
 			{
 				if (mi.GetCustomAttributes(typeof(MoonSharpMethodAttribute), false).Length > 0)
 				{
@@ -83,14 +82,14 @@ namespace MoonSharp.Interpreter
 				}
 			}
 
-			foreach (FieldInfo fi in t.GetFields(BindingFlags.Static | BindingFlags.GetField | BindingFlags.Public | BindingFlags.NonPublic).Where(_mi => _mi.GetCustomAttributes(typeof(MoonSharpMethodAttribute), false).Length > 0))
+			foreach (FieldInfo fi in t.GetFields(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic).Where(_mi => _mi.GetCustomAttributes(typeof(MoonSharpMethodAttribute), false).Length > 0))
 			{
 				MoonSharpMethodAttribute attr = (MoonSharpMethodAttribute)fi.GetCustomAttributes(typeof(MoonSharpMethodAttribute), false).First();
 				string name = (!string.IsNullOrEmpty(attr.Name)) ? attr.Name : fi.Name;
 
 				RegisterScriptField(fi, null, table, t, name);
 			}
-			foreach (FieldInfo fi in t.GetFields(BindingFlags.Static | BindingFlags.GetField | BindingFlags.Public | BindingFlags.NonPublic).Where(_mi => _mi.GetCustomAttributes(typeof(MoonSharpConstantAttribute), false).Length > 0))
+			foreach (FieldInfo fi in t.GetFields(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic).Where(_mi => _mi.GetCustomAttributes(typeof(MoonSharpConstantAttribute), false).Length > 0))
 			{
 				MoonSharpConstantAttribute attr = (MoonSharpConstantAttribute)fi.GetCustomAttributes(typeof(MoonSharpConstantAttribute), false).First();
 				string name = (!string.IsNullOrEmpty(attr.Name)) ? attr.Name : fi.Name;

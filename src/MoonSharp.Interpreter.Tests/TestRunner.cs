@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using MoonSharp.Interpreter.RuntimeAbstraction;
 using NUnit.Framework;
 
 namespace MoonSharp.Interpreter.Tests
@@ -34,7 +33,7 @@ namespace MoonSharp.Interpreter.Tests
 		{
 			this.loggerAction = loggerAction;
 
-			Console_WriteLine("MoonSharp Test Suite Runner - {0} [{1}]", Script.VERSION, Platform.Current.Name);
+			Console_WriteLine("MoonSharp Test Suite Runner - {0} [{1}]", Script.VERSION, Script.Platform.GetPlatformName());
 			Console_WriteLine("http://www.moonsharp.org");
 			Console_WriteLine("");
 		}

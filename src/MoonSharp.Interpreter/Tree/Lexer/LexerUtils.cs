@@ -188,7 +188,7 @@ namespace MoonSharp.Interpreter.Tree
 							if (c == '}')
 							{
 								int i = int.Parse(val, NumberStyles.HexNumber, CultureInfo.InvariantCulture);
-								sb.Append(char.ConvertFromUtf32(i));
+								sb.Append(ConvertUtf32ToChar(i));
 								unicode_state = 0;
 								val = string.Empty;
 								escape = false;
@@ -210,7 +210,7 @@ namespace MoonSharp.Interpreter.Tree
 								if (val.Length == 2)
 								{
 									int i = int.Parse(val, NumberStyles.HexNumber, CultureInfo.InvariantCulture);
-									sb.Append(char.ConvertFromUtf32(i));
+									sb.Append(ConvertUtf32ToChar(i));
 									zmode = false;
 									escape = false;
 								}
@@ -234,7 +234,7 @@ namespace MoonSharp.Interpreter.Tree
 								if (i > 255)
 									throw new SyntaxErrorException(token, "decimal escape too large near '\\{0}'", val);
 
-								sb.Append(char.ConvertFromUtf32(i));
+								sb.Append(ConvertUtf32ToChar(i));
 
 								zmode = false;
 								escape = false;
@@ -267,7 +267,7 @@ namespace MoonSharp.Interpreter.Tree
 			if (escape && !hex && val.Length > 0)
 			{
 				int i = int.Parse(val, CultureInfo.InvariantCulture);
-				sb.Append(char.ConvertFromUtf32(i));
+				sb.Append(ConvertUtf32ToChar(i));
 				escape = false;
 			}
 
@@ -278,5 +278,15 @@ namespace MoonSharp.Interpreter.Tree
 
 			return sb.ToString();
 		}
+
+		private static string ConvertUtf32ToChar(int i)
+		{
+#if PCL
+			return ((char)i).ToString();
+#else
+			return char.ConvertFromUtf32(i);
+#endif
+		}
+
 	}
 }

@@ -75,9 +75,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MoonSharp.Interpreter\MoonSharp.Interpreter.csproj">
+    <ProjectReference Include="..\MoonSharp.Interpreter\MoonSharp.Interpreter.net35-client.csproj">
       <Project>{91ea9b9d-fe03-4273-bdaf-8ad42ede1e59}</Project>
-      <Name>MoonSharp.Interpreter</Name>
+      <Name>MoonSharp.Interpreter.net35-client</Name>
     </ProjectReference>
     <ProjectReference Include="..\MoonSharp.RemoteDebugger\MoonSharp.RemoteDebugger.csproj">
       <Project>{43d3ad52-fed5-4305-b0f4-6b991220cd0a}</Project>

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using MoonSharp.Interpreter.RuntimeAbstraction;
 using NUnit.Framework;
 
 namespace MoonSharp.Interpreter.Tests
@@ -249,17 +248,23 @@ namespace MoonSharp.Interpreter.Tests
 		[Test]
 		public void TestMore_308_io()
 		{
-			if (!Platform.Current.AreCoreModulesFullySupported(CoreModules.OS_System | CoreModules.IO))
+			if(!AreCoreModulesFullySupported(CoreModules.OS_System | CoreModules.IO))
 				throw new SkipThisTestException();
 
 			TapRunner.Run(@"TestMore/308-io.t");
+		}
+
+		private bool AreCoreModulesFullySupported(CoreModules modules)
+		{
+			CoreModules supp = Script.Platform.FilterSupportedCoreModules(modules);
+			return supp == modules;
 		}
 
 
 		[Test]
 		public void TestMore_309_os()
 		{
-			if (!Platform.Current.AreCoreModulesFullySupported(CoreModules.OS_System | CoreModules.IO))
+			if (!AreCoreModulesFullySupported(CoreModules.OS_System | CoreModules.IO))
 				throw new SkipThisTestException();
 
 			TapRunner.Run(@"TestMore/309-os.t");

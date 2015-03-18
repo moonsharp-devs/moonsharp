@@ -291,12 +291,6 @@ namespace MoonSharp.Interpreter.Interop.LuaStateInterop
 			}
 		}
 		#endregion
-		#region printf
-		public static void printf(string Format, params object[] Parameters)
-		{
-			Console.Write(Tools.sprintf(Format, Parameters));
-		}
-		#endregion
 		#region fprintf
 		public static void fprintf(TextWriter Destination, string Format, params object[] Parameters)
 		{
@@ -585,7 +579,7 @@ namespace MoonSharp.Interpreter.Interop.LuaStateInterop
 					#region p - pointer
 					case 'p':   // pointer
 						if (o is IntPtr)
-#if XBOX || SILVERLIGHT
+#if PCL
 							w = ( (IntPtr)o ).ToString();
 #else
 							w = "0x" + ((IntPtr)o).ToString("x");

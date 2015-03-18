@@ -72,7 +72,7 @@ namespace MoonSharp.Debugger
 
 			var L = new ClassicLuaScriptLoader();
 			L.ModulePaths = L.UnpackStringPaths("Modules/?;Modules/?.lua");
-			m_Script.Options.ScriptLoader = L;
+			m_Script.Options.FileSystemAccessor = L;
 
 			try
 			{

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using MoonSharp.Interpreter.Loaders;
+using MoonSharp.Interpreter.Platforms;
 
 namespace MoonSharp.Interpreter
 {
@@ -14,28 +14,23 @@ namespace MoonSharp.Interpreter
 	{
 		internal ScriptOptions()
 		{
-			
+
 		}
 
 		internal ScriptOptions(ScriptOptions defaults)
 		{
 			this.DebugInput = defaults.DebugInput;
 			this.DebugPrint = defaults.DebugPrint;
-			this.ScriptLoader = defaults.ScriptLoader;
+
+			this.UseLuaErrorLocations = defaults.UseLuaErrorLocations;
+			this.Stdin = defaults.Stdin;
+			this.Stdout = defaults.Stdout;
+			this.Stderr = defaults.Stderr;
+			this.ModulesPaths = defaults.ModulesPaths;
+
+			this.CheckThreadAccess = defaults.CheckThreadAccess;
 		}
 
-
-		/// <summary>
-		/// Gets or sets the script loader to use. A script loader wraps all code loading from files, so that access
-		/// to the filesystem can be completely overridden.
-		/// </summary>
-		/// <value>
-		/// The current script loader.
-		/// </value>
-		public IScriptLoader ScriptLoader
-		{
-			get; set;
-		}
 
 		/// <summary>
 		/// Gets or sets the debug print handler
@@ -54,25 +49,31 @@ namespace MoonSharp.Interpreter
 		public bool UseLuaErrorLocations { get; set; }
 
 		/// <summary>
-		/// Gets or sets a value indicating whether the script(s) will execute in an AOT environment like Mono --full-aot.
-		/// This usually should be set in the Script.DefaultOptions rather than in the single options of each script.
-		/// </summary>
-		public bool AotExecutionMode { get; set; }
-
-		/// <summary>
-		/// Gets or sets the stream used as stdin. If null, a default console stream is used.
+		/// Gets or sets the stream used as stdin. If null, a default stream is used.
 		/// </summary>
 		public Stream Stdin { get; set; }
 
 		/// <summary>
-		/// Gets or sets the stream used as stdout. If null, a default console stream is used.
+		/// Gets or sets the stream used as stdout. If null, a default stream is used.
 		/// </summary>
 		public Stream Stdout { get; set; }
 
 		/// <summary>
-		/// Gets or sets the stream used as stderr. If null, a default console stream is used.
+		/// Gets or sets the stream used as stderr. If null, a default stream is used.
 		/// </summary>
 		public Stream Stderr { get; set; }
+
+
+		/// <summary>
+		/// Gets or sets the modules paths used by the "require" function. If null, the default paths are used (using
+		/// environment variables etc.). Note that this behaviour is subject to the implementation of the current
+		/// Platform.
+		/// </summary>
+		/// <value>
+		/// The modules path.
+		/// </value>
+		public string[] ModulesPaths { get; set; }
+
 
 		/// <summary>
 		/// Gets or sets a value indicating whether the thread check is enabled.
@@ -85,6 +86,46 @@ namespace MoonSharp.Interpreter
 		/// you are not calling MoonSharp execution concurrently as it is not supported.
 		/// </summary>
 		public bool CheckThreadAccess { get; set; }
+
+
+
+
+
+		/// <summary>
+		/// Unpacks a string path to an array
+		/// </summary>
+		public static string[] UnpackStringPaths(string str)
+		{
+			return str.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries)
+				.Select(s => s.Trim())
+				.Where(s => !string.IsNullOrEmpty(s))
+				.ToArray();
+		}
+
+		/// <summary>
+		/// Gets the default environment paths.
+		/// </summary>
+		internal static string[] GetDefaultEnvironmentPaths()
+		{
+			string[] modulePaths = null;
+
+			if (modulePaths == null)
+			{
+				string env = Script.Platform.GetEnvironmentVariable("MOONSHARP_PATH");
+				if (!string.IsNullOrEmpty(env)) modulePaths = UnpackStringPaths(env);
+
+				if (modulePaths == null)
+				{
+					env = Script.Platform.GetEnvironmentVariable("LUA_PATH");
+					if (!string.IsNullOrEmpty(env)) modulePaths = UnpackStringPaths(env);
+				}
+
+				if (modulePaths == null)
+					modulePaths = UnpackStringPaths("?;?.lua");
+			}
+
+			return modulePaths;
+		}
 
 	}
 }

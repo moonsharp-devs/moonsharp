@@ -11,7 +11,7 @@ using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Execution.VM;
 using MoonSharp.Interpreter.Interop;
 using MoonSharp.Interpreter.IO;
-using MoonSharp.Interpreter.Loaders;
+using MoonSharp.Interpreter.Platforms;
 using MoonSharp.Interpreter.Tree;
 using MoonSharp.Interpreter.Tree.Expressions;
 using MoonSharp.Interpreter.Tree.Fast_Interface;
@@ -42,16 +42,29 @@ namespace MoonSharp.Interpreter
 		IDebugger m_Debugger;
 		Table[] m_TypeMetatables = new Table[(int)LuaTypeExtensions.MaxMetaTypes];
 
+		/// <summary>
+		/// Initializes the <see cref="Script"/> class.
+		/// </summary>
 		static Script()
 		{
+			Platform = PlatformAutoSelector.GetDefaultPlatform();
+
 			DefaultOptions = new ScriptOptions()
 			{
-				ScriptLoader = new ClassicLuaScriptLoader(),
-				DebugPrint = s => { Console.WriteLine(s); },
-				DebugInput = () => { return Console.ReadLine(); },
+				DebugPrint = s => { Script.Platform.DefaultPrint(s); },
+				DebugInput = () => { return Script.Platform.DefaultInput(); },
 				CheckThreadAccess = true,
+				ModulesPaths = ScriptOptions.GetDefaultEnvironmentPaths()
 			};
 		}
+
+		/// <summary>
+		/// Gets or sets the platform abstraction to use.
+		/// </summary>
+		/// <value>
+		/// The current platform abstraction.
+		/// </value>
+		public static IPlatformAccessor Platform { get; set; }
 
 
 		/// <summary>
@@ -267,8 +280,7 @@ namespace MoonSharp.Interpreter
 		/// </returns>
 		public DynValue LoadFile(string filename, Table globalContext = null, string friendlyFilename = null)
 		{
-			filename = Options.ScriptLoader.ResolveFileName(filename, globalContext ?? m_GlobalTable);
-			object code = Options.ScriptLoader.LoadFile(filename, globalContext ?? m_GlobalTable);
+			object code = Platform.LoadFile(this, filename, globalContext ?? m_GlobalTable);
 
 			if (code is string)
 			{
@@ -563,7 +575,7 @@ namespace MoonSharp.Interpreter
 		public DynValue RequireModule(string modname, Table globalContext = null)
 		{
 			Table globals = globalContext ?? m_GlobalTable;
-			string filename = Options.ScriptLoader.ResolveModuleName(modname, globals);
+			string filename = Platform.ResolveModuleName(this, modname, globals);
 
 			if (filename == null)
 				throw new ScriptRuntimeException("module '{0}' not found", modname);

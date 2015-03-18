@@ -27,7 +27,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <NoWarn>3021, 1591</NoWarn>
@@ -168,7 +168,6 @@
     <Compile Include="Execution\VM\Processor\DebugContext.cs" />
     <Compile Include="Execution\VM\Processor\Processor_Coroutines.cs" />
     <Compile Include="Execution\VM\Processor\Processor_Errors.cs" />
-    <Compile Include="Interface\IteratorHelper.cs" />
     <Compile Include="Interop\Converters\ConversionHelper.cs" />
     <Compile Include="Interop\PredefinedUserData\EnumerableWrapper.cs" />
     <Compile Include="Interop\Converters\LinqHelpers.cs" />
@@ -190,7 +189,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Loaders\ClassicLuaScriptLoader.cs" />
-    <Compile Include="Loaders\IScriptLoader.cs" />
+    <Compile Include="Loaders\IFileSystemAccessor.cs" />
     <Compile Include="Execution\Scopes\ClosureContext.cs" />
     <Compile Include="Execution\Scopes\LoopTracker.cs" />
     <Compile Include="Execution\Scopes\IClosureBuilder.cs" />
@@ -204,20 +203,19 @@
     <Compile Include="Execution\ScriptLoadingContext.cs" />
     <Compile Include="DataTypes\DataType.cs" />
     <Compile Include="Modules\MoonSharpConstantAttribute.cs" />
-    <Compile Include="RuntimeAbstraction\PlatformImplementations\Clr2Platform.cs" />
-    <Compile Include="RuntimeAbstraction\PlatformImplementations\Clr4Platform.cs" />
-    <Compile Include="RuntimeAbstraction\Platform.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="RuntimeAbstraction\PlatformImplementations\MonoPlatform.cs" />
-    <Compile Include="RuntimeAbstraction\PlatformImplementations\UnityPlatform.cs" />
-    <Compile Include="RuntimeAbstraction\PlatformImplementations\UnityWebPlatform.cs" />
-    <Compile Include="RuntimeAbstraction\PlatformImplementations\XamarinAndroidPlatform.cs" />
+    <Compile Include="Platforms\IPlatformAccessor.cs" />
+    <Compile Include="Platforms\PlatformAccessorBase.cs" />
+    <Compile Include="Platforms\PlatformAutoSelector.cs" />
+    <Compile Include="Platforms\SandboxedPlatformAccessor.cs" />
+    <Compile Include="Platforms\StandardFileType.cs" />
+    <Compile Include="Platforms\StandardPlatformAccessor.cs" />
+    <Compile Include="RuntimeAbstraction\PortableWrappers\Attributes.cs" />
+    <Compile Include="RuntimeAbstraction\PortableWrappers\ExtensionMethods.cs" />
+    <Compile Include="RuntimeAbstraction\PortableWrappers\Stopwatch.cs" />
     <Compile Include="Script.cs" />
     <Compile Include="DataTypes\Table.cs" />
     <Compile Include="Execution\VM\ByteCode.cs" />
     <Compile Include="DataStructs\FastStack.cs" />
-    <Compile Include="Execution\VM\LoopTracker.cs" />
     <Compile Include="Execution\VM\Instruction.cs" />
     <Compile Include="Execution\VM\OpCode.cs" />
     <Compile Include="Execution\VM\CallStackItem.cs" />
@@ -258,7 +256,6 @@
     <Compile Include="Tree\Expression_.cs" />
     <Compile Include="Tree\Expressions\SymbolRefExpression.cs" />
     <Compile Include="Tree\Lexer\Lexer.cs" />
-    <Compile Include="Tree\Lexer\LexerBackDoor.cs" />
     <Compile Include="Tree\Lexer\Token.cs" />
     <Compile Include="Tree\Lexer\TokenType.cs" />
     <Compile Include="Tree\Loop.cs" />

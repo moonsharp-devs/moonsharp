@@ -26,7 +26,7 @@ namespace MoonSharp.Interpreter.Interop
 
 		public StandardUserDataMethodDescriptor(MethodBase mi, InteropAccessMode accessMode = InteropAccessMode.Default)
 		{
-			if (MoonSharp.Interpreter.RuntimeAbstraction.Platform.Current.IsAOT())
+			if (Script.Platform.IsRunningOnAOT())
 				accessMode = InteropAccessMode.Reflection;
 
 			if (accessMode == InteropAccessMode.Default)
