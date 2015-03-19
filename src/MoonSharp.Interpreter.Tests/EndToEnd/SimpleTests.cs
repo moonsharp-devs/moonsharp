@@ -1387,7 +1387,7 @@ namespace MoonSharp.Interpreter.Tests
 		}
 
 		[Test]
-		[ExpectedException(ExpectedException = typeof(SyntaxErrorException))]
+		[ExpectedException(typeof(SyntaxErrorException))]
 		public void VarArgsInNoVarArgsReturnsError()
 		{
 			string script = @"

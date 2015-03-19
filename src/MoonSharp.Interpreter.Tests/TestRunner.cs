@@ -29,8 +29,12 @@ namespace MoonSharp.Interpreter.Tests
 	{
 		Action<TestResult> loggerAction;
 
+		public static bool IsRunning { get; private set; }
+
 		public TestRunner(Action<TestResult> loggerAction)
 		{
+			IsRunning = true; 
+
 			this.loggerAction = loggerAction;
 
 			Console_WriteLine("MoonSharp Test Suite Runner - {0} [{1}]", Script.VERSION, Script.Platform.GetPlatformName());
@@ -45,7 +49,7 @@ namespace MoonSharp.Interpreter.Tests
 			int total = 0;
 			int skipped = 0;
 
-			Assembly asm = Assembly.GetAssembly(typeof(SimpleTests));
+			Assembly asm = Assembly.GetExecutingAssembly();
 
 			foreach (Type t in asm.GetTypes().Where(t => t.GetCustomAttributes(typeof(TestFixtureAttribute), true).Any()))
 			{
@@ -160,6 +164,12 @@ namespace MoonSharp.Interpreter.Tests
 					};
 				}
 			}
+		}
+
+		internal static void Skip()
+		{
+			if (TestRunner.IsRunning)
+				throw new SkipThisTestException();
 		}
 	}
 }

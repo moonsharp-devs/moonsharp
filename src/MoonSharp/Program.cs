@@ -7,7 +7,6 @@ using System.Reflection;
 using System.Text;
 using MoonSharp.Interpreter;
 using MoonSharp.Interpreter.Execution;
-using MoonSharp.Interpreter.RuntimeAbstraction;
 using MoonSharp.RemoteDebugger;
 using MoonSharp.RemoteDebugger.Network;
 
@@ -20,7 +19,7 @@ namespace MoonSharp
 		[STAThread]
 		static void Main(string[] args)
 		{
-			Console.WriteLine("MoonSharp REPL {0} [{1}]", Script.VERSION, Platform.Current.Name);
+			Console.WriteLine("MoonSharp REPL {0} [{1}]", Script.VERSION, Script.Platform.GetPlatformName());
 			Console.WriteLine("Copyright (C) 2014 Marco Mastropaolo");
 			Console.WriteLine("http://www.moonsharp.org");
 			Console.WriteLine("Based on Lua 5.1 - 5.3, Copyright (C) 1994-2014 Lua.org");

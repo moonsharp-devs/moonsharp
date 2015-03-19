@@ -11,7 +11,7 @@ using MoonSharp.Interpreter.Tests;
 using NUnit.Framework;
 using System.Diagnostics;
 using System.IO;
-using MoonSharp.Interpreter.RuntimeAbstraction;
+using MoonSharp.Interpreter;
 
 namespace MoonSharpTests
 {
@@ -30,7 +30,7 @@ namespace MoonSharpTests
 				if (LOG_ON_FILE != null)
 					File.WriteAllText(LOG_ON_FILE, "");
 
-				Console_WriteLine("Running on AOT : {0}", Platform.Current.IsAOT());
+				Console_WriteLine("Running on AOT : {0}", Script.Platform.IsRunningOnAOT());
 
 				T.Test(RESTRICT_TEST);
 

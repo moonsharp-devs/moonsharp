@@ -94,53 +94,16 @@ namespace SynchProjects
 			const string TESTS_SUBPROJECTS_PATHS = @"C:\git\moonsharp\src\MoonSharp.Interpreter.Tests\_Projects\MoonSharp.Interpreter.Tests.{0}\MoonSharp.Interpreter.Tests.{0}.csproj";
 			const string TESTS_PATH_PREFIX = @"..\..\";
 
-			string[] PLATFORMS = new string[] { "net40-client", "portable40" };
+			string[] INTERPRETER_PLATFORMS = new string[] { "net40-client", "portable40" };
+			string[] TESTS_PLATFORMS = new string[] { "net40-client", "portable40", "Embeddable.portable40" };
 
-			foreach (string platform in PLATFORMS)
+			foreach (string platform in INTERPRETER_PLATFORMS)
 				CopyCompileFilesAsLinks(platform, INTERPRETER_PROJECT, INTERPRETER_SUBPROJECTS_PATHS, INTERPRETER_PATH_PREFIX);
 
-			foreach (string platform in PLATFORMS)
+			foreach (string platform in TESTS_PLATFORMS)
 				CopyCompileFilesAsLinks(platform, TESTS_PROJECT, TESTS_SUBPROJECTS_PATHS, TESTS_PATH_PREFIX);
 
 
-#if false
-			//****************************************************************************
-			//** UNIT TESTS
-			//****************************************************************************
-
-			// Tests - net40
-			CopyCompileFilesAsLinks(@"C:\git\moonsharp\src\Tests\MoonSharp.Interpreter.Tests\MoonSharp.Interpreter.Tests.net35.csproj",
-				@"C:\git\moonsharp\src\Tests\Projects\MoonSharp.Interpreter.Tests.net40\MoonSharp.Interpreter.Tests.net40.csproj",
-				@"..\..\MoonSharp.Interpreter.Tests\");
-
-			// Tests - portable-net40
-			CopyCompileFilesAsLinks(@"C:\git\moonsharp\src\Tests\MoonSharp.Interpreter.Tests\MoonSharp.Interpreter.Tests.net35.csproj",
-				@"C:\git\moonsharp\src\Tests\Projects\MoonSharp.Interpreter.Tests.portable-net40\MoonSharp.Interpreter.Tests.portable-net40.csproj",
-				@"..\..\MoonSharp.Interpreter.Tests\");
-
-			// Tests - net45
-			CopyCompileFilesAsLinks(@"C:\git\moonsharp\src\Tests\MoonSharp.Interpreter.Tests\MoonSharp.Interpreter.Tests.net35.csproj",
-				@"C:\git\moonsharp\src\Tests\Projects\MoonSharp.Interpreter.Tests.net45\MoonSharp.Interpreter.Tests.net45.csproj",
-				@"..\..\MoonSharp.Interpreter.Tests\");
-
-			// Tests - EXTERNAL portable-net45
-			CopyCompileFilesAsLinks(@"C:\git\moonsharp\src\Tests\MoonSharp.Interpreter.Tests\MoonSharp.Interpreter.Tests.net35.csproj",
-				@"C:\git\moonsharp\src\Tests\Projects\MoonSharp.Interpreter.Tests.External.portable-net45\MoonSharp.Interpreter.Tests.External.portable-net45.csproj",
-				@"..\..\MoonSharp.Interpreter.Tests\");
-
-			// Tests - portable-net45
-			CopyCompileFilesAsLinks(@"C:\git\moonsharp\src\Tests\MoonSharp.Interpreter.Tests\MoonSharp.Interpreter.Tests.net35.csproj",
-				@"C:\git\moonsharp\src\Tests\Projects\MoonSharp.Interpreter.Tests.portable-net45\MoonSharp.Interpreter.Tests.portable-net45.csproj",
-				@"..\..\MoonSharp.Interpreter.Tests\");
-
-			// Tests - netcore45
-			CopyCompileFilesAsLinks(@"C:\git\moonsharp\src\Tests\MoonSharp.Interpreter.Tests\MoonSharp.Interpreter.Tests.net35.csproj",
-				@"C:\git\moonsharp\src\Tests\Projects\MoonSharp.Interpreter.Tests.netcore45\MoonSharp.Interpreter.Tests.netcore45.csproj",
-				@"..\..\MoonSharp.Interpreter.Tests\");
-
-			//
-
-#endif 
 			Console.ReadLine();
 		}
 	}

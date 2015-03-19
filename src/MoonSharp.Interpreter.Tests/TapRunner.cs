@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using MoonSharp.Interpreter.CoreLib;
 using MoonSharp.Interpreter.Execution;
@@ -11,7 +12,8 @@ using NUnit.Framework;
 
 namespace MoonSharp.Interpreter.Tests
 {
-	class PortableFrameworkPlatformWrapper : LimitedPlatformAccessorBase
+#if !EMBEDTEST
+	class TestsPlatformAccessor : LimitedPlatformAccessorBase
 	{
 		public override bool ScriptFileExists(string name)
 		{
@@ -25,7 +27,7 @@ namespace MoonSharp.Interpreter.Tests
 
 		public override string GetPlatformNamePrefix()
 		{
-			return "taptests";
+			return "tests";
 		}
 
 		public override void DefaultPrint(string content)
@@ -33,6 +35,7 @@ namespace MoonSharp.Interpreter.Tests
 			Debug.WriteLine("PRINTED : " + content);
 		}
 	}
+#endif
 
 	public class TapRunner
 	{
@@ -51,7 +54,11 @@ namespace MoonSharp.Interpreter.Tests
 		public void Run()
 		{
 #if PCL
-			Script.Platform = new PortableFrameworkPlatformWrapper();
+	#if EMBEDTEST
+			Script.Platform = new EmbeddedResourcePlatformAccessor(Assembly.GetExecutingAssembly());
+	#else
+			Script.Platform = new TestsPlatformAccessor();
+	#endif
 #endif
 
 			Script S = new Script();

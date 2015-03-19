@@ -387,6 +387,9 @@
     <Compile Include="..\..\Modules\MoonSharpConstantAttribute.cs">
       <Link>MoonSharpConstantAttribute.cs</Link>
     </Compile>
+    <Compile Include="..\..\Platforms\EmbeddedResourcePlatformAccessor.cs">
+      <Link>EmbeddedResourcePlatformAccessor.cs</Link>
+    </Compile>
     <Compile Include="..\..\Platforms\IPlatformAccessor.cs">
       <Link>IPlatformAccessor.cs</Link>
     </Compile>

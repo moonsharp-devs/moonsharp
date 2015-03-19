@@ -16,7 +16,7 @@ namespace MoonSharp.Interpreter.CoreLib
 		//	  for i,v in ipairs(t) do body end
 		// will iterate over the pairs (1,t[1]), (2,t[2]), ..., up to the first integer key absent from the table. 
 		[MoonSharpMethod]
-		static DynValue ipairs(ScriptExecutionContext executionContext, CallbackArguments args) 
+		public static DynValue ipairs(ScriptExecutionContext executionContext, CallbackArguments args) 
 		{
 			DynValue table = args[0];
 
@@ -33,7 +33,7 @@ namespace MoonSharp.Interpreter.CoreLib
 		// will iterate over all key–value pairs of table t.
 		// See function next for the caveats of modifying the table during its traversal. 
 		[MoonSharpMethod]
-		static DynValue pairs(ScriptExecutionContext executionContext, CallbackArguments args) 
+		public static DynValue pairs(ScriptExecutionContext executionContext, CallbackArguments args) 
 		{
 			DynValue table = args[0];
 
@@ -54,7 +54,7 @@ namespace MoonSharp.Interpreter.CoreLib
 		// The behavior of next is undefined if, during the traversal, you assign any value to a non-existent field in the table. 
 		// You may however modify existing fields. In particular, you may clear existing fields. 
 		[MoonSharpMethod]
-		static DynValue next(ScriptExecutionContext executionContext, CallbackArguments args) 
+		public static DynValue next(ScriptExecutionContext executionContext, CallbackArguments args) 
 		{
 			DynValue table = args.AsType(0, "next", DataType.Table);
 			DynValue index = args[1];
@@ -70,7 +70,7 @@ namespace MoonSharp.Interpreter.CoreLib
 		// __next_i (table [, index])
 		// -------------------------------------------------------------------------------------------------------------------
 		// Allows a program to traverse all fields of an array. index is an integer number
-		static DynValue __next_i(ScriptExecutionContext executionContext, CallbackArguments args) 
+		public static DynValue __next_i(ScriptExecutionContext executionContext, CallbackArguments args) 
 		{
 			DynValue table = args.AsType(0, "!!next_i!!", DataType.Table);
 			DynValue index = args.AsType(1, "!!next_i!!", DataType.Number);

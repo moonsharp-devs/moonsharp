@@ -56,6 +56,9 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="..\..\EmbeddableNUnitWrapper.cs">
+      <Link>EmbeddableNUnitWrapper.cs</Link>
+    </Compile>
     <Compile Include="..\..\EndToEnd\BinaryDumpTests.cs">
       <Link>BinaryDumpTests.cs</Link>
     </Compile>

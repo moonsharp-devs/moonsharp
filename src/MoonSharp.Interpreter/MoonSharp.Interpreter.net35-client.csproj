@@ -203,6 +203,7 @@
     <Compile Include="Execution\ScriptLoadingContext.cs" />
     <Compile Include="DataTypes\DataType.cs" />
     <Compile Include="Modules\MoonSharpConstantAttribute.cs" />
+    <Compile Include="Platforms\EmbeddedResourcePlatformAccessor.cs" />
     <Compile Include="Platforms\IPlatformAccessor.cs" />
     <Compile Include="Platforms\PlatformAccessorBase.cs" />
     <Compile Include="Platforms\PlatformAutoSelector.cs" />

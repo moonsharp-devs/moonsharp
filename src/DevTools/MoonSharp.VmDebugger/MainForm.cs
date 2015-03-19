@@ -14,7 +14,6 @@ using MoonSharp.Interpreter.CoreLib;
 using MoonSharp.Interpreter.Debugging;
 using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Execution.VM;
-using MoonSharp.Interpreter.Loaders;
 
 namespace MoonSharp.Debugger
 {
@@ -70,9 +69,7 @@ namespace MoonSharp.Debugger
 			m_Script.Options.UseLuaErrorLocations = true;
 			m_Script.Options.DebugPrint = s => { Console_WriteLine("{0}", s); };
 
-			var L = new ClassicLuaScriptLoader();
-			L.ModulePaths = L.UnpackStringPaths("Modules/?;Modules/?.lua");
-			m_Script.Options.FileSystemAccessor = L;
+			m_Script.Options.ModulesPaths = ScriptOptions.UnpackStringPaths("Modules/?;Modules/?.lua");
 
 			try
 			{

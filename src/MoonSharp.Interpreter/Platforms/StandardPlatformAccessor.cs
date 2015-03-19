@@ -206,6 +206,7 @@ namespace MoonSharp.Interpreter.Platforms
 		/// <returns></returns>
 		public override int OS_Execute(string cmdline)
 		{
+			// This is windows only!
 			ProcessStartInfo psi = new ProcessStartInfo("cmd.exe", string.Format("/C {0}", cmdline));
 			psi.ErrorDialog = false;
 

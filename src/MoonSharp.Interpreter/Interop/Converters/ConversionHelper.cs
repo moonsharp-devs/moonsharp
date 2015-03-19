@@ -30,7 +30,7 @@ namespace MoonSharp.Interpreter.Interop
 			ParameterInfo[] pi = mi.GetParameters();
 
 			return (pi.Length == 2 && pi[0].ParameterType == typeof(ScriptExecutionContext)
-				&& pi[1].ParameterType == typeof(CallbackArguments) && mi.ReturnType == typeof(DynValue));
+				&& pi[1].ParameterType == typeof(CallbackArguments) && mi.ReturnType == typeof(DynValue) && mi.IsPublic);
 		}
 
 		internal static DynValue TryClrObjectToSimpleMoonSharpValue(Script script, object obj)
