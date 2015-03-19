@@ -280,7 +280,7 @@ namespace MoonSharp.Interpreter
 		/// </returns>
 		public DynValue LoadFile(string filename, Table globalContext = null, string friendlyFilename = null)
 		{
-			object code = Platform.LoadFile(this, filename, globalContext ?? m_GlobalTable);
+			object code = Platform.OpenScriptFile(this, filename, globalContext ?? m_GlobalTable);
 
 			if (code is string)
 			{

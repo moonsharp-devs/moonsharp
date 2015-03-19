@@ -11,7 +11,6 @@ namespace MoonSharp.Interpreter.CoreLib
 	[MoonSharpModule(Namespace = "os")]
 	public class OsSystemModule
 	{
-#if !PCL
 		[MoonSharpMethod]
 		public static DynValue execute(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
@@ -25,15 +24,12 @@ namespace MoonSharp.Interpreter.CoreLib
 			{
 				try
 				{
-					ProcessStartInfo psi = new ProcessStartInfo("cmd.exe", string.Format("/C {0}", v.String));
-					psi.ErrorDialog = false;
+					int exitCode = Script.Platform.OS_Execute(v.String);
 
-					Process proc = Process.Start(psi);
-					proc.WaitForExit();
 					return DynValue.NewTuple(
 						DynValue.Nil,
 						DynValue.NewString("exit"),
-						DynValue.NewNumber(proc.ExitCode));
+						DynValue.NewNumber(exitCode));
 				}
 				catch (Exception)
 				{
@@ -52,7 +48,7 @@ namespace MoonSharp.Interpreter.CoreLib
 			if (v_exitCode.IsNotNil())
 				exitCode = (int)v_exitCode.Number;
 
-			Environment.Exit(exitCode);
+			Script.Platform.OS_ExitFast(exitCode);
 
 			throw new InvalidOperationException("Unreachable code.. reached.");
 		}
@@ -77,9 +73,9 @@ namespace MoonSharp.Interpreter.CoreLib
 
 			try
 			{
-				if (File.Exists(fileName))
+				if (Script.Platform.OS_FileExists(fileName))
 				{
-					File.Delete(fileName);
+					Script.Platform.OS_FileDelete(fileName);
 					return DynValue.True;
 				}
 				else
@@ -104,14 +100,14 @@ namespace MoonSharp.Interpreter.CoreLib
 
 			try
 			{
-				if (!File.Exists(fileNameOld))
+				if (!Script.Platform.OS_FileExists(fileNameOld))
 				{
 					return DynValue.NewTuple(DynValue.Nil,
 						DynValue.NewString("{0}: No such file or directory.", fileNameOld),
 						DynValue.NewNumber(-1));
 				}
 
-				File.Move(fileNameOld, fileNameNew);
+				Script.Platform.OS_FileMove(fileNameOld, fileNameNew);
 				return DynValue.True;
 			}
 			catch (Exception ex)
@@ -129,8 +125,7 @@ namespace MoonSharp.Interpreter.CoreLib
 		[MoonSharpMethod]
 		public static DynValue tmpname(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
-			return DynValue.NewString(Path.GetTempFileName());
+			return DynValue.NewString(Script.Platform.IO_OS_GetTempFilename());
 		}
-#endif
 	}
 }

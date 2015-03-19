@@ -393,8 +393,8 @@
     <Compile Include="..\..\Platforms\PlatformAutoSelector.cs">
       <Link>PlatformAutoSelector.cs</Link>
     </Compile>
-    <Compile Include="..\..\Platforms\SandboxedPlatformAccessor.cs">
-      <Link>SandboxedPlatformAccessor.cs</Link>
+    <Compile Include="..\..\Platforms\LimitedPlatformAccessorBase.cs">
+      <Link>LimitedPlatformAccessorBase.cs</Link>
     </Compile>
     <Compile Include="..\..\Platforms\StandardFileType.cs">
       <Link>StandardFileType.cs</Link>

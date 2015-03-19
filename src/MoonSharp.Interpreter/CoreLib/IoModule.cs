@@ -12,7 +12,6 @@ namespace MoonSharp.Interpreter.CoreLib
 	[MoonSharpModule(Namespace = "io")]
 	public class IoModule
 	{
-
 		public static void MoonSharpInit(Table globalTable, Table ioTable)
 		{
 			UserData.RegisterType<FileUserDataBase>(InteropAccessMode.Default, "file");
@@ -53,7 +52,7 @@ namespace MoonSharp.Interpreter.CoreLib
 		{
 			Table R = S.Registry;
 
-			optionsStream = optionsStream ?? Script.Platform.GetStandardStream(file);
+			optionsStream = optionsStream ?? Script.Platform.IO_GetStandardStream(file);
 
 			FileUserDataBase udb = null;
 
@@ -168,7 +167,7 @@ namespace MoonSharp.Interpreter.CoreLib
 			{
 				List<DynValue> readLines = new List<DynValue>();
 
-				using (var stream = Script.Platform.OpenFileForIO(executionContext.GetScript(), filename, null, "r"))
+				using (var stream = Script.Platform.IO_OpenFile(executionContext.GetScript(), filename, null, "r"))
 				{
 					using (var reader = new System.IO.StreamReader(stream))
 					{
@@ -288,11 +287,7 @@ namespace MoonSharp.Interpreter.CoreLib
 		[MoonSharpMethod]
 		public static DynValue tmpfile(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
-#if PCL
-			string tmpfilename = "tmp" + Guid.NewGuid().ToString("N");
-#else
-			string tmpfilename = System.IO.Path.GetTempFileName();
-#endif
+			string tmpfilename = Script.Platform.IO_OS_GetTempFilename();
 			FileUserDataBase file = Open(executionContext, tmpfilename, GetUTF8Encoding(), "w");
 			return UserData.Create(file);
 		}
