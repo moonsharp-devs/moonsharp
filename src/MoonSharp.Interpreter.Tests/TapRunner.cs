@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -10,6 +11,29 @@ using NUnit.Framework;
 
 namespace MoonSharp.Interpreter.Tests
 {
+	class PortableFrameworkPlatformWrapper : LimitedPlatformAccessorBase
+	{
+		public override bool ScriptFileExists(string name)
+		{
+			return File.Exists(name);
+		}
+
+		public override object OpenScriptFile(Script script, string file, Table globalContext)
+		{
+			return new FileStream(file, FileMode.Open, FileAccess.Read);
+		}
+
+		public override string GetPlatformNamePrefix()
+		{
+			return "taptests";
+		}
+
+		public override void DefaultPrint(string content)
+		{
+			Debug.WriteLine("PRINTED : " + content);
+		}
+	}
+
 	public class TapRunner
 	{
 		string m_File;
@@ -26,6 +50,10 @@ namespace MoonSharp.Interpreter.Tests
 
 		public void Run()
 		{
+#if PCL
+			Script.Platform = new PortableFrameworkPlatformWrapper();
+#endif
+
 			Script S = new Script();
 
 			S.Options.DebugPrint = Print;

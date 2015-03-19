@@ -399,6 +399,9 @@
     <Compile Include="..\..\Platforms\LimitedPlatformAccessorBase.cs">
       <Link>LimitedPlatformAccessorBase.cs</Link>
     </Compile>
+    <Compile Include="..\..\Platforms\UnsupportedFrameworkPlatformAccessor.cs">
+      <Link>UnsupportedFrameworkPlatformAccessor.cs</Link>
+    </Compile>
     <Compile Include="..\..\Platforms\StandardFileType.cs">
       <Link>StandardFileType.cs</Link>
     </Compile>

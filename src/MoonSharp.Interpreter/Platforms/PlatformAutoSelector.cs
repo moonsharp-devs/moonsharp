@@ -29,8 +29,11 @@ namespace MoonSharp.Interpreter.Platforms
 			IsRunningOnClr4 = (Type.GetType("System.Lazy`1") != null);
 
 #if PCL
-			return null;
+				return new UnsupportedFrameworkPlatformAccessor("Portable Framework");
 #else
+			if (IsRunningOnUnity)
+				return new UnsupportedFrameworkPlatformAccessor("Unity");
+
 			return new StandardPlatformAccessor();
 #endif
 		}

@@ -3,12 +3,12 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{4AD350E6-E296-43EF-9FEA-CB70358467E4}</ProjectGuid>
+    <ProjectGuid>{CE1E352B-8F70-4C0B-B171-13732CB77F7E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MoonSharp.Interpreter.Tests</RootNamespace>
-    <AssemblyName>MoonSharp.Interpreter.Tests</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <RootNamespace>MoonSharp.Interpreter.Tests.portable40</RootNamespace>
+    <AssemblyName>MoonSharp.Interpreter.Tests.portable40</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
@@ -16,52 +16,27 @@
     <ReferencePath>$(ProgramFiles)\Common Files\microsoft shared\VSTT\$(VisualStudioVersion)\UITestExtensionPackages</ReferencePath>
     <IsCodedUITest>False</IsCodedUITest>
     <TestProjectType>UnitTest</TestProjectType>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;HASDYNAMIC,PCL</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;HASDYNAMIC,PCL</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x86\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
-    <OutputPath>bin\x86\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
-    <Reference Include="nunit.framework, Version=2.6.4.14350, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
+    <Reference Include="nunit.framework">
+      <HintPath>..\..\..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
@@ -74,41 +49,86 @@
         <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
       </ItemGroup>
     </When>
-    <Otherwise />
+    <Otherwise>
+      <ItemGroup>
+        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
+      </ItemGroup>
+    </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="EndToEnd\BinaryDumpTests.cs" />
-    <Compile Include="EndToEnd\ClosureTests.cs" />
-    <Compile Include="EndToEnd\CoroutineTests.cs" />
-    <Compile Include="EndToEnd\DynamicTests.cs" />
-    <Compile Include="EndToEnd\ErrorHandlingTests.cs" />
-    <Compile Include="EndToEnd\GotoTests.cs" />
-    <Compile Include="EndToEnd\LuaTestSuiteExtract.cs" />
-    <Compile Include="EndToEnd\MetatableTests.cs">
-      <SubType>Code</SubType>
+    <Compile Include="..\..\EndToEnd\BinaryDumpTests.cs">
+      <Link>BinaryDumpTests.cs</Link>
     </Compile>
-    <Compile Include="EndToEnd\StringLibTests.cs" />
-    <Compile Include="EndToEnd\TailCallTests.cs" />
-    <Compile Include="EndToEnd\UserDataMethodsTests.cs" />
-    <Compile Include="EndToEnd\UserDataPropertiesTests.cs">
-      <SubType>Code</SubType>
+    <Compile Include="..\..\EndToEnd\ClosureTests.cs">
+      <Link>ClosureTests.cs</Link>
     </Compile>
-    <Compile Include="EndToEnd\Utils.cs" />
-    <Compile Include="ErrorHandlingTests.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="EndToEnd\SimpleTests.cs" />
-    <Compile Include="EndToEnd\TableTests.cs" />
-    <Compile Include="TestMore\TapRunner.cs" />
-    <Compile Include="TestMore\TestMoreTests.cs" />
-    <Compile Include="TestRunner.cs" />
-    <Compile Include="Units\BinDumpStreamTests.cs" />
-    <Compile Include="Units\FastStackTests.cs" />
-    <Compile Include="Units\InteropTests.cs" />
+    <Compile Include="..\..\EndToEnd\CoroutineTests.cs">
+      <Link>CoroutineTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\EndToEnd\DynamicTests.cs">
+      <Link>DynamicTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\EndToEnd\ErrorHandlingTests.cs">
+      <Link>ErrorHandlingTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\EndToEnd\GotoTests.cs">
+      <Link>GotoTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\EndToEnd\LuaTestSuiteExtract.cs">
+      <Link>LuaTestSuiteExtract.cs</Link>
+    </Compile>
+    <Compile Include="..\..\EndToEnd\MetatableTests.cs">
+      <SubType>Code</SubType>
+      <Link>MetatableTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\EndToEnd\StringLibTests.cs">
+      <Link>StringLibTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\EndToEnd\TailCallTests.cs">
+      <Link>TailCallTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\EndToEnd\UserDataMethodsTests.cs">
+      <Link>UserDataMethodsTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\EndToEnd\UserDataPropertiesTests.cs">
+      <SubType>Code</SubType>
+      <Link>UserDataPropertiesTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\EndToEnd\Utils.cs">
+      <Link>Utils.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Properties\AssemblyInfo.cs">
+      <Link>AssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\EndToEnd\SimpleTests.cs">
+      <Link>SimpleTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\EndToEnd\TableTests.cs">
+      <Link>TableTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\TapRunner.cs">
+      <Link>TapRunner.cs</Link>
+    </Compile>
+    <Compile Include="..\..\TestMoreTests.cs">
+      <Link>TestMoreTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\TestRunner.cs">
+      <Link>TestRunner.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Units\BinDumpStreamTests.cs">
+      <Link>BinDumpStreamTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Units\FastStackTests.cs">
+      <Link>FastStackTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Units\InteropTests.cs">
+      <Link>InteropTests.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MoonSharp.Interpreter\MoonSharp.Interpreter.net35-client.csproj">
-      <Project>{91ea9b9d-fe03-4273-bdaf-8ad42ede1e59}</Project>
-      <Name>MoonSharp.Interpreter.net35-client</Name>
+    <ProjectReference Include="..\..\..\MoonSharp.Interpreter\_Projects\MoonSharp.Interpreter.portable40\MoonSharp.Interpreter.portable40.csproj">
+      <Project>{49f32476-fca0-45fd-8f89-0c7c0d15e409}</Project>
+      <Name>MoonSharp.Interpreter.portable40</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -237,7 +257,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  <ItemGroup />
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>

@@ -79,10 +79,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\MoonSharp.Interpreter.Tests\MoonSharp.Interpreter.Tests.csproj">
-      <Project>{4ad350e6-e296-43ef-9fea-cb70358467e4}</Project>
-      <Name>MoonSharp.Interpreter.Tests</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\MoonSharp.Interpreter\MoonSharp.Interpreter.net35-client.csproj">
       <Project>{91ea9b9d-fe03-4273-bdaf-8ad42ede1e59}</Project>
       <Name>MoonSharp.Interpreter.net35-client</Name>

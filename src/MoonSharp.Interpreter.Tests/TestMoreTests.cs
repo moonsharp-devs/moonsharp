@@ -248,10 +248,8 @@ namespace MoonSharp.Interpreter.Tests
 		[Test]
 		public void TestMore_308_io()
 		{
-			if(!AreCoreModulesFullySupported(CoreModules.OS_System | CoreModules.IO))
-				throw new SkipThisTestException();
-
-			TapRunner.Run(@"TestMore/308-io.t");
+			if(AreCoreModulesFullySupported(CoreModules.OS_System | CoreModules.IO))
+				TapRunner.Run(@"TestMore/308-io.t");
 		}
 
 		private bool AreCoreModulesFullySupported(CoreModules modules)
@@ -264,10 +262,8 @@ namespace MoonSharp.Interpreter.Tests
 		[Test]
 		public void TestMore_309_os()
 		{
-			if (!AreCoreModulesFullySupported(CoreModules.OS_System | CoreModules.IO))
-				throw new SkipThisTestException();
-
-			TapRunner.Run(@"TestMore/309-os.t");
+			if (AreCoreModulesFullySupported(CoreModules.OS_System | CoreModules.IO))
+				TapRunner.Run(@"TestMore/309-os.t");
 		}
 
 
