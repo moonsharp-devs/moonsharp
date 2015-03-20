@@ -7,16 +7,14 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{AB7EF7C3-E7B9-30AA-7BD5-D186BE943024}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>
-    </RootNamespace>
+    <RootNamespace></RootNamespace>
     <AssemblyName>Assembly-CSharp</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{E097FAD1-6243-4DAD-9C02-E9B9EFC3FFC1};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Subset v3.5</TargetFrameworkProfile>
-    <CompilerResponseFile>
-    </CompilerResponseFile>
+    <CompilerResponseFile></CompilerResponseFile>
     <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>StandaloneWindows:5</UnityBuildTarget>
     <UnityVersion>5.0.0f4</UnityVersion>
@@ -54,25 +52,22 @@
     <Reference Include="UnityEngine.UI">
       <HintPath>Library\UnityAssemblies\UnityEngine.UI.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine.UI">
-      <HintPath>Library\UnityAssemblies\UnityEngine.UI.dll</HintPath>
-    </Reference>
     <Reference Include="MoonSharp.Interpreter">
-      <HintPath>Assets\MoonSharp.Interpreter.dll</HintPath>
+      <HintPath>Assets\Plugins\MoonSharp.Interpreter.dll</HintPath>
     </Reference>
     <Reference Include="MoonSharp.Interpreter.Tests">
-      <HintPath>Assets\MoonSharp.Interpreter.Tests.dll</HintPath>
+      <HintPath>Assets\Plugins\MoonSharp.Interpreter.Tests.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework">
-      <HintPath>Assets\nunit.framework.dll</HintPath>
+      <HintPath>Assets\Plugins\nunit.framework.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\TestRunner.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Assets\MoonSharp.Interpreter.xml" />
-    <None Include="Assets\nunit.framework.xml" />
+    <None Include="Assets\Plugins\MoonSharp.Interpreter.xml" />
+    <None Include="Assets\Plugins\nunit.framework.xml" />
     <None Include="Assets\Resources\MoonSharp\Scripts\000-sanity.t.txt" />
     <None Include="Assets\Resources\MoonSharp\Scripts\001-if.t.txt" />
     <None Include="Assets\Resources\MoonSharp\Scripts\002-table.t.txt" />

@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MoonSharp.Interpreter.net40_client</RootNamespace>
-    <AssemblyName>MoonSharp.Interpreter.net40-client</AssemblyName>
+    <AssemblyName>MoonSharp.Interpreter</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>

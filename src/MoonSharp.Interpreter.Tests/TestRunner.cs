@@ -44,6 +44,13 @@ namespace MoonSharp.Interpreter.Tests
 
 		public void Test(string whichTest = null)
 		{
+			foreach (TestResult tr in IterateOnTests(whichTest))
+				loggerAction(tr);
+		}
+
+
+		public IEnumerable<TestResult> IterateOnTests(string whichTest = null)
+		{
 			int ok = 0;
 			int fail = 0;
 			int total = 0;
@@ -72,7 +79,7 @@ namespace MoonSharp.Interpreter.Tests
 						++total;
 					}
 
-					loggerAction(tr);
+					yield return tr;
 				}
 			}
 
