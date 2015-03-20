@@ -3,6 +3,7 @@ using System.Collections;
 using System.Threading;
 using MoonSharp.Interpreter.Tests;
 using MoonSharp.Interpreter;
+using MoonSharp.Interpreter.Loaders;
 
 public class TestRunner : MonoBehaviour
 {
@@ -14,7 +15,7 @@ public class TestRunner : MonoBehaviour
 	// Use this for initialization
 	void Start()
 	{
-		Script.DefaultScriptLoader = new UnityLoader();
+		Script.WarmUp();
 
 		m_Thread = new Thread(() => DoTests());
 		m_Thread.Name = "Tests";

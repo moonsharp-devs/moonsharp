@@ -47,14 +47,14 @@ namespace MoonSharp.Interpreter
 		/// </summary>
 		static Script()
 		{
-			Platform = PlatformAutoSelector.GetDefaultPlatform();
+			Platform = PlatformAutoDetector.GetDefaultPlatform();
 
 			DefaultOptions = new ScriptOptions()
 			{
 				DebugPrint = s => { Script.Platform.DefaultPrint(s); },
 				DebugInput = () => { return Script.Platform.DefaultInput(); },
 				CheckThreadAccess = true,
-				ModulesPaths = ScriptOptions.GetDefaultEnvironmentPaths()
+				ScriptLoader = PlatformAutoDetector.GetDefaultScriptLoader()
 			};
 		}
 
@@ -280,7 +280,11 @@ namespace MoonSharp.Interpreter
 		/// </returns>
 		public DynValue LoadFile(string filename, Table globalContext = null, string friendlyFilename = null)
 		{
-			object code = Platform.OpenScriptFile(this, filename, globalContext ?? m_GlobalTable);
+			#pragma warning disable 618
+			filename = Options.ScriptLoader.ResolveFileName(filename, globalContext ?? m_GlobalTable);
+			#pragma warning restore 618
+
+			object code = Options.ScriptLoader.LoadFile(filename, globalContext ?? m_GlobalTable);
 
 			if (code is string)
 			{
@@ -575,7 +579,7 @@ namespace MoonSharp.Interpreter
 		public DynValue RequireModule(string modname, Table globalContext = null)
 		{
 			Table globals = globalContext ?? m_GlobalTable;
-			string filename = Platform.ResolveModuleName(this, modname, globals);
+			string filename = Options.ScriptLoader.ResolveModuleName(modname, globals);
 
 			if (filename == null)
 				throw new ScriptRuntimeException("module '{0}' not found", modname);

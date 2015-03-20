@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using MoonSharp.Interpreter.Loaders;
 using MoonSharp.Interpreter.Platforms;
 
 namespace MoonSharp.Interpreter
@@ -26,11 +27,16 @@ namespace MoonSharp.Interpreter
 			this.Stdin = defaults.Stdin;
 			this.Stdout = defaults.Stdout;
 			this.Stderr = defaults.Stderr;
-			this.ModulesPaths = defaults.ModulesPaths;
+
+			this.ScriptLoader = defaults.ScriptLoader;
 
 			this.CheckThreadAccess = defaults.CheckThreadAccess;
 		}
 
+		/// <summary>
+		/// Gets or sets the current script-loader.
+		/// </summary>
+		public IScriptLoader ScriptLoader { get; set; }
 
 		/// <summary>
 		/// Gets or sets the debug print handler
@@ -63,18 +69,6 @@ namespace MoonSharp.Interpreter
 		/// </summary>
 		public Stream Stderr { get; set; }
 
-
-		/// <summary>
-		/// Gets or sets the modules paths used by the "require" function. If null, the default paths are used (using
-		/// environment variables etc.). Note that this behaviour is subject to the implementation of the current
-		/// Platform.
-		/// </summary>
-		/// <value>
-		/// The modules path.
-		/// </value>
-		public string[] ModulesPaths { get; set; }
-
-
 		/// <summary>
 		/// Gets or sets a value indicating whether the thread check is enabled.
 		/// A "lazy" thread check is performed everytime execution is entered to ensure that no two threads
@@ -86,46 +80,6 @@ namespace MoonSharp.Interpreter
 		/// you are not calling MoonSharp execution concurrently as it is not supported.
 		/// </summary>
 		public bool CheckThreadAccess { get; set; }
-
-
-
-
-
-		/// <summary>
-		/// Unpacks a string path to an array
-		/// </summary>
-		public static string[] UnpackStringPaths(string str)
-		{
-			return str.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries)
-				.Select(s => s.Trim())
-				.Where(s => !string.IsNullOrEmpty(s))
-				.ToArray();
-		}
-
-		/// <summary>
-		/// Gets the default environment paths.
-		/// </summary>
-		internal static string[] GetDefaultEnvironmentPaths()
-		{
-			string[] modulePaths = null;
-
-			if (modulePaths == null)
-			{
-				string env = Script.Platform.GetEnvironmentVariable("MOONSHARP_PATH");
-				if (!string.IsNullOrEmpty(env)) modulePaths = UnpackStringPaths(env);
-
-				if (modulePaths == null)
-				{
-					env = Script.Platform.GetEnvironmentVariable("LUA_PATH");
-					if (!string.IsNullOrEmpty(env)) modulePaths = UnpackStringPaths(env);
-				}
-
-				if (modulePaths == null)
-					modulePaths = UnpackStringPaths("?;?.lua");
-			}
-
-			return modulePaths;
-		}
 
 	}
 }

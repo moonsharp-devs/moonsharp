@@ -11,97 +11,6 @@ namespace MoonSharp.Interpreter.Platforms
 	/// </summary>
 	public abstract class PlatformAccessorBase : IPlatformAccessor
 	{
-		private bool? m_IsAOT = null;
-
-
-		/// <summary>
-		/// Resolves the name of a module on a set of paths.
-		/// </summary>
-		/// <param name="modname">The modname.</param>
-		/// <param name="paths">The paths.</param>
-		/// <returns></returns>
-		protected virtual string ResolveModuleName(string modname, string[] paths)
-		{
-			modname = modname.Replace('.', '/');
-
-			foreach (string path in paths)
-			{
-				string file = path.Replace("?", modname);
-
-				if (ScriptFileExists(file))
-					return file;
-			}
-
-			return null;
-		}
-
-		/// <summary>
-		/// Resolves the name of a module to a filename (which will later be passed to OpenScriptFile).
-		/// The resolution happens first on paths included in the LUA_PATH global variable, and - 
-		/// if the variable does not exist - by consulting the
-		/// ScriptOptions.ModulesPaths array. Override to provide a different behaviour.
-		/// </summary>
-		/// <param name="script">The script.</param>
-		/// <param name="modname">The modname.</param>
-		/// <param name="globalContext">The global context.</param>
-		/// <returns></returns>
-		public virtual string ResolveModuleName(Script script, string modname, Table globalContext)
-		{
-			DynValue s = (globalContext ?? script.Globals).RawGet("LUA_PATH");
-
-			if (s != null && s.Type == DataType.String)
-				return ResolveModuleName(modname, ScriptOptions.UnpackStringPaths(s.String));
-
-			return ResolveModuleName(modname, script.Options.ModulesPaths);
-		}
-
-
-		/// <summary>
-		/// Determines whether the application is running in AOT (ahead-of-time) mode
-		/// </summary>
-		/// <returns></returns>
-		public virtual bool IsRunningOnAOT()
-		{
-			if (m_IsAOT.HasValue) 
-				return m_IsAOT.Value;
-
-			try
-			{
-				System.Linq.Expressions.Expression e = System.Linq.Expressions.Expression.Constant(5, typeof(int));
-				var lambda = System.Linq.Expressions.Expression.Lambda<Func<int>>(e);
-				lambda.Compile();
-				m_IsAOT = false;
-			}
-			catch (Exception)
-			{
-				m_IsAOT = true;
-			}
-
-			return m_IsAOT.Value;
-		}
-
-
-		/// <summary>
-		/// Checks if a script file exists. 
-		/// </summary>
-		/// <param name="name">The script filename.</param>
-		/// <returns></returns>
-		public abstract bool ScriptFileExists(string name);
-
-		/// <summary>
-		/// Opens a file for reading the script code.
-		/// It can return either a string, a byte[] or a Stream.
-		/// If a byte[] is returned, the content is assumed to be a serialized (dumped) bytecode. If it's a string, it's
-		/// assumed to be either a script or the output of a string.dump call. If a Stream, autodetection takes place.
-		/// </summary>
-		/// <param name="script">The script.</param>
-		/// <param name="file">The file.</param>
-		/// <param name="globalContext">The global context.</param>
-		/// <returns>
-		/// A string, a byte[] or a Stream.
-		/// </returns>
-		public abstract object OpenScriptFile(Script script, string file, Table globalContext);
-
 		/// <summary>
 		/// Gets the platform name prefix
 		/// </summary>
@@ -118,27 +27,27 @@ namespace MoonSharp.Interpreter.Platforms
 		{
 			string suffix = null;
 
-			if (PlatformAutoSelector.IsRunningOnUnity)
+			if (PlatformAutoDetector.IsRunningOnUnity)
 			{
-				if (PlatformAutoSelector.IsRunningOnMono)
+				if (PlatformAutoDetector.IsRunningOnMono)
 					suffix = "unity.mono";
 				else
 					suffix = "unity.webp";
 			}
-			else if (PlatformAutoSelector.IsRunningOnMono)
+			else if (PlatformAutoDetector.IsRunningOnMono)
 				suffix = "mono";
 			else
 				suffix = "dotnet";
 
-			if (PlatformAutoSelector.IsPortableFramework)
+			if (PlatformAutoDetector.IsPortableFramework)
 				suffix = suffix + ".portable";
 			
-			if (PlatformAutoSelector.IsRunningOnClr4)
+			if (PlatformAutoDetector.IsRunningOnClr4)
 				suffix = suffix + ".clr4";
 			else
 				suffix = suffix + ".clr2";
 
-			if (IsRunningOnAOT())
+			if (PlatformAutoDetector.IsRunningOnAOT)
 				suffix = suffix + ".aot";
 
 			return GetPlatformNamePrefix() + "." + suffix;
@@ -254,5 +163,12 @@ namespace MoonSharp.Interpreter.Platforms
 		/// </returns>
 		public abstract string GetEnvironmentVariable(string envvarname);
 
+		/// <summary>
+		/// Determines whether the application is running in AOT (ahead-of-time) mode
+		/// </summary>
+		public virtual bool IsRunningOnAOT()
+		{
+			return PlatformAutoDetector.IsRunningOnAOT;
+		}
 	}
 }

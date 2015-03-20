@@ -10,30 +10,11 @@ namespace MoonSharp.Interpreter.Platforms
 	/// Interface to abstract all accesses made to the underlying platform (OS, framework) by the scripting engine.
 	/// Can be used both to support "non-standard" platforms (i.e. non-posix, non-windows) and/or to sandbox the behaviour
 	/// of the scripting engine.
+	/// 
+	/// It's recommended that no class implement IPlatformAccessor directly, and rather extend PlatformAccessorBase.
 	/// </summary>
 	public interface IPlatformAccessor
 	{
-		/// <summary>
-		/// Opens a file for reading the script code.
-		/// It can return either a string, a byte[] or a Stream.
-		/// If a byte[] is returned, the content is assumed to be a serialized (dumped) bytecode. If it's a string, it's
-		/// assumed to be either a script or the output of a string.dump call. If a Stream, autodetection takes place.
-		/// </summary>
-		/// <param name="script">The script.</param>
-		/// <param name="file">The file.</param>
-		/// <param name="globalContext">The global context.</param>
-		/// <returns>A string, a byte[] or a Stream.</returns>
-		object OpenScriptFile(Script script, string file, Table globalContext);
-
-		/// <summary>
-		/// Resolves the name of a module to a filename (which will later be passed to OpenScriptFile)
-		/// </summary>
-		/// <param name="script">The script.</param>
-		/// <param name="modname">The modname.</param>
-		/// <param name="globalContext">The global context.</param>
-		/// <returns></returns>
-		string ResolveModuleName(Script script, string modname, Table globalContext);
-
 		/// <summary>
 		/// Filters the CoreModules enumeration to exclude non-supported operations
 		/// </summary>
@@ -79,10 +60,11 @@ namespace MoonSharp.Interpreter.Platforms
 		string DefaultInput();
 
 		/// <summary>
-		/// A function used to open files in the 'io' module. 
+		/// A function used to open files in the 'io' module.
 		/// Can have an invalid implementation if 'io' module is filtered out.
 		/// It should return a correctly initialized Stream for the given file and access
 		/// </summary>
+		/// <param name="script">The script.</param>
 		/// <param name="filename">The filename.</param>
 		/// <param name="encoding">The encoding.</param>
 		/// <param name="mode">The mode (as per Lua usage - e.g. 'w+', 'rb', etc.).</param>

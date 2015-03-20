@@ -339,12 +339,6 @@
       <SubType>Code</SubType>
       <Link>StandardUserDataPropertyDescriptor.cs</Link>
     </Compile>
-    <Compile Include="..\..\Loaders\ClassicLuaScriptLoader.cs">
-      <Link>ClassicLuaScriptLoader.cs</Link>
-    </Compile>
-    <Compile Include="..\..\Loaders\IFileSystemAccessor.cs">
-      <Link>IFileSystemAccessor.cs</Link>
-    </Compile>
     <Compile Include="..\..\Execution\Scopes\ClosureContext.cs">
       <Link>ClosureContext.cs</Link>
     </Compile>
@@ -381,11 +375,29 @@
     <Compile Include="..\..\DataTypes\DataType.cs">
       <Link>DataType.cs</Link>
     </Compile>
+    <Compile Include="..\..\Loaders\EmbeddedResourcesScriptLoader.cs">
+      <Link>EmbeddedResourcesScriptLoader.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Loaders\FileSystemScriptLoader.cs">
+      <Link>FileSystemScriptLoader.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Loaders\InvalidScriptLoader.cs">
+      <Link>InvalidScriptLoader.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Loaders\ReplInterpreterScriptLoader.cs">
+      <Link>ReplInterpreterScriptLoader.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Loaders\ScriptLoaderBase.cs">
+      <Link>ScriptLoaderBase.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Loaders\IScriptLoader.cs">
+      <Link>IScriptLoader.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Loaders\UnityAssetsScriptLoader.cs">
+      <Link>UnityAssetsScriptLoader.cs</Link>
+    </Compile>
     <Compile Include="..\..\Modules\MoonSharpConstantAttribute.cs">
       <Link>MoonSharpConstantAttribute.cs</Link>
-    </Compile>
-    <Compile Include="..\..\Platforms\EmbeddedResourcePlatformAccessor.cs">
-      <Link>EmbeddedResourcePlatformAccessor.cs</Link>
     </Compile>
     <Compile Include="..\..\Platforms\IPlatformAccessor.cs">
       <Link>IPlatformAccessor.cs</Link>
@@ -393,14 +405,11 @@
     <Compile Include="..\..\Platforms\PlatformAccessorBase.cs">
       <Link>PlatformAccessorBase.cs</Link>
     </Compile>
-    <Compile Include="..\..\Platforms\PlatformAutoSelector.cs">
-      <Link>PlatformAutoSelector.cs</Link>
+    <Compile Include="..\..\Platforms\PlatformAutoDetector.cs">
+      <Link>PlatformAutoDetector.cs</Link>
     </Compile>
-    <Compile Include="..\..\Platforms\LimitedPlatformAccessorBase.cs">
-      <Link>LimitedPlatformAccessorBase.cs</Link>
-    </Compile>
-    <Compile Include="..\..\Platforms\UnsupportedFrameworkPlatformAccessor.cs">
-      <Link>UnsupportedFrameworkPlatformAccessor.cs</Link>
+    <Compile Include="..\..\Platforms\LimitedPlatformAccessor.cs">
+      <Link>LimitedPlatformAccessor.cs</Link>
     </Compile>
     <Compile Include="..\..\Platforms\StandardFileType.cs">
       <Link>StandardFileType.cs</Link>

@@ -7,32 +7,23 @@ using System.Reflection;
 using System.Text;
 using MoonSharp.Interpreter.CoreLib;
 using MoonSharp.Interpreter.Execution;
+using MoonSharp.Interpreter.Loaders;
 using MoonSharp.Interpreter.Platforms;
 using NUnit.Framework;
 
 namespace MoonSharp.Interpreter.Tests
 {
 #if !EMBEDTEST
-	class TestsPlatformAccessor : LimitedPlatformAccessorBase
+	class TestsScriptLoader : ScriptLoaderBase
 	{
 		public override bool ScriptFileExists(string name)
 		{
 			return File.Exists(name);
 		}
 
-		public override object OpenScriptFile(Script script, string file, Table globalContext)
+		public override object LoadFile(string file, Table globalContext)
 		{
 			return new FileStream(file, FileMode.Open, FileAccess.Read);
-		}
-
-		public override string GetPlatformNamePrefix()
-		{
-			return "tests";
-		}
-
-		public override void DefaultPrint(string content)
-		{
-			Debug.WriteLine("PRINTED : " + content);
 		}
 	}
 #endif
@@ -53,23 +44,23 @@ namespace MoonSharp.Interpreter.Tests
 
 		public void Run()
 		{
-#if PCL
-	#if EMBEDTEST
-			Script.Platform = new EmbeddedResourcePlatformAccessor(Assembly.GetExecutingAssembly());
-	#else
-			Script.Platform = new TestsPlatformAccessor();
-	#endif
-#endif
-
 			Script S = new Script();
 
 			S.Options.DebugPrint = Print;
 
 			S.Options.UseLuaErrorLocations = true;
 
+#if PCL
+	#if EMBEDTEST
+			S.Options.ScriptLoader = new EmbeddedResourcesScriptLoader(Assembly.GetExecutingAssembly());
+	#else
+			S.Options.ScriptLoader = new TestsScriptLoader();
+	#endif
+#endif
+
 			S.Globals.Set("arg", DynValue.NewTable(S));
 
-			S.Options.ModulesPaths = new string[] { "TestMore/Modules/?", "TestMore/Modules/?.lua" };
+			((ScriptLoaderBase)S.Options.ScriptLoader).ModulePaths = new string[] { "TestMore/Modules/?", "TestMore/Modules/?.lua" };
 
 			S.DoFile(m_File);
 		}

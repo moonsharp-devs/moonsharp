@@ -6,9 +6,10 @@ using System.Text;
 namespace MoonSharp.Interpreter.Platforms
 {
 	/// <summary>
-	/// A class implementing all the bits needed to have a minimal 
+	/// A class implementing all the bits needed to have a minimal support of a platform.
+	/// This does not support the 'io'/'file' modules and has partial support of the 'os' module.
 	/// </summary>
-	public abstract class LimitedPlatformAccessorBase : PlatformAccessorBase
+	public class LimitedPlatformAccessor : PlatformAccessorBase
 	{
 		/// <summary>
 		/// Gets an environment variable. Must be implemented, but an implementation is allowed
@@ -140,6 +141,26 @@ namespace MoonSharp.Interpreter.Platforms
 		public override int OS_Execute(string cmdline)
 		{
 			throw new NotImplementedException("The current platform accessor does not support 'io' and 'os' operations. Provide your own implementation of platform to work around this limitation, if needed.");
+		}
+
+		/// <summary>
+		/// Gets the platform name prefix
+		/// </summary>
+		/// <returns></returns>
+		/// <exception cref="System.NotImplementedException"></exception>
+		public override string GetPlatformNamePrefix()
+		{
+			return "limited";
+		}
+
+		/// <summary>
+		/// Default handler for 'print' calls. Can be customized in ScriptOptions
+		/// </summary>
+		/// <param name="content">The content.</param>
+		/// <exception cref="System.NotImplementedException"></exception>
+		public override void DefaultPrint(string content)
+		{
+			System.Diagnostics.Debug.WriteLine(content);
 		}
 	}
 }

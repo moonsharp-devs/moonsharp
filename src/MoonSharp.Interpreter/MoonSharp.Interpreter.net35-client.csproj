@@ -188,8 +188,6 @@
     <Compile Include="Interop\StandardDescriptors\StandardUserDataPropertyDescriptor.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Loaders\ClassicLuaScriptLoader.cs" />
-    <Compile Include="Loaders\IFileSystemAccessor.cs" />
     <Compile Include="Execution\Scopes\ClosureContext.cs" />
     <Compile Include="Execution\Scopes\LoopTracker.cs" />
     <Compile Include="Execution\Scopes\IClosureBuilder.cs" />
@@ -202,13 +200,18 @@
     <Compile Include="Execution\Scopes\RuntimeScopeFrame.cs" />
     <Compile Include="Execution\ScriptLoadingContext.cs" />
     <Compile Include="DataTypes\DataType.cs" />
+    <Compile Include="Loaders\EmbeddedResourcesScriptLoader.cs" />
+    <Compile Include="Loaders\FileSystemScriptLoader.cs" />
+    <Compile Include="Loaders\InvalidScriptLoader.cs" />
+    <Compile Include="Loaders\ReplInterpreterScriptLoader.cs" />
+    <Compile Include="Loaders\ScriptLoaderBase.cs" />
+    <Compile Include="Loaders\IScriptLoader.cs" />
+    <Compile Include="Loaders\UnityAssetsScriptLoader.cs" />
     <Compile Include="Modules\MoonSharpConstantAttribute.cs" />
-    <Compile Include="Platforms\EmbeddedResourcePlatformAccessor.cs" />
     <Compile Include="Platforms\IPlatformAccessor.cs" />
     <Compile Include="Platforms\PlatformAccessorBase.cs" />
-    <Compile Include="Platforms\PlatformAutoSelector.cs" />
-    <Compile Include="Platforms\LimitedPlatformAccessorBase.cs" />
-    <Compile Include="Platforms\UnsupportedFrameworkPlatformAccessor.cs" />
+    <Compile Include="Platforms\PlatformAutoDetector.cs" />
+    <Compile Include="Platforms\LimitedPlatformAccessor.cs" />
     <Compile Include="Platforms\StandardFileType.cs" />
     <Compile Include="Platforms\StandardPlatformAccessor.cs" />
     <Compile Include="RuntimeAbstraction\PortableWrappers\Attributes.cs" />
