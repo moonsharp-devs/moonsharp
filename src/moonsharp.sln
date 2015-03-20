@@ -15,7 +15,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "root", "root", "{F02DBEDA-6
 EndProject
 Project("{7CF6DF6D-3B04-46F8-A40B-537D21BCA0B4}") = "MoonSharp.Documentation", "MoonSharp.Documentation\MoonSharp.Documentation.shfbproj", "{26B3033C-D1E2-4188-870C-D197E95A7F6B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoonSharp.RemoteDebugger", "MoonSharp.RemoteDebugger\MoonSharp.RemoteDebugger.csproj", "{43D3AD52-FED5-4305-B0F4-6B991220CD0A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoonSharp.RemoteDebugger.net35-client", "MoonSharp.RemoteDebugger\MoonSharp.RemoteDebugger.net35-client.csproj", "{43D3AD52-FED5-4305-B0F4-6B991220CD0A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DevTools", "DevTools", "{3C626068-E8CE-4F62-8974-F42A56F4EFD3}"
 EndProject
@@ -54,6 +54,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsPhoneTestRunner", "TestRunners\WindowsPhoneTestRunner\WindowsPhoneTestRunner.csproj", "{642B8AC9-97EB-4AA8-8F1D-D3F94CABCE37}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SilverlightTestRunner", "TestRunners\SilverlightTestRunner\SilverlightTestRunner.csproj", "{6D867B0C-EFC6-48C8-972C-EE0A2F99FEB4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoonSharp.RemoteDebugger.net40-client", "MoonSharp.RemoteDebugger\_Projects\MoonSharp.RemoteDebugger.net40-client\MoonSharp.RemoteDebugger.net40-client.csproj", "{F9D383B9-2639-4738-A897-4D9F8801B8C9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -271,6 +273,16 @@ Global
 		{6D867B0C-EFC6-48C8-972C-EE0A2F99FEB4}.Release|ARM.ActiveCfg = Release|Any CPU
 		{6D867B0C-EFC6-48C8-972C-EE0A2F99FEB4}.Release|x64.ActiveCfg = Release|Any CPU
 		{6D867B0C-EFC6-48C8-972C-EE0A2F99FEB4}.Release|x86.ActiveCfg = Release|Any CPU
+		{F9D383B9-2639-4738-A897-4D9F8801B8C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9D383B9-2639-4738-A897-4D9F8801B8C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9D383B9-2639-4738-A897-4D9F8801B8C9}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{F9D383B9-2639-4738-A897-4D9F8801B8C9}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F9D383B9-2639-4738-A897-4D9F8801B8C9}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F9D383B9-2639-4738-A897-4D9F8801B8C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F9D383B9-2639-4738-A897-4D9F8801B8C9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F9D383B9-2639-4738-A897-4D9F8801B8C9}.Release|ARM.ActiveCfg = Release|Any CPU
+		{F9D383B9-2639-4738-A897-4D9F8801B8C9}.Release|x64.ActiveCfg = Release|Any CPU
+		{F9D383B9-2639-4738-A897-4D9F8801B8C9}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -293,5 +305,6 @@ Global
 		{28B8B747-5683-46C0-B308-62E6D3C2F4CB} = {FA582319-EA17-4C52-870D-C00EF793628F}
 		{642B8AC9-97EB-4AA8-8F1D-D3F94CABCE37} = {023F1F7D-5F49-430F-9CC4-5FF891439548}
 		{6D867B0C-EFC6-48C8-972C-EE0A2F99FEB4} = {023F1F7D-5F49-430F-9CC4-5FF891439548}
+		{F9D383B9-2639-4738-A897-4D9F8801B8C9} = {5014C740-F6C7-4995-8D40-C250FB159A20}
 	EndGlobalSection
 EndGlobal

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Xml;
 
@@ -9,8 +10,15 @@ namespace SynchProjects
 {
 	class Program
 	{
+		static string BASEPATH;
+
 		static void CopyCompileFilesAsLinks(string platformName, string srcCsProj, string platformDest, string pathPrefix)
 		{
+			platformName = AdjustBasePath(platformName);
+			srcCsProj = AdjustBasePath(srcCsProj);
+			platformDest = AdjustBasePath(platformDest);
+			pathPrefix = AdjustBasePath(pathPrefix);
+
 			string dstCsProj = string.Format(platformDest, platformName);
 			try
 			{
@@ -84,27 +92,61 @@ namespace SynchProjects
 			Console.WriteLine("\n");
 		}
 
+		private static string AdjustBasePath(string str)
+		{
+			return str.Replace("{BASEPATH}", BASEPATH);
+		}
+
 		static void Main(string[] args)
 		{
-			const string INTERPRETER_PROJECT = @"C:\git\moonsharp\src\MoonSharp.Interpreter\MoonSharp.Interpreter.net35-client.csproj";
-			const string INTERPRETER_SUBPROJECTS_PATHS = @"C:\git\moonsharp\src\MoonSharp.Interpreter\_Projects\MoonSharp.Interpreter.{0}\MoonSharp.Interpreter.{0}.csproj";
+			const string INTERPRETER_PROJECT = @"{BASEPATH}\MoonSharp.Interpreter\MoonSharp.Interpreter.net35-client.csproj";
+			const string INTERPRETER_SUBPROJECTS_PATHS = @"{BASEPATH}\MoonSharp.Interpreter\_Projects\MoonSharp.Interpreter.{0}\MoonSharp.Interpreter.{0}.csproj";
 			const string INTERPRETER_PATH_PREFIX = @"..\..\";
 
-			const string TESTS_PROJECT = @"C:\git\moonsharp\src\MoonSharp.Interpreter.Tests\MoonSharp.Interpreter.Tests.net35-client.csproj";
-			const string TESTS_SUBPROJECTS_PATHS = @"C:\git\moonsharp\src\MoonSharp.Interpreter.Tests\_Projects\MoonSharp.Interpreter.Tests.{0}\MoonSharp.Interpreter.Tests.{0}.csproj";
+			const string DEBUGGER_PROJECT = @"{BASEPATH}\MoonSharp.RemoteDebugger\MoonSharp.RemoteDebugger.net35-client.csproj";
+			const string DEBUGGER_SUBPROJECTS_PATHS = @"{BASEPATH}\MoonSharp.RemoteDebugger\_Projects\MoonSharp.RemoteDebugger.{0}\MoonSharp.RemoteDebugger.{0}.csproj";
+			const string DEBUGGER_PATH_PREFIX = @"..\..\";
+
+			const string TESTS_PROJECT = @"{BASEPATH}\MoonSharp.Interpreter.Tests\MoonSharp.Interpreter.Tests.net35-client.csproj";
+			const string TESTS_SUBPROJECTS_PATHS = @"{BASEPATH}\MoonSharp.Interpreter.Tests\_Projects\MoonSharp.Interpreter.Tests.{0}\MoonSharp.Interpreter.Tests.{0}.csproj";
 			const string TESTS_PATH_PREFIX = @"..\..\";
 
 			string[] INTERPRETER_PLATFORMS = new string[] { "net40-client", "portable40" };
+			string[] DEBUGGER_PLATFORMS = new string[] { "net40-client" };
 			string[] TESTS_PLATFORMS = new string[] { "net40-client", "portable40", "Embeddable.portable40" };
+
+			CalcBasePath();
 
 			foreach (string platform in INTERPRETER_PLATFORMS)
 				CopyCompileFilesAsLinks(platform, INTERPRETER_PROJECT, INTERPRETER_SUBPROJECTS_PATHS, INTERPRETER_PATH_PREFIX);
+
+			foreach (string platform in DEBUGGER_PLATFORMS)
+				CopyCompileFilesAsLinks(platform, DEBUGGER_PROJECT, DEBUGGER_SUBPROJECTS_PATHS, DEBUGGER_PATH_PREFIX);
 
 			foreach (string platform in TESTS_PLATFORMS)
 				CopyCompileFilesAsLinks(platform, TESTS_PROJECT, TESTS_SUBPROJECTS_PATHS, TESTS_PATH_PREFIX);
 
 
 			Console.ReadLine();
+		}
+
+		private static void CalcBasePath()
+		{
+			string path = "";
+			string[] dir = AppDomain.CurrentDomain.BaseDirectory.Split('\\');
+
+			for (int i = 0; i < dir.Length; i++)
+			{
+				if (dir[i].ToLower() == "devtools")
+					break;
+
+				if (path.Length > 0)
+					path = path + "\\" + dir[i];
+				else
+					path = dir[i];
+			}
+
+			BASEPATH = path;
 		}
 	}
 }
