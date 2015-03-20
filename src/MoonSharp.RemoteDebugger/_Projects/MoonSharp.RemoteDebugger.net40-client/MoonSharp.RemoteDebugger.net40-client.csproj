@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MoonSharp.RemoteDebugger.net40_client</RootNamespace>
-    <AssemblyName>MoonSharp.RemoteDebugger.net40-client</AssemblyName>
+    <AssemblyName>MoonSharp.RemoteDebugger</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
