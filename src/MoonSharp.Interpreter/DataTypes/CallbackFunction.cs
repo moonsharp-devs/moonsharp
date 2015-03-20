@@ -8,13 +8,16 @@ using MoonSharp.Interpreter.Interop;
 namespace MoonSharp.Interpreter
 {
 	/// <summary>
-	/// This class wraps 
+	/// This class wraps a CLR function 
 	/// </summary>
 	public sealed class CallbackFunction : RefIdObject
 	{
 		Func<ScriptExecutionContext, CallbackArguments, DynValue> m_CallBack;
 		private static InteropAccessMode m_DefaultAccessMode = InteropAccessMode.LazyOptimized;
 
+		/// <summary>
+		/// Gets the name of the function
+		/// </summary>
 		public string Name { get; private set; }
 
 		/// <summary>

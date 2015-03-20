@@ -6,7 +6,10 @@ using MoonSharp.Interpreter.Execution;
 
 namespace MoonSharp.Interpreter.CoreLib
 {
-	[MoonSharpModule(Namespace="bit32")]
+	/// <summary>
+	/// Class implementing bit32 Lua functions 
+	/// </summary>
+	[MoonSharpModule(Namespace = "bit32")]
 	public class Bit32Module
 	{
 		static readonly uint[] BITS = new uint[] { 

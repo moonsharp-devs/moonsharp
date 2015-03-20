@@ -7,6 +7,9 @@ using MoonSharp.Interpreter.Execution;
 
 namespace MoonSharp.Interpreter.CoreLib
 {
+	/// <summary>
+	/// Class implementing table Lua functions 
+	/// </summary>
 	[MoonSharpModule(Namespace = "table")]
 	public class TableModule
 	{

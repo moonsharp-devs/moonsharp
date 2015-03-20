@@ -93,7 +93,6 @@
     <Compile Include="CoreLib\OsTimeModule.cs" />
     <Compile Include="CoreLib\StringLib\KopiLua_StrLib.cs" />
     <Compile Include="DataStructs\MultiDictionary.cs" />
-    <Compile Include="Execution\Scopes\BuildTimeLabelTracker.cs" />
     <Compile Include="IO\BinDumpBinaryReader.cs" />
     <Compile Include="IO\BinDumpBinaryWriter.cs">
       <SubType>Code</SubType>
@@ -119,7 +118,6 @@
     <Compile Include="CoreLib\TableModule.cs" />
     <Compile Include="DataStructs\Extension_Methods.cs" />
     <Compile Include="DataStructs\FastStackDynamic.cs" />
-    <Compile Include="DataStructs\ITrackableReference.cs" />
     <Compile Include="DataStructs\LinkedListIndex.cs" />
     <Compile Include="DataStructs\Slice.cs" />
     <Compile Include="DataTypes\Coroutine.cs" />
@@ -158,12 +156,11 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DataTypes\TablePair.cs" />
-    <Compile Include="Execution\FileLoadRequestedEventArgs.cs" />
     <Compile Include="Execution\ScriptExecutionContext.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Debugging\SourceCode.cs" />
-    <Compile Include="Execution\VM\CoroutineState.cs" />
+    <Compile Include="DataTypes\CoroutineState.cs" />
     <Compile Include="Execution\VM\ExecutionState.cs" />
     <Compile Include="Execution\VM\Processor\DebugContext.cs" />
     <Compile Include="Execution\VM\Processor\Processor_Coroutines.cs" />
@@ -214,9 +211,9 @@
     <Compile Include="Platforms\LimitedPlatformAccessor.cs" />
     <Compile Include="Platforms\StandardFileType.cs" />
     <Compile Include="Platforms\StandardPlatformAccessor.cs" />
-    <Compile Include="RuntimeAbstraction\PortableWrappers\Attributes.cs" />
-    <Compile Include="RuntimeAbstraction\PortableWrappers\ExtensionMethods.cs" />
-    <Compile Include="RuntimeAbstraction\PortableWrappers\Stopwatch.cs" />
+    <Compile Include="Platforms\PortableWrappers\Attributes.cs" />
+    <Compile Include="Platforms\PortableWrappers\ExtensionMethods.cs" />
+    <Compile Include="Platforms\PortableWrappers\Stopwatch.cs" />
     <Compile Include="Script.cs" />
     <Compile Include="DataTypes\Table.cs" />
     <Compile Include="Execution\VM\ByteCode.cs" />

@@ -6,6 +6,9 @@ using MoonSharp.Interpreter.Execution;
 
 namespace MoonSharp.Interpreter.CoreLib
 {
+	/// <summary>
+	/// Class implementing metatable related Lua functions (xxxmetatable and rawxxx).
+	/// </summary>
 	[MoonSharpModule]
 	public class MetaTableModule
 	{

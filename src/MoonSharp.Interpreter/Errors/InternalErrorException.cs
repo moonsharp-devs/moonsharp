@@ -5,6 +5,9 @@ using System.Text;
 
 namespace MoonSharp.Interpreter
 {
+	/// <summary>
+	/// Exception thrown when an inconsistent state is reached in the interpreter
+	/// </summary>
 	[Serializable]
 	public class InternalErrorException : InterpreterException
 	{

@@ -6,7 +6,7 @@ using System.Text;
 namespace MoonSharp.Interpreter.Execution.VM
 {
 	[Flags]
-	public enum CallStackItemFlags
+	internal enum CallStackItemFlags
 	{
 		None = 0,
 

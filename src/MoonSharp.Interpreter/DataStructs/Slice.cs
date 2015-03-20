@@ -9,7 +9,7 @@ namespace MoonSharp.Interpreter.DataStructs
 	/// Provides facility to create a "sliced" view over an existing IList<typeparamref name="T"/>
 	/// </summary>
 	/// <typeparam name="T">The type of the items contained in the collection</typeparam>
-	public class Slice<T> : IEnumerable<T>, IList<T>
+	internal class Slice<T> : IEnumerable<T>, IList<T>
 	{
 		IList<T> m_SourceList;
 		int m_From, m_Length;

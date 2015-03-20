@@ -97,9 +97,6 @@
     <Compile Include="..\..\DataStructs\MultiDictionary.cs">
       <Link>MultiDictionary.cs</Link>
     </Compile>
-    <Compile Include="..\..\Execution\Scopes\BuildTimeLabelTracker.cs">
-      <Link>BuildTimeLabelTracker.cs</Link>
-    </Compile>
     <Compile Include="..\..\IO\BinDumpBinaryReader.cs">
       <Link>BinDumpBinaryReader.cs</Link>
     </Compile>
@@ -169,9 +166,6 @@
     </Compile>
     <Compile Include="..\..\DataStructs\FastStackDynamic.cs">
       <Link>FastStackDynamic.cs</Link>
-    </Compile>
-    <Compile Include="..\..\DataStructs\ITrackableReference.cs">
-      <Link>ITrackableReference.cs</Link>
     </Compile>
     <Compile Include="..\..\DataStructs\LinkedListIndex.cs">
       <Link>LinkedListIndex.cs</Link>
@@ -272,9 +266,6 @@
     <Compile Include="..\..\DataTypes\TablePair.cs">
       <Link>TablePair.cs</Link>
     </Compile>
-    <Compile Include="..\..\Execution\FileLoadRequestedEventArgs.cs">
-      <Link>FileLoadRequestedEventArgs.cs</Link>
-    </Compile>
     <Compile Include="..\..\Execution\ScriptExecutionContext.cs">
       <SubType>Code</SubType>
       <Link>ScriptExecutionContext.cs</Link>
@@ -282,7 +273,7 @@
     <Compile Include="..\..\Debugging\SourceCode.cs">
       <Link>SourceCode.cs</Link>
     </Compile>
-    <Compile Include="..\..\Execution\VM\CoroutineState.cs">
+    <Compile Include="..\..\DataTypes\CoroutineState.cs">
       <Link>CoroutineState.cs</Link>
     </Compile>
     <Compile Include="..\..\Execution\VM\ExecutionState.cs">
@@ -420,13 +411,13 @@
     <Compile Include="..\..\Platforms\StandardPlatformAccessor.cs">
       <Link>StandardPlatformAccessor.cs</Link>
     </Compile>
-    <Compile Include="..\..\RuntimeAbstraction\PortableWrappers\Attributes.cs">
+    <Compile Include="..\..\Platforms\PortableWrappers\Attributes.cs">
       <Link>Attributes.cs</Link>
     </Compile>
-    <Compile Include="..\..\RuntimeAbstraction\PortableWrappers\ExtensionMethods.cs">
+    <Compile Include="..\..\Platforms\PortableWrappers\ExtensionMethods.cs">
       <Link>ExtensionMethods.cs</Link>
     </Compile>
-    <Compile Include="..\..\RuntimeAbstraction\PortableWrappers\Stopwatch.cs">
+    <Compile Include="..\..\Platforms\PortableWrappers\Stopwatch.cs">
       <Link>Stopwatch.cs</Link>
     </Compile>
     <Compile Include="..\..\Script.cs">

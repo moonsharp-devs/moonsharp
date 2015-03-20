@@ -12,7 +12,7 @@ using MoonSharp.Interpreter.Debugging;
 
 namespace MoonSharp.Interpreter.Execution.VM
 {
-	internal class ByteCode : ITrackableReference
+	internal class ByteCode : RefIdObject
 	{
 		public List<Instruction> Code = new List<Instruction>();
 		public Script Script { get; private set; }
@@ -26,13 +26,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 			Script = script;
 		}
 
-		#region ITrackableReference
-
-		static int s_RefIDCounter = 0;
-		private int m_RefID = Interlocked.Increment(ref s_RefIDCounter);
-		public int ReferenceID { get { return m_RefID; } }
-
-		#endregion
 
 		public IDisposable EnterSource(SourceRef sref)
 		{

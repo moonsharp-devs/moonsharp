@@ -9,6 +9,9 @@ using MoonSharp.Interpreter.Platforms;
 
 namespace MoonSharp.Interpreter.CoreLib
 {
+	/// <summary>
+	/// Class implementing io Lua functions. Proper support requires a compatible IPlatformAccessor
+	/// </summary>
 	[MoonSharpModule(Namespace = "io")]
 	public class IoModule
 	{

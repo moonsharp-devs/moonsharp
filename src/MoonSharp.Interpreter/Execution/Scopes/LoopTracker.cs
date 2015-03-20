@@ -14,7 +14,7 @@ namespace MoonSharp.Interpreter.Execution
 	}
 
 
-	class LoopTracker
+	internal class LoopTracker
 	{
 		public FastStack<ILoop> Loops = new FastStack<ILoop>(16384);
 	}

@@ -5,7 +5,12 @@ using System.Text;
 
 namespace MoonSharp.Interpreter.DataStructs
 {
-	public class MultiDictionary<K, V>
+	/// <summary>
+	/// A Dictionary where multiple values can be associated to the same key
+	/// </summary>
+	/// <typeparam name="K"></typeparam>
+	/// <typeparam name="V"></typeparam>
+	internal class MultiDictionary<K, V>
 	{
 		Dictionary<K, List<V>> m_Map = new Dictionary<K, List<V>>();
 

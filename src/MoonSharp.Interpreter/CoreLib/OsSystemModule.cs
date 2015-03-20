@@ -8,6 +8,10 @@ using MoonSharp.Interpreter.Execution;
 
 namespace MoonSharp.Interpreter.CoreLib
 {
+	/// <summary>
+	/// Class implementing system related Lua functions from the 'os' module.
+	/// Proper support requires a compatible IPlatformAccessor
+	/// </summary>
 	[MoonSharpModule(Namespace = "os")]
 	public class OsSystemModule
 	{

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace MoonSharp.Interpreter.Execution
 {
-	public interface IClosureBuilder
+	internal interface IClosureBuilder
 	{
 		SymbolRef CreateUpvalue(BuildTimeScope scope, SymbolRef symbol);
 

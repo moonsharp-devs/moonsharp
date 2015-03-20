@@ -27,7 +27,7 @@ namespace MoonSharp.Interpreter
 
 
 		/// <summary>
-		/// Gets a unique reference identifier. This is guaranteed to be unique only in a single Script object as it's not thread-safe.
+		/// Gets a unique reference identifier. This is guaranteed to be unique only for dynvalues created in a single thread as it's not thread-safe.
 		/// </summary>
 		public int ReferenceID { get { return m_RefID; } }
 

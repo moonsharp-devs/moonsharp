@@ -5,16 +5,34 @@ using System.Text;
 
 namespace MoonSharp.Interpreter.Execution
 {
+	/// <summary>
+	/// The scope of a closure (container of upvalues)
+	/// </summary>
 	public class ClosureContext : List<DynValue>
 	{
+		/// <summary>
+		/// Type of closure based on upvalues
+		/// </summary>
 		public enum UpvaluesType
 		{
+			/// <summary>
+			/// The closure has no upvalues (thus, technically, it's a function and not a closure!)
+			/// </summary>
 			None,
+			/// <summary>
+			/// The closure has _ENV as its only upvalue
+			/// </summary>
 			Environment,
+			/// <summary>
+			/// The closure is a "real" closure, with multiple upvalues
+			/// </summary>
 			Closure
 		}
 
 
+		/// <summary>
+		/// Gets the symbols.
+		/// </summary>
 		public string[] Symbols { get; private set; }
 
 		internal ClosureContext(SymbolRef[] symbols, IEnumerable<DynValue> values)
@@ -28,6 +46,10 @@ namespace MoonSharp.Interpreter.Execution
 			Symbols = new string[0];
 		}
 
+		/// <summary>
+		/// Gets the type of the upvalues contained in this closure
+		/// </summary>
+		/// <returns></returns>
 		public UpvaluesType GetUpvaluesType()
 		{
 			if (Symbols.Length == 0)

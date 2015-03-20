@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Text;
 using MoonSharp.Interpreter;
 using MoonSharp.Interpreter.Execution;
+using MoonSharp.Interpreter.Loaders;
 using MoonSharp.RemoteDebugger;
 using MoonSharp.RemoteDebugger.Network;
 
@@ -19,6 +20,8 @@ namespace MoonSharp
 		[STAThread]
 		static void Main(string[] args)
 		{
+			Script.DefaultOptions.ScriptLoader = new ReplInterpreterScriptLoader();
+
 			Console.WriteLine("MoonSharp REPL {0} [{1}]", Script.VERSION, Script.Platform.GetPlatformName());
 			Console.WriteLine("Copyright (C) 2014 Marco Mastropaolo");
 			Console.WriteLine("http://www.moonsharp.org");

@@ -6,6 +6,10 @@ using MoonSharp.Interpreter.Execution.VM;
 
 namespace MoonSharp.Interpreter
 {
+	/// <summary>
+	/// Exception for all runtime errors. In addition to constructors, it offers a lot of static methods
+	/// generating more "standard" Lua errors.
+	/// </summary>
 	[Serializable]
 	public class ScriptRuntimeException : InterpreterException
 	{
@@ -26,6 +30,9 @@ namespace MoonSharp.Interpreter
 
 		}
 
+		/// <summary>
+		/// Gets or sets a value indicating whether the message should not be decorated
+		/// </summary>
 		public bool DoNotDecorateMessage { get; set; }
 
 		public static ScriptRuntimeException ArithmeticOnNonNumber(DynValue l, DynValue r = null)

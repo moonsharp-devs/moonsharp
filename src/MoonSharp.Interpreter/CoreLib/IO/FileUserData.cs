@@ -6,6 +6,9 @@ using System.Text;
 
 namespace MoonSharp.Interpreter.CoreLib.IO
 {
+	/// <summary>
+	/// Abstract class implementing a file Lua userdata. Methods are meant to be called by Lua code.
+	/// </summary>
 	public class FileUserData : StreamFileUserDataBase
 	{
 		public FileUserData(Script script, string filename, Encoding encoding, string mode)

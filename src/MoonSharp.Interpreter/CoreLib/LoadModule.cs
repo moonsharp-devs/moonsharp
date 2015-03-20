@@ -6,6 +6,9 @@ using MoonSharp.Interpreter.Execution;
 
 namespace MoonSharp.Interpreter.CoreLib
 {
+	/// <summary>
+	/// Class implementing loading Lua functions like 'require', 'load', etc.
+	/// </summary>
 	[MoonSharpModule]
 	public class LoadModule
 	{

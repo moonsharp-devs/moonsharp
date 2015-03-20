@@ -6,6 +6,9 @@ using MoonSharp.Interpreter.Execution;
 
 namespace MoonSharp.Interpreter.CoreLib
 {
+	/// <summary>
+	/// Class implementing table Lua iterators (pairs, ipairs, next)
+	/// </summary>
 	[MoonSharpModule]
 	public class TableIteratorsModule
 	{

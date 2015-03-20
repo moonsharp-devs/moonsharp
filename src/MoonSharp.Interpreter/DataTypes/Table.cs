@@ -128,6 +128,11 @@ namespace MoonSharp.Interpreter
 			return t;
 		}
 
+		/// <summary>
+		/// Gets the dynvalue associated with the specified key (expressed as a System.Object)
+		/// </summary>
+		/// <param name="key">The key.</param>
+		/// <returns></returns>
 		public DynValue GetWithObjectKey(object key)
 		{
 			if (key is string)
@@ -140,6 +145,11 @@ namespace MoonSharp.Interpreter
 		}
 
 
+		/// <summary>
+		/// Gets the dynvalue associated with the specified key (expressed as a System.Object) as a System.Object.
+		/// </summary>
+		/// <param name="key">The key.</param>
+		/// <returns></returns>
 		public object GetAsObject(object key)
 		{
 			if (key is string)
@@ -151,6 +161,11 @@ namespace MoonSharp.Interpreter
 			return Get(dynkey).ToObject();
 		}
 
+		/// <summary>
+		/// Sets the dynvalue associated with the specified key. Both expressed as System.Object.
+		/// </summary>
+		/// <param name="key">The key.</param>
+		/// <param name="value">The value.</param>
 		public void SetAsObject(object key, object value)
 		{
 			DynValue dynval = DynValue.FromObject(this.OwnerScript, value);
@@ -162,9 +177,6 @@ namespace MoonSharp.Interpreter
 			else
 				Set(DynValue.FromObject(this.OwnerScript, key), dynval);
 		}
-
-
-
 
 
 		/// <summary>
@@ -316,9 +328,11 @@ namespace MoonSharp.Interpreter
 		}
 
 		/// <summary>
-		/// Collects the dead keys.
+		/// Collects the dead keys. This frees up memory but invalidates pending iterators.
+		/// It's called automatically internally when the semantics of Lua tables allow, but can be forced
+		/// externally if it's known that no iterators are pending.
 		/// </summary>
-		private void CollectDeadKeys()
+		public void CollectDeadKeys()
 		{
 			for (LinkedListNode<TablePair> node = m_Values.First; node != null; node = node.Next)
 			{

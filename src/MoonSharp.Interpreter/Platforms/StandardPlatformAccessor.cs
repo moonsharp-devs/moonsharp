@@ -9,7 +9,7 @@ using System.Text;
 namespace MoonSharp.Interpreter.Platforms
 {
 	/// <summary>
-	/// Class providing the IPlatformAccessor interface for standard implementations.
+	/// Class providing the IPlatformAccessor interface for standard full-feaured implementations.
 	/// </summary>
 	public class StandardPlatformAccessor : PlatformAccessorBase
 	{

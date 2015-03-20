@@ -6,7 +6,7 @@ using MoonSharp.Interpreter.Debugging;
 
 namespace MoonSharp.Interpreter.Execution.VM
 {
-	public class CallStackItem
+	internal class CallStackItem
 	{
 		public int Debug_EntryPoint;
 		public SymbolRef[] Debug_Symbols;

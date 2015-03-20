@@ -7,6 +7,9 @@ using MoonSharp.Interpreter.Execution.VM;
 
 namespace MoonSharp.Interpreter.CoreLib
 {
+	/// <summary>
+	/// Class implementing error handling Lua functions (pcall and xpcall)
+	/// </summary>
 	[MoonSharpModule]
 	public class ErrorHandlingModule
 	{

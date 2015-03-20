@@ -6,6 +6,9 @@ using MoonSharp.Interpreter.Debugging;
 
 namespace MoonSharp.Interpreter
 {
+	/// <summary>
+	/// Base type of all exceptions thrown in MoonSharp
+	/// </summary>
 	public class InterpreterException : Exception 
 	{
 		protected InterpreterException(Exception ex)
@@ -26,10 +29,19 @@ namespace MoonSharp.Interpreter
 
 		}
 
+		/// <summary>
+		/// Gets the instruction pointer of the execution (if it makes sense)
+		/// </summary>
 		public int InstructionPtr { get; internal set; }
 
+		/// <summary>
+		/// Gets the interpreter call stack.
+		/// </summary>
 		public IList<MoonSharp.Interpreter.Debugging.WatchItem> CallStack { get; internal set; }
 
+		/// <summary>
+		/// Gets the decorated message (error message plus error location in script) if possible.
+		/// </summary>
 		public string DecoratedMessage { get; internal set; }
 
 		internal void DecorateMessage(Script script, SourceRef sref, int ip = -1)

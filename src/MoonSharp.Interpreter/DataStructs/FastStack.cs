@@ -7,7 +7,11 @@ using System.Text;
 
 namespace MoonSharp.Interpreter.DataStructs
 {
-	public class FastStack<T> : IList<T>
+	/// <summary>
+	/// A preallocated, non-resizable, stack
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	internal class FastStack<T> : IList<T>
 	{
 		T[] m_Storage;
 		int m_HeadIdx = 0;

@@ -27,25 +27,52 @@ namespace MoonSharp.Interpreter
 		public SymbolRef Environment { get { return i_Env; } }
 
 
+		/// <summary>
+		/// Gets the default _ENV.
+		/// </summary>
 		public static SymbolRef DefaultEnv { get { return s_DefaultEnv; } }
 
+		/// <summary>
+		/// Creates a new symbol reference pointing to a global var
+		/// </summary>
+		/// <param name="name">The name.</param>
+		/// <param name="envSymbol">The _ENV symbol.</param>
+		/// <returns></returns>
 		public static SymbolRef Global(string name, SymbolRef envSymbol)
 		{
 			return new SymbolRef() { i_Index = -1, i_Type = SymbolRefType.Global, i_Env = envSymbol, i_Name = name };
 		}
 
-		public static SymbolRef Local(string name, int index)
+		/// <summary>
+		/// Creates a new symbol reference pointing to a local var
+		/// </summary>
+		/// <param name="name">The name.</param>
+		/// <param name="index">The index of the var in local scope.</param>
+		/// <returns></returns>
+		internal static SymbolRef Local(string name, int index)
 		{
 			//Debug.Assert(index >= 0, "Symbol Index < 0");
 			return new SymbolRef() { i_Index = index, i_Type = SymbolRefType.Local, i_Name = name };
 		}
 
-		public static SymbolRef Upvalue(string name, int index)
+		/// <summary>
+		/// Creates a new symbol reference pointing to an upvalue var
+		/// </summary>
+		/// <param name="name">The name.</param>
+		/// <param name="index">The index of the var in closure scope.</param>
+		/// <returns></returns>
+		internal static SymbolRef Upvalue(string name, int index)
 		{
 			//Debug.Assert(index >= 0, "Symbol Index < 0");
 			return new SymbolRef() { i_Index = index, i_Type = SymbolRefType.Upvalue, i_Name = name };
 		}
 
+		/// <summary>
+		/// Returns a <see cref="System.String" /> that represents this instance.
+		/// </summary>
+		/// <returns>
+		/// A <see cref="System.String" /> that represents this instance.
+		/// </returns>
 		public override string ToString()
 		{
 			if (i_Type == SymbolRefType.DefaultEnv)
@@ -57,6 +84,9 @@ namespace MoonSharp.Interpreter
 				return string.Format("{2} : {0}[{1}]", i_Type, i_Index, i_Name);
 		}
 
+		/// <summary>
+		/// Writes this instance to a binary stream
+		/// </summary>
 		internal void WriteBinary(BinaryWriter bw)
 		{
 			bw.Write((byte)this.i_Type);
@@ -64,6 +94,9 @@ namespace MoonSharp.Interpreter
 			bw.Write(i_Name);
 		}
 
+		/// <summary>
+		/// Reads a symbolref from a binary stream 
+		/// </summary>
 		internal static SymbolRef ReadBinary(BinaryReader br)
 		{
 			SymbolRef that = new SymbolRef();

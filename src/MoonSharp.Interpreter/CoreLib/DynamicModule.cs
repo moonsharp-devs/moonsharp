@@ -6,6 +6,9 @@ using MoonSharp.Interpreter.Execution;
 
 namespace MoonSharp.Interpreter.CoreLib
 {
+	/// <summary>
+	/// Class implementing dynamic expression evaluations at runtime (a MoonSharp addition).
+	/// </summary>
 	[MoonSharpModule(Namespace = "dynamic")]
 	public class DynamicModule
 	{

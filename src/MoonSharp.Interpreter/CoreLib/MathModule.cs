@@ -7,7 +7,10 @@ using MoonSharp.Interpreter.Interop;
 
 namespace MoonSharp.Interpreter.CoreLib
 {
-	[MoonSharpModule(Namespace="math")]
+	/// <summary>
+	/// Class implementing math Lua functions 
+	/// </summary>
+	[MoonSharpModule(Namespace = "math")]
 	public class MathModule
 	{
 		[MoonSharpConstant]

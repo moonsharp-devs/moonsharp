@@ -8,6 +8,9 @@ using MoonSharp.Interpreter.Execution.VM;
 
 namespace MoonSharp.Interpreter.CoreLib
 {
+	/// <summary>
+	/// Class implementing coroutine Lua functions 
+	/// </summary>
 	[MoonSharpModule(Namespace = "coroutine")]
 	public class CoroutineModule
 	{

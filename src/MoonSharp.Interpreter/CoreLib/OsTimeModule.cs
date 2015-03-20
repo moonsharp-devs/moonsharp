@@ -6,6 +6,9 @@ using MoonSharp.Interpreter.Execution;
 
 namespace MoonSharp.Interpreter.CoreLib
 {
+	/// <summary>
+	/// Class implementing time related Lua functions from the 'os' module.
+	/// </summary>
 	[MoonSharpModule(Namespace = "os")]
 	public class OsTimeModule
 	{

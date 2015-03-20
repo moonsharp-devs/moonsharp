@@ -8,6 +8,9 @@ using MoonSharp.Interpreter.Tree;
 
 namespace MoonSharp.Interpreter
 {
+	/// <summary>
+	/// Exception for all parsing/lexing errors. 
+	/// </summary>
 	[Serializable]
 	public class SyntaxErrorException : InterpreterException
 	{

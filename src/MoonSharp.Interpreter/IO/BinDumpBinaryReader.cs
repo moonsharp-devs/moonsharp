@@ -6,7 +6,10 @@ using System.Text;
 
 namespace MoonSharp.Interpreter.IO
 {
-	public class BinDumpBinaryReader : BinaryReader
+	/// <summary>
+	/// "Optimized" BinaryReader which shares strings and use a dumb compression for integers
+	/// </summary>
+	internal class BinDumpBinaryReader : BinaryReader
 	{
 		public BinDumpBinaryReader(Stream s) : base(s) { }
 		public BinDumpBinaryReader(Stream s, Encoding e) : base(s, e) { }

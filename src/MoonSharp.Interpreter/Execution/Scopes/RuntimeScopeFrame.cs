@@ -5,7 +5,7 @@ using System.Text;
 
 namespace MoonSharp.Interpreter.Execution
 {
-	public class RuntimeScopeFrame 
+	internal class RuntimeScopeFrame 
 	{
 		public List<SymbolRef> DebugSymbols { get; private set; }
 		public int Count { get { return DebugSymbols.Count; } }

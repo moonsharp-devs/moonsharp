@@ -5,7 +5,7 @@ using System.Text;
 
 namespace MoonSharp.Interpreter.Execution
 {
-	public class RuntimeScopeBlock
+	internal class RuntimeScopeBlock
 	{
 		public int From { get; internal set; }
 		public int To { get; internal set; }

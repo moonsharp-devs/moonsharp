@@ -8,6 +8,10 @@ using MoonSharp.Interpreter.Interop;
 
 namespace MoonSharp.Interpreter
 {
+	/// <summary>
+	/// Class exposing C# objects as Lua userdata.
+	/// For efficiency, a global registry of types is maintained, instead of a per-script one.
+	/// </summary>
 	public class UserData : RefIdObject
 	{
 		private UserData()
@@ -15,10 +19,21 @@ namespace MoonSharp.Interpreter
 			// This type can only be instantiated using one of the Create methods
 		}
 
+		/// <summary>
+		/// Gets or sets the "uservalue". See debug.getuservalue and debug.setuservalue.
+		/// http://www.lua.org/manual/5.2/manual.html#pdf-debug.setuservalue
+		/// </summary>
 		public DynValue UserValue { get; set; }
 
-		public object Object { get; set; }
-		internal IUserDataDescriptor Descriptor { get; set; }
+		/// <summary>
+		/// Gets the object associated to this userdata (null for statics)
+		/// </summary>
+		public object Object { get; private set; }
+
+		/// <summary>
+		/// Gets the type descriptor of this userdata
+		/// </summary>
+		public IUserDataDescriptor Descriptor { get; private set; }
 
 		private static object s_Lock = new object();
 		private static Dictionary<Type, IUserDataDescriptor> s_Registry = new Dictionary<Type, IUserDataDescriptor>();
@@ -31,26 +46,52 @@ namespace MoonSharp.Interpreter
 			s_DefaultAccessMode = InteropAccessMode.LazyOptimized;
 		}
 
+		/// <summary>
+		/// Registers a type for userdata interop
+		/// </summary>
+		/// <typeparam name="T">The type to be registered</typeparam>
+		/// <param name="accessMode">The access mode (optional).</param>
+		/// <param name="friendlyName">Friendly name for the type (optional)</param>
 		public static void RegisterType<T>(InteropAccessMode accessMode = InteropAccessMode.Default, string friendlyName = null)
 		{
 			RegisterType_Impl(typeof(T), accessMode, friendlyName, null);
 		}
 
+		/// <summary>
+		/// Registers a type for userdata interop
+		/// </summary>
+		/// <param name="type">The type to be registered</param>
+		/// <param name="accessMode">The access mode (optional).</param>
+		/// <param name="friendlyName">Friendly name for the type (optional)</param>
 		public static void RegisterType(Type type, InteropAccessMode accessMode = InteropAccessMode.Default, string friendlyName = null)
 		{
 			RegisterType_Impl(type, accessMode, friendlyName, null);
 		}
 
+		/// <summary>
+		/// Registers a type with a custom userdata descriptor
+		/// </summary>
+		/// <typeparam name="T">The type to be registered</typeparam>
+		/// <param name="customDescriptor">The custom descriptor.</param>
 		public static void RegisterType<T>(IUserDataDescriptor customDescriptor)
 		{
 			RegisterType_Impl(typeof(T), InteropAccessMode.Default, null, customDescriptor);
 		}
 
+		/// <summary>
+		/// Registers a type with a custom userdata descriptor
+		/// </summary>
+		/// <param name="type">The type to be registered</param>
+		/// <param name="customDescriptor">The custom descriptor.</param>
 		public static void RegisterType(Type type, IUserDataDescriptor customDescriptor)
 		{
 			RegisterType_Impl(type, InteropAccessMode.Default, null, customDescriptor);
 		}
 
+		/// <summary>
+		/// Registers all types marked with a MoonSharpUserDataAttribute that ar contained in an assembly.
+		/// </summary>
+		/// <param name="asm">The assembly.</param>
 		public static void RegisterAssembly(Assembly asm = null)
 		{
 			asm = asm ?? Assembly.GetCallingAssembly();
@@ -69,11 +110,19 @@ namespace MoonSharp.Interpreter
 			}
 		}
 
+		/// <summary>
+		/// Unregisters a type.
+		/// </summary>
+		/// <typeparam name="T">The type to be unregistered</typeparam>
 		public static void UnregisterType<T>()
 		{
 			UnregisterType(typeof(T));
 		}
 
+		/// <summary>
+		/// Unregisters a type.
+		/// </summary>
+		/// <param name="t">The The type to be unregistered</param>
 		public static void UnregisterType(Type t)
 		{
 			lock (s_Lock)
@@ -81,6 +130,11 @@ namespace MoonSharp.Interpreter
 					s_Registry.Remove(t);
 		}
 
+		/// <summary>
+		/// Creates a userdata DynValue from the specified object
+		/// </summary>
+		/// <param name="o">The object</param>
+		/// <returns></returns>
 		public static DynValue Create(object o)
 		{
 			var descr = GetDescriptorForObject(o);
@@ -93,6 +147,11 @@ namespace MoonSharp.Interpreter
 				});
 		}
 
+		/// <summary>
+		/// Creates a static userdata DynValue from the specified Type
+		/// </summary>
+		/// <param name="t">The type</param>
+		/// <returns></returns>
 		public static DynValue CreateStatic(Type t)
 		{
 			var descr = GetDescriptorForType(t, false);
@@ -105,20 +164,35 @@ namespace MoonSharp.Interpreter
 			});
 		}
 
+		/// <summary>
+		/// Creates a static userdata DynValue from the specified Type
+		/// </summary>
+		/// <typeparam name="T">The Type</typeparam>
+		/// <returns></returns>
 		public static DynValue CreateStatic<T>()
 		{
 			return CreateStatic(typeof(T));
 		}
 
+		/// <summary>
+		/// Gets or sets the registration policy to be used in the whole application
+		/// </summary>
 		public static InteropRegistrationPolicy RegistrationPolicy { get; set; }
 
+		/// <summary>
+		/// Gets or sets the default access mode to be used in the whole application
+		/// </summary>
+		/// <value>
+		/// The default access mode.
+		/// </value>
+		/// <exception cref="System.ArgumentException">InteropAccessMode is InteropAccessMode.Default</exception>
 		public static InteropAccessMode DefaultAccessMode
 		{
 			get { return s_DefaultAccessMode; }
 			set
 			{
 				if (value == InteropAccessMode.Default)
-					throw new ArgumentException("DefaultAccessMode");
+					throw new ArgumentException("InteropAccessMode is InteropAccessMode.Default");
 
 				s_DefaultAccessMode = value;
 			}

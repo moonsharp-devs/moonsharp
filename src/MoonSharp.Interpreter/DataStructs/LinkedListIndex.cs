@@ -12,7 +12,7 @@ namespace MoonSharp.Interpreter.DataStructs
 	/// </summary>
 	/// <typeparam name="TKey">The type of the key. Must implement Equals and GetHashCode appropriately.</typeparam>
 	/// <typeparam name="TValue">The type of the values contained in the linked list.</typeparam>
-	public class LinkedListIndex<TKey, TValue>
+	internal class LinkedListIndex<TKey, TValue>
 	{
 		LinkedList<TValue> m_LinkedList;
 		Dictionary<TKey, LinkedListNode<TValue>> m_Map = null;
