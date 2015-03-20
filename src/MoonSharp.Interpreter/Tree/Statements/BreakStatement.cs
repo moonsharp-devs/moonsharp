@@ -5,7 +5,7 @@ using System.Text;
 using MoonSharp.Interpreter.Debugging;
 using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Execution.VM;
-using MoonSharp.Interpreter.Grammar;
+
 
 namespace MoonSharp.Interpreter.Tree.Statements
 {
@@ -13,10 +13,11 @@ namespace MoonSharp.Interpreter.Tree.Statements
 	{
 		SourceRef m_Ref;
 
-		public BreakStatement(LuaParser.Stat_breakContext context, ScriptLoadingContext lcontext)
-			: base(context, lcontext)
+		public BreakStatement(ScriptLoadingContext lcontext)
+			: base(lcontext)
 		{
-			m_Ref = BuildSourceRef(context.Start, context.Stop);
+			m_Ref = CheckTokenType(lcontext, TokenType.Break).GetSourceRef();
+			lcontext.Source.Refs.Add(m_Ref);
 		}
 
 
@@ -26,12 +27,12 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			using (bc.EnterSource(m_Ref))
 			{
 				if (bc.LoopTracker.Loops.Count == 0)
-					throw new SyntaxErrorException("<break> not inside a loop");
+					throw new SyntaxErrorException(this.Script, m_Ref, "<break> at line {0} not inside a loop", m_Ref.FromLine);
 
 				ILoop loop = bc.LoopTracker.Loops.Peek();
 
 				if (loop.IsBoundary())
-					throw new SyntaxErrorException("<break> not inside a loop");
+					throw new SyntaxErrorException(this.Script, m_Ref, "<break> at line {0} not inside a loop", m_Ref.FromLine);
 
 				loop.CompileBreak(bc);
 			}

@@ -16,7 +16,7 @@
     <TargetFrameworkProfile>Unity Subset v3.5</TargetFrameworkProfile>
     <CompilerResponseFile></CompilerResponseFile>
     <UnityProjectType>Game:1</UnityProjectType>
-    <UnityBuildTarget>Android:13</UnityBuildTarget>
+    <UnityBuildTarget>WebGL:20</UnityBuildTarget>
     <UnityVersion>5.0.0f4</UnityVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -25,7 +25,7 @@
     <OutputPath>Temp\UnityVS_bin\Debug\</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DefineConstants>DEBUG;TRACE;UNITY_5_0_0;UNITY_5_0;UNITY_5;ENABLE_LICENSE_RENAME;ENABLE_NEW_BUGREPORTER;ENABLE_2D_PHYSICS;ENABLE_4_6_FEATURES;ENABLE_AUDIO;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_FRAME_DEBUGGER;ENABLE_GENERICS;ENABLE_HOME_SCREEN;ENABLE_IMAGEEFFECTS;ENABLE_LIGHT_PROBES_LEGACY;ENABLE_MICROPHONE;ENABLE_MULTIPLE_DISPLAYS;ENABLE_NEW_HIERARCHY;ENABLE_PHYSICS;ENABLE_PHYSICS_PHYSX3;ENABLE_PLUGIN_INSPECTOR;ENABLE_SHADOWS;ENABLE_SINGLE_INSTANCE_BUILD_SETTING;ENABLE_SPRITES;ENABLE_TERRAIN;ENABLE_UNITYEVENTS;ENABLE_WEBCAM;ENABLE_WWW;ENABLE_AUDIOMIXER_SUSPEND;ENABLE_NONPRO;INCLUDE_DYNAMIC_GI;INCLUDE_GI;INCLUDE_IL2CPP;PLATFORM_SUPPORTS_MONO;RENDER_SOFTWARE_CURSOR;UNITY_ANDROID;UNITY_ANDROID_API;ENABLE_SUBSTANCE;UNITY_ANDROID_API;ENABLE_TEXTUREID_MAP;ENABLE_EGL;ENABLE_NETWORK;ENABLE_RUNTIME_GI;ENABLE_MONO;ENABLE_PROFILER;UNITY_EDITOR;UNITY_EDITOR_64;UNITY_EDITOR_WIN</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;UNITY_5_0_0;UNITY_5_0;UNITY_5;ENABLE_LICENSE_RENAME;ENABLE_NEW_BUGREPORTER;ENABLE_2D_PHYSICS;ENABLE_4_6_FEATURES;ENABLE_AUDIO;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_FRAME_DEBUGGER;ENABLE_GENERICS;ENABLE_HOME_SCREEN;ENABLE_IMAGEEFFECTS;ENABLE_LIGHT_PROBES_LEGACY;ENABLE_MULTIPLE_DISPLAYS;ENABLE_NEW_HIERARCHY;ENABLE_PHYSICS;ENABLE_PHYSICS_PHYSX3;ENABLE_PLUGIN_INSPECTOR;ENABLE_SHADOWS;ENABLE_SINGLE_INSTANCE_BUILD_SETTING;ENABLE_SPRITES;ENABLE_TERRAIN;ENABLE_UNITYEVENTS;ENABLE_WWW;ENABLE_AUDIOMIXER_SUSPEND;ENABLE_NONPRO;INCLUDE_DYNAMIC_GI;INCLUDE_GI;INCLUDE_IL2CPP;RENDER_SOFTWARE_CURSOR;UNITY_WEBGL;ENABLE_TEXTUREID_MAP;ENABLE_IL2CPP;ENABLE_PROFILER;UNITY_EDITOR;UNITY_EDITOR_64;UNITY_EDITOR_WIN</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -33,7 +33,7 @@
     <OutputPath>Temp\UnityVS_bin\Release\</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DefineConstants>TRACE;UNITY_5_0_0;UNITY_5_0;UNITY_5;ENABLE_LICENSE_RENAME;ENABLE_NEW_BUGREPORTER;ENABLE_2D_PHYSICS;ENABLE_4_6_FEATURES;ENABLE_AUDIO;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_FRAME_DEBUGGER;ENABLE_GENERICS;ENABLE_HOME_SCREEN;ENABLE_IMAGEEFFECTS;ENABLE_LIGHT_PROBES_LEGACY;ENABLE_MICROPHONE;ENABLE_MULTIPLE_DISPLAYS;ENABLE_NEW_HIERARCHY;ENABLE_PHYSICS;ENABLE_PHYSICS_PHYSX3;ENABLE_PLUGIN_INSPECTOR;ENABLE_SHADOWS;ENABLE_SINGLE_INSTANCE_BUILD_SETTING;ENABLE_SPRITES;ENABLE_TERRAIN;ENABLE_UNITYEVENTS;ENABLE_WEBCAM;ENABLE_WWW;ENABLE_AUDIOMIXER_SUSPEND;ENABLE_NONPRO;INCLUDE_DYNAMIC_GI;INCLUDE_GI;INCLUDE_IL2CPP;PLATFORM_SUPPORTS_MONO;RENDER_SOFTWARE_CURSOR;UNITY_ANDROID;UNITY_ANDROID_API;ENABLE_SUBSTANCE;UNITY_ANDROID_API;ENABLE_TEXTUREID_MAP;ENABLE_EGL;ENABLE_NETWORK;ENABLE_RUNTIME_GI;ENABLE_MONO;ENABLE_PROFILER;UNITY_EDITOR;UNITY_EDITOR_64;UNITY_EDITOR_WIN</DefineConstants>
+    <DefineConstants>TRACE;UNITY_5_0_0;UNITY_5_0;UNITY_5;ENABLE_LICENSE_RENAME;ENABLE_NEW_BUGREPORTER;ENABLE_2D_PHYSICS;ENABLE_4_6_FEATURES;ENABLE_AUDIO;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_FRAME_DEBUGGER;ENABLE_GENERICS;ENABLE_HOME_SCREEN;ENABLE_IMAGEEFFECTS;ENABLE_LIGHT_PROBES_LEGACY;ENABLE_MULTIPLE_DISPLAYS;ENABLE_NEW_HIERARCHY;ENABLE_PHYSICS;ENABLE_PHYSICS_PHYSX3;ENABLE_PLUGIN_INSPECTOR;ENABLE_SHADOWS;ENABLE_SINGLE_INSTANCE_BUILD_SETTING;ENABLE_SPRITES;ENABLE_TERRAIN;ENABLE_UNITYEVENTS;ENABLE_WWW;ENABLE_AUDIOMIXER_SUSPEND;ENABLE_NONPRO;INCLUDE_DYNAMIC_GI;INCLUDE_GI;INCLUDE_IL2CPP;RENDER_SOFTWARE_CURSOR;UNITY_WEBGL;ENABLE_TEXTUREID_MAP;ENABLE_IL2CPP;ENABLE_PROFILER;UNITY_EDITOR;UNITY_EDITOR_64;UNITY_EDITOR_WIN</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
@@ -52,29 +52,63 @@
     <Reference Include="UnityEngine.UI">
       <HintPath>Library\UnityAssemblies\UnityEngine.UI.dll</HintPath>
     </Reference>
-    <Reference Include="Antlr4.Runtime.net35">
-      <HintPath>Assets\Antlr4.Runtime.net35.dll</HintPath>
-    </Reference>
-    <Reference Include="Antlr4.Runtime.v3.5">
-      <HintPath>Assets\Antlr4.Runtime.v3.5.dll</HintPath>
-    </Reference>
     <Reference Include="MoonSharp.Interpreter">
-      <HintPath>Assets\MoonSharp.Interpreter.dll</HintPath>
+      <HintPath>Assets\Plugins\MoonSharp.Interpreter.dll</HintPath>
     </Reference>
     <Reference Include="MoonSharp.Interpreter.Tests">
-      <HintPath>Assets\MoonSharp.Interpreter.Tests.dll</HintPath>
+      <HintPath>Assets\Plugins\MoonSharp.Interpreter.Tests.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework">
-      <HintPath>Assets\nunit.framework.dll</HintPath>
+      <HintPath>Assets\Plugins\nunit.framework.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\TestRunner.cs" />
-    <Compile Include="Assets\UnityLoader.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Assets\Antlr4.Runtime.net35.xml" />
-    <None Include="Assets\nunit.framework.xml" />
+    <None Include="Assets\Plugins\MoonSharp.Interpreter.xml" />
+    <None Include="Assets\Plugins\nunit.framework.xml" />
+    <None Include="Assets\Resources\MoonSharp\Scripts\000-sanity.t.txt" />
+    <None Include="Assets\Resources\MoonSharp\Scripts\001-if.t.txt" />
+    <None Include="Assets\Resources\MoonSharp\Scripts\002-table.t.txt" />
+    <None Include="Assets\Resources\MoonSharp\Scripts\011-while.t.txt" />
+    <None Include="Assets\Resources\MoonSharp\Scripts\012-repeat.t.txt" />
+    <None Include="Assets\Resources\MoonSharp\Scripts\014-fornum.t.txt" />
+    <None Include="Assets\Resources\MoonSharp\Scripts\015-forlist.t.txt" />
+    <None Include="Assets\Resources\MoonSharp\Scripts\101-boolean.t.txt" />
+    <None Include="Assets\Resources\MoonSharp\Scripts\102-function.t.txt" />
+    <None Include="Assets\Resources\MoonSharp\Scripts\103-nil.t.txt" />
+    <None Include="Assets\Resources\MoonSharp\Scripts\104-number.t.txt" />
+    <None Include="Assets\Resources\MoonSharp\Scripts\105-string.t.txt" />
+    <None Include="Assets\Resources\MoonSharp\Scripts\106-table.t.txt" />
+    <None Include="Assets\Resources\MoonSharp\Scripts\107-thread.t.txt" />
+    <None Include="Assets\Resources\MoonSharp\Scripts\108-userdata.t.txt" />
+    <None Include="Assets\Resources\MoonSharp\Scripts\200-examples.t.txt" />
+    <None Include="Assets\Resources\MoonSharp\Scripts\201-assign.t.txt" />
+    <None Include="Assets\Resources\MoonSharp\Scripts\202-expr.t.txt" />
+    <None Include="Assets\Resources\MoonSharp\Scripts\203-lexico.t.txt" />
+    <None Include="Assets\Resources\MoonSharp\Scripts\204-grammar.t.txt" />
+    <None Include="Assets\Resources\MoonSharp\Scripts\211-scope.t.txt" />
+    <None Include="Assets\Resources\MoonSharp\Scripts\212-function.t.txt" />
+    <None Include="Assets\Resources\MoonSharp\Scripts\213-closure.t.txt" />
+    <None Include="Assets\Resources\MoonSharp\Scripts\214-coroutine.t.txt" />
+    <None Include="Assets\Resources\MoonSharp\Scripts\221-table.t.txt" />
+    <None Include="Assets\Resources\MoonSharp\Scripts\222-constructor.t.txt" />
+    <None Include="Assets\Resources\MoonSharp\Scripts\223-iterator.t.txt" />
+    <None Include="Assets\Resources\MoonSharp\Scripts\231-metatable.t.txt" />
+    <None Include="Assets\Resources\MoonSharp\Scripts\232-object.t.txt" />
+    <None Include="Assets\Resources\MoonSharp\Scripts\301-basic.t.txt" />
+    <None Include="Assets\Resources\MoonSharp\Scripts\304-string.t.txt" />
+    <None Include="Assets\Resources\MoonSharp\Scripts\305-table.t.txt" />
+    <None Include="Assets\Resources\MoonSharp\Scripts\306-math.t.txt" />
+    <None Include="Assets\Resources\MoonSharp\Scripts\307-bit.t.txt" />
+    <None Include="Assets\Resources\MoonSharp\Scripts\308-io.t.txt" />
+    <None Include="Assets\Resources\MoonSharp\Scripts\309-os.t.txt" />
+    <None Include="Assets\Resources\MoonSharp\Scripts\310-debug.t.txt" />
+    <None Include="Assets\Resources\MoonSharp\Scripts\314-regex.t.txt" />
+    <None Include="Assets\Resources\MoonSharp\Scripts\320-stdin.t.txt" />
+    <None Include="Assets\Resources\MoonSharp\Scripts\Modules\Test\Builder.lua.txt" />
+    <None Include="Assets\Resources\MoonSharp\Scripts\Modules\Test\More.lua.txt" />
     <None Include="Assets\Resources\Scripts\TestMore\000-sanity.txt" />
     <None Include="Assets\Resources\Scripts\TestMore\001-if.txt" />
     <None Include="Assets\Resources\Scripts\TestMore\002-table.txt" />

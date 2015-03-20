@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using Antlr4.Runtime;
 using MoonSharp.Interpreter.Debugging;
 using MoonSharp.Interpreter.Diagnostics;
 using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Execution.VM;
-using MoonSharp.Interpreter.Grammar;
 using MoonSharp.Interpreter.Tree.Statements;
 
 namespace MoonSharp.Interpreter.Tree.Statements
@@ -21,18 +19,23 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		SymbolRef m_Env;
 		SymbolRef m_VarArgs;
 
-		public ChunkStatement(LuaParser.ChunkContext context, ScriptLoadingContext lcontext, Table globalEnv)
-			: base(context, lcontext)
+		public ChunkStatement(ScriptLoadingContext lcontext, Table globalEnv)
+			: base(lcontext)
 		{
 			lcontext.Scope.PushFunction(this, true);
 			m_Env = lcontext.Scope.DefineLocal(WellKnownSymbols.ENV);
 			m_VarArgs = lcontext.Scope.DefineLocal(WellKnownSymbols.VARARGS);
-			
+
 			m_GlobalEnv = globalEnv;
 
-			m_Block = NodeFactory.CreateStatement(context.block(), lcontext);
+			m_Block = new CompositeStatement(lcontext);
+
+			if (lcontext.Lexer.Current.Type != TokenType.Eof)
+				throw new SyntaxErrorException(lcontext.Lexer.Current, "<eof> expected near '{0}'", lcontext.Lexer.Current.Text);
+
 			m_StackFrame = lcontext.Scope.PopFunction();
 		}
+
 
 		public override void Compile(Execution.VM.ByteCode bc)
 		{

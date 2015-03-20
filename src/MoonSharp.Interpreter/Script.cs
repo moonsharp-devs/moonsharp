@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Antlr4.Runtime;
 using MoonSharp.Interpreter.CoreLib;
 using MoonSharp.Interpreter.DataStructs;
 using MoonSharp.Interpreter.Debugging;
@@ -12,9 +11,10 @@ using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Execution.VM;
 using MoonSharp.Interpreter.Interop;
 using MoonSharp.Interpreter.IO;
-using MoonSharp.Interpreter.Loaders;
+using MoonSharp.Interpreter.Platforms;
 using MoonSharp.Interpreter.Tree;
 using MoonSharp.Interpreter.Tree.Expressions;
+using MoonSharp.Interpreter.Tree.Fast_Interface;
 using MoonSharp.Interpreter.Tree.Statements;
 
 namespace MoonSharp.Interpreter
@@ -28,7 +28,7 @@ namespace MoonSharp.Interpreter
 		/// <summary>
 		/// The version of the MoonSharp engine
 		/// </summary>
-		public const string VERSION = "0.8.6.0"; 
+		public const string VERSION = "0.9.0.0"; 
 
 		/// <summary>
 		/// The Lua version being supported
@@ -42,16 +42,29 @@ namespace MoonSharp.Interpreter
 		IDebugger m_Debugger;
 		Table[] m_TypeMetatables = new Table[(int)LuaTypeExtensions.MaxMetaTypes];
 
+		/// <summary>
+		/// Initializes the <see cref="Script"/> class.
+		/// </summary>
 		static Script()
 		{
+			Platform = PlatformAutoDetector.GetDefaultPlatform();
+
 			DefaultOptions = new ScriptOptions()
 			{
-				ScriptLoader = new ClassicLuaScriptLoader(),
-				DebugPrint = s => { Console.WriteLine(s); },
-				DebugInput = () => { return Console.ReadLine(); },
+				DebugPrint = s => { Script.Platform.DefaultPrint(s); },
+				DebugInput = () => { return Script.Platform.DefaultInput(); },
 				CheckThreadAccess = true,
+				ScriptLoader = PlatformAutoDetector.GetDefaultScriptLoader()
 			};
 		}
+
+		/// <summary>
+		/// Gets or sets the platform abstraction to use.
+		/// </summary>
+		/// <value>
+		/// The current platform abstraction.
+		/// </value>
+		public static IPlatformAccessor Platform { get; set; }
 
 
 		/// <summary>
@@ -72,7 +85,7 @@ namespace MoonSharp.Interpreter
 			PerformanceStats = new PerformanceStatistics();
 			Registry = new Table(this);
 
-			m_ByteCode = new ByteCode();
+			m_ByteCode = new ByteCode(this);
 			m_GlobalTable = new Table(this).RegisterCoreModules(coreModules);
 			m_MainProcessor = new Processor(this, m_GlobalTable, m_ByteCode);
 		}
@@ -121,7 +134,7 @@ namespace MoonSharp.Interpreter
 
 			m_Sources.Add(source);
 
-			int address = Loader_Antlr.LoadFunction(this, source, m_ByteCode, globalTable ?? m_GlobalTable);
+			int address = Loader_Fast.LoadFunction(this, source, m_ByteCode, globalTable ?? m_GlobalTable);
 
 			SignalSourceCodeChange(source);
 			SignalByteCodeChange();
@@ -171,7 +184,7 @@ namespace MoonSharp.Interpreter
 
 			m_Sources.Add(source);
 
-			int address = Loader_Antlr.LoadChunk(this,
+			int address = Loader_Fast.LoadChunk(this,
 				source,
 				m_ByteCode,
 				globalTable ?? m_GlobalTable);
@@ -229,7 +242,15 @@ namespace MoonSharp.Interpreter
 		/// <summary>
 		/// Dumps on the specified stream.
 		/// </summary>
+		/// <param name="function">The function.</param>
 		/// <param name="stream">The stream.</param>
+		/// <exception cref="System.ArgumentException">
+		/// function arg is not a function!
+		/// or
+		/// stream is readonly!
+		/// or
+		/// function arg has upvalues other than _ENV
+		/// </exception>
 		public void Dump(DynValue function, Stream stream)
 		{
 			if (function.Type != DataType.Function)
@@ -259,7 +280,10 @@ namespace MoonSharp.Interpreter
 		/// </returns>
 		public DynValue LoadFile(string filename, Table globalContext = null, string friendlyFilename = null)
 		{
+			#pragma warning disable 618
 			filename = Options.ScriptLoader.ResolveFileName(filename, globalContext ?? m_GlobalTable);
+			#pragma warning restore 618
+
 			object code = Options.ScriptLoader.LoadFile(filename, globalContext ?? m_GlobalTable);
 
 			if (code is string)
@@ -615,7 +639,7 @@ namespace MoonSharp.Interpreter
 		/// <returns></returns>
 		public DynamicExpression CreateDynamicExpression(string code)
 		{
-			DynamicExprExpression dee = Loader_Antlr.LoadDynamicExpr(this, new SourceCode("__dynamic", code, -1, this));
+			DynamicExprExpression dee = Loader_Fast.LoadDynamicExpr(this, new SourceCode("__dynamic", code, -1, this));
 			return new DynamicExpression(this, code, dee);
 		}
 

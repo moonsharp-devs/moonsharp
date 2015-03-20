@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Antlr4.Runtime.Tree;
 using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Execution.VM;
-using MoonSharp.Interpreter.Grammar;
 
 namespace MoonSharp.Interpreter.Tree.Expressions
 {
@@ -34,6 +32,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			Mul = 0x1000,
 			Div = 0x2000,
 			Mod = 0x4000,
+			Power = 0x8000,
 		}
 
 
@@ -49,8 +48,10 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 		{
 			public Node Nodes;
 			public Node Last;
+			public Operator OperatorMask;
 		}
 
+		const Operator POWER = Operator.Power;
 		const Operator MUL_DIV_MOD = Operator.Mul | Operator.Div | Operator.Mod;
 		const Operator ADD_SUB = Operator.Add | Operator.Sub;
 		const Operator STRCAT = Operator.StrConcat;
@@ -58,80 +59,84 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 		const Operator LOGIC_AND = Operator.And;
 		const Operator LOGIC_OR = Operator.Or;
 
-		private static Operator CreateLinkedList(LinkedList list, IParseTree root, ScriptLoadingContext lcontext)
+
+		public static object BeginOperatorChain()
 		{
-			Operator opfound = 0;
+			return new LinkedList();
+		}
 
-			foreach (IParseTree tt in root.EnumChilds())
+		public static void AddExpressionToChain(object chain, Expression exp)
+		{
+			LinkedList list = (LinkedList)chain;
+			Node node = new Node() { Expr = exp };
+			AddNode(list, node);
+		}
+
+
+		public static void AddOperatorToChain(object chain, Token op)
+		{
+			LinkedList list = (LinkedList)chain;
+			Node node = new Node() { Op = ParseBinaryOperator(op) };
+			AddNode(list, node);
+		}
+
+		public static Expression CommitOperatorChain(object chain, ScriptLoadingContext lcontext)
+		{
+			return CreateSubTree((LinkedList)chain, lcontext);
+		}
+
+		public static Expression CreatePowerExpression(Expression op1, Expression op2, ScriptLoadingContext lcontext)
+		{
+			return new BinaryOperatorExpression(op1, op2, Operator.Power, lcontext);
+		}
+
+
+		private static void AddNode(LinkedList list, Node node)
+		{
+			list.OperatorMask |= node.Op;
+
+			if (list.Nodes == null)
 			{
-				Node n = null;
-
-				if (tt is LuaParser.OperatorbinaryContext)
-				{
-					Operator op = ParseBinaryOperator(tt);
-					opfound |= op;
-					n = new Node() { Op = op };
-				}
-				else
-				{
-					if (tt is LuaParser.Exp_binaryContext)
-					{
-						Operator op = CreateLinkedList(list, tt, lcontext);
-						opfound |= op;
-					}
-					else
-					{
-						n = new Node() { Expr = NodeFactory.CreateExpression(tt, lcontext) };
-					}
-				}
-
-				if (n != null)
-				{
-					if (list.Nodes == null)
-					{
-						list.Nodes = list.Last = n;
-					}
-					else
-					{
-						list.Last.Next = n;
-						n.Prev = list.Last;
-						list.Last = n;
-					}
-				}
+				list.Nodes = list.Last = node;
 			}
-
-			return opfound;
+			else
+			{
+				list.Last.Next = node;
+				node.Prev = list.Last;
+				list.Last = node;
+			}
 		}
 
 
 		/// <summary>
 		/// Creates a sub tree of binary expressions
 		/// </summary>
-		public static Expression CreateSubTree(IParseTree tree, ScriptLoadingContext lcontext)
+		private static Expression CreateSubTree(LinkedList list, ScriptLoadingContext lcontext)
 		{
-			LinkedList list = new LinkedList();
-
-			Operator opfound = CreateLinkedList(list, tree, lcontext);
+			Operator opfound = list.OperatorMask;
 
 			Node nodes = list.Nodes;
 
+			if ((opfound & POWER) != 0)
+				nodes = PrioritizeRightAssociative(nodes, lcontext, POWER);
+
 			if ((opfound & MUL_DIV_MOD) != 0)
-				nodes = PrioritizeLeftAssociative(tree, nodes, lcontext, MUL_DIV_MOD);
+				nodes = PrioritizeLeftAssociative(nodes, lcontext, MUL_DIV_MOD);
 
 			if ((opfound & ADD_SUB) != 0)
-				nodes = PrioritizeLeftAssociative(tree, nodes, lcontext, ADD_SUB);
+				nodes = PrioritizeLeftAssociative(nodes, lcontext, ADD_SUB);
 
 			if ((opfound & STRCAT) != 0)
-				nodes = PrioritizeRightAssociative(tree, nodes, lcontext, STRCAT);
+				nodes = PrioritizeRightAssociative(nodes, lcontext, STRCAT);
 
 			if ((opfound & COMPARES) != 0)
-				nodes = PrioritizeLeftAssociative(tree, nodes, lcontext, COMPARES);
+				nodes = PrioritizeLeftAssociative(nodes, lcontext, COMPARES);
 
 			if ((opfound & LOGIC_AND) != 0)
-				nodes = PrioritizeLeftAssociative(tree, nodes, lcontext, LOGIC_AND);
+				nodes = PrioritizeLeftAssociative(nodes, lcontext, LOGIC_AND);
 
 			if ((opfound & LOGIC_OR) != 0)
-				nodes = PrioritizeLeftAssociative(tree, nodes, lcontext, LOGIC_OR);
+				nodes = PrioritizeLeftAssociative(nodes, lcontext, LOGIC_OR);
 
 
 			if (nodes.Next != null || nodes.Prev != null)
@@ -142,7 +147,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			return nodes.Expr;
 		}
 
-		private static Node PrioritizeLeftAssociative(IParseTree tree, Node nodes, ScriptLoadingContext lcontext, Operator operatorsToFind)
+		private static Node PrioritizeLeftAssociative(Node nodes, ScriptLoadingContext lcontext, Operator operatorsToFind)
 		{
 			for (Node N = nodes; N != null; N = N.Next)
 			{
@@ -151,7 +156,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 				if ((o & operatorsToFind) != 0)
 				{
 					N.Op = Operator.NotAnOperator;
-					N.Expr = new BinaryOperatorExpression(tree, N.Prev.Expr, N.Next.Expr, o, lcontext);
+					N.Expr = new BinaryOperatorExpression(N.Prev.Expr, N.Next.Expr, o, lcontext);
 					N.Prev = N.Prev.Prev;
 					N.Next = N.Next.Next;
 
@@ -168,7 +173,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			return nodes;
 		}
 
-		private static Node PrioritizeRightAssociative(IParseTree tree, Node nodes, ScriptLoadingContext lcontext, Operator operatorsToFind)
+		private static Node PrioritizeRightAssociative(Node nodes, ScriptLoadingContext lcontext, Operator operatorsToFind)
 		{
 			Node last;
 			for (last = nodes; last.Next != null; last = last.Next) ;
@@ -180,7 +185,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 				if ((o & operatorsToFind) != 0)
 				{
 					N.Op = Operator.NotAnOperator;
-					N.Expr = new BinaryOperatorExpression(tree, N.Prev.Expr, N.Next.Expr, o, lcontext);
+					N.Expr = new BinaryOperatorExpression(N.Prev.Expr, N.Next.Expr, o, lcontext);
 					N.Prev = N.Prev.Prev;
 					N.Next = N.Next.Next;
 
@@ -198,44 +203,42 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 		}
 
 
-
-
-		private static Operator ParseBinaryOperator(IParseTree parseTree)
+		private static Operator ParseBinaryOperator(Token token)
 		{
-			string txt = parseTree.GetText();
-
-			switch (txt)
+			switch (token.Type)
 			{
-				case "or":
+				case TokenType.Or:
 					return Operator.Or;
-				case "and":
+				case TokenType.And:
 					return Operator.And;
-				case "<":
+				case TokenType.Op_LessThan:
 					return Operator.Less;
-				case ">":
+				case TokenType.Op_GreaterThan:
 					return Operator.Greater;
-				case "<=":
+				case TokenType.Op_LessThanEqual:
 					return Operator.LessOrEqual;
-				case ">=":
+				case TokenType.Op_GreaterThanEqual:
 					return Operator.GreaterOrEqual;
-				case "~=":
+				case TokenType.Op_NotEqual:
 					return Operator.NotEqual;
-				case "==":
+				case TokenType.Op_Equal:
 					return Operator.Equal;
-				case "..":
+				case TokenType.Op_Concat:
 					return Operator.StrConcat;
-				case "+":
+				case TokenType.Op_Add:
 					return Operator.Add;
-				case "-":
+				case TokenType.Op_MinusOrSub:
 					return Operator.Sub;
-				case "*":
+				case TokenType.Op_Mul:
 					return Operator.Mul;
-				case "/":
+				case TokenType.Op_Div:
 					return Operator.Div;
-				case "%":
+				case TokenType.Op_Mod:
 					return Operator.Mod;
+				case TokenType.Op_Pwr:
+					return Operator.Power;
 				default:
-					throw new InternalErrorException("Unexpected binary operator '{0}'", txt);
+					throw new InternalErrorException("Unexpected binary operator '{0}'", token.Text);
 			}
 		}
 
@@ -247,8 +250,8 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 
 
-		private BinaryOperatorExpression(IParseTree tree, Expression exp1, Expression exp2, Operator op, ScriptLoadingContext lcontext)
-			: base (tree, lcontext)
+		private BinaryOperatorExpression(Expression exp1, Expression exp2, Operator op, ScriptLoadingContext lcontext)
+			: base (lcontext)
 		{
 			m_Exp1 = exp1;
 			m_Exp2 = exp2;
@@ -287,6 +290,8 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 					return OpCode.Div;
 				case Operator.Mod:
 					return OpCode.Mod;
+				case Operator.Power:
+					return OpCode.Power;
 				default:
 					throw new InternalErrorException("Unsupported operator {0}", op);
 			}

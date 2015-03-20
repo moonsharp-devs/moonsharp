@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using MoonSharp.Interpreter.Loaders;
+using MoonSharp.Interpreter.Platforms;
 
 namespace MoonSharp.Interpreter
 {
@@ -14,28 +15,28 @@ namespace MoonSharp.Interpreter
 	{
 		internal ScriptOptions()
 		{
-			
+
 		}
 
 		internal ScriptOptions(ScriptOptions defaults)
 		{
 			this.DebugInput = defaults.DebugInput;
 			this.DebugPrint = defaults.DebugPrint;
-			this.ScriptLoader = defaults.ScriptLoader;
-		}
 
+			this.UseLuaErrorLocations = defaults.UseLuaErrorLocations;
+			this.Stdin = defaults.Stdin;
+			this.Stdout = defaults.Stdout;
+			this.Stderr = defaults.Stderr;
+
+			this.ScriptLoader = defaults.ScriptLoader;
+
+			this.CheckThreadAccess = defaults.CheckThreadAccess;
+		}
 
 		/// <summary>
-		/// Gets or sets the script loader to use. A script loader wraps all code loading from files, so that access
-		/// to the filesystem can be completely overridden.
+		/// Gets or sets the current script-loader.
 		/// </summary>
-		/// <value>
-		/// The current script loader.
-		/// </value>
-		public IScriptLoader ScriptLoader
-		{
-			get; set;
-		}
+		public IScriptLoader ScriptLoader { get; set; }
 
 		/// <summary>
 		/// Gets or sets the debug print handler
@@ -53,8 +54,19 @@ namespace MoonSharp.Interpreter
 		/// </summary>
 		public bool UseLuaErrorLocations { get; set; }
 
+		/// <summary>
+		/// Gets or sets the stream used as stdin. If null, a default stream is used.
+		/// </summary>
 		public Stream Stdin { get; set; }
+
+		/// <summary>
+		/// Gets or sets the stream used as stdout. If null, a default stream is used.
+		/// </summary>
 		public Stream Stdout { get; set; }
+
+		/// <summary>
+		/// Gets or sets the stream used as stderr. If null, a default stream is used.
+		/// </summary>
 		public Stream Stderr { get; set; }
 
 		/// <summary>

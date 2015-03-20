@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using MoonSharp.Interpreter.Execution.Scopes;
+using MoonSharp.Interpreter.Tree.Statements;
 
 namespace MoonSharp.Interpreter.Execution
 {
@@ -102,6 +103,16 @@ namespace MoonSharp.Interpreter.Execution
 		public bool CurrentFunctionHasVarArgs()
 		{
 			return m_Frames.Last().HasVarArgs;
+		}
+
+		internal void DefineLabel(LabelStatement label)
+		{
+			m_Frames.Last().DefineLabel(label);
+		}
+
+		internal void RegisterGoto(GotoStatement gotostat)
+		{
+			m_Frames.Last().RegisterGoto(gotostat);
 		}
 
 	}

@@ -7,7 +7,6 @@ using System.Reflection;
 using System.Text;
 using MoonSharp.Interpreter;
 using MoonSharp.Interpreter.Execution;
-using MoonSharp.Interpreter.RuntimeAbstraction;
 using MoonSharp.RemoteDebugger;
 using MoonSharp.RemoteDebugger.Network;
 
@@ -20,7 +19,7 @@ namespace MoonSharp
 		[STAThread]
 		static void Main(string[] args)
 		{
-			Console.WriteLine("MoonSharp REPL {0} [{1}]", Script.VERSION, Platform.Current.Name);
+			Console.WriteLine("MoonSharp REPL {0} [{1}]", Script.VERSION, Script.Platform.GetPlatformName());
 			Console.WriteLine("Copyright (C) 2014 Marco Mastropaolo");
 			Console.WriteLine("http://www.moonsharp.org");
 			Console.WriteLine("Based on Lua 5.1 - 5.3, Copyright (C) 1994-2014 Lua.org");
@@ -116,35 +115,45 @@ namespace MoonSharp
 
 		private static void ParseCommand(Script S, string p)
 		{
-			if (p == "debug" && m_Debugger == null)
+			if (p == "help")
+			{
+				Console.WriteLine("Type Lua code followed by two <enter> keystrokes to execute Lua code, ");
+				Console.WriteLine("or type one of the following commands to execute them.");
+				Console.WriteLine("");
+				Console.WriteLine("Commands:");
+				Console.WriteLine("");
+				Console.WriteLine("	!debug - Starts the debugger");
+				Console.WriteLine("	!run <filename> - Executes the specified Lua script");
+				Console.WriteLine("	!compile <filename> - Compiles the file in a binary format");
+				Console.WriteLine("");
+			}
+			else if (p == "debug" && m_Debugger == null)
 			{
 				m_Debugger = new RemoteDebuggerService();
 				m_Debugger.Attach(S, "MoonSharp REPL interpreter", false);
 				Process.Start(m_Debugger.HttpUrlStringLocalHost);
 			}
-			if (p.StartsWith("run"))
+			else if (p.StartsWith("run"))
 			{
 				p = p.Substring(3).Trim();
 				S.DoFile(p);
 			}
-			if (p == "!")
+			else if (p == "!")
 			{
-				//ParseCommand(S, "debug");
-				//ParseCommand(S, @"run c:\temp\test.lua");
+				ParseCommand(S, "debug");
+				ParseCommand(S, @"run c:\temp\test.lua");
 			}
-			if (p == "wb")
+			else if (p.StartsWith("compile"))
 			{
-				DynValue chunk = S.LoadFile(@"c:\temp\test.lua");
+				p = p.Substring("compile".Length).Trim();
 
-				using (Stream stream = new FileStream(@"c:\temp\test.bin", FileMode.Create, FileAccess.Write))
+				string targetFileName = p + "-compiled";
+
+				DynValue chunk = S.LoadFile(p);
+
+				using (Stream stream = new FileStream(targetFileName, FileMode.Create, FileAccess.Write))
 					S.Dump(chunk, stream);
 			}
-			if (p == "rb")
-			{
-				DynValue chunk = S.LoadFile(@"c:\temp\test.bin");
-				chunk.Function.Call();
-			}
-
 		}
 
 		static void m_Server_DataReceivedAny(object sender, Utf8TcpPeerEventArgs e)

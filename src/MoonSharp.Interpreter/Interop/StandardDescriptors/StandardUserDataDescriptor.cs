@@ -20,6 +20,9 @@ namespace MoonSharp.Interpreter.Interop
 
 		protected internal StandardUserDataDescriptor(Type type, InteropAccessMode accessMode, string friendlyName)
 		{
+			if (Script.Platform.IsRunningOnAOT())
+				accessMode = InteropAccessMode.Reflection;
+
 			if (accessMode == InteropAccessMode.Default)
 				accessMode = UserData.DefaultAccessMode;
 
@@ -40,7 +43,7 @@ namespace MoonSharp.Interpreter.Interop
 					}
 				}
 
-				foreach (MethodInfo mi in type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.InvokeMethod | BindingFlags.Instance | BindingFlags.Static))
+				foreach (MethodInfo mi in type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
 				{
 					if (CheckVisibility(mi.GetCustomAttributes(true), mi.IsPublic))
 					{

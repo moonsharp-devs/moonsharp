@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Antlr4.Runtime.Tree;
+using MoonSharp.Interpreter.Debugging;
 
 namespace MoonSharp.Interpreter
 {
@@ -26,33 +26,24 @@ namespace MoonSharp.Interpreter
 
 		}
 
-		protected InterpreterException(IParseTree tree, string message)
-			: base(message + FormatTree(tree))
-		{
-
-		}
-
-		protected InterpreterException(IParseTree tree, string format, params object[] args)
-			: base(string.Format(format, args) + FormatTree(tree))
-		{
-
-		}
-
-		private static string FormatTree(IParseTree tree)
-		{
-			if (tree == null)
-				return "";
-
-			return "@ " + tree.GetText();
-		}
-
 		public int InstructionPtr { get; internal set; }
 
 		public IList<MoonSharp.Interpreter.Debugging.WatchItem> CallStack { get; internal set; }
 
 		public string DecoratedMessage { get; internal set; }
 
+		internal void DecorateMessage(Script script, SourceRef sref, int ip = -1)
+		{
+			if (sref != null)
+			{
+				this.DecoratedMessage = string.Format("{0}: {1}", sref.FormatLocation(script), this.Message);
+			}
+			else
+			{
+				this.DecoratedMessage = string.Format("bytecode:{0}: {1}", ip, this.Message);
+			}
 
+		}
 
 
 	}

@@ -33,7 +33,7 @@ namespace MoonSharp.Interpreter.CoreLib
 				{
 					executionContext.GetScript().Dump(fn, ms);
 					ms.Seek(0, SeekOrigin.Begin);
-					bytes = ms.GetBuffer();
+					bytes = ms.ToArray();
 				}
 				string base64 = Convert.ToBase64String(bytes);
 				return DynValue.NewString(BASE64_DUMP_HEADER + base64);

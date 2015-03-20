@@ -61,7 +61,15 @@ namespace MoonSharp.Interpreter.CoreLib
 			for (int i = 1; i <= end; i++)
 				values.Add(vlist.Table.Get(i));
 
-			values.Sort((a, b) => SortComparer(executionContext, a, b, lt));
+			try
+			{
+				values.Sort((a, b) => SortComparer(executionContext, a, b, lt));
+			}
+			catch (InvalidOperationException ex)
+			{
+				if (ex.InnerException is ScriptRuntimeException)
+					throw ex.InnerException;
+			}
 
 			for (int i = 0; i < values.Count; i++)
 			{
@@ -110,6 +118,9 @@ namespace MoonSharp.Interpreter.CoreLib
 				return -1;
 			if (v2 && !v1)
 				return 1;
+
+			if (v1 || v2)
+				throw new ScriptRuntimeException("invalid order function for sorting");
 
 			return 0;
 		}

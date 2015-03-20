@@ -5,7 +5,7 @@ using System.Text;
 using MoonSharp.Interpreter.Debugging;
 using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Execution.VM;
-using MoonSharp.Interpreter.Grammar;
+
 using MoonSharp.Interpreter.Tree.Expressions;
 
 namespace MoonSharp.Interpreter.Tree.Statements
@@ -21,45 +21,56 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		}
 
 		List<IfBlock> m_Ifs = new List<IfBlock>();
-		Statement m_Else = null;
-		SourceRef m_End, m_ElseRef;
-		RuntimeScopeBlock m_ElseStackFrame;
+		IfBlock m_Else = null;
+		SourceRef m_End;
 
-
-		public IfStatement(LuaParser.Stat_ifblockContext context, ScriptLoadingContext lcontext)
-			: base(context,lcontext)
+		public IfStatement(ScriptLoadingContext lcontext)
+			: base(lcontext)
 		{
-			int ecount = context.exp().Length;
-			int bcount = context.block().Length;
-
-			for(int i = 0; i < ecount; i++)
+			while (lcontext.Lexer.Current.Type != TokenType.Else && lcontext.Lexer.Current.Type != TokenType.End)
 			{
-				var exp = context.exp()[i];
-				var blk = context.block()[i];
-
-				lcontext.Scope.PushBlock();
-				var ifblock = new IfBlock() 
-				{ 
-					Exp = NodeFactory.CreateExpression(exp, lcontext), 
-					Block = NodeFactory.CreateStatement(blk, lcontext),
-					Source = BuildSourceRef(
-						i == 0 ? context.IF().Symbol : context.ELSEIF()[i - 1].Symbol 
-						, exp.Stop)
-				};
-				ifblock.StackFrame = lcontext.Scope.PopBlock();
-
-				m_Ifs.Add(ifblock);
+				m_Ifs.Add(CreateIfBlock(lcontext));
 			}
 
-			if (bcount > ecount)
+			if (lcontext.Lexer.Current.Type == TokenType.Else)
 			{
-				lcontext.Scope.PushBlock();
-				m_Else = NodeFactory.CreateStatement(context.block()[bcount - 1], lcontext);
-				m_ElseStackFrame = lcontext.Scope.PopBlock();
-				m_ElseRef = BuildSourceRef(context.ELSE()); 
+				m_Else = CreateElseBlock(lcontext);
 			}
 
-			m_End = BuildSourceRef(context.Stop, context.END());
+			m_End = CheckTokenType(lcontext, TokenType.End).GetSourceRef();
+			lcontext.Source.Refs.Add(m_End);
+		}
+
+		IfBlock CreateIfBlock(ScriptLoadingContext lcontext)
+		{
+			Token type = CheckTokenType(lcontext, TokenType.If, TokenType.ElseIf);
+
+			lcontext.Scope.PushBlock();
+
+			var ifblock = new IfBlock();
+
+			ifblock.Exp = Expression.Expr(lcontext);
+			ifblock.Source = type.GetSourceRef(CheckTokenType(lcontext, TokenType.Then));
+			ifblock.Block = new CompositeStatement(lcontext);
+			ifblock.StackFrame = lcontext.Scope.PopBlock();
+			lcontext.Source.Refs.Add(ifblock.Source);
+
+
+			return ifblock;
+		}
+
+		IfBlock CreateElseBlock(ScriptLoadingContext lcontext)
+		{
+			Token type = CheckTokenType(lcontext, TokenType.Else);
+
+			lcontext.Scope.PushBlock();
+
+			var ifblock = new IfBlock();
+			ifblock.Block = new CompositeStatement(lcontext);
+			ifblock.StackFrame = lcontext.Scope.PopBlock();
+			ifblock.Source = type.GetSourceRef();
+			lcontext.Source.Refs.Add(ifblock.Source);
+			return ifblock;
 		}
 
 
@@ -92,14 +103,14 @@ namespace MoonSharp.Interpreter.Tree.Statements
 
 			if (m_Else != null)
 			{
-				using (bc.EnterSource(m_ElseRef))
+				using (bc.EnterSource(m_Else.Source))
 				{
-					bc.Emit_Enter(m_ElseStackFrame);
-					m_Else.Compile(bc);
+					bc.Emit_Enter(m_Else.StackFrame);
+					m_Else.Block.Compile(bc);
 				}
 
 				using (bc.EnterSource(m_End))
-					bc.Emit_Leave(m_ElseStackFrame);
+					bc.Emit_Leave(m_Else.StackFrame);
 			}
 
 			foreach(var endjmp in endJumps)

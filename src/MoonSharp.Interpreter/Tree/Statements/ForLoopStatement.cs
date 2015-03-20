@@ -5,7 +5,7 @@ using System.Text;
 using MoonSharp.Interpreter.Debugging;
 using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Execution.VM;
-using MoonSharp.Interpreter.Grammar;
+
 using MoonSharp.Interpreter.Tree.Expressions;
 
 namespace MoonSharp.Interpreter.Tree.Statements
@@ -19,27 +19,39 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		Expression m_Start, m_End, m_Step;
 		SourceRef m_RefFor, m_RefEnd;
 
-		public ForLoopStatement(LuaParser.Stat_forloopContext context, ScriptLoadingContext lcontext)
-			: base(context, lcontext)
+		public ForLoopStatement(ScriptLoadingContext lcontext, Token nameToken, Token forToken)
+			: base(lcontext)
 		{
-			var exps = context.exp();
+			//	for Name ‘=’ exp ‘,’ exp [‘,’ exp] do block end | 
 
-			m_Start = NodeFactory.CreateExpression(exps[0], lcontext);
-			m_End = NodeFactory.CreateExpression(exps[1], lcontext);
+			// lexer already at the '=' ! [due to dispatching vs for-each]
+			CheckTokenType(lcontext, TokenType.Op_Assignment);
 
-			if (exps.Length > 2)
-				m_Step = NodeFactory.CreateExpression(exps[2], lcontext);
+			m_Start = Expression.Expr(lcontext);
+			CheckTokenType(lcontext, TokenType.Comma);
+			m_End = Expression.Expr(lcontext);
+
+			if (lcontext.Lexer.Current.Type == TokenType.Comma)
+			{
+				lcontext.Lexer.Next();
+				m_Step = Expression.Expr(lcontext);
+			}
 			else
-				m_Step = new LiteralExpression(context, lcontext, DynValue.NewNumber(1));
+			{
+				m_Step = new LiteralExpression(lcontext, DynValue.NewNumber(1));
+			}
 
 			lcontext.Scope.PushBlock();
-			m_VarName = lcontext.Scope.DefineLocal(context.NAME().GetText());
-			m_InnerBlock = NodeFactory.CreateStatement(context.block(), lcontext);
+			m_VarName = lcontext.Scope.DefineLocal(nameToken.Text);
+			m_RefFor = forToken.GetSourceRef(CheckTokenType(lcontext, TokenType.Do));
+			m_InnerBlock = new CompositeStatement(lcontext);
+			m_RefEnd = CheckTokenType(lcontext, TokenType.End).GetSourceRef();
 			m_StackFrame = lcontext.Scope.PopBlock();
 
-			m_RefFor = BuildSourceRef(context.Start, context.FOR());
-			m_RefEnd = BuildSourceRef(context.Stop, context.END());
-		}
+			lcontext.Source.Refs.Add(m_RefFor);
+			lcontext.Source.Refs.Add(m_RefEnd);
+		}		
+
 
 		public override void Compile(ByteCode bc)
 		{

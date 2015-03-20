@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Antlr4.Runtime.Tree;
 using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Execution.VM;
-using MoonSharp.Interpreter.Grammar;
 
 namespace MoonSharp.Interpreter.Tree.Expressions
 {
@@ -14,13 +12,13 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 		Expression m_BaseExp;
 		Expression m_IndexExp;
 
-		public IndexExpression(IParseTree node, ScriptLoadingContext lcontext, Expression baseExp, Expression indexExp)
-			:base(node, lcontext)
+
+		public IndexExpression(Expression baseExp, Expression indexExp, ScriptLoadingContext lcontext)
+			: base(lcontext)
 		{
 			m_BaseExp = baseExp;
 			m_IndexExp = indexExp;
 		}
-
 
 
 		public override void Compile(ByteCode bc)

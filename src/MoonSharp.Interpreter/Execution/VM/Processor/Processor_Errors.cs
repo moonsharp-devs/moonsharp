@@ -30,14 +30,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 			SourceRef sref = GetCurrentSourceRef(ip);
 
-			if (sref != null)
-			{
-				ex.DecoratedMessage = string.Format("{0}: {1}", sref.FormatLocation(m_Script), ex.Message);
-			}
-			else
-			{
-				ex.DecoratedMessage = string.Format("bytecode:{0}: {1}", ip, ex.Message);
-			}
+			ex.DecorateMessage(m_Script, sref, ip);
 
 			ex.CallStack = Debugger_GetCallStack(sref);
 		}

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using MoonSharp.Interpreter.RuntimeAbstraction;
 using NUnit.Framework;
 
 namespace MoonSharp.Interpreter.Tests
@@ -30,23 +29,34 @@ namespace MoonSharp.Interpreter.Tests
 	{
 		Action<TestResult> loggerAction;
 
+		public static bool IsRunning { get; private set; }
+
 		public TestRunner(Action<TestResult> loggerAction)
 		{
+			IsRunning = true; 
+
 			this.loggerAction = loggerAction;
 
-			Console_WriteLine("MoonSharp Test Suite Runner - {0} [{1}]", Script.VERSION, Platform.Current.Name);
+			Console_WriteLine("MoonSharp Test Suite Runner - {0} [{1}]", Script.VERSION, Script.Platform.GetPlatformName());
 			Console_WriteLine("http://www.moonsharp.org");
 			Console_WriteLine("");
 		}
 
 		public void Test(string whichTest = null)
 		{
+			foreach (TestResult tr in IterateOnTests(whichTest))
+				loggerAction(tr);
+		}
+
+
+		public IEnumerable<TestResult> IterateOnTests(string whichTest = null)
+		{
 			int ok = 0;
 			int fail = 0;
 			int total = 0;
 			int skipped = 0;
 
-			Assembly asm = Assembly.GetAssembly(typeof(SimpleTests));
+			Assembly asm = Assembly.GetExecutingAssembly();
 
 			foreach (Type t in asm.GetTypes().Where(t => t.GetCustomAttributes(typeof(TestFixtureAttribute), true).Any()))
 			{
@@ -69,7 +79,7 @@ namespace MoonSharp.Interpreter.Tests
 						++total;
 					}
 
-					loggerAction(tr);
+					yield return tr;
 				}
 			}
 
@@ -161,6 +171,12 @@ namespace MoonSharp.Interpreter.Tests
 					};
 				}
 			}
+		}
+
+		internal static void Skip()
+		{
+			if (TestRunner.IsRunning)
+				throw new SkipThisTestException();
 		}
 	}
 }

@@ -2,33 +2,29 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Antlr4.Runtime.Tree;
-using MoonSharp.Interpreter.Debugging;
 using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Execution.VM;
-using MoonSharp.Interpreter.Grammar;
 using MoonSharp.Interpreter.Tree.Expressions;
 
 namespace MoonSharp.Interpreter.Tree.Statements
 {
 	class FunctionCallStatement : Statement
 	{
-		FunctionCallChainExpression m_FunctionCallChain;
-		SourceRef m_SourceRef;
+		FunctionCallExpression m_FunctionCallExpression;
 
-		public FunctionCallStatement(LuaParser.Stat_functioncallContext context, ScriptLoadingContext lcontext)
-			: base(context, lcontext)
+		public FunctionCallStatement(ScriptLoadingContext lcontext, FunctionCallExpression functionCallExpression)
+			: base(lcontext)
 		{
-			m_FunctionCallChain = new FunctionCallChainExpression(context, lcontext);
-			m_SourceRef = BuildSourceRef(context.Start, context.Stop);
+			m_FunctionCallExpression = functionCallExpression;
+			lcontext.Source.Refs.Add(m_FunctionCallExpression.SourceRef);
 		}
 
 
 		public override void Compile(ByteCode bc)
 		{
-			using (bc.EnterSource(m_SourceRef))
+			using (bc.EnterSource(m_FunctionCallExpression.SourceRef))
 			{
-				m_FunctionCallChain.Compile(bc);
+				m_FunctionCallExpression.Compile(bc);
 				bc.Emit_Pop();
 			}
 		}

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MoonSharp.Interpreter.Tree.Statements;
 
 namespace MoonSharp.Interpreter.Execution.Scopes
 {
@@ -27,6 +28,8 @@ namespace MoonSharp.Interpreter.Execution.Scopes
 		internal RuntimeScopeBlock PopBlock()
 		{
 			var tree = m_ScopeTreeHead;
+
+			m_ScopeTreeHead.ResolveGotos();
 
 			m_ScopeTreeHead = m_ScopeTreeHead.Parent;
 
@@ -71,6 +74,8 @@ namespace MoonSharp.Interpreter.Execution.Scopes
 
 		internal void ResolveLRefs()
 		{
+			m_ScopeTreeRoot.ResolveGotos();
+
 			m_ScopeTreeRoot.ResolveLRefs(this);
 		}
 
@@ -84,6 +89,16 @@ namespace MoonSharp.Interpreter.Execution.Scopes
 		internal int GetPosForNextVar()
 		{
 			return m_ScopeFrame.DebugSymbols.Count;
+		}
+
+		internal void DefineLabel(LabelStatement label)
+		{
+			m_ScopeTreeHead.DefineLabel(label);
+		}
+
+		internal void RegisterGoto(GotoStatement gotostat)
+		{
+			m_ScopeTreeHead.RegisterGoto(gotostat);
 		}
 	}
 }

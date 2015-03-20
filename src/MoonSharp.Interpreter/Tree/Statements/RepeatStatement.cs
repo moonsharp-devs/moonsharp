@@ -5,7 +5,7 @@ using System.Text;
 using MoonSharp.Interpreter.Debugging;
 using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Execution.VM;
-using MoonSharp.Interpreter.Grammar;
+
 
 namespace MoonSharp.Interpreter.Tree.Statements
 {
@@ -16,20 +16,24 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		RuntimeScopeBlock m_StackFrame;
 		SourceRef m_Repeat, m_Until;
 
-		public RepeatStatement(LuaParser.Stat_repeatuntilloopContext context, ScriptLoadingContext lcontext)
-			: base(context, lcontext)
+		public RepeatStatement(ScriptLoadingContext lcontext)
+			: base(lcontext)
 		{
+			m_Repeat = CheckTokenType(lcontext, TokenType.Repeat).GetSourceRef();
+
 			lcontext.Scope.PushBlock();
-			var exp = context.exp();
+			m_Block = new CompositeStatement(lcontext);
 
-			m_Block = NodeFactory.CreateStatement(context.block(), lcontext);
-			m_Condition = NodeFactory.CreateExpression(exp, lcontext);
+			Token until = CheckTokenType(lcontext, TokenType.Until);
+
+			m_Condition = Expression.Expr(lcontext);
+
+			m_Until = until.GetSourceRefUpTo(lcontext.Lexer.Current);
+
 			m_StackFrame = lcontext.Scope.PopBlock();
-
-			m_Repeat = BuildSourceRef(context.Start, context.REPEAT());
-			m_Until = BuildSourceRef(exp.Start, exp.Stop);
+			lcontext.Source.Refs.Add(m_Repeat);
+			lcontext.Source.Refs.Add(m_Until);
 		}
-
 
 		public override void Compile(ByteCode bc)
 		{

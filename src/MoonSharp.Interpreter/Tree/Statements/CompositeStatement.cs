@@ -4,36 +4,33 @@ using System.Linq;
 using System.Text;
 
 using MoonSharp.Interpreter.Execution;
-using MoonSharp.Interpreter.Grammar;
+
 
 namespace MoonSharp.Interpreter.Tree.Statements
 {
 	class CompositeStatement : Statement 
 	{
-		Statement[] m_Statements;
+		List<Statement> m_Statements = new List<Statement>();
 
-		public CompositeStatement(LuaParser.StatContext context, ScriptLoadingContext lcontext)
-			: base(context, lcontext)
+		public CompositeStatement(ScriptLoadingContext lcontext)
+			: base(lcontext)
 		{
-			if (context.ChildCount > 0)
+			while (true)
 			{
-				m_Statements = context.children
-					.Select(t => NodeFactory.CreateStatement(t, lcontext))
-					.Where(s => s != null)
-					.ToArray();
-			}
-		}
+				Token t = lcontext.Lexer.Current;
+				if (t.IsEndOfBlock()) break;
 
-		public CompositeStatement(LuaParser.BlockContext context, ScriptLoadingContext lcontext)
-			: base(context, lcontext)
-		{
-			if (context.ChildCount > 0)
-			{
-				m_Statements = context.children
-					.Select(t => NodeFactory.CreateStatement(t, lcontext))
-					.Where(s => s != null)
-					.ToArray();
+				bool forceLast;
+				
+				Statement s = Statement.CreateStatement(lcontext, out forceLast);
+				m_Statements.Add(s);
+
+				if (forceLast) break;
 			}
+
+			// eat away all superfluos ';'s
+			while (lcontext.Lexer.Current.Type == TokenType.SemiColon)
+				lcontext.Lexer.Next();
 		}
 
 
@@ -43,11 +40,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			{
 				foreach (Statement s in m_Statements)
 				{
-					if (!(s is NullStatement))
-					{
-						bc.Emit_Debug(s.TreeNode.GetText());
-						s.Compile(bc);
-					}
+					s.Compile(bc);
 				}
 			}
 		}

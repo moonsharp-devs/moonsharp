@@ -15,11 +15,16 @@ namespace MoonSharp.Interpreter.Execution.VM
 	internal class ByteCode : ITrackableReference
 	{
 		public List<Instruction> Code = new List<Instruction>();
+		public Script Script { get; private set; }
 		private List<SourceRef> m_SourceRefStack = new List<SourceRef>();
 		private SourceRef m_CurrentSourceRef = null;
 
 		internal LoopTracker LoopTracker = new LoopTracker();
 
+		public ByteCode(Script script)
+		{
+			Script = script;
+		}
 
 		#region ITrackableReference
 
@@ -64,7 +69,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			m_CurrentSourceRef = (m_SourceRefStack.Count > 0) ? m_SourceRefStack[m_SourceRefStack.Count - 1] : null;
 		}
 
-
+#if !PCL
 		public void Dump(string file)
 		{
 			StringBuilder sb = new StringBuilder();
@@ -79,6 +84,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 			File.WriteAllText(file, sb.ToString());
 		}
+#endif
 
 		public int GetJumpPointForNextInstruction()
 		{
@@ -162,17 +168,22 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		public Instruction Emit_Enter(RuntimeScopeBlock runtimeScopeBlock)
 		{
-			return AppendInstruction(new Instruction(m_CurrentSourceRef) { OpCode = OpCode.Enter, NumVal = runtimeScopeBlock.From, NumVal2 = runtimeScopeBlock.ToInclusive });
+			return AppendInstruction(new Instruction(m_CurrentSourceRef) { OpCode = OpCode.Clean, NumVal = runtimeScopeBlock.From, NumVal2 = runtimeScopeBlock.ToInclusive });
 		}
 
 		public Instruction Emit_Leave(RuntimeScopeBlock runtimeScopeBlock)
 		{
-			return AppendInstruction(new Instruction(m_CurrentSourceRef) { OpCode = OpCode.Leave, NumVal = runtimeScopeBlock.From, NumVal2 = runtimeScopeBlock.To });
+			return AppendInstruction(new Instruction(m_CurrentSourceRef) { OpCode = OpCode.Clean, NumVal = runtimeScopeBlock.From, NumVal2 = runtimeScopeBlock.To });
 		}
 
 		public Instruction Emit_Exit(RuntimeScopeBlock runtimeScopeBlock)
 		{
-			return AppendInstruction(new Instruction(m_CurrentSourceRef) { OpCode = OpCode.Exit, NumVal = runtimeScopeBlock.From, NumVal2 = runtimeScopeBlock.ToInclusive });
+			return AppendInstruction(new Instruction(m_CurrentSourceRef) { OpCode = OpCode.Clean, NumVal = runtimeScopeBlock.From, NumVal2 = runtimeScopeBlock.ToInclusive });
+		}
+
+		public Instruction Emit_Clean(RuntimeScopeBlock runtimeScopeBlock)
+		{
+			return AppendInstruction(new Instruction(m_CurrentSourceRef) { OpCode = OpCode.Clean, NumVal = runtimeScopeBlock.To + 1, NumVal2 = runtimeScopeBlock.ToInclusive });
 		}
 
 		public Instruction Emit_Closure(SymbolRef[] symbols, int jmpnum)

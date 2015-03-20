@@ -5,7 +5,7 @@ using System.Text;
 using MoonSharp.Interpreter.Debugging;
 using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Execution.VM;
-using MoonSharp.Interpreter.Grammar;
+
 using MoonSharp.Interpreter.Tree.Expressions;
 
 namespace MoonSharp.Interpreter.Tree.Statements
@@ -17,40 +17,50 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		IVariable[] m_NameExps;
 		Expression m_RValues;
 		Statement m_Block;
-		string m_DebugText;
 		SourceRef m_RefFor, m_RefEnd;
 
-
-		public ForEachLoopStatement(LuaParser.Stat_foreachloopContext context, ScriptLoadingContext lcontext)
-			: base(context, lcontext)
+		public ForEachLoopStatement(ScriptLoadingContext lcontext, Token firstNameToken, Token forToken)
+			: base(lcontext)
 		{
-			context.explist();
+			//	for namelist in explist do block end | 		
 
-			var explist = context.explist();
+			List<string> names = new List<string>();
+			names.Add(firstNameToken.Text);
 
-			m_RValues = NodeFactory.CreateExpression(explist, lcontext);
+			while (lcontext.Lexer.Current.Type == TokenType.Comma)
+			{
+				lcontext.Lexer.Next();
+				Token name = CheckTokenType(lcontext, TokenType.Name);
+				names.Add(name.Text);
+			}
+
+			CheckTokenType(lcontext, TokenType.In);
+
+			m_RValues = new ExprListExpression(Expression.ExprList(lcontext), lcontext);
 
 			lcontext.Scope.PushBlock();
 
-			m_Names = context.namelist().NAME()
-				.Select(n => n.GetText())
+			m_Names = names
 				.Select(n => lcontext.Scope.DefineLocal(n))
 				.ToArray();
 
 			m_NameExps = m_Names
-				.Select(s => new SymbolRefExpression(context, lcontext, s))
+				.Select(s => new SymbolRefExpression(lcontext, s))
 				.Cast<IVariable>()
 				.ToArray();
 
-			
-			m_Block = NodeFactory.CreateStatement(context.block(), lcontext);
+			m_RefFor = forToken.GetSourceRef(CheckTokenType(lcontext, TokenType.Do));
+
+			m_Block = new CompositeStatement(lcontext);
+
+			m_RefEnd = CheckTokenType(lcontext, TokenType.End).GetSourceRef();
 
 			m_StackFrame = lcontext.Scope.PopBlock();
-			m_DebugText = context.GetText();
 
-			m_RefFor = BuildSourceRef(context.Start, context.FOR());
-			m_RefEnd = BuildSourceRef(context.Stop, context.END());
+			lcontext.Source.Refs.Add(m_RefFor);
+			lcontext.Source.Refs.Add(m_RefEnd);
 		}
+
 
 		public override void Compile(ByteCode bc)
 		{
@@ -75,10 +85,10 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			bc.Emit_Enter(m_StackFrame);
 
 			// expand the tuple - stack : iterator-tuple, f, var, s
-			bc.Emit_ExpTuple(0);  
+			bc.Emit_ExpTuple(0);
 
 			// calls f(s, var) - stack : iterator-tuple, iteration result
-			bc.Emit_Call(2, m_DebugText);
+			bc.Emit_Call(2, "for..in");
 
 			// perform assignment of iteration result- stack : iterator-tuple, iteration result
 			for (int i = 0; i < m_NameExps.Length; i++)

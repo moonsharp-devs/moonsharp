@@ -22,6 +22,9 @@ namespace MoonSharp.Interpreter.Interop
 
 		internal StandardUserDataPropertyDescriptor(PropertyInfo pi, InteropAccessMode accessMode)
 		{
+			if (Script.Platform.IsRunningOnAOT())
+				accessMode = InteropAccessMode.Reflection;
+
 			this.PropertyInfo = pi;
 			this.AccessMode = accessMode;
 			this.Name = pi.Name;
@@ -41,9 +44,15 @@ namespace MoonSharp.Interpreter.Interop
 				OptimizeGetter();
 
 			if (m_OptimizedGetter != null)
+			{
 				return m_OptimizedGetter(obj);
+			}
 
-			return PropertyInfo.GetValue(IsStatic ? null : obj, null);
+			// convoluted workaround for --full-aot Mono execution
+			object result = PropertyInfo.GetGetMethod().Invoke(IsStatic ? null : obj, null);
+			return result;
+				
+				//PropertyInfo.GetValue(IsStatic ? null : obj, null);
 		}
 
 		internal void OptimizeGetter()

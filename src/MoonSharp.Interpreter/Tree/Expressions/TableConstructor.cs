@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using MoonSharp.Interpreter.Execution;
-using MoonSharp.Interpreter.Grammar;
 
 namespace MoonSharp.Interpreter.Tree.Expressions
 {
@@ -12,41 +11,82 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 		List<Expression> m_PositionalValues = new List<Expression>();
 		List<KeyValuePair<Expression, Expression>> m_CtorArgs = new List<KeyValuePair<Expression, Expression>>();
 
-		public TableConstructor(LuaParser.TableconstructorContext context, ScriptLoadingContext lcontext)
-			: base(context, lcontext)
+		public TableConstructor(ScriptLoadingContext lcontext)
+			: base(lcontext)
 		{
-			var fieldlist = context.fieldlist();
+			// here lexer is at the '{', go on
+			CheckTokenType(lcontext, TokenType.Brk_Open_Curly);
 
-			if (fieldlist != null)
+			while (lcontext.Lexer.Current.Type != TokenType.Brk_Close_Curly)
 			{
-				foreach (var field in fieldlist.field())
+				switch (lcontext.Lexer.Current.Type)
 				{
-					var keyval = field.keyexp;
-					var name = field.NAME();
+					case TokenType.Name:
+						{
+							Token assign = lcontext.Lexer.PeekNext();
 
-					if (keyval != null)
-					{
-						Expression exp = NodeFactory.CreateExpression(keyval, lcontext);
-
-						m_CtorArgs.Add(new KeyValuePair<Expression,Expression>(
-							exp,
-							NodeFactory.CreateExpression(field.keyedexp, lcontext)));
-					}
-					else if (name != null)
-					{
-						m_CtorArgs.Add(new KeyValuePair<Expression, Expression>(
-							new LiteralExpression(field, lcontext, DynValue.NewString(name.GetText())),
-							NodeFactory.CreateExpression(field.namedexp, lcontext)));
-					}
-					else 
-					{
-						m_PositionalValues.Add(NodeFactory.CreateExpression(field.positionalexp, lcontext));
-					}
+							if (assign.Type == TokenType.Op_Assignment)
+								StructField(lcontext);
+							else
+								ArrayField(lcontext);
+						}
+						break;
+					case TokenType.Brk_Open_Square:
+						MapField(lcontext);
+						break;
+					default:
+						ArrayField(lcontext);
+						break;
 				}
 
+				Token curr = lcontext.Lexer.Current;
+
+				if (curr.Type == TokenType.Comma || curr.Type == TokenType.SemiColon)
+				{
+					lcontext.Lexer.Next();
+				}
+				else
+				{
+					break;
+				}
 			}
+
+			CheckTokenType(lcontext, TokenType.Brk_Close_Curly);
 		}
 
+		private void MapField(ScriptLoadingContext lcontext)
+		{
+			lcontext.Lexer.Next(); // skip '['
+
+			Expression key = Expr(lcontext);
+
+			CheckTokenType(lcontext, TokenType.Brk_Close_Square);
+
+			CheckTokenType(lcontext, TokenType.Op_Assignment);
+
+			Expression value = Expr(lcontext);
+
+			m_CtorArgs.Add(new KeyValuePair<Expression, Expression>(key, value));
+		}
+
+		private void StructField(ScriptLoadingContext lcontext)
+		{
+			Expression key = new LiteralExpression(lcontext, DynValue.NewString(lcontext.Lexer.Current.Text));
+			lcontext.Lexer.Next();
+
+			CheckTokenType(lcontext, TokenType.Op_Assignment);
+
+			Expression value = Expr(lcontext);
+
+			m_CtorArgs.Add(new KeyValuePair<Expression, Expression>(key, value));
+		}
+
+
+		private void ArrayField(ScriptLoadingContext lcontext)
+		{
+			Expression e = Expr(lcontext);
+			m_PositionalValues.Add(e);
+		}
 
 
 		public override void Compile(Execution.VM.ByteCode bc)

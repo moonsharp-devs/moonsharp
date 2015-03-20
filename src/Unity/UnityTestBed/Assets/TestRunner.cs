@@ -3,10 +3,10 @@ using System.Collections;
 using System.Threading;
 using MoonSharp.Interpreter.Tests;
 using MoonSharp.Interpreter;
+using MoonSharp.Interpreter.Loaders;
 
 public class TestRunner : MonoBehaviour
 {
-	Thread m_Thread;
 	string m_Text = "";
 	object m_Lock = new object();
 	bool m_LastWasLine = true;
@@ -14,12 +14,7 @@ public class TestRunner : MonoBehaviour
 	// Use this for initialization
 	void Start()
 	{
-		Script.DefaultScriptLoader = new UnityLoader();
-
-		m_Thread = new Thread(() => DoTests());
-		m_Thread.Name = "Tests";
-		m_Thread.IsBackground = true;
-		m_Thread.Start();
+		StartCoroutine(DoTests());
 	}
 
 
@@ -30,10 +25,15 @@ public class TestRunner : MonoBehaviour
 	}
 
 
-	void DoTests()
+	IEnumerator DoTests()
 	{
 		MoonSharp.Interpreter.Tests.TestRunner tr = new MoonSharp.Interpreter.Tests.TestRunner(Log);
-		tr.Test();
+
+		foreach (var r in tr.IterateOnTests())
+		{
+			Log(r);
+			yield return null;
+		}
 	}
 
 	void Log(TestResult r)

@@ -63,9 +63,7 @@ namespace MoonSharp.Interpreter.Execution
 				case OpCode.JfOrPop:
 					return InstructionFieldUsage.NumValAsCodeAddress;
 				case OpCode.Swap:
-				case OpCode.Enter:
-				case OpCode.Leave:
-				case OpCode.Exit:
+				case OpCode.Clean:
 					return InstructionFieldUsage.NumVal | InstructionFieldUsage.NumVal2;
 				case OpCode.Local:
 				case OpCode.Upvalue:

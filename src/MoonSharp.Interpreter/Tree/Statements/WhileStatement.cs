@@ -5,7 +5,7 @@ using System.Text;
 using MoonSharp.Interpreter.Debugging;
 using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Execution.VM;
-using MoonSharp.Interpreter.Grammar;
+
 
 namespace MoonSharp.Interpreter.Tree.Statements
 {
@@ -16,18 +16,26 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		RuntimeScopeBlock m_StackFrame;
 		SourceRef m_Start, m_End;
 
-		public WhileStatement(LuaParser.Stat_whiledoloopContext context, ScriptLoadingContext lcontext)
-			: base(context, lcontext)
+		public WhileStatement(ScriptLoadingContext lcontext)
+			: base(lcontext)
 		{
-			var exp = context.exp();
-			m_Condition = NodeFactory.CreateExpression(exp, lcontext);
+			Token whileTk = CheckTokenType(lcontext, TokenType.While);
 
-			m_Start = BuildSourceRef(context.Start, exp.Stop);
-			m_End = BuildSourceRef(context.Stop, context.END());
+			m_Condition = Expression.Expr(lcontext);
+
+			m_Start = whileTk.GetSourceRefUpTo(lcontext.Lexer.Current);
+
+			//m_Start = BuildSourceRef(context.Start, exp.Stop);
+			//m_End = BuildSourceRef(context.Stop, context.END());
 
 			lcontext.Scope.PushBlock();
-			m_Block = NodeFactory.CreateStatement(context.block(), lcontext);
+			CheckTokenType(lcontext, TokenType.Do);
+			m_Block = new CompositeStatement(lcontext);
+			m_End = CheckTokenType(lcontext, TokenType.End).GetSourceRef();
 			m_StackFrame = lcontext.Scope.PopBlock();
+
+			lcontext.Source.Refs.Add(m_Start);
+			lcontext.Source.Refs.Add(m_End);
 		}
 
 

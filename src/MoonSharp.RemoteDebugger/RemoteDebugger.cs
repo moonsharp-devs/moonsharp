@@ -88,7 +88,7 @@ namespace MoonSharp.RemoteDebugger
 			{
 				if (m_HttpServer != null)
 				{
-					return string.Format("http://localhost:{0}/", m_Options.HttpPort.Value);
+					return string.Format("http://127.0.0.1:{0}/", m_Options.HttpPort.Value);
 				}
 				return null;
 			}

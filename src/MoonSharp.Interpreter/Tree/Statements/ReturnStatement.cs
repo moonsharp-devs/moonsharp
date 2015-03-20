@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using MoonSharp.Interpreter.Debugging;
 using MoonSharp.Interpreter.Execution;
-using MoonSharp.Interpreter.Grammar;
+
 using MoonSharp.Interpreter.Tree.Expressions;
 
 namespace MoonSharp.Interpreter.Tree.Statements
@@ -14,20 +14,26 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		Expression m_Expression = null;
 		SourceRef m_Ref;
 
-		public ReturnStatement(LuaParser.RetstatContext context, ScriptLoadingContext lcontext)
-			: base(context, lcontext)
+		public ReturnStatement(ScriptLoadingContext lcontext)
+			: base(lcontext)
 		{
-			LuaParser.ExplistContext expr = context.children.FirstOrDefault(t => t is LuaParser.ExplistContext) as LuaParser.ExplistContext;
+			Token ret = lcontext.Lexer.Current;
 
-			if (expr != null)
+			lcontext.Lexer.Next();
+
+			Token cur = lcontext.Lexer.Current;
+
+			if (cur.IsEndOfBlock() || cur.Type == TokenType.SemiColon)
 			{
-				m_Expression = NodeFactory.CreateExpression(expr, lcontext);
-				m_Ref = BuildSourceRef(context.Start, expr.Stop);
+				m_Expression = null;
+				m_Ref = ret.GetSourceRef();
 			}
 			else
 			{
-				m_Ref = BuildSourceRef(context.Start, context.RETURN());
+				m_Expression = new ExprListExpression(Expression.ExprList(lcontext), lcontext);
+				m_Ref = ret.GetSourceRefUpTo(lcontext.Lexer.Current);
 			}
+			lcontext.Source.Refs.Add(m_Ref);
 		}
 
 

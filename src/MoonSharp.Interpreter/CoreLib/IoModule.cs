@@ -5,19 +5,13 @@ using System.Linq;
 using System.Text;
 using MoonSharp.Interpreter.CoreLib.IO;
 using MoonSharp.Interpreter.Execution;
+using MoonSharp.Interpreter.Platforms;
 
 namespace MoonSharp.Interpreter.CoreLib
 {
 	[MoonSharpModule(Namespace = "io")]
 	public class IoModule
 	{
-		public enum DefaultFiles
-		{
-			In,
-			Out,
-			Err
-		}
-
 		public static void MoonSharpInit(Table globalTable, Table ioTable)
 		{
 			UserData.RegisterType<FileUserDataBase>(InteropAccessMode.Default, "file");
@@ -27,9 +21,9 @@ namespace MoonSharp.Interpreter.CoreLib
 			meta.Set("__index", __index);
 			ioTable.MetaTable = meta;
 
-			stdin = StandardIOFileUserDataBase.CreateInputStream(Console.OpenStandardInput());
-			stdout = StandardIOFileUserDataBase.CreateOutputStream(Console.OpenStandardOutput());
-			stderr = StandardIOFileUserDataBase.CreateOutputStream(Console.OpenStandardError());
+			SetStandardFile(globalTable.OwnerScript, StandardFileType.StdIn, globalTable.OwnerScript.Options.Stdin);
+			SetStandardFile(globalTable.OwnerScript, StandardFileType.StdOut, globalTable.OwnerScript.Options.Stdout);
+			SetStandardFile(globalTable.OwnerScript, StandardFileType.StdErr, globalTable.OwnerScript.Options.Stderr);
 		}
 
 		private static DynValue __index_callback(ScriptExecutionContext executionContext, CallbackArguments args)
@@ -37,20 +31,41 @@ namespace MoonSharp.Interpreter.CoreLib
 			string name = args[1].CastToString();
 
 			if (name == "stdin")
-				return UserData.Create(stdin);
+				return GetStandardFile(executionContext.GetScript(), StandardFileType.StdIn);
 			else if (name == "stdout")
-				return UserData.Create(stdout);
+				return GetStandardFile(executionContext.GetScript(), StandardFileType.StdOut);
 			else if (name == "stderr")
-				return UserData.Create(stderr);
+				return GetStandardFile(executionContext.GetScript(), StandardFileType.StdErr);
 			else
 				return DynValue.Nil;
 		}
 
-		static FileUserDataBase stdin;
-		static FileUserDataBase stdout;
-		static FileUserDataBase stderr;
+		private static DynValue GetStandardFile(Script S, StandardFileType file)
+		{
+			Table R = S.Registry;
 
-		static FileUserDataBase GetDefaultFile(ScriptExecutionContext executionContext, DefaultFiles file)
+			DynValue ff = R.Get("853BEAAF298648839E2C99D005E1DF94_STD_" + file.ToString());
+			return ff;
+		}
+
+		private static void SetStandardFile(Script S, StandardFileType file, Stream optionsStream)
+		{
+			Table R = S.Registry;
+
+			optionsStream = optionsStream ?? Script.Platform.IO_GetStandardStream(file);
+
+			FileUserDataBase udb = null;
+
+			if (file == StandardFileType.StdIn)
+				udb = StandardIOFileUserDataBase.CreateInputStream(optionsStream);
+			else
+				udb = StandardIOFileUserDataBase.CreateOutputStream(optionsStream);
+
+			R.Set("853BEAAF298648839E2C99D005E1DF94_STD_" + file.ToString(), UserData.Create(udb));
+		}
+
+
+		static FileUserDataBase GetDefaultFile(ScriptExecutionContext executionContext, StandardFileType file)
 		{
 			Table R = executionContext.GetScript().Registry;
 
@@ -58,38 +73,27 @@ namespace MoonSharp.Interpreter.CoreLib
 
 			if (ff.IsNil())
 			{
-				switch (file)
-				{
-					case DefaultFiles.In:
-						return stdin;
-					case DefaultFiles.Out:
-						return stdout;
-					case DefaultFiles.Err:
-						return stderr;
-					default:
-						throw new InternalErrorException("DefaultFiles value defaulted");
-				}
+				ff = GetStandardFile(executionContext.GetScript(), file);
 			}
-			else
-			{
-				return ff.CheckUserDataType<FileUserDataBase>("getdefaultfile(" + file.ToString() + ")");
-			}
+
+			return ff.CheckUserDataType<FileUserDataBase>("getdefaultfile(" + file.ToString() + ")");
 		}
 
-		static void SetDefaultFile(ScriptExecutionContext executionContext, DefaultFiles file, FileUserDataBase fileHandle)
+
+		static void SetDefaultFile(ScriptExecutionContext executionContext, StandardFileType file, FileUserDataBase fileHandle)
 		{
 			SetDefaultFile(executionContext.GetScript(), file, fileHandle);
 		}
 
-		public static void SetDefaultFile(Script script, DefaultFiles file, FileUserDataBase fileHandle)
+		public static void SetDefaultFile(Script script, StandardFileType file, FileUserDataBase fileHandle)
 		{
 			Table R = script.Registry;
 			R.Set("853BEAAF298648839E2C99D005E1DF94_" + file.ToString(), UserData.Create(fileHandle));
 		}
 
-		public static void SetDefaultFile(Script script, DefaultFiles file, Stream stream)
+		public static void SetDefaultFile(Script script, StandardFileType file, Stream stream)
 		{
-			if (file == DefaultFiles.In)
+			if (file == StandardFileType.StdIn)
 				SetDefaultFile(script, file, StandardIOFileUserDataBase.CreateInputStream(stream));
 			else
 				SetDefaultFile(script, file, StandardIOFileUserDataBase.CreateOutputStream(stream));
@@ -99,14 +103,14 @@ namespace MoonSharp.Interpreter.CoreLib
 		[MoonSharpMethod]
 		public static DynValue close(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
-			FileUserDataBase outp = args.AsUserData<FileUserDataBase>(0, "close", true) ?? GetDefaultFile(executionContext, DefaultFiles.Out);
+			FileUserDataBase outp = args.AsUserData<FileUserDataBase>(0, "close", true) ?? GetDefaultFile(executionContext, StandardFileType.StdOut);
 			return outp.close(executionContext, args);
 		}
 
 		[MoonSharpMethod]
 		public static DynValue flush(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
-			FileUserDataBase outp = args.AsUserData<FileUserDataBase>(0, "close", true) ?? GetDefaultFile(executionContext, DefaultFiles.Out);
+			FileUserDataBase outp = args.AsUserData<FileUserDataBase>(0, "close", true) ?? GetDefaultFile(executionContext, StandardFileType.StdOut);
 			outp.flush();
 			return DynValue.True;
 		}
@@ -115,16 +119,16 @@ namespace MoonSharp.Interpreter.CoreLib
 		[MoonSharpMethod]
 		public static DynValue input(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
-			return HandleDefaultStreamSetter(executionContext, args, DefaultFiles.In);
+			return HandleDefaultStreamSetter(executionContext, args, StandardFileType.StdIn);
 		}
 
 		[MoonSharpMethod]
 		public static DynValue output(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
-			return HandleDefaultStreamSetter(executionContext, args, DefaultFiles.Out);
+			return HandleDefaultStreamSetter(executionContext, args, StandardFileType.StdOut);
 		}
 
-		private static DynValue HandleDefaultStreamSetter(ScriptExecutionContext executionContext, CallbackArguments args, DefaultFiles defaultFiles)
+		private static DynValue HandleDefaultStreamSetter(ScriptExecutionContext executionContext, CallbackArguments args, StandardFileType defaultFiles)
 		{
 			if (args.Count == 0 || args[0].IsNil())
 			{
@@ -137,11 +141,11 @@ namespace MoonSharp.Interpreter.CoreLib
 			if (args[0].Type == DataType.String || args[0].Type == DataType.Number)
 			{
 				string fileName = args[0].CastToString();
-				inp = Open(fileName, GetUTF8Encoding(), defaultFiles == DefaultFiles.In ? "r" : "w");
+				inp = Open(executionContext, fileName, GetUTF8Encoding(), defaultFiles == StandardFileType.StdIn ? "r" : "w");
 			}
 			else
 			{
-				inp = args.AsUserData<FileUserDataBase>(0, defaultFiles == DefaultFiles.In ? "input" : "output", false);
+				inp = args.AsUserData<FileUserDataBase>(0, defaultFiles == StandardFileType.StdIn ? "input" : "output", false);
 			}
 
 			SetDefaultFile(executionContext, defaultFiles, inp);
@@ -163,7 +167,7 @@ namespace MoonSharp.Interpreter.CoreLib
 			{
 				List<DynValue> readLines = new List<DynValue>();
 
-				using (var stream = new System.IO.FileStream(filename, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.ReadWrite | System.IO.FileShare.Delete))
+				using (var stream = Script.Platform.IO_OpenFile(executionContext.GetScript(), filename, null, "r"))
 				{
 					using (var reader = new System.IO.StreamReader(stream))
 					{
@@ -232,7 +236,7 @@ namespace MoonSharp.Interpreter.CoreLib
 					e = Encoding.GetEncoding(encoding);
 				}
 
-				return UserData.Create(Open(filename, e, mode));
+				return UserData.Create(Open(executionContext, filename, e, mode));
 			}
 			catch (Exception ex)
 			{
@@ -269,29 +273,29 @@ namespace MoonSharp.Interpreter.CoreLib
 		[MoonSharpMethod]
 		public static DynValue read(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
-			FileUserDataBase file = GetDefaultFile(executionContext, DefaultFiles.In);
+			FileUserDataBase file = GetDefaultFile(executionContext, StandardFileType.StdIn);
 			return file.read(executionContext, args);
 		}
 
 		[MoonSharpMethod]
 		public static DynValue write(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
-			FileUserDataBase file = GetDefaultFile(executionContext, DefaultFiles.Out);
+			FileUserDataBase file = GetDefaultFile(executionContext, StandardFileType.StdOut);
 			return file.write(executionContext, args);
 		}
 
 		[MoonSharpMethod]
 		public static DynValue tmpfile(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
-			FileUserDataBase file = Open(System.IO.Path.GetTempFileName(), GetUTF8Encoding(), "w");
+			string tmpfilename = Script.Platform.IO_OS_GetTempFilename();
+			FileUserDataBase file = Open(executionContext, tmpfilename, GetUTF8Encoding(), "w");
 			return UserData.Create(file);
 		}
 
-		private static FileUserDataBase Open(string filename, Encoding encoding, string mode)
+		private static FileUserDataBase Open(ScriptExecutionContext executionContext, string filename, Encoding encoding, string mode)
 		{
-			return new FileUserData(filename, encoding, mode);
+			return new FileUserData(executionContext.GetScript(), filename, encoding, mode);
 		}
-
 
 
 	}
