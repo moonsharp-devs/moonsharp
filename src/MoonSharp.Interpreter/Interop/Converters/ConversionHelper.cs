@@ -7,6 +7,9 @@ using MoonSharp.Interpreter.Execution;
 
 namespace MoonSharp.Interpreter.Interop
 {
+	/// <summary>
+	/// Handler of internal conversions between CLR and script types
+	/// </summary>
 	internal static class ConversionHelper
 	{
 		static readonly HashSet<Type> NumericTypes = new HashSet<Type>()
@@ -25,6 +28,9 @@ namespace MoonSharp.Interpreter.Interop
 		};
 
 
+		/// <summary>
+		/// Checks the callback signature of a method is compatible for callbacks
+		/// </summary>
 		internal static bool CheckCallbackSignature(MethodInfo mi)
 		{
 			ParameterInfo[] pi = mi.GetParameters();
@@ -33,6 +39,9 @@ namespace MoonSharp.Interpreter.Interop
 				&& pi[1].ParameterType == typeof(CallbackArguments) && mi.ReturnType == typeof(DynValue) && mi.IsPublic);
 		}
 
+		/// <summary>
+		/// Tries to convert a CLR object to a MoonSharp value, using "simple" logic
+		/// </summary>
 		internal static DynValue TryClrObjectToSimpleMoonSharpValue(Script script, object obj)
 		{
 			if (obj == null)
@@ -82,6 +91,9 @@ namespace MoonSharp.Interpreter.Interop
 		}
 
 
+		/// <summary>
+		/// Tries to convert a CLR object to a MoonSharp value, using more in-depth analysis
+		/// </summary>
 		internal static DynValue ClrObjectToComplexMoonSharpValue(Script script, object obj)
 		{
 			DynValue v = TryClrObjectToSimpleMoonSharpValue(script, obj);
@@ -138,6 +150,9 @@ namespace MoonSharp.Interpreter.Interop
 			throw ScriptRuntimeException.ConvertObjectFailed(obj);
 		}
 
+		/// <summary>
+		/// Converts an IDictionary to a Lua table.
+		/// </summary>
 		private static Table ConvertIDictionaryToTable(Script script, System.Collections.IDictionary dict)
 		{
 			Table t = new Table(script);
@@ -152,6 +167,9 @@ namespace MoonSharp.Interpreter.Interop
 			return t;
 		}
 
+		/// <summary>
+		/// Converts an IList to a Lua table.
+		/// </summary>
 		private static Table ConvertIListToTable(Script script, System.Collections.IList list)
 		{
 			Table t = new Table(script);
@@ -162,6 +180,9 @@ namespace MoonSharp.Interpreter.Interop
 			return t;
 		}
 
+		/// <summary>
+		/// Converts a DynValue to a CLR object [simple conversion]
+		/// </summary>
 		internal static object MoonSharpValueToClrObject(DynValue value)
 		{
 			var converter = Script.GlobalOptions.CustomConverters.GetScriptToClrCustomConversion(value.Type, typeof(System.Object));
@@ -203,6 +224,9 @@ namespace MoonSharp.Interpreter.Interop
 			}
 		}
 
+		/// <summary>
+		/// Converts a DynValue to a CLR object of a specific type
+		/// </summary>
 		internal static object MoonSharpValueToObjectOfType(DynValue value, Type desiredType, object defaultValue)
 		{
 			var converter = Script.GlobalOptions.CustomConverters.GetScriptToClrCustomConversion(value.Type, desiredType);
@@ -332,6 +356,9 @@ namespace MoonSharp.Interpreter.Interop
 			throw ScriptRuntimeException.ConvertObjectFailed(value.Type, desiredType);
 		}
 
+		/// <summary>
+		/// Converts a table to a CLR object of a given type
+		/// </summary>
 		private static object ConvertTableToType(Table table, Type t)
 		{
 			if (t.IsAssignableFrom(typeof(Dictionary<object, object>)))
@@ -369,6 +396,9 @@ namespace MoonSharp.Interpreter.Interop
 			return null;
 		}
 
+		/// <summary>
+		/// Converts a table to a <seealso cref="Dictionary{K,V}"/>
+		/// </summary>
 		private static object ConvertTableToDictionaryOfGenericType(Type dictionaryType, Type keyType, Type valueType, Table table)
 		{
 			if (dictionaryType.GetGenericTypeDefinition() != typeof(Dictionary<,>))
@@ -390,6 +420,9 @@ namespace MoonSharp.Interpreter.Interop
 			return dic;
 		}
 
+		/// <summary>
+		/// Converts a table to a T[]
+		/// </summary>
 		private static object ConvertTableToArrayOfGenericType(Type arrayType, Type itemType, Table table)
 		{
 			List<object> lst = new List<object>(); 
@@ -410,6 +443,9 @@ namespace MoonSharp.Interpreter.Interop
 		}
 
 
+		/// <summary>
+		/// Converts a table to a <seealso cref="List{T}"/>
+		/// </summary>
 		private static object ConvertTableToListOfGenericType(Type listType, Type itemType, Table table)
 		{
 			if (listType.GetGenericTypeDefinition() != typeof(List<>))
@@ -430,6 +466,9 @@ namespace MoonSharp.Interpreter.Interop
 			return lst;
 		}
 
+		/// <summary>
+		/// Converts a table to a <seealso cref="List{T}"/>, known in advance
+		/// </summary>
 		private static List<T> TableToList<T>(Table table, Func<DynValue, T> converter)
 		{
 			List<T> lst = new List<T>();
@@ -444,6 +483,9 @@ namespace MoonSharp.Interpreter.Interop
 			return lst;
 		}
 
+		/// <summary>
+		/// Converts a table to a Dictionary, known in advance
+		/// </summary>
 		private static Dictionary<TK, TV> TableToDictionary<TK, TV>(Table table, Func<DynValue, TK> keyconverter, Func<DynValue, TV> valconverter)
 		{
 			Dictionary<TK, TV> dict = new Dictionary<TK, TV>();
@@ -459,6 +501,9 @@ namespace MoonSharp.Interpreter.Interop
 			return dict;
 		}
 
+		/// <summary>
+		/// Converts a double to another type
+		/// </summary>
 		internal static object DoubleToType(Type type, double d)
 		{
 			type = Nullable.GetUnderlyingType(type) ?? type;
@@ -477,6 +522,9 @@ namespace MoonSharp.Interpreter.Interop
 			return d;
 		}
 
+		/// <summary>
+		/// Converts a type to double
+		/// </summary>
 		internal static double TypeToDouble(Type type, object d)
 		{
 			if (type == typeof(double)) return (double)d;

@@ -204,9 +204,6 @@
     <Compile Include="..\..\Debugging\IDebugger.cs">
       <Link>IDebugger.cs</Link>
     </Compile>
-    <Compile Include="..\..\Debugging\SourceCodeType.cs">
-      <Link>SourceCodeType.cs</Link>
-    </Compile>
     <Compile Include="..\..\Debugging\SourceRef.cs">
       <Link>SourceRef.cs</Link>
     </Compile>
@@ -393,8 +390,11 @@
     <Compile Include="..\..\Loaders\UnityAssetsScriptLoader.cs">
       <Link>UnityAssetsScriptLoader.cs</Link>
     </Compile>
-    <Compile Include="..\..\Modules\MoonSharpConstantAttribute.cs">
-      <Link>MoonSharpConstantAttribute.cs</Link>
+    <Compile Include="..\..\Modules\MoonSharpModuleConstantAttribute.cs">
+      <Link>MoonSharpModuleConstantAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NameSpace_XmlHelp.cs">
+      <Link>NameSpace_XmlHelp.cs</Link>
     </Compile>
     <Compile Include="..\..\Platforms\IPlatformAccessor.cs">
       <Link>IPlatformAccessor.cs</Link>
@@ -470,8 +470,8 @@
       <SubType>Code</SubType>
       <Link>ModuleRegister.cs</Link>
     </Compile>
-    <Compile Include="..\..\Modules\MoonSharpMethodAttribute.cs">
-      <Link>MoonSharpMethodAttribute.cs</Link>
+    <Compile Include="..\..\Modules\MoonSharpModuleMethodAttribute.cs">
+      <Link>MoonSharpModuleMethodAttribute.cs</Link>
     </Compile>
     <Compile Include="..\..\Modules\MoonSharpModuleAttribute.cs">
       <SubType>Code</SubType>

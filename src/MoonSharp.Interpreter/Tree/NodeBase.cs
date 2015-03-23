@@ -37,12 +37,6 @@ namespace MoonSharp.Interpreter.Tree
 		//	return BuildSourceRef(terminalNode.Symbol, terminalNode);
 		//}
 
-		private SourceRef RegisterSourceRef(SourceRef sourceRef)
-		{
-			LoadingContext.Source.Refs.Add(sourceRef);
-			sourceRef.Type = this.GetType().Name;
-			return sourceRef;
-		}
 
 		protected static Token CheckTokenType(ScriptLoadingContext lcontext, TokenType tokenType)
 		{

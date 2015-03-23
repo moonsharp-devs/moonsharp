@@ -26,11 +26,11 @@ namespace MoonSharp.Interpreter.Interop
 			get { return m_Type; }
 		}
 
-		public DynValue Index(Script script, object obj, DynValue index)
+		public DynValue Index(Script script, object obj, DynValue index, bool isNameIndex)
 		{
 			foreach (IUserDataDescriptor dd in m_Descriptors)
 			{
-				DynValue v = dd.Index(script, obj, index);
+				DynValue v = dd.Index(script, obj, index, isNameIndex);
 
 				if (v != null)
 					return v;
@@ -38,11 +38,11 @@ namespace MoonSharp.Interpreter.Interop
 			return null;
 		}
 
-		public bool SetIndex(Script script, object obj, DynValue index, DynValue value)
+		public bool SetIndex(Script script, object obj, DynValue index, DynValue value, bool isNameIndex)
 		{
 			foreach (IUserDataDescriptor dd in m_Descriptors)
 			{
-				if (dd.SetIndex(script, obj, index, value))
+				if (dd.SetIndex(script, obj, index, value, isNameIndex))
 					return true;
 			}
 			return false;

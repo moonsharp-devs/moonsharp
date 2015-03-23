@@ -27,22 +27,22 @@ namespace MoonSharp.Interpreter
 			get { return m_Type; }
 		}
 
-		public DynValue Index(Script script, object obj, DynValue index)
+		public DynValue Index(Script script, object obj, DynValue index, bool isNameIndex)
 		{
 			IUserDataType u = obj as IUserDataType;
 
 			if (u != null)
-				return u.Index(script, index);
+				return u.Index(script, index, isNameIndex);
 
 			return null;
 		}
 
-		public bool SetIndex(Script script, object obj, DynValue index, DynValue value)
+		public bool SetIndex(Script script, object obj, DynValue index, DynValue value, bool isNameIndex)
 		{
 			IUserDataType u = obj as IUserDataType;
 
 			if (u != null)
-				return u.SetIndex(script, index, value);
+				return u.SetIndex(script, index, value, isNameIndex);
 
 			return false;
 		}

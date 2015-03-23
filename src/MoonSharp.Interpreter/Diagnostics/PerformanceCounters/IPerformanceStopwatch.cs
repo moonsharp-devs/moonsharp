@@ -5,7 +5,7 @@ using System.Text;
 
 namespace MoonSharp.Interpreter.Diagnostics.PerformanceCounters
 {
-	public interface IPerformanceStopwatch
+	internal interface IPerformanceStopwatch
 	{
 		IDisposable Start();
 		PerformanceResult GetResult();

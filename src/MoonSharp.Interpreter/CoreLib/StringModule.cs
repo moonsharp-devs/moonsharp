@@ -24,7 +24,7 @@ namespace MoonSharp.Interpreter.CoreLib
 		}
 
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue dump(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			DynValue fn = args.AsType(0, "dump", DataType.Function, false);
@@ -48,7 +48,7 @@ namespace MoonSharp.Interpreter.CoreLib
 		}
 
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue @char(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			StringBuilder sb = new StringBuilder(args.Count);
@@ -79,7 +79,7 @@ namespace MoonSharp.Interpreter.CoreLib
 		}
 
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue @byte(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			DynValue vs = args.AsType(0, "byte", DataType.String, false);
@@ -90,7 +90,7 @@ namespace MoonSharp.Interpreter.CoreLib
 				i => Unicode2Ascii(i));
 		}
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue unicode(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			DynValue vs = args.AsType(0, "unicode", DataType.String, false);
@@ -141,7 +141,7 @@ namespace MoonSharp.Interpreter.CoreLib
 			return s.Length - i;
 		}
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue len(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			DynValue vs = args.AsType(0, "len", DataType.String, false);
@@ -150,26 +150,26 @@ namespace MoonSharp.Interpreter.CoreLib
 
 
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue match(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			return executionContext.EmulateClassicCall(args, "match", KopiLua_StringLib.str_match);
 		}
 
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue gmatch(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			return executionContext.EmulateClassicCall(args, "gmatch", KopiLua_StringLib.str_gmatch);
 		}
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue gsub(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			return executionContext.EmulateClassicCall(args, "gsub", KopiLua_StringLib.str_gsub);
 		}
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue find(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			return executionContext.EmulateClassicCall(args, "find",
@@ -177,21 +177,21 @@ namespace MoonSharp.Interpreter.CoreLib
 		}
 
 
-        [MoonSharpMethod]
+        [MoonSharpModuleMethod]
         public static DynValue lower(ScriptExecutionContext executionContext, CallbackArguments args)
         {
             DynValue arg_s = args.AsType(0, "lower", DataType.String, false);
             return DynValue.NewString(arg_s.String.ToLower());
         }
 
-        [MoonSharpMethod]
+        [MoonSharpModuleMethod]
         public static DynValue upper(ScriptExecutionContext executionContext, CallbackArguments args)
         {
             DynValue arg_s = args.AsType(0, "upper", DataType.String, false);
             return DynValue.NewString(arg_s.String.ToUpper());
         }
 
-        [MoonSharpMethod]
+        [MoonSharpModuleMethod]
         public static DynValue rep(ScriptExecutionContext executionContext, CallbackArguments args)
         {
             DynValue arg_s = args.AsType(0, "rep", DataType.String, false);
@@ -219,7 +219,7 @@ namespace MoonSharp.Interpreter.CoreLib
             return DynValue.NewString(result.ToString());
         }
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue format(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			return executionContext.EmulateClassicCall(args, "format", KopiLua_StringLib.str_format);
@@ -227,7 +227,7 @@ namespace MoonSharp.Interpreter.CoreLib
 
 
 
-        [MoonSharpMethod]
+        [MoonSharpModuleMethod]
         public static DynValue reverse(ScriptExecutionContext executionContext, CallbackArguments args)
         {
             DynValue arg_s = args.AsType(0, "reverse", DataType.String, false);
@@ -243,7 +243,7 @@ namespace MoonSharp.Interpreter.CoreLib
             return DynValue.NewString(new String(elements));
         }
 
-        [MoonSharpMethod]
+        [MoonSharpModuleMethod]
         public static DynValue sub(ScriptExecutionContext executionContext, CallbackArguments args)
         {
             DynValue arg_s = args.AsType(0, "sub", DataType.String, false);

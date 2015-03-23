@@ -199,10 +199,12 @@ namespace MoonSharp.Interpreter.Execution.VM
 							ExecTblInitI(i);
 							break;
 						case OpCode.Index:
+						case OpCode.IndexN:
 							instructionPtr = ExecIndex(i, instructionPtr);
 							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
 							break;
 						case OpCode.IndexSet:
+						case OpCode.IndexSetN:
 							instructionPtr = ExecIndexSet(i, instructionPtr);
 							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
 							break;
@@ -1143,6 +1145,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 			int nestedMetaOps = 100; // sanity check, to avoid potential infinite loop here
 
 			// stack: vals.. - base - index
+			bool isNameIndex = i.OpCode == OpCode.IndexSetN;
+
 			DynValue idx = i.Value ?? m_ValueStack.Pop().ToScalar();
 			DynValue obj = m_ValueStack.Pop().ToScalar();
 			var value = GetStoreValue(i);
@@ -1172,7 +1176,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				{
 					UserData ud = obj.UserData;
 
-					if (!ud.Descriptor.SetIndex(this.GetScript(), ud.Object, idx, value))
+					if (!ud.Descriptor.SetIndex(this.GetScript(), ud.Object, idx, value, isNameIndex))
 					{
 						throw ScriptRuntimeException.UserDataMissingField(ud.Descriptor.Name, idx.String);
 					}
@@ -1209,6 +1213,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			int nestedMetaOps = 100; // sanity check, to avoid potential infinite loop here
 
 			// stack: base - index
+			bool isNameIndex = i.OpCode == OpCode.IndexN;
 			DynValue idx = i.Value ?? m_ValueStack.Pop().ToScalar();
 			DynValue obj = m_ValueStack.Pop().ToScalar();
 
@@ -1240,7 +1245,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				{
 					UserData ud = obj.UserData;
 
-					var v = ud.Descriptor.Index(this.GetScript(), ud.Object, idx);
+					var v = ud.Descriptor.Index(this.GetScript(), ud.Object, idx, isNameIndex);
 
 					if (v == null)
 						throw ScriptRuntimeException.UserDataMissingField(ud.Descriptor.Name, idx.String);

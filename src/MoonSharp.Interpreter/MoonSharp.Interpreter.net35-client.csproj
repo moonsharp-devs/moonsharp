@@ -132,7 +132,6 @@
     <Compile Include="DataTypes\YieldRequest.cs" />
     <Compile Include="Debugging\DebuggerAction.cs" />
     <Compile Include="Debugging\IDebugger.cs" />
-    <Compile Include="Debugging\SourceCodeType.cs" />
     <Compile Include="Debugging\SourceRef.cs" />
     <Compile Include="Debugging\WatchItem.cs" />
     <Compile Include="Debugging\WatchType.cs" />
@@ -205,7 +204,8 @@
     <Compile Include="Loaders\ScriptLoaderBase.cs" />
     <Compile Include="Loaders\IScriptLoader.cs" />
     <Compile Include="Loaders\UnityAssetsScriptLoader.cs" />
-    <Compile Include="Modules\MoonSharpConstantAttribute.cs" />
+    <Compile Include="Modules\MoonSharpModuleConstantAttribute.cs" />
+    <Compile Include="NameSpace_XmlHelp.cs" />
     <Compile Include="Platforms\IPlatformAccessor.cs" />
     <Compile Include="Platforms\PlatformAccessorBase.cs" />
     <Compile Include="Platforms\PlatformAutoDetector.cs" />
@@ -234,7 +234,7 @@
     <Compile Include="Modules\ModuleRegister.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Modules\MoonSharpMethodAttribute.cs" />
+    <Compile Include="Modules\MoonSharpModuleMethodAttribute.cs" />
     <Compile Include="Modules\MoonSharpModuleAttribute.cs">
       <SubType>Code</SubType>
     </Compile>

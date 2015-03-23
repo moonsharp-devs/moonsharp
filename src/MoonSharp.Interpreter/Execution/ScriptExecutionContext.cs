@@ -6,7 +6,7 @@ using MoonSharp.Interpreter.Debugging;
 using MoonSharp.Interpreter.Execution.VM;
 using MoonSharp.Interpreter.Interop.LuaStateInterop;
 
-namespace MoonSharp.Interpreter.Execution
+namespace MoonSharp.Interpreter
 {
 	/// <summary>
 	/// Class giving access to details of the environment where the script is executing

@@ -103,14 +103,14 @@ namespace MoonSharp.Interpreter.CoreLib
 		}
 
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue close(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			FileUserDataBase outp = args.AsUserData<FileUserDataBase>(0, "close", true) ?? GetDefaultFile(executionContext, StandardFileType.StdOut);
 			return outp.close(executionContext, args);
 		}
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue flush(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			FileUserDataBase outp = args.AsUserData<FileUserDataBase>(0, "close", true) ?? GetDefaultFile(executionContext, StandardFileType.StdOut);
@@ -119,13 +119,13 @@ namespace MoonSharp.Interpreter.CoreLib
 		}
 
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue input(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			return HandleDefaultStreamSetter(executionContext, args, StandardFileType.StdIn);
 		}
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue output(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			return HandleDefaultStreamSetter(executionContext, args, StandardFileType.StdOut);
@@ -161,7 +161,7 @@ namespace MoonSharp.Interpreter.CoreLib
 			return new System.Text.UTF8Encoding(false); 
 		}
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue lines(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			string filename = args.AsType(0, "lines", DataType.String, false).String;
@@ -192,7 +192,7 @@ namespace MoonSharp.Interpreter.CoreLib
 			}
 		}
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue open(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			string filename = args.AsType(0, "open", DataType.String, false).String;
@@ -257,7 +257,7 @@ namespace MoonSharp.Interpreter.CoreLib
 				return ex.Message;
 		}
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue type(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			if (args[0].Type != DataType.UserData)
@@ -273,21 +273,21 @@ namespace MoonSharp.Interpreter.CoreLib
 				return DynValue.NewString("closed file");
 		}
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue read(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			FileUserDataBase file = GetDefaultFile(executionContext, StandardFileType.StdIn);
 			return file.read(executionContext, args);
 		}
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue write(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			FileUserDataBase file = GetDefaultFile(executionContext, StandardFileType.StdOut);
 			return file.write(executionContext, args);
 		}
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue tmpfile(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			string tmpfilename = Script.GlobalOptions.Platform.IO_OS_GetTempFilename();

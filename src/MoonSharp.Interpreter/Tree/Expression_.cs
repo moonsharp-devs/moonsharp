@@ -161,8 +161,7 @@ namespace MoonSharp.Interpreter.Tree
 						{
 							lcontext.Lexer.Next();
 							Token name = CheckTokenType(lcontext, TokenType.Name);
-							LiteralExpression le = new LiteralExpression(lcontext, DynValue.NewString(name.Text));
-							e = new IndexExpression(e, le, lcontext);
+							e = new IndexExpression(e, name.Text, lcontext);
 						}
 						break;
 					case TokenType.Brk_Open_Square:

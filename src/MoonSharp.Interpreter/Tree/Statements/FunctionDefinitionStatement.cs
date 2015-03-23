@@ -119,16 +119,13 @@ namespace MoonSharp.Interpreter.Tree.Statements
 
 			foreach (string str in m_TableAccessors)
 			{
-				bc.Emit_Literal(DynValue.NewString(str));
-				bc.Emit_Index();
-				cnt += 2;
+				bc.Emit_Index(DynValue.NewString(str), true);
+				cnt += 1;
 			}
 
-			bc.Emit_Literal(DynValue.NewString(m_MethodName));
+			bc.Emit_IndexSet(0, 0, DynValue.NewString(m_MethodName), true);
 
-			bc.Emit_IndexSet(0, 0);
-
-			return 2 + cnt;
+			return 1 + cnt;
 		}
 
 		private int SetFunction(Execution.VM.ByteCode bc, int numPop)

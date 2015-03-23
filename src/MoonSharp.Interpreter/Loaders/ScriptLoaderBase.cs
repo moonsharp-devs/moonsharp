@@ -6,6 +6,9 @@ using System.Text;
 
 namespace MoonSharp.Interpreter.Loaders
 {
+	/// <summary>
+	/// A base implementation of IScriptLoader, offering resolution of module names.
+	/// </summary>
 	public abstract class ScriptLoaderBase : IScriptLoader
 	{
 		/// <summary>

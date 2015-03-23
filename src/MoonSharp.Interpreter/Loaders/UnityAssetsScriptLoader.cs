@@ -9,7 +9,10 @@ namespace MoonSharp.Interpreter.Loaders
 {
 	/// <summary>
 	/// A script loader which can load scripts from assets in Unity3D.
-	/// Scripts should be saved as .txt files in a subdirectory of Assets/Resources
+	/// Scripts should be saved as .txt files in a subdirectory of Assets/Resources.
+	/// 
+	/// When MoonSharp is activated on Unity3D and the default script loader is used,
+	/// scripts should be saved as .txt files in Assets/Resources/MoonSharp/Scripts.
 	/// </summary>
 	public class UnityAssetsScriptLoader : ScriptLoaderBase
 	{

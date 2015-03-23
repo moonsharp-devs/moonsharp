@@ -8,6 +8,9 @@ namespace MoonSharp.Interpreter
 	/// <summary>
 	/// Enumerations of the possible strategies to marshal CLR objects to MoonSharp userdata and functions
 	/// when using automatic descriptors.
+	/// Note that these are "hints" and MoonSharp is free to ignore the access mode specified (if different from
+	/// HideMembers) and downgrade the access mode to "Reflection". 
+	/// This particularly happens when running on AOT platforms like iOS.
 	/// See also : <seealso cref="CallbackFunction"/> and <seealso cref="UserData"/> .
 	/// </summary>
 	public enum InteropAccessMode

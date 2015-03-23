@@ -5,13 +5,32 @@ using System.Text;
 
 namespace MoonSharp.Interpreter.Debugging
 {
+	/// <summary>
+	/// Class representing the source code of a given script
+	/// </summary>
 	public class SourceCode : IScriptPrivateResource
 	{
+		/// <summary>
+		/// Gets the name of the source code
+		/// </summary>
 		public string Name { get; private set; }
+		/// <summary>
+		/// Gets the source code as a string
+		/// </summary>
 		public string Code { get; private set; }
+		/// <summary>
+		/// Gets the source code lines.
+		/// </summary>
 		public string[] Lines { get; private set; }
+		/// <summary>
+		/// Gets the script owning this resource.
+		/// </summary>
 		public Script OwnerScript { get; private set; }
+		/// <summary>
+		/// Gets the source identifier inside a script
+		/// </summary>
 		public int SourceID { get; private set; }
+
 		internal List<SourceRef> Refs { get; private set; }
 
 		internal SourceCode(string name, string code, int sourceID, Script ownerScript)
@@ -33,6 +52,11 @@ namespace MoonSharp.Interpreter.Debugging
 			SourceID = sourceID;
 		}
 
+		/// <summary>
+		/// Gets the code snippet represented by a source ref
+		/// </summary>
+		/// <param name="sourceCodeRef">The source code reference.</param>
+		/// <returns></returns>
 		public string GetCodeSnippet(SourceRef sourceCodeRef)
 		{
 			if (sourceCodeRef.FromLine == sourceCodeRef.ToLine)

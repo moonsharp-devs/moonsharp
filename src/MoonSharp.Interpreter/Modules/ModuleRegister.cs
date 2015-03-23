@@ -48,6 +48,11 @@ namespace MoonSharp.Interpreter
 
 
 
+		/// <summary>
+		/// Registers the standard constants (_G, _VERSION, _MOONSHARP) to a table
+		/// </summary>
+		/// <param name="table">The table.</param>
+		/// <returns></returns>
 		public static Table RegisterConstants(this Table table)
 		{
 			DynValue moonsharp_table = DynValue.NewTable(table.OwnerScript);
@@ -71,15 +76,22 @@ namespace MoonSharp.Interpreter
 
 
 
+		/// <summary>
+		/// Registers a module type to the specified table
+		/// </summary>
+		/// <param name="gtable">The table.</param>
+		/// <param name="t">The type</param>
+		/// <returns></returns>
+		/// <exception cref="System.ArgumentException">If the module contains some incompatibility</exception>
 		public static Table RegisterModuleType(this Table gtable, Type t)
 		{
 			Table table = CreateModuleNamespace(gtable, t);
 
 			foreach (MethodInfo mi in t.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic))
 			{
-				if (mi.GetCustomAttributes(typeof(MoonSharpMethodAttribute), false).Length > 0)
+				if (mi.GetCustomAttributes(typeof(MoonSharpModuleMethodAttribute), false).Length > 0)
 				{
-					MoonSharpMethodAttribute attr = (MoonSharpMethodAttribute)mi.GetCustomAttributes(typeof(MoonSharpMethodAttribute), false).First();
+					MoonSharpModuleMethodAttribute attr = (MoonSharpModuleMethodAttribute)mi.GetCustomAttributes(typeof(MoonSharpModuleMethodAttribute), false).First();
 
 					if (!ConversionHelper.CheckCallbackSignature(mi))
 							throw new ArgumentException(string.Format("Method {0} does not have the right signature.", mi.Name));
@@ -97,16 +109,16 @@ namespace MoonSharp.Interpreter
 				}
 			}
 
-			foreach (FieldInfo fi in t.GetFields(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic).Where(_mi => _mi.GetCustomAttributes(typeof(MoonSharpMethodAttribute), false).Length > 0))
+			foreach (FieldInfo fi in t.GetFields(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic).Where(_mi => _mi.GetCustomAttributes(typeof(MoonSharpModuleMethodAttribute), false).Length > 0))
 			{
-				MoonSharpMethodAttribute attr = (MoonSharpMethodAttribute)fi.GetCustomAttributes(typeof(MoonSharpMethodAttribute), false).First();
+				MoonSharpModuleMethodAttribute attr = (MoonSharpModuleMethodAttribute)fi.GetCustomAttributes(typeof(MoonSharpModuleMethodAttribute), false).First();
 				string name = (!string.IsNullOrEmpty(attr.Name)) ? attr.Name : fi.Name;
 
 				RegisterScriptField(fi, null, table, t, name);
 			}
-			foreach (FieldInfo fi in t.GetFields(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic).Where(_mi => _mi.GetCustomAttributes(typeof(MoonSharpConstantAttribute), false).Length > 0))
+			foreach (FieldInfo fi in t.GetFields(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic).Where(_mi => _mi.GetCustomAttributes(typeof(MoonSharpModuleConstantAttribute), false).Length > 0))
 			{
-				MoonSharpConstantAttribute attr = (MoonSharpConstantAttribute)fi.GetCustomAttributes(typeof(MoonSharpConstantAttribute), false).First();
+				MoonSharpModuleConstantAttribute attr = (MoonSharpModuleConstantAttribute)fi.GetCustomAttributes(typeof(MoonSharpModuleConstantAttribute), false).First();
 				string name = (!string.IsNullOrEmpty(attr.Name)) ? attr.Name : fi.Name;
 
 				RegisterScriptFieldAsConst(fi, null, table, t, name);
@@ -194,6 +206,13 @@ namespace MoonSharp.Interpreter
 			}
 		}
 
+		/// <summary>
+		/// Registers a module type to the specified table
+		/// </summary>
+		/// <typeparam name="T">The module type</typeparam>
+		/// <param name="table">The table.</param>
+		/// <returns></returns>
+		/// <exception cref="System.ArgumentException">If the module contains some incompatibility</exception>
 		public static Table RegisterModuleType<T>(this Table table)
 		{
 			return RegisterModuleType(table, typeof(T));

@@ -22,7 +22,7 @@ namespace MoonSharp.Interpreter.CoreLib
 			UserData.RegisterType<DynamicExprWrapper>(InteropAccessMode.HideMembers);
 		}
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue eval(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			try
@@ -52,7 +52,7 @@ namespace MoonSharp.Interpreter.CoreLib
 			}
 		}
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue prepare(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			try

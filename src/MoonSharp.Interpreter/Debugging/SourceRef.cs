@@ -5,21 +5,49 @@ using System.Text;
 
 namespace MoonSharp.Interpreter.Debugging
 {
+	/// <summary>
+	/// Class representing a reference to source code interval
+	/// </summary>
 	public class SourceRef
 	{
+		/// <summary>
+		/// Gets a value indicating whether this location is inside CLR .
+		/// </summary>
 		public bool IsClrLocation { get; private set; }
 
+		/// <summary>
+		/// Gets the index of the source.
+		/// </summary>
 		public int SourceIdx { get; private set; }
+		/// <summary>
+		/// Gets from which column the source code ref starts
+		/// </summary>
 		public int FromChar { get; private set; }
+		/// <summary>
+		/// Gets to which column the source code ref ends
+		/// </summary>
 		public int ToChar { get; private set; }
+		/// <summary>
+		/// Gets from which line the source code ref starts
+		/// </summary>
 		public int FromLine { get; private set; }
+		/// <summary>
+		/// Gets to which line the source code ref ends
+		/// </summary>
 		public int ToLine { get; private set; }
+		/// <summary>
+		/// Gets a value indicating whether this instance is a stop "step" in source mode
+		/// </summary>
 		public bool IsStepStop { get; private set; }
 
+		/// <summary>
+		/// Gets a value indicating whether this instance is a breakpoint
+		/// </summary>
 		public bool Breakpoint;
+		/// <summary>
+		/// Gets a value indicating whether this instance cannot be set as a breakpoint
+		/// </summary>
 		public bool CannotBreakpoint { get; private set; }
-
-		public string Type { get; set; }
 
 		internal static SourceRef GetClrLocation()
 		{
@@ -37,6 +65,12 @@ namespace MoonSharp.Interpreter.Debugging
 		}
 
 
+		/// <summary>
+		/// Returns a <see cref="System.String" /> that represents this instance.
+		/// </summary>
+		/// <returns>
+		/// A <see cref="System.String" /> that represents this instance.
+		/// </returns>
 		public override string ToString()
 		{
 			return string.Format("[{0}]{1} ({2}, {3}) -> ({4}, {5})",
@@ -45,7 +79,7 @@ namespace MoonSharp.Interpreter.Debugging
 				ToLine, ToChar);
 		}
 
-		public int GetLocationDistance(int sourceIdx, int line, int col)
+		internal int GetLocationDistance(int sourceIdx, int line, int col)
 		{
 			const int PER_LINE_FACTOR = 1600; // we avoid computing real lines length and approximate with heuristics..
 
@@ -96,6 +130,13 @@ namespace MoonSharp.Interpreter.Debugging
 			}
 		}
 
+		/// <summary>
+		/// Gets whether the source ref includes the specified location
+		/// </summary>
+		/// <param name="sourceIdx">Index of the source.</param>
+		/// <param name="line">The line.</param>
+		/// <param name="col">The column.</param>
+		/// <returns></returns>
 		public bool IncludesLocation(int sourceIdx, int line, int col)
 		{
 			if (sourceIdx != SourceIdx || line < FromLine || line > ToLine)
@@ -111,12 +152,22 @@ namespace MoonSharp.Interpreter.Debugging
 			return true;
 		}
 
+		/// <summary>
+		/// Sets the CannotBreakpoint flag.
+		/// </summary>
+		/// <returns></returns>
 		public SourceRef SetNoBreakPoint()
 		{
 			CannotBreakpoint = true;
 			return this;
 		}
 
+		/// <summary>
+		/// Formats the location according to script preferences
+		/// </summary>
+		/// <param name="script">The script.</param>
+		/// <param name="forceClassicFormat">if set to <c>true</c> the classic Lua format is forced.</param>
+		/// <returns></returns>
 		public string FormatLocation(Script script, bool forceClassicFormat = false)
 		{
 			SourceCode sc = script.GetSourceCode(this.SourceIdx);

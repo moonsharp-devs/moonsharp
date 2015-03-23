@@ -13,7 +13,7 @@ namespace MoonSharp.Interpreter.CoreLib
 	[MoonSharpModule(Namespace = "debug")]
 	public class DebugModule
 	{
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue debug(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			Script script = executionContext.GetScript();
@@ -42,7 +42,7 @@ namespace MoonSharp.Interpreter.CoreLib
 			}
 		}
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue getuservalue(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			DynValue v = args[0];
@@ -53,7 +53,7 @@ namespace MoonSharp.Interpreter.CoreLib
 			return v.UserData.UserValue ?? DynValue.Nil;
 		}
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue setuservalue(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			DynValue v = args.AsType(0, "setuservalue", DataType.UserData, false);
@@ -62,13 +62,13 @@ namespace MoonSharp.Interpreter.CoreLib
 			return v.UserData.UserValue = t;
 		}
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue getregistry(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			return DynValue.NewTable(executionContext.GetScript().Registry);
 		}
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue getmetatable(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			DynValue v = args[0];
@@ -82,7 +82,7 @@ namespace MoonSharp.Interpreter.CoreLib
 				return DynValue.Nil;
 		}
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue setmetatable(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			DynValue v = args[0];
@@ -100,7 +100,7 @@ namespace MoonSharp.Interpreter.CoreLib
 			return v;
 		}
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue getupvalue(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			var index = (int)args.AsType(1, "getupvalue", DataType.Number, false).Number - 1;
@@ -121,7 +121,7 @@ namespace MoonSharp.Interpreter.CoreLib
 		}
 
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue upvalueid(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			var index = (int)args.AsType(1, "getupvalue", DataType.Number, false).Number - 1;
@@ -140,7 +140,7 @@ namespace MoonSharp.Interpreter.CoreLib
 		}
 
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue setupvalue(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			var index = (int)args.AsType(1, "setupvalue", DataType.Number, false).Number - 1;
@@ -161,7 +161,7 @@ namespace MoonSharp.Interpreter.CoreLib
 		}
 
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue traceback(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			StringBuilder sb = new StringBuilder();

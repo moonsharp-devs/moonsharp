@@ -7,6 +7,9 @@ using MoonSharp.Interpreter.Execution;
 
 namespace MoonSharp.Interpreter.Interop
 {
+	/// <summary>
+	/// Wrappers for enumerables as return types
+	/// </summary>
 	internal class EnumerableWrapper
 	{
 		IEnumerator m_Enumerator;

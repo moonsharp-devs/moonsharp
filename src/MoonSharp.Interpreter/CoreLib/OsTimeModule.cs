@@ -31,13 +31,13 @@ namespace MoonSharp.Interpreter.CoreLib
 			return Epoch + ts;
 		}
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue clock(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			return GetUnixTime(DateTime.UtcNow, Time0);
 		}
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue difftime(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			DynValue t2 = args.AsType(0, "difftime", DataType.Number, false);
@@ -49,7 +49,7 @@ namespace MoonSharp.Interpreter.CoreLib
 			return DynValue.NewNumber(t2.Number - t1.Number);
 		}
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue time(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			DateTime date = DateTime.UtcNow;
@@ -97,7 +97,7 @@ namespace MoonSharp.Interpreter.CoreLib
 			return null;
 		}
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue date(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			DateTime reference = DateTime.UtcNow;

@@ -9,6 +9,9 @@ using MoonSharp.Interpreter.Diagnostics;
 
 namespace MoonSharp.Interpreter.Interop
 {
+	/// <summary>
+	/// Class providing easier marshalling of CLR properties
+	/// </summary>
 	internal class StandardUserDataPropertyDescriptor
 	{
 		internal PropertyInfo PropertyInfo { get; private set; }

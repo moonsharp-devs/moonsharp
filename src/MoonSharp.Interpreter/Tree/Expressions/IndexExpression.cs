@@ -11,6 +11,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 	{
 		Expression m_BaseExp;
 		Expression m_IndexExp;
+		string m_Name;
 
 
 		public IndexExpression(Expression baseExp, Expression indexExp, ScriptLoadingContext lcontext)
@@ -20,12 +21,23 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			m_IndexExp = indexExp;
 		}
 
+		public IndexExpression(Expression baseExp, string name, ScriptLoadingContext lcontext)
+			: base(lcontext)
+		{
+			m_BaseExp = baseExp;
+			m_Name = name;
+		}
+
 
 		public override void Compile(ByteCode bc)
 		{
 			m_BaseExp.Compile(bc);
 
-			if (m_IndexExp is LiteralExpression)
+			if (m_Name != null)
+			{
+				bc.Emit_Index(DynValue.NewString(m_Name), true);
+			}
+			else if (m_IndexExp is LiteralExpression)
 			{
 				LiteralExpression lit = (LiteralExpression)m_IndexExp;
 				bc.Emit_Index(lit.Value);
@@ -41,7 +53,11 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 		{
 			m_BaseExp.Compile(bc);
 
-			if (m_IndexExp is LiteralExpression)
+			if (m_Name != null)
+			{
+				bc.Emit_IndexSet(stackofs, tupleidx, DynValue.NewString(m_Name), true);
+			}
+			else if (m_IndexExp is LiteralExpression)
 			{
 				LiteralExpression lit = (LiteralExpression)m_IndexExp;
 				bc.Emit_IndexSet(stackofs, tupleidx, lit.Value);
@@ -51,14 +67,12 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 				m_IndexExp.Compile(bc);
 				bc.Emit_IndexSet(stackofs, tupleidx);
 			}
-
-
 		}
 
 		public override DynValue Eval(ScriptExecutionContext context)
 		{
 			DynValue b = m_BaseExp.Eval(context).ToScalar();
-			DynValue i = m_IndexExp.Eval(context).ToScalar();
+			DynValue i = m_IndexExp != null ? m_IndexExp.Eval(context).ToScalar() : DynValue.NewString(m_Name);
 
 			if (b.Type != DataType.Table) throw new DynamicExpressionException("Attempt to index non-table.");
 			else if (i.IsNilOrNan()) throw new DynamicExpressionException("Attempt to index with nil or nan key.");

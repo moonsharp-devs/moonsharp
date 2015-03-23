@@ -74,7 +74,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			if (!string.IsNullOrEmpty(m_Name))
 			{
 				bc.Emit_Copy(0);
-				bc.Emit_Index(DynValue.NewString(m_Name));
+				bc.Emit_Index(DynValue.NewString(m_Name), true);
 				bc.Emit_Swap(0, 1);
 				++argslen;
 			}

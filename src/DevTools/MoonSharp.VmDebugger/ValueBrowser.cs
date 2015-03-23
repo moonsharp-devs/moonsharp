@@ -131,12 +131,11 @@ namespace MoonSharp.Debugger
 		private void BuildFunctionTable(DynValue V)
 		{
 			var F = V.Function;
-			var C = F.ClosureContext;
 			lvProps.Add("Bytecode Location", F.EntryPointByteCodeLocation.ToString("X8"));
 
-			for (int i = 0; i < C.Count; i++)
+			for (int i = 0; i < F.GetUpvaluesCount(); i++)
 			{
-				lvTableData.Add(C.Symbols[i], C[i]).Tag = C[i];
+				lvTableData.Add(F.GetUpvalueName(i), F.GetUpvalue(i)).Tag = F.GetUpvalue(i);
 			}
 		}
 

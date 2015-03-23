@@ -14,7 +14,7 @@ namespace MoonSharp.Interpreter.CoreLib
 	[MoonSharpModule(Namespace = "coroutine")]
 	public class CoroutineModule
 	{
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue create(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			if (args[0].Type != DataType.Function && args[0].Type != DataType.ClrFunction)
@@ -23,7 +23,7 @@ namespace MoonSharp.Interpreter.CoreLib
 			return executionContext.GetScript().CreateCoroutine(args[0]);
 		}
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue wrap(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			if (args[0].Type != DataType.Function && args[0].Type != DataType.ClrFunction)
@@ -41,7 +41,7 @@ namespace MoonSharp.Interpreter.CoreLib
 			return handle.Coroutine.Resume(args.GetArray());
 		}
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue resume(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			DynValue handle = args.AsType(0, "resume", DataType.Thread);
@@ -84,7 +84,7 @@ namespace MoonSharp.Interpreter.CoreLib
 			}
 		}
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue yield(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			return DynValue.NewYieldReq(args.GetArray());
@@ -92,14 +92,14 @@ namespace MoonSharp.Interpreter.CoreLib
 
 
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue running(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			Coroutine C = executionContext.GetCallingCoroutine();
 			return DynValue.NewTuple(DynValue.NewCoroutine(C), DynValue.NewBoolean(C.State == CoroutineState.Main));
 		}
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue status(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			DynValue handle = args.AsType(0, "status", DataType.Thread);

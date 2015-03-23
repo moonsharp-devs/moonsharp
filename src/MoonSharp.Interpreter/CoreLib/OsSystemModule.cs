@@ -15,7 +15,7 @@ namespace MoonSharp.Interpreter.CoreLib
 	[MoonSharpModule(Namespace = "os")]
 	public class OsSystemModule
 	{
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue execute(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			DynValue v = args.AsType(0, "execute", DataType.String, true);
@@ -43,7 +43,7 @@ namespace MoonSharp.Interpreter.CoreLib
 			}
 		}
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue exit(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			DynValue v_exitCode = args.AsType(0, "exit", DataType.Number, true);
@@ -57,7 +57,7 @@ namespace MoonSharp.Interpreter.CoreLib
 			throw new InvalidOperationException("Unreachable code.. reached.");
 		}
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue getenv(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			DynValue varName = args.AsType(0, "getenv", DataType.String, false);
@@ -70,7 +70,7 @@ namespace MoonSharp.Interpreter.CoreLib
 				return DynValue.NewString(val);
 		}
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue remove(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			string fileName = args.AsType(0, "remove", DataType.String, false).String;
@@ -96,7 +96,7 @@ namespace MoonSharp.Interpreter.CoreLib
 			}
 		}
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue rename(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			string fileNameOld = args.AsType(0, "rename", DataType.String, false).String;
@@ -120,13 +120,13 @@ namespace MoonSharp.Interpreter.CoreLib
 			}
 		}
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue setlocale(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			return DynValue.NewString("n/a");
 		}
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue tmpname(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			return DynValue.NewString(Script.GlobalOptions.Platform.IO_OS_GetTempFilename());

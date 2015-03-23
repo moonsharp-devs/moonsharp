@@ -255,13 +255,13 @@ namespace MoonSharp.Interpreter
 			if (!stream.CanWrite)
 				throw new ArgumentException("stream is readonly!");
 
-			ClosureContext.UpvaluesType upvaluesType = function.Function.ClosureContext.GetUpvaluesType();
+			Closure.UpvaluesType upvaluesType = function.Function.GetUpvaluesType();
 
-			if (upvaluesType == ClosureContext.UpvaluesType.Closure)
+			if (upvaluesType == Closure.UpvaluesType.Closure)
 				throw new ArgumentException("function arg has upvalues other than _ENV");
 
 			UndisposableStream outStream = new UndisposableStream(stream);
-			m_MainProcessor.Dump(outStream, function.Function.EntryPointByteCodeLocation, upvaluesType == ClosureContext.UpvaluesType.Environment);
+			m_MainProcessor.Dump(outStream, function.Function.EntryPointByteCodeLocation, upvaluesType == Closure.UpvaluesType.Environment);
 		}
 
 

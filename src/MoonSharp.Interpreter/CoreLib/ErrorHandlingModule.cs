@@ -13,7 +13,7 @@ namespace MoonSharp.Interpreter.CoreLib
 	[MoonSharpModule]
 	public class ErrorHandlingModule
 	{
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue pcall(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			return SetErrorHandlerStrategy("pcall", executionContext, args, null);
@@ -106,7 +106,7 @@ namespace MoonSharp.Interpreter.CoreLib
 		}
 
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue xpcall(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			List<DynValue> a = new List<DynValue>();

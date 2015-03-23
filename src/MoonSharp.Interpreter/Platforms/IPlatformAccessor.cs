@@ -11,7 +11,7 @@ namespace MoonSharp.Interpreter.Platforms
 	/// Can be used both to support "non-standard" platforms (i.e. non-posix, non-windows) and/or to sandbox the behaviour
 	/// of the scripting engine.
 	/// 
-	/// It's recommended that no class implement IPlatformAccessor directly, and rather extend PlatformAccessorBase.
+	/// It's recommended that no class implement IPlatformAccessor directly, and rather extend <see cref="PlatformAccessorBase"/>.
 	/// </summary>
 	public interface IPlatformAccessor
 	{

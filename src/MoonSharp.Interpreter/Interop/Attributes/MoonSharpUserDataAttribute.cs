@@ -5,10 +5,16 @@ using System.Text;
 
 namespace MoonSharp.Interpreter
 {
+	/// <summary>
+	/// Marks a type of automatic registration as userdata (which happens only if UserData.RegisterAssembly is called).
+	/// </summary>
 	[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
 	public sealed class MoonSharpUserDataAttribute : Attribute
 	{
-		public InteropAccessMode AccessMode { get; private set; }
+		/// <summary>
+		/// The interop access mode
+		/// </summary>
+		public InteropAccessMode AccessMode { get; set; }
 
 		public MoonSharpUserDataAttribute()
 		{

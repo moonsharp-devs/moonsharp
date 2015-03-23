@@ -59,7 +59,7 @@ using MoonSharp.Interpreter.Execution;
 
 namespace MoonSharp.Interpreter.CoreLib.StringLib
 {
-	public class KopiLua_StringLib : LuaBase
+	internal class KopiLua_StringLib : LuaBase
 	{
 		public const int LUA_MAXCAPTURES = 32;
 

@@ -7,6 +7,10 @@ using MoonSharp.Interpreter.Platforms;
 
 namespace MoonSharp.Interpreter
 {
+	/// <summary>
+	/// Class containing script global options, that is options which cannot be customized per-script.
+	/// <see cref="Script.GlobalOptions"/>
+	/// </summary>
 	public class ScriptGlobalOptions
 	{
 		internal ScriptGlobalOptions()

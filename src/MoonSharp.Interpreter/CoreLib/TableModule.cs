@@ -13,7 +13,7 @@ namespace MoonSharp.Interpreter.CoreLib
 	[MoonSharpModule(Namespace = "table")]
 	public class TableModule
 	{
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue unpack(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			DynValue s = args.AsType(0, "unpack", DataType.Table, false);
@@ -34,7 +34,7 @@ namespace MoonSharp.Interpreter.CoreLib
 			return DynValue.NewTuple(v);
 		}
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue pack(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			Table t = new Table(executionContext.GetScript());
@@ -48,7 +48,7 @@ namespace MoonSharp.Interpreter.CoreLib
 			return v;
 		}
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue sort(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			DynValue vlist = args.AsType(0, "sort", DataType.Table, false);
@@ -128,7 +128,7 @@ namespace MoonSharp.Interpreter.CoreLib
 			return 0;
 		}
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue insert(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			DynValue vlist = args.AsType(0, "table.insert", DataType.Table, false);
@@ -166,7 +166,7 @@ namespace MoonSharp.Interpreter.CoreLib
 		}
 
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue remove(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			DynValue vlist = args.AsType(0, "table.remove", DataType.Table, false);
@@ -200,7 +200,7 @@ namespace MoonSharp.Interpreter.CoreLib
 		//Given a list where all elements are strings or numbers, returns the string list[i]..sep..list[i+1] (...) sep..list[j]. 
 		//The default value for sep is the empty string, the default for i is 1, and the default for j is #list. If i is greater 
 		//than j, returns the empty string. 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue concat(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			DynValue vlist = args.AsType(0, "concat", DataType.Table, false);
@@ -269,16 +269,19 @@ namespace MoonSharp.Interpreter.CoreLib
 	}
 
 
+	/// <summary>
+	/// Class exposing table.unpack and table.pack in the global namespace (to work around the most common Lua 5.1 compatibility issue).
+	/// </summary>
 	[MoonSharpModule]
 	public class TableModule_Globals
 	{
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue unpack(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			return TableModule.unpack(executionContext, args);
 		}
 
-		[MoonSharpMethod]
+		[MoonSharpModuleMethod]
 		public static DynValue pack(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			return TableModule.pack(executionContext, args);

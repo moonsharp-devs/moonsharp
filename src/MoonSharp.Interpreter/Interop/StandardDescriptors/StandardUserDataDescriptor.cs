@@ -8,16 +8,37 @@ using MoonSharp.Interpreter.Execution;
 
 namespace MoonSharp.Interpreter.Interop
 {
+	/// <summary>
+	/// Standard descriptor for userdata types.
+	/// </summary>
 	public class StandardUserDataDescriptor : IUserDataDescriptor
 	{
+		/// <summary>
+		/// Gets the name of the descriptor (usually, the name of the type described).
+		/// </summary>
 		public string Name { get; private set; }
+		/// <summary>
+		/// Gets the type this descriptor refers to
+		/// </summary>
 		public Type Type { get; private set; }
+		/// <summary>
+		/// Gets the interop access mode this descriptor uses for members access
+		/// </summary>
 		public InteropAccessMode AccessMode { get; private set; }
+		/// <summary>
+		/// Gets a human readable friendly name of the descriptor
+		/// </summary>
 		public string FriendlyName { get; private set; }
 
 		private Dictionary<string, StandardUserDataMethodDescriptor> m_Methods = new Dictionary<string, StandardUserDataMethodDescriptor>();
 		private Dictionary<string, StandardUserDataPropertyDescriptor> m_Properties = new Dictionary<string, StandardUserDataPropertyDescriptor>();
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="StandardUserDataDescriptor"/> class.
+		/// </summary>
+		/// <param name="type">The type this descriptor refers to.</param>
+		/// <param name="accessMode">The interop access mode this descriptor uses for members access</param>
+		/// <param name="friendlyName">A human readable friendly name of the descriptor.</param>
 		protected internal StandardUserDataDescriptor(Type type, InteropAccessMode accessMode, string friendlyName)
 		{
 			if (Script.GlobalOptions.Platform.IsRunningOnAOT())
@@ -90,7 +111,15 @@ namespace MoonSharp.Interpreter.Interop
 		}
 
 
-		public DynValue Index(Script script, object obj, DynValue index)
+		/// <summary>
+		/// Performs an "index" "get" operation. This tries to resolve minor variations of member names.
+		/// </summary>
+		/// <param name="script">The script originating the request</param>
+		/// <param name="obj">The object (null if a static request is done)</param>
+		/// <param name="index">The index.</param>
+		/// <param name="isDirectIndexing">If set to true, it's indexed with a name, if false it's indexed through brackets.</param>
+		/// <returns></returns>
+		public DynValue Index(Script script, object obj, DynValue index, bool isDirectIndexing)
 		{
 			if (index.Type != DataType.String)
 				throw ScriptRuntimeException.BadArgument(1, string.Format("userdata<{0}>.__index", this.Name), "string", index.Type.ToLuaTypeString(), false);
@@ -103,6 +132,13 @@ namespace MoonSharp.Interpreter.Interop
 			return v;
 		}
 
+		/// <summary>
+		/// Tries to perform an indexing operation by checking methods and properties for the given indexName
+		/// </summary>
+		/// <param name="script">The script.</param>
+		/// <param name="obj">The object.</param>
+		/// <param name="indexName">Member name to be indexed.</param>
+		/// <returns></returns>
 		protected virtual DynValue TryIndex(Script script, object obj, string indexName)
 		{
 			StandardUserDataMethodDescriptor mdesc;
@@ -121,7 +157,16 @@ namespace MoonSharp.Interpreter.Interop
 			return null;
 		}
 
-		public bool SetIndex(Script script, object obj, DynValue index, DynValue value)
+		/// <summary>
+		/// Performs an "index" "set" operation. This tries to resolve minor variations of member names.
+		/// </summary>
+		/// <param name="script">The script originating the request</param>
+		/// <param name="obj">The object (null if a static request is done)</param>
+		/// <param name="index">The index.</param>
+		/// <param name="value">The value to be set</param>
+		/// <param name="isDirectIndexing">If set to true, it's indexed with a name, if false it's indexed through brackets.</param>
+		/// <returns></returns>
+		public bool SetIndex(Script script, object obj, DynValue index, DynValue value, bool isDirectIndexing)
 		{
 			if (index.Type != DataType.String)
 				throw ScriptRuntimeException.BadArgument(1, string.Format("userdata<{0}>.__setindex", this.Name), "string", index.Type.ToLuaTypeString(), false);
@@ -134,6 +179,14 @@ namespace MoonSharp.Interpreter.Interop
 			return v;
 		}
 
+		/// <summary>
+		/// Tries to perform an indexing "set" operation by checking methods and properties for the given indexName
+		/// </summary>
+		/// <param name="script">The script.</param>
+		/// <param name="obj">The object.</param>
+		/// <param name="indexName">Member name to be indexed.</param>
+		/// <param name="value">The value.</param>
+		/// <returns></returns>
 		protected virtual bool TrySetIndex(Script script, object obj, string indexName, DynValue value)
 		{
 			StandardUserDataPropertyDescriptor pdesc;
@@ -163,6 +216,11 @@ namespace MoonSharp.Interpreter.Interop
 
 		}
 
+		/// <summary>
+		/// Converts the specified name from underscore_case to camelCase.
+		/// </summary>
+		/// <param name="name">The name.</param>
+		/// <returns></returns>
 		protected static string Camelify(string name)
 		{
 			StringBuilder sb = new StringBuilder(name.Length);
@@ -188,6 +246,11 @@ namespace MoonSharp.Interpreter.Interop
 			return sb.ToString();
 		}
 
+		/// <summary>
+		/// Converts the specified name to one with an uppercase first letter (something to Something).
+		/// </summary>
+		/// <param name="name">The name.</param>
+		/// <returns></returns>
 		protected static  string UpperFirstLetter(string name)
 		{
 			if (!string.IsNullOrEmpty(name))
@@ -196,11 +259,24 @@ namespace MoonSharp.Interpreter.Interop
 			return name;
 		}
 
+		/// <summary>
+		/// Converts this userdata to string
+		/// </summary>
+		/// <param name="obj">The object.</param>
+		/// <returns></returns>
 		public string AsString(object obj)
 		{
 			return (obj != null) ? obj.ToString() : null;
 		}
 
+		/// <summary>
+		/// Gets the value of an hypothetical metatable for this userdata.
+		/// NOT SUPPORTED YET.
+		/// </summary>
+		/// <param name="script">The script originating the request</param>
+		/// <param name="obj">The object (null if a static request is done)</param>
+		/// <param name="metaname">The name of the metamember.</param>
+		/// <returns></returns>
 		public DynValue MetaIndex(Script script, object obj, string metaname)
 		{
 			// TODO: meta access to overloaded operators ?
