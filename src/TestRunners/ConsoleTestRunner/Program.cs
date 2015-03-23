@@ -30,7 +30,7 @@ namespace MoonSharpTests
 				if (LOG_ON_FILE != null)
 					File.WriteAllText(LOG_ON_FILE, "");
 
-				Console_WriteLine("Running on AOT : {0}", Script.Platform.IsRunningOnAOT());
+				Console_WriteLine("Running on AOT : {0}", Script.GlobalOptions.Platform.IsRunningOnAOT());
 
 				T.Test(RESTRICT_TEST);
 

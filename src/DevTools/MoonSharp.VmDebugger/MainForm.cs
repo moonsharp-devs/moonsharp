@@ -31,6 +31,7 @@ namespace MoonSharp.Debugger
 		{
 			m_Ctx = SynchronizationContext.Current;
 			Script.WarmUp();
+			Script.DefaultOptions.TailCallOptimizationThreshold = 1;
 		}
 
 		private void openToolStripMenuItem_Click(object sender, EventArgs e)

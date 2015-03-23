@@ -93,6 +93,7 @@
     <Compile Include="CoreLib\OsTimeModule.cs" />
     <Compile Include="CoreLib\StringLib\KopiLua_StrLib.cs" />
     <Compile Include="DataStructs\MultiDictionary.cs" />
+    <Compile Include="Interop\CustomConvertersCollection.cs" />
     <Compile Include="IO\BinDumpBinaryReader.cs" />
     <Compile Include="IO\BinDumpBinaryWriter.cs">
       <SubType>Code</SubType>
@@ -237,6 +238,7 @@
     <Compile Include="Modules\MoonSharpModuleAttribute.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="ScriptGlobalOptions.cs" />
     <Compile Include="ScriptOptions.cs" />
     <Compile Include="Tree\Expressions\AdjustmentExpression.cs" />
     <Compile Include="Tree\Expressions\BinaryOperatorExpression.cs" />

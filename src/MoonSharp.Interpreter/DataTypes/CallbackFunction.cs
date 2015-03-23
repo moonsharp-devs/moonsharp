@@ -12,7 +12,6 @@ namespace MoonSharp.Interpreter
 	/// </summary>
 	public sealed class CallbackFunction : RefIdObject
 	{
-		Func<ScriptExecutionContext, CallbackArguments, DynValue> m_CallBack;
 		private static InteropAccessMode m_DefaultAccessMode = InteropAccessMode.LazyOptimized;
 
 		/// <summary>
@@ -21,13 +20,21 @@ namespace MoonSharp.Interpreter
 		public string Name { get; private set; }
 
 		/// <summary>
+		/// Gets the call back.
+		/// </summary>
+		/// <value>
+		/// The call back.
+		/// </value>
+		public Func<ScriptExecutionContext, CallbackArguments, DynValue> ClrCallback { get; private set; }
+
+		/// <summary>
 		/// Initializes a new instance of the <see cref="CallbackFunction" /> class.
 		/// </summary>
 		/// <param name="callBack">The callback function to be called.</param>
 		/// <param name="name">The callback name, used in stacktraces, debugger, etc..</param>
 		public CallbackFunction(Func<ScriptExecutionContext, CallbackArguments, DynValue> callBack, string name = null)
 		{
-			m_CallBack = callBack;
+			ClrCallback = callBack;
 			Name = name;
 		}
 
@@ -40,7 +47,7 @@ namespace MoonSharp.Interpreter
 		/// <returns></returns>
 		public DynValue Invoke(ScriptExecutionContext executionContext, IList<DynValue> args, bool isMethodCall = false)
 		{
-			return m_CallBack(executionContext, new CallbackArguments(args, isMethodCall));
+			return ClrCallback(executionContext, new CallbackArguments(args, isMethodCall));
 		}
 
 		/// <summary>

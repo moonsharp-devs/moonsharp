@@ -47,25 +47,17 @@ namespace MoonSharp.Interpreter
 		/// </summary>
 		static Script()
 		{
-			Platform = PlatformAutoDetector.GetDefaultPlatform();
+			GlobalOptions = new ScriptGlobalOptions();
 
 			DefaultOptions = new ScriptOptions()
 			{
-				DebugPrint = s => { Script.Platform.DefaultPrint(s); },
-				DebugInput = () => { return Script.Platform.DefaultInput(); },
+				DebugPrint = s => { Script.GlobalOptions.Platform.DefaultPrint(s); },
+				DebugInput = () => { return Script.GlobalOptions.Platform.DefaultInput(); },
 				CheckThreadAccess = true,
-				ScriptLoader = PlatformAutoDetector.GetDefaultScriptLoader()
+				ScriptLoader = PlatformAutoDetector.GetDefaultScriptLoader(),
+				TailCallOptimizationThreshold = 65536
 			};
 		}
-
-		/// <summary>
-		/// Gets or sets the platform abstraction to use.
-		/// </summary>
-		/// <value>
-		/// The current platform abstraction.
-		/// </value>
-		public static IPlatformAccessor Platform { get; set; }
-
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Script"/> class.
@@ -102,6 +94,10 @@ namespace MoonSharp.Interpreter
 		/// </summary>
 		public ScriptOptions Options { get; private set; }
 
+		/// <summary>
+		/// Gets the global options, that is options which cannot be customized per-script.
+		/// </summary>
+		public static ScriptGlobalOptions GlobalOptions { get; private set; }
 
 		/// <summary>
 		/// Gets access to performance statistics.

@@ -37,7 +37,7 @@ namespace MoonSharp.Interpreter.Tests
 
 			this.loggerAction = loggerAction;
 
-			Console_WriteLine("MoonSharp Test Suite Runner - {0} [{1}]", Script.VERSION, Script.Platform.GetPlatformName());
+			Console_WriteLine("MoonSharp Test Suite Runner - {0} [{1}]", Script.VERSION, Script.GlobalOptions.Platform.GetPlatformName());
 			Console_WriteLine("http://www.moonsharp.org");
 			Console_WriteLine("");
 		}

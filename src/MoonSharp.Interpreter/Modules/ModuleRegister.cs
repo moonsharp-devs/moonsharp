@@ -6,14 +6,24 @@ using System.Text;
 using MoonSharp.Interpreter.CoreLib;
 using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Interop;
+using MoonSharp.Interpreter.Platforms;
 
 namespace MoonSharp.Interpreter
 {
+	/// <summary>
+	/// Class managing modules (mostly as extension methods)
+	/// </summary>
 	public static class ModuleRegister
 	{
+		/// <summary>
+		/// Register the core modules to a table
+		/// </summary>
+		/// <param name="table">The table.</param>
+		/// <param name="modules">The modules.</param>
+		/// <returns></returns>
 		public static Table RegisterCoreModules(this Table table, CoreModules modules)
 		{
-			modules = Script.Platform.FilterSupportedCoreModules(modules);
+			modules = Script.GlobalOptions.Platform.FilterSupportedCoreModules(modules);
 
 			if (modules.Has(CoreModules.GlobalConsts)) RegisterConstants(table);
 			if (modules.Has(CoreModules.TableIterators)) RegisterModuleType<TableIteratorsModule>(table);
@@ -49,7 +59,12 @@ namespace MoonSharp.Interpreter
 
 			m.Set("version", DynValue.NewString(Script.VERSION));
 			m.Set("luacompat", DynValue.NewString(Script.LUA_VERSION));
-			// m.Set("platform", DynValue.NewString(Platform.Current.Name)); +++
+			m.Set("platform", DynValue.NewString(Script.GlobalOptions.Platform.GetPlatformName()));
+			m.Set("is_aot", DynValue.NewBoolean(Script.GlobalOptions.Platform.IsRunningOnAOT()));
+			m.Set("is_unity", DynValue.NewBoolean(PlatformAutoDetector.IsRunningOnUnity));
+			m.Set("is_mono", DynValue.NewBoolean(PlatformAutoDetector.IsRunningOnMono));
+			m.Set("is_clr4", DynValue.NewBoolean(PlatformAutoDetector.IsRunningOnClr4));
+			m.Set("is_pcl", DynValue.NewBoolean(PlatformAutoDetector.IsPortableFramework));
 
 			return table;
 		}

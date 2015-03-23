@@ -11,6 +11,8 @@ namespace MoonSharp.Interpreter
 	/// </summary>
 	public enum DataType
 	{
+		// DO NOT MODIFY ORDER - IT'S SIGNIFICANT
+
 		/// <summary>
 		/// A nil value, as in Lua
 		/// </summary>
@@ -57,6 +59,7 @@ namespace MoonSharp.Interpreter
 		/// A callback function
 		/// </summary>
 		ClrFunction,
+
 		/// <summary>
 		/// A request to execute a tail call
 		/// </summary>
@@ -73,6 +76,7 @@ namespace MoonSharp.Interpreter
 	public static class LuaTypeExtensions
 	{
 		public const DataType MaxMetaTypes = DataType.Table;
+		public const DataType MaxConvertibleTypes = DataType.ClrFunction;
 
 		/// <summary>
 		/// Determines whether this data type can have type metatables.

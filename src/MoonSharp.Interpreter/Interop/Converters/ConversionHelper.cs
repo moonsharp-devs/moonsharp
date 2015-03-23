@@ -41,6 +41,14 @@ namespace MoonSharp.Interpreter.Interop
 			if (obj is DynValue)
 				return (DynValue)obj;
 
+			var converter = Script.GlobalOptions.CustomConverters.GetClrToScriptCustomConversion(obj.GetType());
+			if (converter != null)
+			{
+				var v = converter(obj);
+				if (v != null)
+					return v;
+			}
+
 			Type t = obj.GetType();
 
 			if (obj is bool)
@@ -156,6 +164,14 @@ namespace MoonSharp.Interpreter.Interop
 
 		internal static object MoonSharpValueToClrObject(DynValue value)
 		{
+			var converter = Script.GlobalOptions.CustomConverters.GetScriptToClrCustomConversion(value.Type, typeof(System.Object));
+			if (converter != null)
+			{
+				var v = converter(value);
+				if (v != null)
+					return v;
+			}
+
 			switch (value.Type)
 			{
 				case DataType.Void:
@@ -189,6 +205,14 @@ namespace MoonSharp.Interpreter.Interop
 
 		internal static object MoonSharpValueToObjectOfType(DynValue value, Type desiredType, object defaultValue)
 		{
+			var converter = Script.GlobalOptions.CustomConverters.GetScriptToClrCustomConversion(value.Type, desiredType);
+			if (converter != null)
+			{
+				var v = converter(value);
+				if (v != null)
+					return v;
+			}
+
 			if (desiredType == typeof(DynValue))
 				return value;
 
@@ -266,9 +290,11 @@ namespace MoonSharp.Interpreter.Interop
 					break;
 				case DataType.Function:
 					if (desiredType == typeof(Closure)) return value.Function;
+					else if (desiredType == typeof(ScriptFunctionDelegate)) return value.Function.GetDelegate();
 					break;
 				case DataType.ClrFunction:
 					if (desiredType == typeof(CallbackFunction)) return value.Callback;
+					else if (desiredType == typeof(Func<ScriptExecutionContext, CallbackArguments, DynValue>)) return value.Callback.ClrCallback;
 					break;
 				case DataType.UserData:
 					if (value.UserData.Object != null)
@@ -321,7 +347,87 @@ namespace MoonSharp.Interpreter.Interop
 			else if (t.IsAssignableFrom(typeof(DynValue[])))
 				return TableToList<DynValue>(table, v => v).ToArray();
 
+			if (t.IsGenericType)
+			{
+				if ((t.GetGenericTypeDefinition() == typeof(List<>))
+					|| (t.GetGenericTypeDefinition() == typeof(IList<>))
+					 || (t.GetGenericTypeDefinition() == typeof(ICollection<>))
+					 || (t.GetGenericTypeDefinition() == typeof(IEnumerable<>)))
+				{
+					return ConvertTableToListOfGenericType(t, t.GetGenericArguments()[0], table);
+				}
+				else if ((t.GetGenericTypeDefinition() == typeof(Dictionary<,>))
+					|| (t.GetGenericTypeDefinition() == typeof(IDictionary<,>)))
+				{
+					return ConvertTableToDictionaryOfGenericType(t, t.GetGenericArguments()[0], t.GetGenericArguments()[1], table);
+				}
+			}
+
+			if (t.IsArray && t.GetArrayRank() == 1)
+				return ConvertTableToArrayOfGenericType(t, t.GetElementType(), table);
+
 			return null;
+		}
+
+		private static object ConvertTableToDictionaryOfGenericType(Type dictionaryType, Type keyType, Type valueType, Table table)
+		{
+			if (dictionaryType.GetGenericTypeDefinition() != typeof(Dictionary<,>))
+			{
+				dictionaryType = typeof(Dictionary<,>);
+				dictionaryType = dictionaryType.MakeGenericType(keyType, valueType);
+			}
+
+			System.Collections.IDictionary dic = (System.Collections.IDictionary)Activator.CreateInstance(dictionaryType);
+
+			foreach (var kvp in table.Pairs)
+			{
+				object key = MoonSharp.Interpreter.Interop.ConversionHelper.MoonSharpValueToObjectOfType(kvp.Key, keyType, null);
+				object val = MoonSharp.Interpreter.Interop.ConversionHelper.MoonSharpValueToObjectOfType(kvp.Value, valueType, null);
+
+				dic.Add(key, val);
+			}
+
+			return dic;
+		}
+
+		private static object ConvertTableToArrayOfGenericType(Type arrayType, Type itemType, Table table)
+		{
+			List<object> lst = new List<object>(); 
+
+			for (int i = 1, l = table.Length; i <= l; i++)
+			{
+				DynValue v = table.Get(i);
+				object o = MoonSharp.Interpreter.Interop.ConversionHelper.MoonSharpValueToObjectOfType(v, itemType, null);
+				lst.Add(o);
+			}
+
+			System.Collections.IList array = (System.Collections.IList)Activator.CreateInstance(arrayType,new object[] { lst.Count });
+
+			for (int i = 0; i < lst.Count; i++)
+				array[i] = lst[i];
+
+			return array;
+		}
+
+
+		private static object ConvertTableToListOfGenericType(Type listType, Type itemType, Table table)
+		{
+			if (listType.GetGenericTypeDefinition() != typeof(List<>))
+			{
+				listType = typeof(List<>);
+				listType = listType.MakeGenericType(itemType);
+			}
+
+			System.Collections.IList lst = (System.Collections.IList)Activator.CreateInstance(listType);
+
+			for (int i = 1, l = table.Length; i <= l; i++)
+			{
+				DynValue v = table.Get(i);
+				object o = MoonSharp.Interpreter.Interop.ConversionHelper.MoonSharpValueToObjectOfType(v, itemType, null);
+				lst.Add(o);
+			}
+
+			return lst;
 		}
 
 		private static List<T> TableToList<T>(Table table, Func<DynValue, T> converter)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using MoonSharp.Interpreter.Interop;
 using MoonSharp.Interpreter.Loaders;
 using MoonSharp.Interpreter.Platforms;
 
@@ -15,7 +16,6 @@ namespace MoonSharp.Interpreter
 	{
 		internal ScriptOptions()
 		{
-
 		}
 
 		internal ScriptOptions(ScriptOptions defaults)
@@ -27,6 +27,7 @@ namespace MoonSharp.Interpreter
 			this.Stdin = defaults.Stdin;
 			this.Stdout = defaults.Stdout;
 			this.Stderr = defaults.Stderr;
+			this.TailCallOptimizationThreshold = defaults.TailCallOptimizationThreshold;
 
 			this.ScriptLoader = defaults.ScriptLoader;
 
@@ -70,6 +71,20 @@ namespace MoonSharp.Interpreter
 		public Stream Stderr { get; set; }
 
 		/// <summary>
+		/// Gets or sets the stack depth threshold at which MoonSharp starts doing
+		/// tail call optimizations.
+		/// TCOs can provide the little benefit of avoiding stack overflows in corner case
+		/// scenarios, at the expense of losing debug information and error stack traces 
+		/// in all other, more common scenarios. MoonSharp choice is to start performing
+		/// TCOs only after a certain threshold of stack usage is reached - by default
+		/// half the current stack depth (128K entries), thus 64K entries, on either
+		/// the internal stacks.
+		/// Set this to int.MaxValue to disable TCOs entirely, or to 0 to always have
+		/// TCOs enabled.
+		/// </summary>
+		public int TailCallOptimizationThreshold { get; set; }
+
+		/// <summary>
 		/// Gets or sets a value indicating whether the thread check is enabled.
 		/// A "lazy" thread check is performed everytime execution is entered to ensure that no two threads
 		/// calls MoonSharp execution concurrently. However 1) the check is performed best effort (thus, it might
@@ -80,6 +95,7 @@ namespace MoonSharp.Interpreter
 		/// you are not calling MoonSharp execution concurrently as it is not supported.
 		/// </summary>
 		public bool CheckThreadAccess { get; set; }
+
 
 	}
 }

@@ -22,7 +22,7 @@ namespace MoonSharp
 		{
 			Script.DefaultOptions.ScriptLoader = new ReplInterpreterScriptLoader();
 
-			Console.WriteLine("MoonSharp REPL {0} [{1}]", Script.VERSION, Script.Platform.GetPlatformName());
+			Console.WriteLine("MoonSharp REPL {0} [{1}]", Script.VERSION, Script.GlobalOptions.Platform.GetPlatformName());
 			Console.WriteLine("Copyright (C) 2014 Marco Mastropaolo");
 			Console.WriteLine("http://www.moonsharp.org");
 			Console.WriteLine("Based on Lua 5.1 - 5.3, Copyright (C) 1994-2014 Lua.org");

@@ -34,3 +34,20 @@ using System.Runtime.InteropServices;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion(MoonSharp.Interpreter.Script.VERSION)]
 [assembly: AssemblyFileVersion(MoonSharp.Interpreter.Script.VERSION)]
+
+// Give 
+[assembly: InternalsVisibleTo("MoonSharp.Interpreter.Tests")]
+[assembly: InternalsVisibleTo("MoonSharp.Interpreter.Tests.net40-client")]
+[assembly: InternalsVisibleTo("MoonSharp.Interpreter.Tests.portable40")]
+[assembly: InternalsVisibleTo("MoonSharp.Interpreter.Tests.net35-client")]
+
+
+
+
+
+
+
+
+
+
+

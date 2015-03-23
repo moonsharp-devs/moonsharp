@@ -22,6 +22,49 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 				return i * 2;
 			}
 
+			public static StringBuilder SetComplexRecursive(List<int[]> intList)
+			{
+				StringBuilder sb = new StringBuilder();
+
+				foreach (int[] arr in intList)
+				{
+					sb.Append(string.Join(",", arr.Select(s => s.ToString()).ToArray()));
+					sb.Append("|");
+				}
+
+				return sb;
+			}
+
+			public static StringBuilder SetComplexTypes(List<string> strlist, IList<int> intlist, Dictionary<string, int> map,
+				string[] strarray, int[] intarray)
+			{
+				StringBuilder sb = new StringBuilder();
+
+				sb.Append(string.Join(",", strlist.ToArray()));
+
+				sb.Append("|");
+
+				sb.Append(string.Join(",", intlist.Select(i => i.ToString()).ToArray()));
+
+				sb.Append("|");
+
+				sb.Append(string.Join(",", map.Keys.OrderBy(x => x).Select(i => i.ToString()).ToArray()));
+
+				sb.Append("|");
+
+				sb.Append(string.Join(",", map.Values.OrderBy(x => x).Select(i => i.ToString()).ToArray()));
+
+				sb.Append("|");
+
+				sb.Append(string.Join(",", strarray));
+
+				sb.Append("|");
+
+				sb.Append(string.Join(",", intarray.Select(i => i.ToString()).ToArray()));
+
+				return sb;
+			}
+
 
 			public static StringBuilder ConcatS(int p1, string p2, IComparable p3, bool p4, List<object> p5, IEnumerable<object> p6,
 				StringBuilder p7, Dictionary<object, object> p8, SomeClass p9, int p10 = 1994)
@@ -169,6 +212,116 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 				return "Test2";
 			}
 		}
+
+		public void Test_ConcatMethodStaticComplexCustomConv(InteropAccessMode opt)
+		{
+			try
+			{
+				UserData.UnregisterType<SomeClass>();
+
+				string script = @"    
+				strlist = { 'ciao', 'hello', 'aloha' };
+				intlist = {  };
+				dictry = { ciao = 39, hello = 78, aloha = 128 };
+				
+				x = static.SetComplexTypes(strlist, intlist, dictry, strlist, intlist);
+
+				return x;";
+
+				Script S = new Script();
+
+				SomeClass obj = new SomeClass();
+
+				UserData.UnregisterType<SomeClass>();
+				UserData.RegisterType<SomeClass>(opt);
+
+				Script.GlobalOptions.CustomConverters.Clear();
+
+				Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Table, typeof(List<string>),
+					v => null);
+
+				Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Table, typeof(IList<int>),
+					v => new List<int>() { 42, 77, 125, 13 });
+
+				Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Table, typeof(int[]),
+					v => new int[] { 43, 78, 126, 14 });
+
+				Script.GlobalOptions.CustomConverters.SetClrToScriptCustomConversion<StringBuilder>(
+					v => DynValue.NewString(v.ToString().ToUpper()));
+
+
+				S.Globals.Set("static", UserData.CreateStatic<SomeClass>());
+				S.Globals.Set("myobj", UserData.Create(obj));
+
+				DynValue res = S.DoString(script);
+
+				Assert.AreEqual(DataType.String, res.Type);
+				Assert.AreEqual("CIAO,HELLO,ALOHA|42,77,125,13|ALOHA,CIAO,HELLO|39,78,128|CIAO,HELLO,ALOHA|43,78,126,14", res.String);
+			}
+			finally
+			{
+				Script.GlobalOptions.CustomConverters.Clear();
+			}
+		}
+
+
+		public void Test_ConcatMethodStaticComplex(InteropAccessMode opt)
+		{
+			UserData.UnregisterType<SomeClass>();
+
+			string script = @"    
+				strlist = { 'ciao', 'hello', 'aloha' };
+				intlist = { 42, 77, 125, 13 };
+				dictry = { ciao = 39, hello = 78, aloha = 128 };
+				
+				x = static.SetComplexTypes(strlist, intlist, dictry, strlist, intlist);
+
+				return x;";
+
+			Script S = new Script();
+
+			SomeClass obj = new SomeClass();
+
+			UserData.UnregisterType<SomeClass>();
+			UserData.RegisterType<SomeClass>(opt);
+
+			S.Globals.Set("static", UserData.CreateStatic<SomeClass>());
+			S.Globals.Set("myobj", UserData.Create(obj));
+
+			DynValue res = S.DoString(script);
+
+			Assert.AreEqual(DataType.String, res.Type);
+			Assert.AreEqual("ciao,hello,aloha|42,77,125,13|aloha,ciao,hello|39,78,128|ciao,hello,aloha|42,77,125,13", res.String);
+		}
+
+		public void Test_ConcatMethodStaticComplexRec(InteropAccessMode opt)
+		{
+			UserData.UnregisterType<SomeClass>();
+
+			string script = @"    
+				array = { { 1, 2, 3 }, { 11, 35, 77 }, { 16, 42, 64 }, {99, 76, 17 } };				
+			
+				x = static.SetComplexRecursive(array);
+
+				return x;";
+
+			Script S = new Script();
+
+			SomeClass obj = new SomeClass();
+
+			UserData.UnregisterType<SomeClass>();
+			UserData.RegisterType<SomeClass>(opt);
+
+			S.Globals.Set("static", UserData.CreateStatic<SomeClass>());
+			S.Globals.Set("myobj", UserData.Create(obj));
+
+			DynValue res = S.DoString(script);
+
+			Assert.AreEqual(DataType.String, res.Type);
+			Assert.AreEqual("1,2,3|11,35,77|16,42,64|99,76,17|", res.String);
+		}
+
+
 
 
 
@@ -399,7 +552,59 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			Test_ConstructorAndConcatMethodSemicolon(InteropAccessMode.Preoptimized);
 		}
 
+		[Test]
+		public void Interop_ConcatMethodStaticCplxCustomConv_None()
+		{
+			Test_ConcatMethodStaticComplexCustomConv(InteropAccessMode.Reflection);
+		}
 
+		[Test]
+		public void Interop_ConcatMethodStaticCplxCustomConv_Lazy()
+		{
+			Test_ConcatMethodStaticComplexCustomConv(InteropAccessMode.LazyOptimized);
+		}
+
+		[Test]
+		public void Interop_ConcatMethodStaticCplxCustomConv_Precomputed()
+		{
+			Test_ConcatMethodStaticComplexCustomConv(InteropAccessMode.Preoptimized);
+		}
+
+		[Test]
+		public void Interop_ConcatMethodStaticCplx_None()
+		{
+			Test_ConcatMethodStaticComplex(InteropAccessMode.Reflection);
+		}
+
+		[Test]
+		public void Interop_ConcatMethodStaticCplx_Lazy()
+		{
+			Test_ConcatMethodStaticComplex(InteropAccessMode.LazyOptimized);
+		}
+
+		[Test]
+		public void Interop_ConcatMethodStaticCplx_Precomputed()
+		{
+			Test_ConcatMethodStaticComplex(InteropAccessMode.Preoptimized);
+		}
+
+		[Test]
+		public void Interop_ConcatMethodStaticCplxRec_None()
+		{
+			Test_ConcatMethodStaticComplexRec(InteropAccessMode.Reflection);
+		}
+
+		[Test]
+		public void Interop_ConcatMethodStaticCplxRec_Lazy()
+		{
+			Test_ConcatMethodStaticComplexRec(InteropAccessMode.LazyOptimized);
+		}
+
+		[Test]
+		public void Interop_ConcatMethodStaticCplxRec_Precomputed()
+		{
+			Test_ConcatMethodStaticComplexRec(InteropAccessMode.Preoptimized);
+		}
 
 		[Test]
 		public void Interop_ConcatMethodStatic_None()

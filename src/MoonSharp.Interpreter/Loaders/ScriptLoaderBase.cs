@@ -95,12 +95,12 @@ namespace MoonSharp.Interpreter.Loaders
 
 			if (modulePaths == null)
 			{
-				string env = Script.Platform.GetEnvironmentVariable("MOONSHARP_PATH");
+				string env = Script.GlobalOptions.Platform.GetEnvironmentVariable("MOONSHARP_PATH");
 				if (!string.IsNullOrEmpty(env)) modulePaths = UnpackStringPaths(env);
 
 				if (modulePaths == null)
 				{
-					env = Script.Platform.GetEnvironmentVariable("LUA_PATH");
+					env = Script.GlobalOptions.Platform.GetEnvironmentVariable("LUA_PATH");
 					if (!string.IsNullOrEmpty(env)) modulePaths = UnpackStringPaths(env);
 				}
 

@@ -69,13 +69,20 @@ namespace MoonSharp.Interpreter.Execution.VM
 						AddSymbolToMap(symbolMap, sr.i_Env);
 				}
 
+				SymbolRef[] allSymbols = new SymbolRef[symbolMap.Count];
+
+				foreach (KeyValuePair<SymbolRef, int> pair in symbolMap)
+				{
+					allSymbols[pair.Value] = pair.Key;
+				}
+
 				bw.Write(symbolMap.Count);
 
-				foreach (KeyValuePair<SymbolRef, int> pair in symbolMap.OrderBy(kvp => kvp.Value))
-					pair.Key.WriteBinary(bw);
+				foreach (SymbolRef sym in allSymbols)
+					sym.WriteBinary(bw);
 
-				foreach (KeyValuePair<SymbolRef, int> pair in symbolMap.OrderBy(kvp => kvp.Value))
-					pair.Key.WriteBinaryEnv(bw, symbolMap);
+				foreach (SymbolRef sym in allSymbols)
+					sym.WriteBinaryEnv(bw, symbolMap);
 
 				for (int i = 0; i <= meta.NumVal; i++)
 					m_RootChunk.Code[baseAddress + i].WriteBinary(bw, baseAddress, symbolMap);

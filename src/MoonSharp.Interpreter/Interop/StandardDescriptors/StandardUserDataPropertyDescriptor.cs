@@ -22,7 +22,7 @@ namespace MoonSharp.Interpreter.Interop
 
 		internal StandardUserDataPropertyDescriptor(PropertyInfo pi, InteropAccessMode accessMode)
 		{
-			if (Script.Platform.IsRunningOnAOT())
+			if (Script.GlobalOptions.Platform.IsRunningOnAOT())
 				accessMode = InteropAccessMode.Reflection;
 
 			this.PropertyInfo = pi;

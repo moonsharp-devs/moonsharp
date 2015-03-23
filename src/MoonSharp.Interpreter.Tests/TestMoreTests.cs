@@ -256,7 +256,7 @@ namespace MoonSharp.Interpreter.Tests
 
 		private bool AreCoreModulesFullySupported(CoreModules modules)
 		{
-			CoreModules supp = Script.Platform.FilterSupportedCoreModules(modules);
+			CoreModules supp = Script.GlobalOptions.Platform.FilterSupportedCoreModules(modules);
 			return supp == modules;
 		}
 

@@ -97,6 +97,9 @@
     <Compile Include="..\..\DataStructs\MultiDictionary.cs">
       <Link>MultiDictionary.cs</Link>
     </Compile>
+    <Compile Include="..\..\Interop\CustomConvertersCollection.cs">
+      <Link>CustomConvertersCollection.cs</Link>
+    </Compile>
     <Compile Include="..\..\IO\BinDumpBinaryReader.cs">
       <Link>BinDumpBinaryReader.cs</Link>
     </Compile>
@@ -473,6 +476,9 @@
     <Compile Include="..\..\Modules\MoonSharpModuleAttribute.cs">
       <SubType>Code</SubType>
       <Link>MoonSharpModuleAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\..\ScriptGlobalOptions.cs">
+      <Link>ScriptGlobalOptions.cs</Link>
     </Compile>
     <Compile Include="..\..\ScriptOptions.cs">
       <Link>ScriptOptions.cs</Link>
