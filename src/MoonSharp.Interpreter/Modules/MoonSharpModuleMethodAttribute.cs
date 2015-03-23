@@ -10,7 +10,7 @@ namespace MoonSharp.Interpreter
 	/// Methods must have the signature "public static DynValue ...(ScriptExecutionContextCallbackArguments)".
 	/// Fields must be static or const strings, with an anonymous Lua function inside.
 	/// 
-	/// See <seealso cref="MoonSharpModuleAttribute"/> for more information about modules.
+	/// See <see cref="MoonSharpModuleAttribute"/> for more information about modules.
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Method | AttributeTargets.Field, Inherited = false, AllowMultiple = false)]
 	public sealed class MoonSharpModuleMethodAttribute : Attribute

@@ -7,8 +7,8 @@ namespace MoonSharp.Interpreter.Interop
 {
 	/// <summary>
 	/// As a convenience, every type deriving from IUserDataType is "self-described". That is, no descriptor is needed/generated
-	/// and the object itself is used to describe the type for interop. See also <seealso cref="UserData"/>, <seealso cref="IUserDataDescriptor"/> 
-	/// and <seealso cref="StandardUserDataDescriptor"/> .
+	/// and the object itself is used to describe the type for interop. See also <see cref="UserData"/>, <see cref="IUserDataDescriptor"/> 
+	/// and <see cref="StandardUserDataDescriptor"/> .
 	/// </summary>
 	public interface IUserDataType
 	{

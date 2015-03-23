@@ -7,7 +7,7 @@ namespace MoonSharp.Interpreter.Interop
 {
 	/// <summary>
 	/// Enumerations of the possible policies to handle UserData type registrations
-	/// See also : <seealso cref="UserData"/> .
+	/// See also : <see cref="UserData"/> .
 	/// </summary>
 	public enum InteropRegistrationPolicy
 	{

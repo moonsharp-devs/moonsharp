@@ -12,13 +12,13 @@ namespace MoonSharp.Interpreter
 	/// 
 	/// Modules are basically classes containing only static methods, with the callback function signature.
 	/// 
-	/// See <seealso cref="Table"/> and <seealso cref="ModuleRegister"/> for (extension) methods used to register modules to a 
+	/// See <see cref="Table"/> and <see cref="ModuleRegister"/> for (extension) methods used to register modules to a 
 	/// table.
 	/// 
-	/// See <seealso cref="CallbackFunction"/> for information regarding the standard callback signature along with easier ways
+	/// See <see cref="CallbackFunction"/> for information regarding the standard callback signature along with easier ways
 	/// to marshal methods.
 	/// 
-	/// See <seealso cref="UserData"/> for easier object marshalling.
+	/// See <see cref="UserData"/> for easier object marshalling.
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
 	public sealed class MoonSharpModuleAttribute : Attribute

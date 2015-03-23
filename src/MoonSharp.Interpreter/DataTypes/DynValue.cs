@@ -36,36 +36,36 @@ namespace MoonSharp.Interpreter
 		/// </summary>
 		public DataType Type { get { return m_Type; } }
 		/// <summary>
-		/// Gets the function (valid only if the <seealso cref="Type"/> is <seealso cref="DataType.Function"/>)
+		/// Gets the function (valid only if the <see cref="Type"/> is <see cref="DataType.Function"/>)
 		/// </summary>
 		public Closure Function { get { return m_Object as Closure; } }
 		/// <summary>
-		/// Gets the numeric value (valid only if the <seealso cref="Type"/> is <seealso cref="DataType.Number"/>)
+		/// Gets the numeric value (valid only if the <see cref="Type"/> is <see cref="DataType.Number"/>)
 		/// </summary>
 		public double Number { get { return m_Number; } }
 		/// <summary>
-		/// Gets the values in the tuple (valid only if the <seealso cref="Type"/> is Tuple).
-		/// This field is currently also used to hold arguments in values whose <seealso cref="Type"/> is <seealso cref="DataType.TailCallRequest"/>.
+		/// Gets the values in the tuple (valid only if the <see cref="Type"/> is Tuple).
+		/// This field is currently also used to hold arguments in values whose <see cref="Type"/> is <see cref="DataType.TailCallRequest"/>.
 		/// </summary>
 		public DynValue[] Tuple { get { return m_Object as DynValue[]; } }
 		/// <summary>
-		/// Gets the coroutine handle. (valid only if the <seealso cref="Type"/> is Thread).
+		/// Gets the coroutine handle. (valid only if the <see cref="Type"/> is Thread).
 		/// </summary>
 		public Coroutine Coroutine { get { return m_Object as Coroutine; } }
 		/// <summary>
-		/// Gets the table (valid only if the <seealso cref="Type"/> is <seealso cref="DataType.Table"/>)
+		/// Gets the table (valid only if the <see cref="Type"/> is <see cref="DataType.Table"/>)
 		/// </summary>
 		public Table Table { get { return m_Object as Table; } }
 		/// <summary>
-		/// Gets the boolean value (valid only if the <seealso cref="Type"/> is <seealso cref="DataType.Boolean"/>)
+		/// Gets the boolean value (valid only if the <see cref="Type"/> is <see cref="DataType.Boolean"/>)
 		/// </summary>
 		public bool Boolean { get { return Number != 0; } }
 		/// <summary>
-		/// Gets the string value (valid only if the <seealso cref="Type"/> is <seealso cref="DataType.String"/>)
+		/// Gets the string value (valid only if the <see cref="Type"/> is <see cref="DataType.String"/>)
 		/// </summary>
 		public string String { get { return m_Object as string; } }
 		/// <summary>
-		/// Gets the CLR callback (valid only if the <seealso cref="Type"/> is <seealso cref="DataType.ClrFunction"/>)
+		/// Gets the CLR callback (valid only if the <see cref="Type"/> is <see cref="DataType.ClrFunction"/>)
 		/// </summary>
 		public CallbackFunction Callback { get { return m_Object as CallbackFunction; } }
 		/// <summary>

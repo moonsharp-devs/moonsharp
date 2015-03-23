@@ -6,7 +6,7 @@ using System.Text;
 namespace MoonSharp.Interpreter.Interop
 {
 	/// <summary>
-	/// Internal type used by <seealso cref="AnonWrapper{T}"/> for registration
+	/// Internal type used by <see cref="AnonWrapper{T}"/> for registration
 	/// </summary>
 	public class AnonWrapper
 	{

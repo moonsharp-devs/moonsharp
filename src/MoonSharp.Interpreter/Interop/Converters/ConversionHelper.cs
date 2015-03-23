@@ -397,7 +397,7 @@ namespace MoonSharp.Interpreter.Interop
 		}
 
 		/// <summary>
-		/// Converts a table to a <seealso cref="Dictionary{K,V}"/>
+		/// Converts a table to a <see cref="Dictionary{K,V}"/>
 		/// </summary>
 		private static object ConvertTableToDictionaryOfGenericType(Type dictionaryType, Type keyType, Type valueType, Table table)
 		{
@@ -444,7 +444,7 @@ namespace MoonSharp.Interpreter.Interop
 
 
 		/// <summary>
-		/// Converts a table to a <seealso cref="List{T}"/>
+		/// Converts a table to a <see cref="List{T}"/>
 		/// </summary>
 		private static object ConvertTableToListOfGenericType(Type listType, Type itemType, Table table)
 		{
@@ -467,7 +467,7 @@ namespace MoonSharp.Interpreter.Interop
 		}
 
 		/// <summary>
-		/// Converts a table to a <seealso cref="List{T}"/>, known in advance
+		/// Converts a table to a <see cref="List{T}"/>, known in advance
 		/// </summary>
 		private static List<T> TableToList<T>(Table table, Func<DynValue, T> converter)
 		{
