@@ -23,23 +23,25 @@ Debugger icons are from the Eclipse project (https://www.eclipse.org/).
 
 Use of the library is easy as:
 
-	double MoonSharpFactorial()
-	{
-		string script = @"    
-			-- defines a factorial function
-			function fact (n)
-				if (n == 0) then
-					return 1
-				else
-					return n*fact(n - 1)
-				end
+```C#
+double MoonSharpFactorial()
+{
+	string script = @"    
+		-- defines a factorial function
+		function fact (n)
+			if (n == 0) then
+				return 1
+			else
+				return n*fact(n - 1)
 			end
+		end
 
-			return fact(5)";
+	return fact(5)";
 
-		DynValue res = Script.RunString(script);
-		return res.Number;
-	}
+	DynValue res = Script.RunString(script);
+	return res.Number;
+}
+```
 
 For more in-depth tutorials, samples, etc. please refer to http://www.moonsharp.org/getting_started.html
 
