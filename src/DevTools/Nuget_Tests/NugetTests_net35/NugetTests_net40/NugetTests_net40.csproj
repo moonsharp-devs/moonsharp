@@ -34,11 +34,11 @@
   <ItemGroup>
     <Reference Include="MoonSharp.Interpreter, Version=0.9.0.2, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\MoonSharp.0.9.0.3\lib\net40-client\MoonSharp.Interpreter.dll</HintPath>
+      <HintPath>..\packages\MoonSharp.0.9.0.4\lib\net40-client\MoonSharp.Interpreter.dll</HintPath>
     </Reference>
     <Reference Include="MoonSharp.RemoteDebugger, Version=0.9.0.2, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\MoonSharp.Debugger.0.9.0.3\lib\net40-client\MoonSharp.RemoteDebugger.dll</HintPath>
+      <HintPath>..\packages\MoonSharp.Debugger.0.9.0.4\lib\net40-client\MoonSharp.RemoteDebugger.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -85,9 +85,6 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="MoonSharp.Interpreter.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

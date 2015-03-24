@@ -1,4 +1,4 @@
-﻿<Properties>
+﻿<Properties StartupItem="XamarinTestBed_Android\XamarinTestBed_Android.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" ActiveRuntime="MS.NET" PreferredExecutionTarget="Android.3inch" />
   <MonoDevelop.Ide.Workbench ActiveDocument="XamarinTestBed_Android\MainActivity.cs">
     <Files>

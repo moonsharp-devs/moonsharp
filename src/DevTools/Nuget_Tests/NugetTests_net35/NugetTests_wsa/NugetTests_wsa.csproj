@@ -125,7 +125,6 @@
     <Content Include="Assets\SmallLogo.scale-100.png" />
     <Content Include="Assets\SplashScreen.scale-100.png" />
     <Content Include="Assets\StoreLogo.scale-100.png" />
-    <Content Include="MoonSharp.Interpreter.xml" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -138,8 +137,9 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="MoonSharp.Interpreter">
-      <HintPath>..\packages\MoonSharp.0.9.0.3\lib\portable-net4+sl5+wp8+win8\MoonSharp.Interpreter.dll</HintPath>
+    <Reference Include="MoonSharp.Interpreter, Version=0.9.0.2, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\MoonSharp.0.9.0.4\lib\portable-net4+sl5+wp8+win8\MoonSharp.Interpreter.dll</HintPath>
     </Reference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '12.0' ">
