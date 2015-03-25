@@ -766,7 +766,7 @@ namespace MoonSharp.Interpreter
 		/// <returns></returns>
 		public static DynValue FromObject(Script script, object obj)
 		{
-			return MoonSharp.Interpreter.Interop.ConversionHelper.ClrObjectToComplexMoonSharpValue(script, obj);
+			return MoonSharp.Interpreter.Interop.Converters.ClrToScriptConversions.ObjectToDynValue(script, obj);
 		}
 
 		/// <summary>
@@ -774,7 +774,7 @@ namespace MoonSharp.Interpreter
 		/// </summary>
 		public object ToObject()
 		{
-			return MoonSharp.Interpreter.Interop.ConversionHelper.MoonSharpValueToClrObject(this);
+			return MoonSharp.Interpreter.Interop.Converters.ScriptToClrConversions.DynValueToObject(this);
 		}
 
 		/// <summary>
@@ -782,7 +782,7 @@ namespace MoonSharp.Interpreter
 		/// </summary>
 		public T ToObject<T>()
 		{
-			return (T)MoonSharp.Interpreter.Interop.ConversionHelper.MoonSharpValueToObjectOfType(this, typeof(T), null);
+			return (T)MoonSharp.Interpreter.Interop.Converters.ScriptToClrConversions.DynValueToObjectOfType(this, typeof(T), null, false);
 		}
 
 		/// <summary>

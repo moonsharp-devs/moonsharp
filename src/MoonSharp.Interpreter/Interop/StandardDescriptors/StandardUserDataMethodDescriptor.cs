@@ -7,13 +7,15 @@ using System.Text;
 using System.Threading;
 using MoonSharp.Interpreter.Diagnostics;
 using MoonSharp.Interpreter.Execution;
+using MoonSharp.Interpreter.Interop.Converters;
+using MoonSharp.Interpreter.Interop.StandardDescriptors;
 
 namespace MoonSharp.Interpreter.Interop
 {
 	/// <summary>
 	/// Class providing easier marshalling of CLR functions
 	/// </summary>
-	public class StandardUserDataMethodDescriptor
+	public class StandardUserDataMethodDescriptor : IComparable<StandardUserDataMethodDescriptor>
 	{
 		/// <summary>
 		/// Gets the method information (can be a MethodInfo or ConstructorInfo)
@@ -35,12 +37,20 @@ namespace MoonSharp.Interpreter.Interop
 		/// Gets a value indicating whether the described method is a constructor
 		/// </summary>
 		public bool IsConstructor { get; private set; }
+		/// <summary>
+		/// Gets a sort discriminant to give consistent overload resolution matching in case of perfectly equal scores
+		/// </summary>
+		public string SortDiscriminant { get; private set; }
+		/// <summary>
+		/// Gets the type of the arguments of the underlying CLR function
+		/// </summary>
+		public ParameterInfo[] Parameters { get; private set; }
 
-		private Type[] m_Arguments;
-		private object[] m_Defaults;
+
 		private Func<object, object[], object> m_OptimizedFunc = null;
 		private Action<object, object[]> m_OptimizedAction = null;
 		private bool m_IsAction = false;
+
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="StandardUserDataMethodDescriptor"/> class.
@@ -50,6 +60,8 @@ namespace MoonSharp.Interpreter.Interop
 		/// <exception cref="System.ArgumentException">Invalid accessMode</exception>
 		public StandardUserDataMethodDescriptor(MethodBase methodBase, InteropAccessMode accessMode = InteropAccessMode.Default)
 		{
+			CheckMethodIsCompatible(methodBase, true);
+
 			if (Script.GlobalOptions.Platform.IsRunningOnAOT())
 				accessMode = InteropAccessMode.Reflection;
 
@@ -68,20 +80,47 @@ namespace MoonSharp.Interpreter.Interop
 			this.IsStatic = methodBase.IsStatic || IsConstructor; // we consider the constructor to be a static method as far interop is concerned.
 
 			if (methodBase is ConstructorInfo)
-			{
 				m_IsAction = false;
-			}
 			else
-			{
 				m_IsAction = ((MethodInfo)methodBase).ReturnType == typeof(void);
-			}
 
-			m_Arguments = methodBase.GetParameters().Select(pi => pi.ParameterType).ToArray();
-			m_Defaults = methodBase.GetParameters().Select(pi => pi.DefaultValue).ToArray();
+			Parameters = methodBase.GetParameters();
+
+			SortDiscriminant = string.Join(":", Parameters.Select(pi => pi.ParameterType.FullName).ToArray());
 
 			if (AccessMode == InteropAccessMode.Preoptimized)
 				Optimize();
 		}
+
+		/// <summary>
+		/// Checks if the method is compatible with a standard descriptor
+		/// </summary>
+		/// <param name="methodBase">The MethodBase.</param>
+		/// <param name="throwException">if set to <c>true</c> an exception with the proper error message is thrown if not compatible.</param>
+		/// <returns></returns>
+		/// <exception cref="System.ArgumentException">
+		/// Method cannot contain unresolved generic parameters
+		/// or
+		/// Method cannot contain by-ref parameters
+		/// </exception>
+		public static bool CheckMethodIsCompatible(MethodBase methodBase, bool throwException)
+		{
+			if (methodBase.ContainsGenericParameters)
+			{
+				if (throwException) throw new ArgumentException("Method cannot contain unresolved generic parameters");
+				return false;
+			}
+
+			if (methodBase.GetParameters().Any(pi => pi.ParameterType.IsByRef))
+			{
+				if (throwException) throw new ArgumentException("Method cannot contain by-ref parameters");
+				return false;
+			}
+
+			return true;
+		}
+
+
 
 		/// <summary>
 		/// Gets a callback function as a delegate
@@ -137,34 +176,35 @@ namespace MoonSharp.Interpreter.Interop
 		/// <param name="context">The context.</param>
 		/// <param name="args">The arguments.</param>
 		/// <returns></returns>
-		DynValue Callback(Script script, object obj, ScriptExecutionContext context, CallbackArguments args)
+		internal DynValue Callback(Script script, object obj, ScriptExecutionContext context, CallbackArguments args)
 		{
 			if (AccessMode == InteropAccessMode.LazyOptimized &&
 				m_OptimizedFunc == null && m_OptimizedAction == null)
 				Optimize();
 
-			object[] pars = new object[m_Arguments.Length];
+			object[] pars = new object[Parameters.Length];
 
 			int j = args.IsMethodCall ? 1 : 0;
 
 			for (int i = 0; i < pars.Length; i++)
 			{
-				if (m_Arguments[i] == typeof(Script))
+				if (Parameters[i].ParameterType == typeof(Script))
 				{
 					pars[i] = script;
 				}
-				else if (m_Arguments[i] == typeof(ScriptExecutionContext))
+				else if (Parameters[i].ParameterType == typeof(ScriptExecutionContext))
 				{
 					pars[i] = context;
 				}
-				else if (m_Arguments[i] == typeof(CallbackArguments))
+				else if (Parameters[i].ParameterType == typeof(CallbackArguments))
 				{
 					pars[i] = args.SkipMethodCall();
 				}
 				else
 				{
 					var arg = args.RawGet(j, false) ?? DynValue.Void;
-					pars[i] = ConversionHelper.MoonSharpValueToObjectOfType(arg, m_Arguments[i], m_Defaults[i]);
+					pars[i] = ScriptToClrConversions.DynValueToObjectOfType(arg, Parameters[i].ParameterType,
+						Parameters[i].DefaultValue, Parameters[i].DefaultValue != System.DBNull.Value);
 					j++;
 				}
 			}
@@ -194,7 +234,7 @@ namespace MoonSharp.Interpreter.Interop
 					retv = MethodInfo.Invoke(obj, pars);
 			}
 
-			return ConversionHelper.ClrObjectToComplexMoonSharpValue(script, retv);
+			return ClrToScriptConversions.ObjectToDynValue(script, retv);
 		}
 
 		internal void Optimize()
@@ -210,12 +250,12 @@ namespace MoonSharp.Interpreter.Interop
 				var objinst = Expression.Parameter(typeof(object), "instance");
 				var inst = Expression.Convert(objinst, MethodInfo.DeclaringType);
 
-				Expression[] args = new Expression[m_Arguments.Length];
+				Expression[] args = new Expression[Parameters.Length];
 
-				for (int i = 0; i < m_Arguments.Length; i++)
+				for (int i = 0; i < Parameters.Length; i++)
 				{
 					var x = Expression.ArrayIndex(ep, Expression.Constant(i));
-					args[i] = Expression.Convert(x, m_Arguments[i]);
+					args[i] = Expression.Convert(x, Parameters[i].ParameterType);
 				}
 
 				Expression fn;
@@ -242,6 +282,18 @@ namespace MoonSharp.Interpreter.Interop
 					Interlocked.Exchange(ref m_OptimizedFunc, lambda.Compile());
 				}
 			}
+		}
+
+		/// <summary>
+		/// Compares the current object with another object of the same type.
+		/// </summary>
+		/// <param name="other">An object to compare with this object.</param>
+		/// <returns>
+		/// A value that indicates the relative order of the objects being compared. The return value has the following meanings: Value Meaning Less than zero This object is less than the <paramref name="other" /> parameter.Zero This object is equal to <paramref name="other" />. Greater than zero This object is greater than <paramref name="other" />.
+		/// </returns>
+		public int CompareTo(StandardUserDataMethodDescriptor other)
+		{
+			return this.SortDiscriminant.CompareTo(other.SortDiscriminant);
 		}
 	}
 }

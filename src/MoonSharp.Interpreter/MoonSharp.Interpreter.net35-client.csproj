@@ -69,6 +69,26 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>ExtendedDesignGuidelineRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Dev|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Dev\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <NoWarn>3021, 1591</NoWarn>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Dev|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Dev\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <NoWarn>3021</NoWarn>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -93,7 +113,13 @@
     <Compile Include="CoreLib\OsTimeModule.cs" />
     <Compile Include="CoreLib\StringLib\KopiLua_StrLib.cs" />
     <Compile Include="DataStructs\MultiDictionary.cs" />
+    <Compile Include="Interop\Converters\ClrToScriptConversions.cs" />
+    <Compile Include="Interop\Converters\NumericConversions.cs" />
+    <Compile Include="Interop\Converters\ScriptToClrConversions.cs" />
+    <Compile Include="Interop\Converters\StringConversions.cs" />
+    <Compile Include="Interop\Converters\TableConversions.cs" />
     <Compile Include="Interop\CustomConvertersCollection.cs" />
+    <Compile Include="Interop\StandardDescriptors\StandardUserDataOverloadedMethodDescriptor.cs" />
     <Compile Include="IO\BinDumpBinaryReader.cs" />
     <Compile Include="IO\BinDumpBinaryWriter.cs">
       <SubType>Code</SubType>
@@ -165,9 +191,8 @@
     <Compile Include="Execution\VM\Processor\DebugContext.cs" />
     <Compile Include="Execution\VM\Processor\Processor_Coroutines.cs" />
     <Compile Include="Execution\VM\Processor\Processor_Errors.cs" />
-    <Compile Include="Interop\Converters\ConversionHelper.cs" />
     <Compile Include="Interop\PredefinedUserData\EnumerableWrapper.cs" />
-    <Compile Include="Interop\Converters\LinqHelpers.cs" />
+    <Compile Include="LinqHelpers.cs" />
     <Compile Include="Interop\LuaStateInterop\LuaBase_CLib.cs" />
     <Compile Include="Interop\LuaStateInterop\LuaLBuffer.cs" />
     <Compile Include="Interop\LuaStateInterop\LuaState.cs" />

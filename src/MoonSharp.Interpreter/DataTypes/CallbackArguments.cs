@@ -66,7 +66,7 @@ namespace MoonSharp.Interpreter
 
 
 		/// <summary>
-		/// Gets the <see cref="DynValue"/> at the specified index, or Nil if not found (mimicing Lua behavior)
+		/// Gets the <see cref="DynValue"/> at the specified index, or Void if not found 
 		/// </summary>
 		public DynValue this[int index]
 		{

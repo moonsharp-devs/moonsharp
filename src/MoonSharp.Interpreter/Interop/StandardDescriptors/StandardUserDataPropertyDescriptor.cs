@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using MoonSharp.Interpreter.Diagnostics;
+using MoonSharp.Interpreter.Interop.Converters;
 
 namespace MoonSharp.Interpreter.Interop
 {
@@ -121,7 +122,7 @@ namespace MoonSharp.Interpreter.Interop
 			try
 			{
 				if (value is double)
-					value = ConversionHelper.DoubleToType(PropertyInfo.PropertyType, (double)value);
+					value = NumericConversions.DoubleToType(PropertyInfo.PropertyType, (double)value);
 
 				if (AccessMode == InteropAccessMode.LazyOptimized && m_OptimizedSetter == null)
 					OptimizeSetter();

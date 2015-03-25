@@ -93,7 +93,7 @@ namespace MoonSharp.Interpreter
 				{
 					MoonSharpModuleMethodAttribute attr = (MoonSharpModuleMethodAttribute)mi.GetCustomAttributes(typeof(MoonSharpModuleMethodAttribute), false).First();
 
-					if (!ConversionHelper.CheckCallbackSignature(mi))
+					if (!CallbackFunction.CheckCallbackSignature(mi, true))
 							throw new ArgumentException(string.Format("Method {0} does not have the right signature.", mi.Name));
 
 					Func<ScriptExecutionContext, CallbackArguments, DynValue> func = (Func<ScriptExecutionContext, CallbackArguments, DynValue>)Delegate.CreateDelegate(typeof(Func<ScriptExecutionContext, CallbackArguments, DynValue>), mi);

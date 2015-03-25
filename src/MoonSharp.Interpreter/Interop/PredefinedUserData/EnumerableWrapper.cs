@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using MoonSharp.Interpreter.Execution;
+using MoonSharp.Interpreter.Interop.Converters;
 
 namespace MoonSharp.Interpreter.Interop
 {
@@ -30,7 +31,7 @@ namespace MoonSharp.Interpreter.Interop
 
 			while (m_Enumerator.MoveNext())
 			{
-				DynValue v = ConversionHelper.ClrObjectToComplexMoonSharpValue(m_Script, m_Enumerator.Current);
+				DynValue v = ClrToScriptConversions.ObjectToDynValue(m_Script, m_Enumerator.Current);
 
 				if (!v.IsNil())
 					return v;

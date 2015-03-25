@@ -33,6 +33,15 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Dev|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Dev\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;HASDYNAMIC,PCL</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .NET Framework is automatically included -->
   </ItemGroup>
@@ -94,8 +103,26 @@
     <Compile Include="..\..\DataStructs\MultiDictionary.cs">
       <Link>MultiDictionary.cs</Link>
     </Compile>
+    <Compile Include="..\..\Interop\Converters\ClrToScriptConversions.cs">
+      <Link>ClrToScriptConversions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\Converters\NumericConversions.cs">
+      <Link>NumericConversions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\Converters\ScriptToClrConversions.cs">
+      <Link>ScriptToClrConversions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\Converters\StringConversions.cs">
+      <Link>StringConversions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\Converters\TableConversions.cs">
+      <Link>TableConversions.cs</Link>
+    </Compile>
     <Compile Include="..\..\Interop\CustomConvertersCollection.cs">
       <Link>CustomConvertersCollection.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\StandardDescriptors\OverloadResolver.cs">
+      <Link>OverloadResolver.cs</Link>
     </Compile>
     <Compile Include="..\..\IO\BinDumpBinaryReader.cs">
       <Link>BinDumpBinaryReader.cs</Link>
@@ -285,13 +312,10 @@
     <Compile Include="..\..\Execution\VM\Processor\Processor_Errors.cs">
       <Link>Processor_Errors.cs</Link>
     </Compile>
-    <Compile Include="..\..\Interop\Converters\ConversionHelper.cs">
-      <Link>ConversionHelper.cs</Link>
-    </Compile>
     <Compile Include="..\..\Interop\PredefinedUserData\EnumerableWrapper.cs">
       <Link>EnumerableWrapper.cs</Link>
     </Compile>
-    <Compile Include="..\..\Interop\Converters\LinqHelpers.cs">
+    <Compile Include="..\..\LinqHelpers.cs">
       <Link>LinqHelpers.cs</Link>
     </Compile>
     <Compile Include="..\..\Interop\LuaStateInterop\LuaBase_CLib.cs">

@@ -5,6 +5,8 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using MoonSharp.Interpreter.Execution;
+using MoonSharp.Interpreter.Interop.Converters;
+using MoonSharp.Interpreter.Interop.StandardDescriptors;
 
 namespace MoonSharp.Interpreter.Interop
 {
@@ -30,7 +32,7 @@ namespace MoonSharp.Interpreter.Interop
 		/// </summary>
 		public string FriendlyName { get; private set; }
 
-		private Dictionary<string, StandardUserDataMethodDescriptor> m_Methods = new Dictionary<string, StandardUserDataMethodDescriptor>();
+		private Dictionary<string, StandardUserDataOverloadedMethodDescriptor> m_Methods = new Dictionary<string, StandardUserDataOverloadedMethodDescriptor>();
 		private Dictionary<string, StandardUserDataPropertyDescriptor> m_Properties = new Dictionary<string, StandardUserDataPropertyDescriptor>();
 
 		/// <summary>
@@ -54,16 +56,22 @@ namespace MoonSharp.Interpreter.Interop
 
 			if (AccessMode != InteropAccessMode.HideMembers)
 			{
+				// get first constructor 
+				StandardUserDataOverloadedMethodDescriptor constructors = null;
+
 				foreach (ConstructorInfo ci in type.GetConstructors(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
 				{
 					if (CheckVisibility(ci.GetCustomAttributes(true), ci.IsPublic))
 					{
 						var md = new StandardUserDataMethodDescriptor(ci, this.AccessMode);
-						m_Methods.Add("__new", md);
-						break;
+						if (constructors == null) constructors = new StandardUserDataOverloadedMethodDescriptor();
+						constructors.AddOverload(md);
 					}
 				}
 
+				if (constructors != null) m_Methods.Add("__new", constructors);
+
+				// get methods
 				foreach (MethodInfo mi in type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
 				{
 					if (CheckVisibility(mi.GetCustomAttributes(true), mi.IsPublic))
@@ -71,16 +79,23 @@ namespace MoonSharp.Interpreter.Interop
 						if (mi.IsSpecialName)
 							continue;
 
+						if (!StandardUserDataMethodDescriptor.CheckMethodIsCompatible(mi, false))
+							continue;
+
 						var md = new StandardUserDataMethodDescriptor(mi, this.AccessMode);
 
 						if (m_Methods.ContainsKey(md.Name))
-							continue;
-						//throw new ArgumentException(string.Format("{0}.{1} has overloads", Name, md.Name));
-
-						m_Methods.Add(md.Name, md);
+						{
+							m_Methods[md.Name].AddOverload(md);
+						}
+						else
+						{
+							m_Methods.Add(md.Name, new StandardUserDataOverloadedMethodDescriptor(md));
+						}
 					}
 				}
 
+				// get properties
 				foreach (PropertyInfo pi in type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
 				{
 					if (CheckVisibility(pi.GetCustomAttributes(true), IsPropertyInfoPublic(pi)))
@@ -141,7 +156,7 @@ namespace MoonSharp.Interpreter.Interop
 		/// <returns></returns>
 		protected virtual DynValue TryIndex(Script script, object obj, string indexName)
 		{
-			StandardUserDataMethodDescriptor mdesc;
+			StandardUserDataOverloadedMethodDescriptor mdesc;
 
 			if (m_Methods.TryGetValue(indexName, out mdesc))
 				return DynValue.NewCallback(mdesc.GetCallback(script, obj));
@@ -151,7 +166,7 @@ namespace MoonSharp.Interpreter.Interop
 			if (m_Properties.TryGetValue(indexName, out pdesc))
 			{
 				object o = pdesc.GetValue(obj);
-				return ConversionHelper.ClrObjectToComplexMoonSharpValue(script, o);
+				return ClrToScriptConversions.ObjectToDynValue(script, o);
 			}
 
 			return null;
@@ -193,7 +208,7 @@ namespace MoonSharp.Interpreter.Interop
 
 			if (m_Properties.TryGetValue(indexName, out pdesc))
 			{
-				object o = ConversionHelper.MoonSharpValueToObjectOfType(value, pdesc.PropertyInfo.PropertyType, null);
+				object o = ScriptToClrConversions.DynValueToObjectOfType(value, pdesc.PropertyInfo.PropertyType, null, false);
 				pdesc.SetValue(obj, o, value.Type);
 				return true;
 			}
