@@ -70,11 +70,13 @@ namespace MoonSharp.Interpreter.Execution
 					return InstructionFieldUsage.Symbol;
 				case OpCode.IndexSet:
 				case OpCode.IndexSetN:
+				case OpCode.IndexSetL:
 					return InstructionFieldUsage.Symbol | InstructionFieldUsage.Value | InstructionFieldUsage.NumVal | InstructionFieldUsage.NumVal2;
 				case OpCode.StoreLcl:
 				case OpCode.StoreUpv:
 					return InstructionFieldUsage.Symbol | InstructionFieldUsage.NumVal | InstructionFieldUsage.NumVal2;
 				case OpCode.Index:
+				case OpCode.IndexL:
 				case OpCode.IndexN:
 				case OpCode.Literal:
 					return InstructionFieldUsage.Value;

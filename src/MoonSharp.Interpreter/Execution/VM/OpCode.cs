@@ -24,8 +24,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 		StoreLcl, Local,
 		StoreUpv, Upvalue,
 		IndexSet, Index,
-		IndexSetN,
-		IndexN,
+		IndexSetN, IndexN,
+		IndexSetL, IndexL, 
 
 		// Stack-frame ops and calls
 		Clean,		// Cleansup locals setting them as null

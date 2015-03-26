@@ -40,9 +40,24 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			{
 				return "5";
 			}
+
+			public string Method2(string x, string y)
+			{
+				return "v";
+			}
+
+			public string Method2(string x, ref string y)
+			{
+				return "r";
+			}
+
+			public string Method2(string x, ref string y, int z)
+			{
+				return "R";
+			}
 		}
 
-		private void RunTestOverload(string code, string expected)
+		private void RunTestOverload(string code, string expected, bool tupleExpected = false)
 		{
 			Script S = new Script();
 
@@ -54,10 +69,29 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			S.Globals.Set("o", UserData.Create(obj));
 
 			DynValue v = S.DoString("return " + code);
+
+			if (tupleExpected)
+			{
+				Assert.AreEqual(DataType.Tuple, v.Type);
+				v = v.Tuple[0];
+			}
+
 			Assert.AreEqual(DataType.String, v.Type);
 			Assert.AreEqual(expected, v.String);
 		}
 
+
+		[Test]
+		public void Interop_Overloads_ByRef()
+		{
+			RunTestOverload("o:method2('x', 'y')", "v");
+		}
+
+		[Test]
+		public void Interop_Overloads_ByRef2()
+		{
+			RunTestOverload("o:method2('x', 'y', 5)", "R", true);
+		}
 
 		[Test]
 		public void Interop_Overloads_NoParams()
@@ -88,6 +122,8 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		{
 			RunTestOverload("s:method1(true)", "s");
 		}
+
+
 
 		[Test]
 		[ExpectedException(typeof(ScriptRuntimeException))]

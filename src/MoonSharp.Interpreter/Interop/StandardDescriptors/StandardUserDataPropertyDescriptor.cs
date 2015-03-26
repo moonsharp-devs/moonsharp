@@ -13,17 +13,34 @@ namespace MoonSharp.Interpreter.Interop
 	/// <summary>
 	/// Class providing easier marshalling of CLR properties
 	/// </summary>
-	internal class StandardUserDataPropertyDescriptor
+	public class StandardUserDataPropertyDescriptor
 	{
-		internal PropertyInfo PropertyInfo { get; private set; }
-		internal InteropAccessMode AccessMode { get; private set; }
-		internal bool IsStatic { get; private set; }
-		internal string Name { get; private set; }
+		/// <summary>
+		/// Gets the PropertyInfo got by reflection
+		/// </summary>
+		public PropertyInfo PropertyInfo { get; private set; }
+		/// <summary>
+		/// Gets the <see cref="InteropAccessMode" />
+		/// </summary>
+		public InteropAccessMode AccessMode { get; private set; }
+		/// <summary>
+		/// Gets a value indicating whether the described property is static.
+		/// </summary>
+		public bool IsStatic { get; private set; }
+		/// <summary>
+		/// Gets the name of the property
+		/// </summary>
+		public string Name { get; private set; }
 
 		Func<object, object> m_OptimizedGetter = null;
 		Action<object, object> m_OptimizedSetter = null;
 
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="StandardUserDataPropertyDescriptor"/> class.
+		/// </summary>
+		/// <param name="pi">The PropertyInfo.</param>
+		/// <param name="accessMode">The <see cref="InteropAccessMode" /> </param>
 		internal StandardUserDataPropertyDescriptor(PropertyInfo pi, InteropAccessMode accessMode)
 		{
 			if (Script.GlobalOptions.Platform.IsRunningOnAOT())
@@ -42,21 +59,25 @@ namespace MoonSharp.Interpreter.Interop
 		}
 
 
-		internal object GetValue(object obj)
+		/// <summary>
+		/// Gets the value of the property
+		/// </summary>
+		/// <param name="script">The script.</param>
+		/// <param name="obj">The object.</param>
+		/// <returns></returns>
+		public DynValue GetValue(Script script, object obj)
 		{
 			if (AccessMode == InteropAccessMode.LazyOptimized && m_OptimizedGetter == null)
 				OptimizeGetter();
 
-			if (m_OptimizedGetter != null)
-			{
-				return m_OptimizedGetter(obj);
-			}
+			object result = null;
 
-			// convoluted workaround for --full-aot Mono execution
-			object result = PropertyInfo.GetGetMethod().Invoke(IsStatic ? null : obj, null);
-			return result;
-				
-				//PropertyInfo.GetValue(IsStatic ? null : obj, null);
+			if (m_OptimizedGetter != null)
+				result = m_OptimizedGetter(obj);
+			else
+				result = PropertyInfo.GetGetMethod().Invoke(IsStatic ? null : obj, null); // convoluted workaround for --full-aot Mono execution
+
+			return ClrToScriptConversions.ObjectToDynValue(script, result);
 		}
 
 		internal void OptimizeGetter()
@@ -117,8 +138,16 @@ namespace MoonSharp.Interpreter.Interop
 			}
 		}
 
-		internal void SetValue(object obj, object value, DataType originalType)
+		/// <summary>
+		/// Sets the value of the property
+		/// </summary>
+		/// <param name="script">The script.</param>
+		/// <param name="obj">The object.</param>
+		/// <param name="v">The value to set.</param>
+		public void SetValue(Script script, object obj, DynValue v)
 		{
+			object value = ScriptToClrConversions.DynValueToObjectOfType(v, this.PropertyInfo.PropertyType, null, false);
+
 			try
 			{
 				if (value is double)
@@ -139,13 +168,24 @@ namespace MoonSharp.Interpreter.Interop
 			catch (ArgumentException)
 			{
 				// non-optimized setters fall here
-				throw ScriptRuntimeException.UserDataArgumentTypeMismatch(originalType, PropertyInfo.PropertyType);
+				throw ScriptRuntimeException.UserDataArgumentTypeMismatch(v.Type, PropertyInfo.PropertyType);
 			}
 			catch (InvalidCastException)
 			{
 				// optimized setters fall here
-				throw ScriptRuntimeException.UserDataArgumentTypeMismatch(originalType, PropertyInfo.PropertyType);
+				throw ScriptRuntimeException.UserDataArgumentTypeMismatch(v.Type, PropertyInfo.PropertyType);
 			}
+		}
+
+		/// <summary>
+		/// Gets the getter of the property as a DynValue containing a callback
+		/// </summary>
+		/// <param name="script">The script.</param>
+		/// <param name="obj">The object.</param>
+		/// <returns></returns>
+		public DynValue GetGetterCallbackAsDynValue(Script script, object obj)
+		{
+			return DynValue.NewCallback((p1, p2) => GetValue(script, obj));
 		}
 	}
 }

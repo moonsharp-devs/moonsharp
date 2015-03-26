@@ -32,8 +32,16 @@ namespace MoonSharp.Interpreter.Interop
 		/// </summary>
 		public string FriendlyName { get; private set; }
 
+		private Dictionary<string, StandardUserDataOverloadedMethodDescriptor> m_MetaMethods = new Dictionary<string, StandardUserDataOverloadedMethodDescriptor>();
 		private Dictionary<string, StandardUserDataOverloadedMethodDescriptor> m_Methods = new Dictionary<string, StandardUserDataOverloadedMethodDescriptor>();
 		private Dictionary<string, StandardUserDataPropertyDescriptor> m_Properties = new Dictionary<string, StandardUserDataPropertyDescriptor>();
+
+		const string SPECIAL_GETITEM = "get_Item";
+		const string SPECIAL_SETITEM = "set_Item";
+
+		const string CASTINGS_EXPLICIT = "op_Explicit";
+		const string CASTINGS_IMPLICIT = "op_Implicit";
+
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="StandardUserDataDescriptor"/> class.
@@ -76,22 +84,42 @@ namespace MoonSharp.Interpreter.Interop
 				{
 					if (CheckVisibility(mi.GetCustomAttributes(true), mi.IsPublic))
 					{
-						if (mi.IsSpecialName)
-							continue;
-
 						if (!StandardUserDataMethodDescriptor.CheckMethodIsCompatible(mi, false))
 							continue;
 
+						Dictionary<string, StandardUserDataOverloadedMethodDescriptor> dic = m_Methods;
+
+						string name = mi.Name;
+						if (mi.IsSpecialName && (mi.Name == CASTINGS_EXPLICIT || mi.Name == CASTINGS_IMPLICIT))
+						{
+							name = GetConversionMethodName(mi.ReturnType);
+						}
+
 						var md = new StandardUserDataMethodDescriptor(mi, this.AccessMode);
 
-						if (m_Methods.ContainsKey(md.Name))
+						if (m_Methods.ContainsKey(name))
 						{
-							m_Methods[md.Name].AddOverload(md);
+							m_Methods[name].AddOverload(md);
 						}
 						else
 						{
-							m_Methods.Add(md.Name, new StandardUserDataOverloadedMethodDescriptor(md));
+							m_Methods.Add(name, new StandardUserDataOverloadedMethodDescriptor(md));
 						}
+
+						string metaname = GetMetaNameFromAttributes(mi);
+						if (metaname != null)
+						{
+							if (m_MetaMethods.ContainsKey(metaname))
+							{
+								m_MetaMethods[metaname].AddOverload(md);
+							}
+							else
+							{
+								m_MetaMethods.Add(metaname, new StandardUserDataOverloadedMethodDescriptor(md));
+							}
+						}
+
+
 					}
 				}
 
@@ -100,11 +128,33 @@ namespace MoonSharp.Interpreter.Interop
 				{
 					if (CheckVisibility(pi.GetCustomAttributes(true), IsPropertyInfoPublic(pi)))
 					{
+						if (pi.IsSpecialName || pi.GetIndexParameters().Any())
+							continue;
+
 						var pd = new StandardUserDataPropertyDescriptor(pi, this.AccessMode);
 						m_Properties.Add(pd.Name, pd);
 					}
 				}
 			}
+		}
+
+		private string GetMetaNameFromAttributes(MethodInfo mi)
+		{
+			var attr = mi.GetCustomAttributes(typeof(MoonSharpUserDataMetamethodAttribute), true).FirstOrDefault() as MoonSharpUserDataMetamethodAttribute;
+			if (attr != null)
+				return attr.Name;
+			else
+				return null;
+		}
+
+		private string GetConversionMethodName(Type type)
+		{
+			StringBuilder sb = new StringBuilder(type.Name);
+
+			for (int i = 0; i < sb.Length; i++)
+				if (!char.IsLetterOrDigit(sb[i])) sb[i] = '_';
+
+			return "__to" + sb.ToString();
 		}
 
 		private bool IsPropertyInfoPublic(PropertyInfo pi)
@@ -134,8 +184,17 @@ namespace MoonSharp.Interpreter.Interop
 		/// <param name="index">The index.</param>
 		/// <param name="isDirectIndexing">If set to true, it's indexed with a name, if false it's indexed through brackets.</param>
 		/// <returns></returns>
-		public DynValue Index(Script script, object obj, DynValue index, bool isDirectIndexing)
+		public virtual DynValue Index(Script script, object obj, DynValue index, bool isDirectIndexing)
 		{
+			if (!isDirectIndexing)
+			{
+				StandardUserDataOverloadedMethodDescriptor mdesc = m_Methods.GetOrDefault(SPECIAL_GETITEM);
+				if (mdesc != null)
+					return ExecuteIndexer(mdesc, script, obj, index, null);
+			}
+
+			index = index.ToScalar();
+
 			if (index.Type != DataType.String)
 				throw ScriptRuntimeException.BadArgument(1, string.Format("userdata<{0}>.__index", this.Name), "string", index.Type.ToLuaTypeString(), false);
 
@@ -164,10 +223,7 @@ namespace MoonSharp.Interpreter.Interop
 			StandardUserDataPropertyDescriptor pdesc;
 
 			if (m_Properties.TryGetValue(indexName, out pdesc))
-			{
-				object o = pdesc.GetValue(obj);
-				return ClrToScriptConversions.ObjectToDynValue(script, o);
-			}
+				return pdesc.GetValue(script, obj);
 
 			return null;
 		}
@@ -181,8 +237,20 @@ namespace MoonSharp.Interpreter.Interop
 		/// <param name="value">The value to be set</param>
 		/// <param name="isDirectIndexing">If set to true, it's indexed with a name, if false it's indexed through brackets.</param>
 		/// <returns></returns>
-		public bool SetIndex(Script script, object obj, DynValue index, DynValue value, bool isDirectIndexing)
+		public virtual bool SetIndex(Script script, object obj, DynValue index, DynValue value, bool isDirectIndexing)
 		{
+			if (!isDirectIndexing)
+			{
+				StandardUserDataOverloadedMethodDescriptor mdesc = m_Methods.GetOrDefault(SPECIAL_SETITEM);
+				if (mdesc != null)
+				{
+					ExecuteIndexer(mdesc, script, obj, index, value);
+					return true;
+				}
+			}
+
+			index = index.ToScalar();
+
 			if (index.Type != DataType.String)
 				throw ScriptRuntimeException.BadArgument(1, string.Format("userdata<{0}>.__setindex", this.Name), "string", index.Type.ToLuaTypeString(), false);
 
@@ -208,8 +276,7 @@ namespace MoonSharp.Interpreter.Interop
 
 			if (m_Properties.TryGetValue(indexName, out pdesc))
 			{
-				object o = ScriptToClrConversions.DynValueToObjectOfType(value, pdesc.PropertyInfo.PropertyType, null, false);
-				pdesc.SetValue(obj, o, value.Type);
+				pdesc.SetValue(script, obj, value);
 				return true;
 			}
 			else
@@ -266,7 +333,7 @@ namespace MoonSharp.Interpreter.Interop
 		/// </summary>
 		/// <param name="name">The name.</param>
 		/// <returns></returns>
-		protected static  string UpperFirstLetter(string name)
+		protected static string UpperFirstLetter(string name)
 		{
 			if (!string.IsNullOrEmpty(name))
 				return char.ToUpperInvariant(name[0]) + name.Substring(1);
@@ -279,23 +346,226 @@ namespace MoonSharp.Interpreter.Interop
 		/// </summary>
 		/// <param name="obj">The object.</param>
 		/// <returns></returns>
-		public string AsString(object obj)
+		public virtual string AsString(object obj)
 		{
 			return (obj != null) ? obj.ToString() : null;
 		}
 
+
+
 		/// <summary>
-		/// Gets the value of an hypothetical metatable for this userdata.
-		/// NOT SUPPORTED YET.
+		/// Executes the specified indexer method.
 		/// </summary>
+		/// <param name="mdesc">The method descriptor</param>
+		/// <param name="script">The script.</param>
+		/// <param name="obj">The object.</param>
+		/// <param name="index">The indexer parameter</param>
+		/// <param name="value">The dynvalue to set on a setter, or null.</param>
+		/// <returns></returns>
+		/// <exception cref="System.NotImplementedException"></exception>
+		protected virtual DynValue ExecuteIndexer(StandardUserDataOverloadedMethodDescriptor mdesc, Script script, object obj, DynValue index, DynValue value)
+		{
+			var callback = mdesc.GetCallback(script, obj);
+
+			IList<DynValue> values;
+
+			if (index.Type == DataType.Tuple)
+			{
+				if (value == null)
+				{
+					values = index.Tuple;
+				}
+				else
+				{
+					values = new List<DynValue>(index.Tuple);
+					values.Add(value);
+				}
+			}
+			else
+			{
+				if (value == null)
+				{
+					values = new DynValue[] { index };
+				}
+				else
+				{
+					values = new DynValue[] { index, value };
+				}
+			}
+
+			CallbackArguments args = new CallbackArguments(values, false);
+			ScriptExecutionContext execCtx = script.CreateDynamicExecutionContext();
+
+			return callback(execCtx, args);
+		}
+
+
+		/// <summary>
+		/// Gets a "meta" operation on this userdata. If a descriptor does not support this functionality,
+		/// it should return "null" (not a nil). 
+		/// See <see cref="IUserDataDescriptor.MetaIndex" /> for further details.
+		/// 
+		/// If a method exists marked with <see cref="MoonSharpUserDataMetamethodAttribute" /> for the specific
+		/// metamethod requested, that method is returned.
+		/// 
+		/// If the above fails, the following dispatching occur:
+		/// 
+		/// __add, __sub, __mul, __div, __mod and __unm are dispatched to C# operator overloads (if they exist)
+		/// __eq is dispatched to C# == operator overload. If that fails, it's dispatched to System.Object.Equals.
+		/// __lt and __le are dispatched to comparison operator overloads. If those fail and the type implements IComparable, IComparable.Compare is used.
+		/// __len is dispatched to Length and Count properties, if those exist.
+		/// __iterator is handled if the object implements IEnumerable or IEnumerator.
+		/// __tonumber is dispatched to implicit or explicit conversion operators to standard numeric types.
+		/// __tobool is dispatched to an implicit or explicit conversion operator to bool. If that fails, operator true is used.
+		/// 
 		/// <param name="script">The script originating the request</param>
 		/// <param name="obj">The object (null if a static request is done)</param>
 		/// <param name="metaname">The name of the metamember.</param>
 		/// <returns></returns>
-		public DynValue MetaIndex(Script script, object obj, string metaname)
+		public virtual DynValue MetaIndex(Script script, object obj, string metaname)
 		{
-			// TODO: meta access to overloaded operators ?
+			StandardUserDataOverloadedMethodDescriptor desc = m_MetaMethods.GetOrDefault(metaname);
+
+			if (desc != null)
+				return desc.GetCallbackAsDynValue(script, obj);
+
+			switch (metaname)
+			{
+				case "__add":
+					return DispatchMetaOnMethod(script, obj, "op_Addition");
+				case "__sub":
+					return DispatchMetaOnMethod(script, obj, "op_Subtraction");
+				case "__mul":
+					return DispatchMetaOnMethod(script, obj, "op_Multiply");
+				case "__div":
+					return DispatchMetaOnMethod(script, obj, "op_Division");
+				case "__mod":
+					return DispatchMetaOnMethod(script, obj, "op_Modulus"); 
+				case "__unm":
+					return DispatchMetaOnMethod(script, obj, "op_UnaryNegation");
+				case "__eq":
+					return MultiDispatchEqual(script, obj);
+				case "__lt":
+					return MultiDispatchLessThan(script, obj);
+				case "__le":
+					return MultiDispatchLessThanOrEqual(script, obj);
+				case "__len":
+					return TryDispatchLength(script, obj);
+				case "__tonumber":
+					return TryDispatchToNumber(script, obj);
+				case "__tobool":
+					return TryDispatchToBool(script, obj);
+				case "__iterator":
+					return ClrToScriptConversions.EnumerationToDynValue(script, obj);
+				default:
+					return null;
+			}
+		}
+
+
+		private DynValue MultiDispatchLessThanOrEqual(Script script, object obj)
+		{
+			var v = DispatchMetaOnMethod(script, obj, "op_LessThanOrEqual");
+			if (v != null) return v;
+
+			v = DispatchMetaOnMethod(script, obj, "op_GreaterThan");
+			if (v != null)
+			{
+				return DynValue.NewCallback(
+					(context, args) =>
+						DynValue.NewBoolean(!(v.Callback.ClrCallback(context, args)).CastToBool()));
+			}
+
+			IComparable comp = obj as IComparable;
+			if (comp != null)
+			{
+				return DynValue.NewCallback(
+					(context, args) =>
+						DynValue.NewBoolean(comp.CompareTo(args[1].ToObject()) <= 0));
+			}
+
 			return null;
 		}
+
+		private DynValue MultiDispatchLessThan(Script script, object obj)
+		{
+			var v = DispatchMetaOnMethod(script, obj, "op_LessThan");
+			if (v != null) return v;
+			
+			v = DispatchMetaOnMethod(script, obj, "op_GreaterThanOrEqual");
+			if (v != null)
+			{
+				return DynValue.NewCallback(
+					(context, args) =>
+						DynValue.NewBoolean(!(v.Callback.ClrCallback(context, args)).CastToBool()));
+			}
+
+			IComparable comp = obj as IComparable;
+			if (comp != null)
+			{
+				return DynValue.NewCallback(
+					(context, args) =>
+						DynValue.NewBoolean(comp.CompareTo(args[1].ToObject()) < 0));
+			}
+
+			return null;
+		}
+
+		private DynValue TryDispatchLength(Script script, object obj)
+		{
+			if (obj == null) return null;
+
+			var lenprop = m_Properties.GetOrDefault("Length");
+			if (lenprop != null) return lenprop.GetGetterCallbackAsDynValue(script, obj);
+
+			var countprop = m_Properties.GetOrDefault("Count");
+			if (countprop != null) return countprop.GetGetterCallbackAsDynValue(script, obj);
+
+			return null;
+		}
+
+
+
+		private DynValue MultiDispatchEqual(Script script, object obj)
+		{
+			var v = DispatchMetaOnMethod(script, obj, "op_Equality");
+
+			if (v == null)
+				v = DynValue.NewCallback((context, args) => DynValue.NewBoolean(args[0].ToObject().Equals(args[1].ToObject())));
+
+			return v;
+		}
+
+		private DynValue DispatchMetaOnMethod(Script script, object obj, string methodName)
+		{
+			StandardUserDataOverloadedMethodDescriptor desc = m_Methods.GetOrDefault(methodName);
+
+			if (desc != null)
+				return desc.GetCallbackAsDynValue(script, obj);
+			else 
+				return null;
+		}
+
+
+		private DynValue TryDispatchToNumber(Script script, object obj)
+		{
+			foreach (Type t in NumericConversions.NumericTypesOrdered)
+			{
+				var name = GetConversionMethodName(t);
+				var v = DispatchMetaOnMethod(script, obj, name);
+				if (v != null) return v;
+			}
+			return null;
+		}
+
+
+		private DynValue TryDispatchToBool(Script script, object obj)
+		{
+			var name = GetConversionMethodName(typeof(bool));
+			var v = DispatchMetaOnMethod(script, obj, name);
+			if (v != null) return v;
+			return DispatchMetaOnMethod(script, obj, "op_True");
+		}
+
 	}
 }

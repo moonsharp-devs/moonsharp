@@ -10,23 +10,33 @@ namespace MoonSharp.Interpreter.Interop.Converters
 	/// </summary>
 	internal static class NumericConversions
 	{
+		static NumericConversions()
+		{
+			NumericTypesOrdered = new Type[] 
+			{
+				typeof(double),
+				typeof(decimal), 
+				typeof(float), 
+				typeof(long), 
+				typeof(int), 
+				typeof(short), 
+				typeof(sbyte), 
+				typeof(ulong), 
+				typeof(uint), 
+				typeof(ushort), 
+				typeof(byte), 
+			};
+			NumericTypes = new HashSet<Type>(NumericTypesOrdered);
+		}
+
 		/// <summary>
 		/// HashSet of numeric types
 		/// </summary>
-		internal static readonly HashSet<Type> NumericTypes = new HashSet<Type>()
-		{
-			typeof(sbyte), 
-			typeof(byte), 
-			typeof(short), 
-			typeof(ushort), 
-			typeof(int), 
-			typeof(uint), 
-			typeof(long), 
-			typeof(ulong), 
-			typeof(float), 
-			typeof(decimal), 
-			typeof(double)
-		};
+		internal static readonly HashSet<Type> NumericTypes;
+		/// <summary>
+		/// Array of numeric types in order used for some conversions
+		/// </summary>
+		internal static readonly Type[] NumericTypesOrdered;
 
 		/// <summary>
 		/// Converts a double to another type

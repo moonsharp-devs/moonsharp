@@ -45,7 +45,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			else
 			{
 				m_IndexExp.Compile(bc);
-				bc.Emit_Index();
+				bc.Emit_Index(isExpList: (m_IndexExp is ExprListExpression));
 			}
 		}
 
@@ -55,7 +55,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 			if (m_Name != null)
 			{
-				bc.Emit_IndexSet(stackofs, tupleidx, DynValue.NewString(m_Name), true);
+				bc.Emit_IndexSet(stackofs, tupleidx, DynValue.NewString(m_Name), isNameIndex: true);
 			}
 			else if (m_IndexExp is LiteralExpression)
 			{
@@ -65,7 +65,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			else
 			{
 				m_IndexExp.Compile(bc);
-				bc.Emit_IndexSet(stackofs, tupleidx);
+				bc.Emit_IndexSet(stackofs, tupleidx, isExpList: (m_IndexExp is ExprListExpression));
 			}
 		}
 

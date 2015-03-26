@@ -113,6 +113,7 @@
     <Compile Include="CoreLib\OsTimeModule.cs" />
     <Compile Include="CoreLib\StringLib\KopiLua_StrLib.cs" />
     <Compile Include="DataStructs\MultiDictionary.cs" />
+    <Compile Include="Interop\Attributes\MoonSharpUserDataMetamethodAttribute.cs" />
     <Compile Include="Interop\Converters\ClrToScriptConversions.cs" />
     <Compile Include="Interop\Converters\NumericConversions.cs" />
     <Compile Include="Interop\Converters\ScriptToClrConversions.cs" />

@@ -23,6 +23,7 @@ namespace MoonSharp.Interpreter.Interop.Converters
 		internal const int WEIGHT_NO_MATCH = 0;
 		internal const int WEIGHT_NO_EXTRA_PARAMS_BONUS = 100;
 		internal const int WEIGHT_EXTRA_PARAMS_MALUS = 1;
+		internal const int WEIGHT_BYREF_BONUSMALUS = -10;
 
 		/// <summary>
 		/// Converts a DynValue to a CLR object [simple conversion]
@@ -74,6 +75,9 @@ namespace MoonSharp.Interpreter.Interop.Converters
 		/// </summary>
 		internal static object DynValueToObjectOfType(DynValue value, Type desiredType, object defaultValue, bool isOptional)
 		{
+			if (desiredType.IsByRef)
+				desiredType = desiredType.GetElementType();
+
 			var converter = Script.GlobalOptions.CustomConverters.GetScriptToClrCustomConversion(value.Type, desiredType);
 			if (converter != null)
 			{
@@ -181,6 +185,9 @@ namespace MoonSharp.Interpreter.Interop.Converters
 		/// </summary>
 		internal static int DynValueToObjectOfTypeWeight(DynValue value, Type desiredType, bool isOptional)
 		{
+			if (desiredType.IsByRef)
+				desiredType = desiredType.GetElementType();
+
 			var customConverter = Script.GlobalOptions.CustomConverters.GetScriptToClrCustomConversion(value.Type, desiredType);
 			if (customConverter != null)
 				return WEIGHT_CUSTOM_CONVERTER_MATCH;

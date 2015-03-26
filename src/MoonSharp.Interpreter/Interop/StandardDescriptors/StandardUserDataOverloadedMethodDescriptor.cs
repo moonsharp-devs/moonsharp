@@ -6,10 +6,6 @@ using MoonSharp.Interpreter.Interop.Converters;
 
 namespace MoonSharp.Interpreter.Interop.StandardDescriptors
 {
-	// TODO LIST : 
-	// - optimization of the 1-overload case
-	// - cache
-
 	/// <summary>
 	/// Class providing easier marshalling of overloaded CLR functions
 	/// </summary>
@@ -230,6 +226,9 @@ namespace MoonSharp.Interpreter.Interop.StandardDescriptors
 				int score = ScriptToClrConversions.DynValueToObjectOfTypeWeight(arg,
 					parameterType, method.Parameters[i].DefaultValue != System.DBNull.Value);
 
+				if (parameterType.IsByRef)
+					score = Math.Max(0, score - ScriptToClrConversions.WEIGHT_BYREF_BONUSMALUS);
+
 				totalScore = Math.Min(totalScore, score);
 
 				argsCnt += 1;
@@ -257,10 +256,10 @@ namespace MoonSharp.Interpreter.Interop.StandardDescriptors
 
 
 		/// <summary>
-		/// Gets the overload matching function as a callback
+		/// Gets a callback function as a delegate
 		/// </summary>
-		/// <param name="script">The script.</param>
-		/// <param name="obj">The object.</param>
+		/// <param name="script">The script for which the callback must be generated.</param>
+		/// <param name="obj">The object (null for static).</param>
 		/// <returns></returns>
 		public Func<ScriptExecutionContext, CallbackArguments, DynValue> GetCallback(Script script, object obj)
 		{
@@ -273,5 +272,30 @@ namespace MoonSharp.Interpreter.Interop.StandardDescriptors
 			foreach (var d in m_Overloads)
 				d.Optimize();
 		}
+
+
+
+		/// <summary>
+		/// Gets the callback function.
+		/// </summary>
+		/// <param name="script">The script for which the callback must be generated.</param>
+		/// <param name="obj">The object (null for static).</param>
+		/// <returns></returns>
+		public CallbackFunction GetCallbackFunction(Script script, object obj = null)
+		{
+			return new CallbackFunction(GetCallback(script, obj), this.Name);
+		}
+
+		/// <summary>
+		/// Gets the callback function as a DynValue.
+		/// </summary>
+		/// <param name="script">The script for which the callback must be generated.</param>
+		/// <param name="obj">The object (null for static).</param>
+		/// <returns></returns>
+		public DynValue GetCallbackAsDynValue(Script script, object obj = null)
+		{
+			return DynValue.NewCallback(this.GetCallbackFunction(script, obj));
+		}
+
 	}
 }

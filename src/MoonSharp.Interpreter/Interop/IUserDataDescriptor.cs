@@ -44,8 +44,23 @@ namespace MoonSharp.Interpreter.Interop
 		/// <returns></returns>
 		string AsString(object obj);
 		/// <summary>
-		/// Gets the value of an hypothetical metatable for this userdata.
-		/// NOT SUPPORTED YET.
+		/// 
+		/// Gets a "meta" operation on this userdata. If a descriptor does not support this functionality,
+		/// it should return "null" (not a nil). 
+		/// 
+		/// These standard metamethods can be supported (the return value should be a function accepting the
+		/// classic parameters of the corresponding metamethod):
+		/// __add, __sub, __mul, __div, __div, __pow, __unm, __eq, __lt, __le, __lt, __len, __concat, 
+		/// __pairs, __ipairs, __iterator, __call
+		/// 
+		/// These standard metamethods are supported through other calls for efficiency:
+		/// __index, __newindex, __tostring
+		/// 
+		/// In addition, these can be supported:
+		///	__tobool()	 : should return a bool which is the direct conversion to a boolean
+		///	__tonumber() : should return a number which is the direct conversion to a number
+		///	__reflect()	 : should return a table of tables which lists all the members supported by this userdata and their properties
+		///	
 		/// </summary>
 		/// <param name="script">The script originating the request</param>
 		/// <param name="obj">The object (null if a static request is done)</param>

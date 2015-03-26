@@ -12,6 +12,13 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 	{
 		public class SomeClass : IComparable
 		{
+			public string ManipulateString(string input, ref string tobeconcat, out string lowercase)
+			{
+				tobeconcat = input + tobeconcat;
+				lowercase = input.ToLower();
+				return input.ToUpper();
+			}
+
 			public string ConcatNums(int p1, int p2)
 			{
 				return string.Format("{0}%{1}", p1, p2);
@@ -321,6 +328,36 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			Assert.AreEqual("1,2,3|11,35,77|16,42,64|99,76,17|", res.String);
 		}
 
+
+		public void Test_RefOutParams(InteropAccessMode opt)
+		{
+			UserData.UnregisterType<SomeClass>();
+
+			string script = @"    
+				x, y, z = myobj:manipulateString('CiAo', 'hello');
+				return x, y, z;";
+
+			Script S = new Script();
+
+			SomeClass obj = new SomeClass();
+
+			UserData.UnregisterType<SomeClass>();
+			UserData.RegisterType<SomeClass>(opt);
+
+			S.Globals.Set("static", UserData.CreateStatic<SomeClass>());
+			S.Globals.Set("myobj", UserData.Create(obj));
+
+			DynValue res = S.DoString(script);
+
+			Assert.AreEqual(DataType.Tuple, res.Type);
+			Assert.AreEqual(3, res.Tuple.Length);
+			Assert.AreEqual(DataType.String, res.Tuple[0].Type);
+			Assert.AreEqual(DataType.String, res.Tuple[1].Type);
+			Assert.AreEqual(DataType.String, res.Tuple[2].Type);
+			Assert.AreEqual("CIAO", res.Tuple[0].String);
+			Assert.AreEqual("CiAohello", res.Tuple[1].String);
+			Assert.AreEqual("ciao", res.Tuple[2].String);
+		}
 
 
 
@@ -661,6 +698,23 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			Test_DelegateMethod(InteropAccessMode.Preoptimized);
 		}
 
+		[Test]
+		public void Interop_OutRefParams_None()
+		{
+			Test_RefOutParams(InteropAccessMode.Reflection);
+		}
+
+		[Test]
+		public void Interop_OutRefParams_Lazy()
+		{
+			Test_RefOutParams(InteropAccessMode.LazyOptimized);
+		}
+
+		[Test]
+		public void Interop_OutRefParams_Precomputed()
+		{
+			Test_RefOutParams(InteropAccessMode.Preoptimized);
+		}
 
 		[Test]
 		public void Interop_ListMethod_None()

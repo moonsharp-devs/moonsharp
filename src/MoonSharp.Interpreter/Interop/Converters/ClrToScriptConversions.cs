@@ -104,6 +104,21 @@ namespace MoonSharp.Interpreter.Interop.Converters
 				return DynValue.NewTable(t);
 			}
 
+			var enumerator = EnumerationToDynValue(script, obj);
+			if (enumerator != null) return enumerator;
+
+
+			throw ScriptRuntimeException.ConvertObjectFailed(obj);
+		}
+
+		/// <summary>
+		/// Converts an IEnumerable or IEnumerator to a DynValue
+		/// </summary>
+		/// <param name="script">The script.</param>
+		/// <param name="obj">The object.</param>
+		/// <returns></returns>
+		public static DynValue EnumerationToDynValue(Script script, object obj)
+		{
 			if (obj is System.Collections.IEnumerable)
 			{
 				var enumer = (System.Collections.IEnumerable)obj;
@@ -116,8 +131,9 @@ namespace MoonSharp.Interpreter.Interop.Converters
 				return EnumerableWrapper.ConvertIterator(script, enumer);
 			}
 
-			throw ScriptRuntimeException.ConvertObjectFailed(obj);
+			return null;
 		}
+
 
 
 	}

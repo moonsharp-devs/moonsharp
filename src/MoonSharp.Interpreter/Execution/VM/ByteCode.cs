@@ -298,14 +298,24 @@ namespace MoonSharp.Interpreter.Execution.VM
 			return AppendInstruction(new Instruction(m_CurrentSourceRef) { OpCode = OpCode.TblInitI, NumVal = lastpos ? 1 : 0 });
 		}
 
-		public Instruction Emit_Index(DynValue index = null, bool isNameIndex = false)
+		public Instruction Emit_Index(DynValue index = null, bool isNameIndex = false, bool isExpList = false)
 		{
-			return AppendInstruction(new Instruction(m_CurrentSourceRef) { OpCode = isNameIndex ? OpCode.IndexN : OpCode.Index, Value = index });
+			OpCode o;
+			if (isNameIndex) o = OpCode.IndexN;
+			else if (isExpList) o = OpCode.IndexL;
+			else o = OpCode.Index;
+
+			return AppendInstruction(new Instruction(m_CurrentSourceRef) { OpCode = o, Value = index });
 		}
 
-		public Instruction Emit_IndexSet(int stackofs, int tupleidx, DynValue index = null, bool isNameIndex = false)
+		public Instruction Emit_IndexSet(int stackofs, int tupleidx, DynValue index = null, bool isNameIndex = false, bool isExpList = false)
 		{
-			return AppendInstruction(new Instruction(m_CurrentSourceRef) { OpCode = isNameIndex ? OpCode.IndexSetN : OpCode.IndexSet, NumVal = stackofs, NumVal2 = tupleidx, Value = index });
+			OpCode o;
+			if (isNameIndex) o = OpCode.IndexSetN;
+			else if (isExpList) o = OpCode.IndexSetL;
+			else o = OpCode.IndexSet;
+
+			return AppendInstruction(new Instruction(m_CurrentSourceRef) { OpCode = o, NumVal = stackofs, NumVal2 = tupleidx, Value = index });
 		}
 
 		public Instruction Emit_Copy(int numval)

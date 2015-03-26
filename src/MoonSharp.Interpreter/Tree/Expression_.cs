@@ -25,6 +25,21 @@ namespace MoonSharp.Interpreter.Tree
 			return null;
 		}
 
+		internal static List<Expression> ExprListAfterFirstExpr(ScriptLoadingContext lcontext, Expression expr1)
+		{
+			List<Expression> exps = new List<Expression>();
+
+			exps.Add(expr1);
+
+			while ((lcontext.Lexer.Current.Type == TokenType.Comma))
+			{
+				lcontext.Lexer.Next();
+				exps.Add(Expr(lcontext));
+			}
+
+			return exps;
+		}
+
 
 		internal static List<Expression> ExprList(ScriptLoadingContext lcontext)
 		{
@@ -169,6 +184,14 @@ namespace MoonSharp.Interpreter.Tree
 							Token openBrk = lcontext.Lexer.Current;
 							lcontext.Lexer.Next(); // skip bracket
 							Expression index = Expr(lcontext);
+
+							// support moonsharp multiple indexers for userdata
+							if (lcontext.Lexer.Current.Type == TokenType.Comma)
+							{
+								var explist = ExprListAfterFirstExpr(lcontext, index);
+								index = new ExprListExpression(explist, lcontext);
+							}
+
 							CheckMatch(lcontext, openBrk, TokenType.Brk_Close_Square, "]");
 							e = new IndexExpression(e, index, lcontext);
 						}

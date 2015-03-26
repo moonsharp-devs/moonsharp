@@ -200,11 +200,13 @@ namespace MoonSharp.Interpreter.Execution.VM
 							break;
 						case OpCode.Index:
 						case OpCode.IndexN:
+						case OpCode.IndexL:
 							instructionPtr = ExecIndex(i, instructionPtr);
 							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
 							break;
 						case OpCode.IndexSet:
 						case OpCode.IndexSetN:
+						case OpCode.IndexSetL:
 							instructionPtr = ExecIndexSet(i, instructionPtr);
 							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
 							break;
@@ -1146,11 +1148,14 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 			// stack: vals.. - base - index
 			bool isNameIndex = i.OpCode == OpCode.IndexSetN;
+			bool isMultiIndex = (i.OpCode == OpCode.IndexSetL);
 
-			DynValue idx = i.Value ?? m_ValueStack.Pop().ToScalar();
+			DynValue originalIdx = i.Value ?? m_ValueStack.Pop();
+			DynValue idx = originalIdx.ToScalar();
 			DynValue obj = m_ValueStack.Pop().ToScalar();
 			var value = GetStoreValue(i);
 			DynValue h = null;
+
 
 			while (nestedMetaOps > 0)
 			{
@@ -1158,16 +1163,21 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 				if (obj.Type == DataType.Table)
 				{
-					if (!obj.Table.Get(idx).IsNil())
+					if (!isMultiIndex)
 					{
-						obj.Table.Set(idx, value);
-						return instructionPtr;
+						if (!obj.Table.Get(idx).IsNil())
+						{
+							obj.Table.Set(idx, value);
+							return instructionPtr;
+						}
 					}
 
 					h = GetMetamethod(obj, "__newindex");
 
 					if (h == null || h.IsNil())
 					{
+						if (isMultiIndex) throw new ScriptRuntimeException("cannot multi-index a table. userdata expected");
+
 						obj.Table.Set(idx, value);
 						return instructionPtr;
 					}
@@ -1176,7 +1186,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				{
 					UserData ud = obj.UserData;
 
-					if (!ud.Descriptor.SetIndex(this.GetScript(), ud.Object, idx, value, isNameIndex))
+					if (!ud.Descriptor.SetIndex(this.GetScript(), ud.Object, originalIdx, value, isNameIndex))
 					{
 						throw ScriptRuntimeException.UserDataMissingField(ud.Descriptor.Name, idx.String);
 					}
@@ -1193,6 +1203,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 				if (h.Type == DataType.Function || h.Type == DataType.ClrFunction)
 				{
+					if (isMultiIndex) throw new ScriptRuntimeException("cannot multi-index through metamethods. userdata expected");
+
 					m_ValueStack.Push(h);
 					m_ValueStack.Push(obj);
 					m_ValueStack.Push(idx);
@@ -1214,10 +1226,15 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 			// stack: base - index
 			bool isNameIndex = i.OpCode == OpCode.IndexN;
-			DynValue idx = i.Value ?? m_ValueStack.Pop().ToScalar();
+
+			bool isMultiIndex = (i.OpCode == OpCode.IndexL);
+
+			DynValue originalIdx = i.Value ?? m_ValueStack.Pop();
+			DynValue idx = originalIdx.ToScalar();
 			DynValue obj = m_ValueStack.Pop().ToScalar();
 
 			DynValue h = null;
+
 
 			while (nestedMetaOps > 0)
 			{
@@ -1225,18 +1242,23 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 				if (obj.Type == DataType.Table)
 				{
-					var v = obj.Table.Get(idx);
-
-					if (!v.IsNil())
+					if (!isMultiIndex)
 					{
-						m_ValueStack.Push(v.AsReadOnly());
-						return instructionPtr;
+						var v = obj.Table.Get(idx);
+
+						if (!v.IsNil())
+						{
+							m_ValueStack.Push(v.AsReadOnly());
+							return instructionPtr;
+						}
 					}
 
 					h = GetMetamethod(obj, "__index");
 
 					if (h == null || h.IsNil())
 					{
+						if (isMultiIndex) throw new ScriptRuntimeException("cannot multi-index a table. userdata expected");
+
 						m_ValueStack.Push(DynValue.Nil);
 						return instructionPtr;
 					}
@@ -1245,7 +1267,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				{
 					UserData ud = obj.UserData;
 
-					var v = ud.Descriptor.Index(this.GetScript(), ud.Object, idx, isNameIndex);
+					var v = ud.Descriptor.Index(this.GetScript(), ud.Object, originalIdx, isNameIndex);
 
 					if (v == null)
 						throw ScriptRuntimeException.UserDataMissingField(ud.Descriptor.Name, idx.String);
@@ -1263,6 +1285,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 				if (h.Type == DataType.Function || h.Type == DataType.ClrFunction)
 				{
+					if (isMultiIndex) throw new ScriptRuntimeException("cannot multi-index through metamethods. userdata expected");
 					m_ValueStack.Push(h);
 					m_ValueStack.Push(obj);
 					m_ValueStack.Push(idx);

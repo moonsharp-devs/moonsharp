@@ -62,17 +62,7 @@ namespace MoonSharp.Interpreter.Interop
 		{
 			CheckMethodIsCompatible(methodBase, true);
 
-			if (Script.GlobalOptions.Platform.IsRunningOnAOT())
-				accessMode = InteropAccessMode.Reflection;
-
-			if (accessMode == InteropAccessMode.Default)
-				accessMode = UserData.DefaultAccessMode;
-
-			if (accessMode == InteropAccessMode.HideMembers)
-				throw new ArgumentException("Invalid accessMode");
-
 			this.MethodInfo = methodBase;
-			this.AccessMode = accessMode;
 			this.Name = methodBase.Name;
 
 			IsConstructor = (methodBase is ConstructorInfo);
@@ -86,7 +76,22 @@ namespace MoonSharp.Interpreter.Interop
 
 			Parameters = methodBase.GetParameters();
 
+			// adjust access mode
+			if (Script.GlobalOptions.Platform.IsRunningOnAOT())
+				accessMode = InteropAccessMode.Reflection;
+
+			if (accessMode == InteropAccessMode.Default)
+				accessMode = UserData.DefaultAccessMode;
+
+			if (accessMode == InteropAccessMode.HideMembers)
+				throw new ArgumentException("Invalid accessMode");
+
+			if (Parameters.Any(p => p.ParameterType.IsByRef))
+				accessMode = InteropAccessMode.Reflection;
+
 			SortDiscriminant = string.Join(":", Parameters.Select(pi => pi.ParameterType.FullName).ToArray());
+
+			this.AccessMode = accessMode;
 
 			if (AccessMode == InteropAccessMode.Preoptimized)
 				Optimize();
@@ -111,10 +116,27 @@ namespace MoonSharp.Interpreter.Interop
 				return false;
 			}
 
-			if (methodBase.GetParameters().Any(pi => pi.ParameterType.IsByRef))
+			if (methodBase.GetParameters().Any(p => p.ParameterType.IsPointer))
 			{
-				if (throwException) throw new ArgumentException("Method cannot contain by-ref parameters");
+				if (throwException) throw new ArgumentException("Method cannot contain pointer parameters");
 				return false;
+			}
+
+			MethodInfo mi = methodBase as MethodInfo;
+
+			if (mi != null)
+			{
+				if (mi.ReturnType.IsPointer)
+				{
+					if (throwException) throw new ArgumentException("Method cannot have a pointer return type");
+					return false;
+				}
+
+				if (mi.ReturnType.IsGenericTypeDefinition)
+				{
+					if (throwException) throw new ArgumentException("Method cannot have an unresolved generic return type");
+					return false;
+				}
 			}
 
 			return true;
@@ -186,8 +208,16 @@ namespace MoonSharp.Interpreter.Interop
 
 			int j = args.IsMethodCall ? 1 : 0;
 
+			List<int> outParams = null;
+
 			for (int i = 0; i < pars.Length; i++)
 			{
+				if (Parameters[i].ParameterType.IsByRef)
+				{
+					if (outParams == null) outParams = new List<int>();
+					outParams.Add(i);
+				}
+
 				if (Parameters[i].ParameterType == typeof(Script))
 				{
 					pars[i] = script;
@@ -199,6 +229,10 @@ namespace MoonSharp.Interpreter.Interop
 				else if (Parameters[i].ParameterType == typeof(CallbackArguments))
 				{
 					pars[i] = args.SkipMethodCall();
+				}
+				else if (Parameters[i].IsOut)
+				{
+					pars[i] = null;
 				}
 				else
 				{
@@ -234,11 +268,28 @@ namespace MoonSharp.Interpreter.Interop
 					retv = MethodInfo.Invoke(obj, pars);
 			}
 
-			return ClrToScriptConversions.ObjectToDynValue(script, retv);
+			if (outParams == null)
+			{
+				return ClrToScriptConversions.ObjectToDynValue(script, retv);
+			}
+			else
+			{
+				DynValue[] rets = new DynValue[outParams.Count + 1];
+
+				rets[0] = ClrToScriptConversions.ObjectToDynValue(script, retv);
+
+				for (int i = 0; i < outParams.Count; i++)
+					rets[i + 1] = ClrToScriptConversions.ObjectToDynValue(script, pars[outParams[i]]);
+
+				return DynValue.NewTuple(rets);
+			}
 		}
 
 		internal void Optimize()
 		{
+			if (AccessMode == InteropAccessMode.Reflection)
+				return;
+
 			MethodInfo methodInfo = this.MethodInfo as MethodInfo;
 
 			if (methodInfo == null)
@@ -254,8 +305,15 @@ namespace MoonSharp.Interpreter.Interop
 
 				for (int i = 0; i < Parameters.Length; i++)
 				{
-					var x = Expression.ArrayIndex(ep, Expression.Constant(i));
-					args[i] = Expression.Convert(x, Parameters[i].ParameterType);
+					if (Parameters[i].ParameterType.IsByRef)
+					{
+						throw new InternalErrorException("Out/Ref params cannot be precompiled.");
+					}
+					else
+					{
+						var x = Expression.ArrayIndex(ep, Expression.Constant(i));
+						args[i] = Expression.Convert(x, Parameters[i].ParameterType);
+					}
 				}
 
 				Expression fn;
