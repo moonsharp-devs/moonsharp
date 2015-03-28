@@ -6,6 +6,9 @@ using MoonSharp.Interpreter.Interop;
 
 namespace MoonSharp.Interpreter
 {
+	/// <summary>
+	/// Descriptor which acts as a non-containing adapter from IUserDataType to IUserDataDescriptor
+	/// </summary>
 	internal class AutoDescribingUserDataDescriptor : IUserDataDescriptor
 	{
 		private string m_FriendlyName;

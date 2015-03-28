@@ -56,11 +56,6 @@ namespace MoonSharp.Interpreter.Interop
 		/// These standard metamethods are supported through other calls for efficiency:
 		/// __index, __newindex, __tostring
 		/// 
-		/// In addition, these can be supported:
-		///	__tobool()	 : should return a bool which is the direct conversion to a boolean
-		///	__tonumber() : should return a number which is the direct conversion to a number
-		///	__reflect()	 : should return a table of tables which lists all the members supported by this userdata and their properties
-		///	
 		/// </summary>
 		/// <param name="script">The script originating the request</param>
 		/// <param name="obj">The object (null if a static request is done)</param>

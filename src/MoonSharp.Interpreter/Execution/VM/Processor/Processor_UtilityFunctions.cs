@@ -54,13 +54,21 @@ namespace MoonSharp.Interpreter.Execution.VM
 		{
 			DynValue m = null;
 
-			var op1_MetaTable = GetMetatable(op1);
-
-			if (op1_MetaTable != null)
+			if (op1.Type == DataType.UserData)
 			{
-				DynValue meta1 = op1_MetaTable.RawGet(eventName);
-				if (meta1 != null && meta1.IsNotNil())
-					m = meta1;
+				m = op1.UserData.Descriptor.MetaIndex(m_Script, op1.UserData.Object, eventName);
+			}
+
+			if (m == null)
+			{
+				var op1_MetaTable = GetMetatable(op1);
+
+				if (op1_MetaTable != null)
+				{
+					DynValue meta1 = op1_MetaTable.RawGet(eventName);
+					if (meta1 != null && meta1.IsNotNil())
+						m = meta1;
+				}
 			}
 
 			if (m != null)

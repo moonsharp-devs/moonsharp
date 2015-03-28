@@ -106,8 +106,7 @@ namespace MoonSharp.Interpreter.Interop
 							m_Methods.Add(name, new StandardUserDataOverloadedMethodDescriptor(md));
 						}
 
-						string metaname = GetMetaNameFromAttributes(mi);
-						if (metaname != null)
+						foreach(string metaname in GetMetaNamesFromAttributes(mi))
 						{
 							if (m_MetaMethods.ContainsKey(metaname))
 							{
@@ -118,8 +117,6 @@ namespace MoonSharp.Interpreter.Interop
 								m_MetaMethods.Add(metaname, new StandardUserDataOverloadedMethodDescriptor(md));
 							}
 						}
-
-
 					}
 				}
 
@@ -138,13 +135,12 @@ namespace MoonSharp.Interpreter.Interop
 			}
 		}
 
-		private string GetMetaNameFromAttributes(MethodInfo mi)
+		private List<string> GetMetaNamesFromAttributes(MethodInfo mi)
 		{
-			var attr = mi.GetCustomAttributes(typeof(MoonSharpUserDataMetamethodAttribute), true).FirstOrDefault() as MoonSharpUserDataMetamethodAttribute;
-			if (attr != null)
-				return attr.Name;
-			else
-				return null;
+			return mi.GetCustomAttributes(typeof(MoonSharpUserDataMetamethodAttribute), true)
+				.OfType<MoonSharpUserDataMetamethodAttribute>()
+				.Select(a => a.Name)
+				.ToList();
 		}
 
 		private string GetConversionMethodName(Type type)
@@ -411,8 +407,8 @@ namespace MoonSharp.Interpreter.Interop
 		/// If the above fails, the following dispatching occur:
 		/// 
 		/// __add, __sub, __mul, __div, __mod and __unm are dispatched to C# operator overloads (if they exist)
-		/// __eq is dispatched to C# == operator overload. If that fails, it's dispatched to System.Object.Equals.
-		/// __lt and __le are dispatched to comparison operator overloads. If those fail and the type implements IComparable, IComparable.Compare is used.
+		/// __eq is dispatched to System.Object.Equals.
+		/// __lt and __le are dispatched IComparable.Compare, if the type implements IComparable or IComparable{object}
 		/// __len is dispatched to Length and Count properties, if those exist.
 		/// __iterator is handled if the object implements IEnumerable or IEnumerator.
 		/// __tonumber is dispatched to implicit or explicit conversion operators to standard numeric types.
@@ -440,7 +436,7 @@ namespace MoonSharp.Interpreter.Interop
 				case "__div":
 					return DispatchMetaOnMethod(script, obj, "op_Division");
 				case "__mod":
-					return DispatchMetaOnMethod(script, obj, "op_Modulus"); 
+					return DispatchMetaOnMethod(script, obj, "op_Modulus");
 				case "__unm":
 					return DispatchMetaOnMethod(script, obj, "op_UnaryNegation");
 				case "__eq":
@@ -462,26 +458,30 @@ namespace MoonSharp.Interpreter.Interop
 			}
 		}
 
+		private int PerformComparison(object obj, object p1, object p2)
+		{
+			IComparable comp = (IComparable)obj;
+
+			if (comp != null)
+			{
+				if (object.ReferenceEquals(obj, p1))
+					return comp.CompareTo(p2);
+				else if (object.ReferenceEquals(obj, p2))
+					return -comp.CompareTo(p1);
+			}
+
+			throw new InternalErrorException("unexpected case");
+		}
+
 
 		private DynValue MultiDispatchLessThanOrEqual(Script script, object obj)
 		{
-			var v = DispatchMetaOnMethod(script, obj, "op_LessThanOrEqual");
-			if (v != null) return v;
-
-			v = DispatchMetaOnMethod(script, obj, "op_GreaterThan");
-			if (v != null)
-			{
-				return DynValue.NewCallback(
-					(context, args) =>
-						DynValue.NewBoolean(!(v.Callback.ClrCallback(context, args)).CastToBool()));
-			}
-
 			IComparable comp = obj as IComparable;
 			if (comp != null)
 			{
 				return DynValue.NewCallback(
 					(context, args) =>
-						DynValue.NewBoolean(comp.CompareTo(args[1].ToObject()) <= 0));
+						DynValue.NewBoolean(PerformComparison(obj, args[0].ToObject(), args[1].ToObject()) <= 0));
 			}
 
 			return null;
@@ -489,23 +489,12 @@ namespace MoonSharp.Interpreter.Interop
 
 		private DynValue MultiDispatchLessThan(Script script, object obj)
 		{
-			var v = DispatchMetaOnMethod(script, obj, "op_LessThan");
-			if (v != null) return v;
-			
-			v = DispatchMetaOnMethod(script, obj, "op_GreaterThanOrEqual");
-			if (v != null)
-			{
-				return DynValue.NewCallback(
-					(context, args) =>
-						DynValue.NewBoolean(!(v.Callback.ClrCallback(context, args)).CastToBool()));
-			}
-
 			IComparable comp = obj as IComparable;
 			if (comp != null)
 			{
 				return DynValue.NewCallback(
 					(context, args) =>
-						DynValue.NewBoolean(comp.CompareTo(args[1].ToObject()) < 0));
+						DynValue.NewBoolean(PerformComparison(obj, args[0].ToObject(), args[1].ToObject()) < 0));
 			}
 
 			return null;
@@ -525,15 +514,26 @@ namespace MoonSharp.Interpreter.Interop
 		}
 
 
-
 		private DynValue MultiDispatchEqual(Script script, object obj)
 		{
-			var v = DispatchMetaOnMethod(script, obj, "op_Equality");
+			return DynValue.NewCallback(
+				(context, args) => DynValue.NewBoolean(CheckEquality(obj, args[0].ToObject(), args[1].ToObject())));
+		}
 
-			if (v == null)
-				v = DynValue.NewCallback((context, args) => DynValue.NewBoolean(args[0].ToObject().Equals(args[1].ToObject())));
 
-			return v;
+		private bool CheckEquality(object obj, object p1, object p2)
+		{
+			if (obj != null)
+			{
+				if (object.ReferenceEquals(obj, p1))
+					return obj.Equals(p2);
+				else if (object.ReferenceEquals(obj, p2))
+					return obj.Equals(p1);
+			}
+
+			if (p1 != null) return p1.Equals(p2);
+			else if (p2 != null) return p2.Equals(p1);
+			else return true;
 		}
 
 		private DynValue DispatchMetaOnMethod(Script script, object obj, string methodName)
@@ -542,7 +542,7 @@ namespace MoonSharp.Interpreter.Interop
 
 			if (desc != null)
 				return desc.GetCallbackAsDynValue(script, obj);
-			else 
+			else
 				return null;
 		}
 

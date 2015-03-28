@@ -473,7 +473,11 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 				if (meta != null && !meta.IsNil())
 				{
-					v = this.GetScript().Call(meta, f, s, var);
+					if (meta.Type != DataType.Tuple)
+						v = this.GetScript().Call(meta, f, s, var);
+					else
+						v = meta;
+
 					f = v.Tuple.Length >= 1 ? v.Tuple[0] : DynValue.Nil;
 					s = v.Tuple.Length >= 2 ? v.Tuple[1] : DynValue.Nil;
 					var = v.Tuple.Length >= 3 ? v.Tuple[2] : DynValue.Nil;
@@ -687,31 +691,25 @@ namespace MoonSharp.Interpreter.Execution.VM
 				});
 				return fn.Function.EntryPointByteCodeLocation;
 			}
-			else
+
+			// fallback to __call metamethod
+			var m = GetMetamethod(fn, "__call");
+
+			if (m != null && m.IsNotNil())
 			{
-				var metatable = GetMetatable(fn);
+				DynValue[] tmp = new DynValue[argsCount + 1];
+				for (int i = 0; i < argsCount + 1; i++)
+					tmp[i] = m_ValueStack.Pop();
 
-				if (metatable != null)
-				{
-					var m = metatable.RawGet("__call");
+				m_ValueStack.Push(m);
 
-					if (m != null && m.IsNotNil())
-					{
-						DynValue[] tmp = new DynValue[argsCount + 1];
-						for (int i = 0; i < argsCount + 1; i++)
-							tmp[i] = m_ValueStack.Pop();
+				for (int i = argsCount; i >= 0; i--)
+					m_ValueStack.Push(tmp[i]);
 
-						m_ValueStack.Push(m);
-
-						for (int i = argsCount; i >= 0; i--)
-							m_ValueStack.Push(tmp[i]);
-
-						return Internal_ExecCall(argsCount + 1, instructionPtr, handler, continuation);
-					}
-				}
-
-				throw ScriptRuntimeException.AttemptToCallNonFunc(fn.Type, debugText);
+				return Internal_ExecCall(argsCount + 1, instructionPtr, handler, continuation);
 			}
+
+			throw ScriptRuntimeException.AttemptToCallNonFunc(fn.Type, debugText);
 		}
 
 		private int PerformTCO(int instructionPtr, int argsCount)
@@ -913,7 +911,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			}
 			else
 			{
-				int ip = Internal_InvokeBinaryMetaMethod(l, r, "__div", instructionPtr);
+				int ip = Internal_InvokeBinaryMetaMethod(l, r, "__mod", instructionPtr);
 				if (ip >= 0) return ip;
 				else throw ScriptRuntimeException.ArithmeticOnNonNumber(l, r);
 			}
@@ -985,31 +983,40 @@ namespace MoonSharp.Interpreter.Execution.VM
 			DynValue r = m_ValueStack.Pop().ToScalar();
 			DynValue l = m_ValueStack.Pop().ToScalar();
 
+			// first we do a brute force equals over the references
 			if (object.ReferenceEquals(r, l))
 			{
 				m_ValueStack.Push(DynValue.True);
+				return instructionPtr;
 			}
-			else if (r.Type != l.Type)
+
+			// then if they are userdatas, attempt meta
+			if (l.Type == DataType.UserData || r.Type == DataType.UserData)
 			{
-				if ((l.Type == DataType.Nil && r.Type == DataType.Void)
-					|| (l.Type == DataType.Void && r.Type == DataType.Nil))
+				int ip = Internal_InvokeBinaryMetaMethod(l, r, "__eq", instructionPtr);
+				if (ip >= 0) return ip;
+			}
+
+			// then if types are different, ret false
+			if (r.Type != l.Type)
+			{
+				if ((l.Type == DataType.Nil && r.Type == DataType.Void) || (l.Type == DataType.Void && r.Type == DataType.Nil))
 					m_ValueStack.Push(DynValue.True);
 				else
 					m_ValueStack.Push(DynValue.False);
-			}
-			else if ((l.Type == DataType.Table || l.Type == DataType.UserData) && (GetMetatable(l) != null) && (GetMetatable(l) == GetMetatable(r)))
-			{
-				int ip = Internal_InvokeBinaryMetaMethod(l, r, "__eq", instructionPtr);
-				if (ip < 0)
-					m_ValueStack.Push(DynValue.NewBoolean(r.Equals(l)));
-				else
-					return ip;
-			}
-			else
-			{
-				m_ValueStack.Push(DynValue.NewBoolean(r.Equals(l)));
+
+				return instructionPtr;
 			}
 
+			// then attempt metatables for tables
+			if ((l.Type == DataType.Table) && (GetMetatable(l) != null) && (GetMetatable(l) == GetMetatable(r)))
+			{
+				int ip = Internal_InvokeBinaryMetaMethod(l, r, "__eq", instructionPtr);
+				if (ip >= 0) return ip;
+			}
+			
+			// else perform standard comparison
+			m_ValueStack.Push(DynValue.NewBoolean(r.Equals(l)));
 			return instructionPtr;
 		}
 
@@ -1172,7 +1179,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 						}
 					}
 
-					h = GetMetamethod(obj, "__newindex");
+					h = GetMetamethodRaw(obj, "__newindex");
 
 					if (h == null || h.IsNil())
 					{
@@ -1195,7 +1202,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				}
 				else
 				{
-					h = GetMetamethod(obj, "__newindex");
+					h = GetMetamethodRaw(obj, "__newindex");
 
 					if (h == null || h.IsNil())
 						throw ScriptRuntimeException.IndexType(obj);
@@ -1253,7 +1260,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 						}
 					}
 
-					h = GetMetamethod(obj, "__index");
+					h = GetMetamethodRaw(obj, "__index");
 
 					if (h == null || h.IsNil())
 					{
@@ -1277,7 +1284,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				}
 				else
 				{
-					h = GetMetamethod(obj, "__index");
+					h = GetMetamethodRaw(obj, "__index");
 
 					if (h == null || h.IsNil())
 						throw ScriptRuntimeException.IndexType(obj);

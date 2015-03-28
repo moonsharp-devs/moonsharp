@@ -102,14 +102,15 @@
 			this.label1 = new System.Windows.Forms.Label();
 			this.splitContainer3 = new System.Windows.Forms.SplitContainer();
 			this.codeView = new MoonSharp.Debugger.SourceCodeDebugControl();
-			this.timerFollow = new System.Windows.Forms.Timer(this.components);
 			this.tabControl3 = new System.Windows.Forms.TabControl();
 			this.tabPage5 = new System.Windows.Forms.TabPage();
-			this.tabPage6 = new System.Windows.Forms.TabPage();
 			this.txtOutput = new System.Windows.Forms.TextBox();
 			this.toolStrip5 = new System.Windows.Forms.ToolStrip();
+			this.tabPage6 = new System.Windows.Forms.TabPage();
 			this.txtCodeView = new System.Windows.Forms.TextBox();
 			this.toolStrip6 = new System.Windows.Forms.ToolStrip();
+			this.timerFollow = new System.Windows.Forms.Timer(this.components);
+			this.btnOpenTest = new System.Windows.Forms.ToolStripButton();
 			this.menuStrip1.SuspendLayout();
 			this.toolStrip1.SuspendLayout();
 			this.splitContainer1.Panel1.SuspendLayout();
@@ -296,7 +297,8 @@
             this.toolStripButton5,
             this.btnFollow,
             this.toolStripSeparator5,
-            this.btnFastHack});
+            this.btnFastHack,
+            this.btnOpenTest});
 			this.toolStrip1.Location = new System.Drawing.Point(0, 24);
 			this.toolStrip1.Name = "toolStrip1";
 			this.toolStrip1.Size = new System.Drawing.Size(1094, 25);
@@ -819,11 +821,6 @@
 			this.codeView.SourceCode = null;
 			this.codeView.TabIndex = 1;
 			// 
-			// timerFollow
-			// 
-			this.timerFollow.Interval = 15;
-			this.timerFollow.Tick += new System.EventHandler(this.timerFollow_Tick);
-			// 
 			// tabControl3
 			// 
 			this.tabControl3.Controls.Add(this.tabPage5);
@@ -847,18 +844,6 @@
 			this.tabPage5.Text = "Output";
 			this.tabPage5.UseVisualStyleBackColor = true;
 			// 
-			// tabPage6
-			// 
-			this.tabPage6.Controls.Add(this.txtCodeView);
-			this.tabPage6.Controls.Add(this.toolStrip6);
-			this.tabPage6.Location = new System.Drawing.Point(4, 22);
-			this.tabPage6.Name = "tabPage6";
-			this.tabPage6.Padding = new System.Windows.Forms.Padding(3);
-			this.tabPage6.Size = new System.Drawing.Size(718, 187);
-			this.tabPage6.TabIndex = 1;
-			this.tabPage6.Text = "Code View";
-			this.tabPage6.UseVisualStyleBackColor = true;
-			// 
 			// txtOutput
 			// 
 			this.txtOutput.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
@@ -881,6 +866,18 @@
 			this.toolStrip5.TabIndex = 2;
 			this.toolStrip5.Text = "toolStrip5";
 			// 
+			// tabPage6
+			// 
+			this.tabPage6.Controls.Add(this.txtCodeView);
+			this.tabPage6.Controls.Add(this.toolStrip6);
+			this.tabPage6.Location = new System.Drawing.Point(4, 22);
+			this.tabPage6.Name = "tabPage6";
+			this.tabPage6.Padding = new System.Windows.Forms.Padding(3);
+			this.tabPage6.Size = new System.Drawing.Size(718, 187);
+			this.tabPage6.TabIndex = 1;
+			this.tabPage6.Text = "Code View";
+			this.tabPage6.UseVisualStyleBackColor = true;
+			// 
 			// txtCodeView
 			// 
 			this.txtCodeView.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
@@ -902,6 +899,21 @@
 			this.toolStrip6.Size = new System.Drawing.Size(712, 25);
 			this.toolStrip6.TabIndex = 2;
 			this.toolStrip6.Text = "toolStrip6";
+			// 
+			// timerFollow
+			// 
+			this.timerFollow.Interval = 15;
+			this.timerFollow.Tick += new System.EventHandler(this.timerFollow_Tick);
+			// 
+			// btnOpenTest
+			// 
+			this.btnOpenTest.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.btnOpenTest.Image = ((System.Drawing.Image)(resources.GetObject("btnOpenTest.Image")));
+			this.btnOpenTest.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.btnOpenTest.Name = "btnOpenTest";
+			this.btnOpenTest.Size = new System.Drawing.Size(106, 22);
+			this.btnOpenTest.Text = "Open Default Test";
+			this.btnOpenTest.Click += new System.EventHandler(this.btnOpenTest_Click);
 			// 
 			// MainForm
 			// 
@@ -1037,6 +1049,7 @@
 		private System.Windows.Forms.TabPage tabPage6;
 		private System.Windows.Forms.TextBox txtCodeView;
 		private System.Windows.Forms.ToolStrip toolStrip6;
+		private System.Windows.Forms.ToolStripButton btnOpenTest;
 
 
 	}

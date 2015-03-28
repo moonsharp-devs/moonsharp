@@ -434,5 +434,10 @@ namespace MoonSharp.Debugger
 			Console_WriteLine("Error: {0}", ex.DecoratedMessage);
 			return true;
 		}
+
+		private void btnOpenTest_Click(object sender, EventArgs e)
+		{
+
+		}
 	}
 }

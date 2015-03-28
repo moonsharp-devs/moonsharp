@@ -410,23 +410,20 @@ namespace MoonSharp.Interpreter
 		/// <summary>
 		/// Calls the specified function.
 		/// </summary>
-		/// <param name="function">The Lua/MoonSharp function to be called - callbacks are not supported.</param>
+		/// <param name="function">The Lua/MoonSharp function to be called</param>
 		/// <returns>
 		/// The return value(s) of the function call.
 		/// </returns>
 		/// <exception cref="System.ArgumentException">Thrown if function is not of DataType.Function</exception>
 		public DynValue Call(DynValue function)
 		{
-			if (function.Type != DataType.Function)
-				throw new ArgumentException("function is not of DataType.Function");
-
-			return m_MainProcessor.Call(function, new DynValue[0]);
+			return Call(function, new DynValue[0]);
 		}
 
 		/// <summary>
 		/// Calls the specified function.
 		/// </summary>
-		/// <param name="function">The Lua/MoonSharp function to be called - callbacks are not supported.</param>
+		/// <param name="function">The Lua/MoonSharp function to be called</param>
 		/// <param name="args">The arguments to pass to the function.</param>
 		/// <returns>
 		/// The return value(s) of the function call.
@@ -434,6 +431,9 @@ namespace MoonSharp.Interpreter
 		/// <exception cref="System.ArgumentException">Thrown if function is not of DataType.Function</exception>
 		public DynValue Call(DynValue function, params DynValue[] args)
 		{
+			if (function.Type == DataType.ClrFunction)
+				return function.Callback.ClrCallback(this.CreateDynamicExecutionContext(function.Callback), new CallbackArguments(args, false));
+
 			if (function.Type != DataType.Function)
 				throw new ArgumentException("function is not of DataType.Function");
 
@@ -443,7 +443,7 @@ namespace MoonSharp.Interpreter
 		/// <summary>
 		/// Calls the specified function.
 		/// </summary>
-		/// <param name="function">The Lua/MoonSharp function to be called - callbacks are not supported.</param>
+		/// <param name="function">The Lua/MoonSharp function to be called</param>
 		/// <param name="args">The arguments to pass to the function.</param>
 		/// <returns>
 		/// The return value(s) of the function call.
@@ -451,21 +451,18 @@ namespace MoonSharp.Interpreter
 		/// <exception cref="System.ArgumentException">Thrown if function is not of DataType.Function</exception>
 		public DynValue Call(DynValue function, params object[] args)
 		{
-			if (function.Type != DataType.Function)
-				throw new ArgumentException("function is not of DataType.Function");
-
 			DynValue[] dargs = new DynValue[args.Length];
 
 			for (int i = 0; i < dargs.Length; i++)
 				dargs[i] = DynValue.FromObject(this, args[i]);
 
-			return m_MainProcessor.Call(function, dargs);
+			return Call(function, dargs);
 		}
 
 		/// <summary>
 		/// Calls the specified function.
 		/// </summary>
-		/// <param name="function">The Lua/MoonSharp function to be called - callbacks are not supported.</param>
+		/// <param name="function">The Lua/MoonSharp function to be called</param>
 		/// <returns></returns>
 		/// <exception cref="System.ArgumentException">Thrown if function is not of DataType.Function</exception>
 		public DynValue Call(object function)
@@ -476,7 +473,7 @@ namespace MoonSharp.Interpreter
 		/// <summary>
 		/// Calls the specified function.
 		/// </summary>
-		/// <param name="function">The Lua/MoonSharp function to be called - callbacks are not supported.</param>
+		/// <param name="function">The Lua/MoonSharp function to be called </param>
 		/// <param name="args">The arguments to pass to the function.</param>
 		/// <returns></returns>
 		/// <exception cref="System.ArgumentException">Thrown if function is not of DataType.Function</exception>
@@ -650,10 +647,14 @@ namespace MoonSharp.Interpreter
 			return new DynamicExpression(this, code, constant);
 		}
 
-		// Gets an execution context exposing only partial functionality, which should be used ONLY for dynamic expression evaluation.
-		internal ScriptExecutionContext CreateDynamicExecutionContext()
+		/// <summary>
+		/// Gets an execution context exposing only partial functionality, which should be used for
+		/// those cases where the execution engine is not really running - for example for dynamic expression
+		/// or calls from CLR to CLR callbacks
+		/// </summary>
+		internal ScriptExecutionContext CreateDynamicExecutionContext(CallbackFunction func = null)
 		{
-			return new ScriptExecutionContext(m_MainProcessor, null, null);
+			return new ScriptExecutionContext(m_MainProcessor, func, null, isDynamic : true);
 		}
 
 		/// <summary>

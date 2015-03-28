@@ -30,10 +30,21 @@ namespace MoonSharp.Interpreter.Interop
 		/// <returns></returns>
 		bool SetIndex(Script script, DynValue index, DynValue value, bool isDirectIndexing);
 		/// <summary>
-		/// Gets the value of an hypothetical metatable for this userdata.
-		/// NOT SUPPORTED YET.
+		/// 
+		/// Gets a "meta" operation on this userdata. If a descriptor does not support this functionality,
+		/// it should return "null" (not a nil). 
+		/// 
+		/// These standard metamethods can be supported (the return value should be a function accepting the
+		/// classic parameters of the corresponding metamethod):
+		/// __add, __sub, __mul, __div, __div, __pow, __unm, __eq, __lt, __le, __lt, __len, __concat, 
+		/// __pairs, __ipairs, __iterator, __call
+		/// 
+		/// These standard metamethods are supported through other calls for efficiency:
+		/// __index, __newindex, __tostring
+		/// 
 		/// </summary>
 		/// <param name="script">The script originating the request</param>
+		/// <param name="obj">The object (null if a static request is done)</param>
 		/// <param name="metaname">The name of the metamember.</param>
 		/// <returns></returns>
 		DynValue MetaIndex(Script script, string metaname);

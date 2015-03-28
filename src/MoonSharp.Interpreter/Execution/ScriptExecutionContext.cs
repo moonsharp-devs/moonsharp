@@ -16,11 +16,23 @@ namespace MoonSharp.Interpreter
 		Processor m_Processor;
 		CallbackFunction m_Callback;
 
-		internal ScriptExecutionContext(Processor p, CallbackFunction callBackFunction, SourceRef sourceRef)
+		internal ScriptExecutionContext(Processor p, CallbackFunction callBackFunction, SourceRef sourceRef, bool isDynamic = false)
 		{
+			IsDynamicExecution = isDynamic;
 			m_Processor = p;
 			m_Callback = callBackFunction;
 			CallingLocation = sourceRef;
+		}
+
+		/// <summary>
+		/// Gets a value indicating whether this instance is running a dynamic execution.
+		/// Under a dynamic execution, most methods of ScriptExecutionContext are not reliable as the
+		/// processing engine of the script is not "really" running or is not available.
+		/// </summary>
+		public bool IsDynamicExecution
+		{
+			get;
+			private set;
 		}
 
 		/// <summary>
