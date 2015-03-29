@@ -99,8 +99,17 @@
     <Compile Include="..\..\EndToEnd\TailCallTests.cs">
       <Link>TailCallTests.cs</Link>
     </Compile>
+    <Compile Include="..\..\EndToEnd\UserDataMetaTests.cs">
+      <Link>UserDataMetaTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\EndToEnd\UserDataIndexerTests.cs">
+      <Link>UserDataIndexerTests.cs</Link>
+    </Compile>
     <Compile Include="..\..\EndToEnd\UserDataMethodsTests.cs">
       <Link>UserDataMethodsTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\EndToEnd\UserDataOverloadsTests.cs">
+      <Link>UserDataOverloadsTests.cs</Link>
     </Compile>
     <Compile Include="..\..\EndToEnd\UserDataPropertiesTests.cs">
       <SubType>Code</SubType>

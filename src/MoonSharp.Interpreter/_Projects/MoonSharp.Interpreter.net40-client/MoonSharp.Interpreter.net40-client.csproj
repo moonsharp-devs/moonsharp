@@ -106,6 +106,9 @@
     <Compile Include="..\..\DataStructs\MultiDictionary.cs">
       <Link>MultiDictionary.cs</Link>
     </Compile>
+    <Compile Include="..\..\Interop\Attributes\MoonSharpUserDataMetamethodAttribute.cs">
+      <Link>MoonSharpUserDataMetamethodAttribute.cs</Link>
+    </Compile>
     <Compile Include="..\..\Interop\Converters\ClrToScriptConversions.cs">
       <Link>ClrToScriptConversions.cs</Link>
     </Compile>
@@ -124,8 +127,8 @@
     <Compile Include="..\..\Interop\CustomConvertersCollection.cs">
       <Link>CustomConvertersCollection.cs</Link>
     </Compile>
-    <Compile Include="..\..\Interop\StandardDescriptors\OverloadResolver.cs">
-      <Link>OverloadResolver.cs</Link>
+    <Compile Include="..\..\Interop\StandardDescriptors\StandardUserDataOverloadedMethodDescriptor.cs">
+      <Link>StandardUserDataOverloadedMethodDescriptor.cs</Link>
     </Compile>
     <Compile Include="..\..\IO\BinDumpBinaryReader.cs">
       <Link>BinDumpBinaryReader.cs</Link>
@@ -431,6 +434,9 @@
     </Compile>
     <Compile Include="..\..\Platforms\LimitedPlatformAccessor.cs">
       <Link>LimitedPlatformAccessor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Platforms\PortableWrappers\Utils.cs">
+      <Link>Utils.cs</Link>
     </Compile>
     <Compile Include="..\..\Platforms\StandardFileType.cs">
       <Link>StandardFileType.cs</Link>

@@ -66,6 +66,20 @@ namespace NUnit.Framework
 		{
 			IsTrue(p, "Value not true");
 		}
+
+		internal static void Catch<ET>(Action a)
+		{
+			try
+			{
+				a();
+			}
+			catch(Exception e)
+			{
+				Assert.IsTrue(e is ET);
+			}
+		}
+
+
 	}
 
 

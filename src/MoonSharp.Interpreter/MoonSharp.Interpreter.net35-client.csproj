@@ -236,6 +236,7 @@
     <Compile Include="Platforms\PlatformAccessorBase.cs" />
     <Compile Include="Platforms\PlatformAutoDetector.cs" />
     <Compile Include="Platforms\LimitedPlatformAccessor.cs" />
+    <Compile Include="Platforms\PortableWrappers\Utils.cs" />
     <Compile Include="Platforms\StandardFileType.cs" />
     <Compile Include="Platforms\StandardPlatformAccessor.cs" />
     <Compile Include="Platforms\PortableWrappers\Attributes.cs" />

@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using MoonSharp.Interpreter;
 using MoonSharp.Interpreter.Diagnostics;
 using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Interop.Converters;
@@ -238,7 +239,7 @@ namespace MoonSharp.Interpreter.Interop
 				{
 					var arg = args.RawGet(j, false) ?? DynValue.Void;
 					pars[i] = ScriptToClrConversions.DynValueToObjectOfType(arg, Parameters[i].ParameterType,
-						Parameters[i].DefaultValue, Parameters[i].DefaultValue != System.DBNull.Value);
+						Parameters[i].DefaultValue, !Parameters[i].DefaultValue.IsDbNull());
 					j++;
 				}
 			}

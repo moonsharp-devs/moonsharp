@@ -224,7 +224,7 @@ namespace MoonSharp.Interpreter.Interop.StandardDescriptors
 				var arg = args.RawGet(argsCnt, false) ?? DynValue.Void;
 
 				int score = ScriptToClrConversions.DynValueToObjectOfTypeWeight(arg,
-					parameterType, method.Parameters[i].DefaultValue != System.DBNull.Value);
+					parameterType, !(method.Parameters[i].DefaultValue.IsDbNull()));
 
 				if (parameterType.IsByRef)
 					score = Math.Max(0, score - ScriptToClrConversions.WEIGHT_BYREF_BONUSMALUS);
@@ -253,6 +253,7 @@ namespace MoonSharp.Interpreter.Interop.StandardDescriptors
 	
 			return totalScore;
 		}
+
 
 
 		/// <summary>
