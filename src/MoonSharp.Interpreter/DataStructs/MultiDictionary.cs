@@ -13,6 +13,7 @@ namespace MoonSharp.Interpreter.DataStructs
 	internal class MultiDictionary<K, V>
 	{
 		Dictionary<K, List<V>> m_Map = new Dictionary<K, List<V>>();
+		V[] m_DefaultRet = new V[0];
 
 		public void Add(K key, V value)
 		{
@@ -35,7 +36,7 @@ namespace MoonSharp.Interpreter.DataStructs
 			if (m_Map.TryGetValue(key, out list))
 				return list;
 			else
-				return new V[0];
+				return m_DefaultRet;
 		}
 
 		public bool ContainsKey(K key)

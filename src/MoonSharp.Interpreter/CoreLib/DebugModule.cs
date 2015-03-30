@@ -162,6 +162,29 @@ namespace MoonSharp.Interpreter.CoreLib
 
 
 		[MoonSharpModuleMethod]
+		public static DynValue upvaluejoin(ScriptExecutionContext executionContext, CallbackArguments args)
+		{
+			DynValue f1 = args.AsType(0, "upvaluejoin", DataType.Function, false);
+			DynValue f2 = args.AsType(2, "upvaluejoin", DataType.Function, false);
+			int n1 = args.AsInt(1, "upvaluejoin") - 1;
+			int n2 = args.AsInt(3, "upvaluejoin") - 1;
+
+			Closure c1 = f1.Function;
+			Closure c2 = f2.Function;
+
+			if (n1 < 0 || n1 >= c1.ClosureContext.Count)
+				throw ScriptRuntimeException.BadArgument(1, "upvaluejoin", "invalid upvalue index");
+			
+			if (n2 < 0 || n2 >= c2.ClosureContext.Count)
+				throw ScriptRuntimeException.BadArgument(3, "upvaluejoin", "invalid upvalue index");
+
+			c2.ClosureContext[n2] = c1.ClosureContext[n1];
+
+			return DynValue.Void;
+		}
+
+
+		[MoonSharpModuleMethod]
 		public static DynValue traceback(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			StringBuilder sb = new StringBuilder();
@@ -215,6 +238,55 @@ namespace MoonSharp.Interpreter.CoreLib
 
 			return DynValue.NewString(sb);
 		}
+
+		//[MoonSharpModuleMethod]
+		//public static DynValue getlocal(ScriptExecutionContext executionContext, CallbackArguments args)
+		//{
+		//	Coroutine c;
+		//	int funcIdx;
+		//	Closure f;
+		//	int nextArg = ParseComplexArgs("getlocal", executionContext, args, out c, out f, out funcIdx);
+
+		//	int localIdx = args.AsInt(nextArg, "getlocal");
+
+		//	if (f != null)
+		//	{
+				
+		//	}
+		//	else
+		//	{
+
+		//	}
+
+
+
+		//}
+
+		//private static int ParseComplexArgs(string funcname, ScriptExecutionContext executionContext, CallbackArguments args, out Coroutine c, out Closure f, out int funcIdx)
+		//{
+		//	DynValue arg1 = args[0];
+		//	int argbase = 0;
+		//	c = null;
+
+		//	if (arg1.Type == DataType.Thread)
+		//	{
+		//		c = arg1.Coroutine;
+		//		argbase = 1;
+		//	}
+
+		//	if (args[argbase].Type == DataType.Number)
+		//	{
+		//		funcIdx = (int)args[argbase].Number;
+		//		f = null;
+		//	}
+		//	else
+		//	{
+		//		funcIdx = -1;
+		//		f = args.AsType(argbase, funcname, DataType.Function, false).Function;
+		//	}
+
+		//	return argbase + 1;
+		//}
 
 
 		//[MoonSharpMethod]

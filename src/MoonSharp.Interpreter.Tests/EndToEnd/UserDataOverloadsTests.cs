@@ -6,6 +6,20 @@ using NUnit.Framework;
 
 namespace MoonSharp.Interpreter.Tests.EndToEnd
 {
+	public static class OverloadsExtMethods
+	{
+		public static string Method1(this UserDataOverloadsTests.OverloadsTestClass obj, string x, bool b)
+		{
+			return "X" + obj.Method1();
+		}
+
+		public static string Method3(this UserDataOverloadsTests.OverloadsTestClass obj)
+		{
+			return "X" + obj.Method1(0.17);
+		}
+	}
+
+
 	[TestFixture]
 	public class UserDataOverloadsTests
 	{
@@ -121,6 +135,23 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		public void Interop_Overloads_Static1()
 		{
 			RunTestOverload("s:method1(true)", "s");
+		}
+
+		[Test]
+		public void Interop_Overloads_ExtMethods()
+		{
+			UserData.RegisterExtensionType(typeof(OverloadsExtMethods));
+
+			RunTestOverload("o:method1('xx', true)", "X1");
+			RunTestOverload("o:method3()", "X3");
+		}
+
+		[Test]
+		[ExpectedException(typeof(ScriptRuntimeException))]
+		public void Interop_Overloads_ExtMethods2()
+		{
+			UserData.RegisterExtensionType(typeof(OverloadsExtMethods));
+			RunTestOverload("s:method3()", "X3");
 		}
 
 

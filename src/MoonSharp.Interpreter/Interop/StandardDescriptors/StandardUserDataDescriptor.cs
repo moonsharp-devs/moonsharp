@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading;
 using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Interop.Converters;
-using MoonSharp.Interpreter.Interop.StandardDescriptors;
 
 namespace MoonSharp.Interpreter.Interop
 {
@@ -32,6 +31,8 @@ namespace MoonSharp.Interpreter.Interop
 		/// </summary>
 		public string FriendlyName { get; private set; }
 
+		private object m_Lock = new object();
+		private int m_ExtMethodsVersion = 0;
 		private Dictionary<string, StandardUserDataOverloadedMethodDescriptor> m_MetaMethods = new Dictionary<string, StandardUserDataOverloadedMethodDescriptor>();
 		private Dictionary<string, StandardUserDataOverloadedMethodDescriptor> m_Methods = new Dictionary<string, StandardUserDataOverloadedMethodDescriptor>();
 		private Dictionary<string, StandardUserDataPropertyDescriptor> m_Properties = new Dictionary<string, StandardUserDataPropertyDescriptor>();
@@ -72,7 +73,7 @@ namespace MoonSharp.Interpreter.Interop
 					if (CheckVisibility(ci.GetCustomAttributes(true), ci.IsPublic))
 					{
 						var md = new StandardUserDataMethodDescriptor(ci, this.AccessMode);
-						if (constructors == null) constructors = new StandardUserDataOverloadedMethodDescriptor();
+						if (constructors == null) constructors = new StandardUserDataOverloadedMethodDescriptor("__new", this.Type) { IgnoreExtensionMethods = true };
 						constructors.AddOverload(md);
 					}
 				}
@@ -103,7 +104,7 @@ namespace MoonSharp.Interpreter.Interop
 						}
 						else
 						{
-							m_Methods.Add(name, new StandardUserDataOverloadedMethodDescriptor(md));
+							m_Methods.Add(name, new StandardUserDataOverloadedMethodDescriptor(name, this.Type, md));
 						}
 
 						foreach(string metaname in GetMetaNamesFromAttributes(mi))
@@ -114,7 +115,7 @@ namespace MoonSharp.Interpreter.Interop
 							}
 							else
 							{
-								m_MetaMethods.Add(metaname, new StandardUserDataOverloadedMethodDescriptor(md));
+								m_MetaMethods.Add(metaname, new StandardUserDataOverloadedMethodDescriptor(metaname, this.Type, md) { IgnoreExtensionMethods = true });
 							}
 						}
 					}
@@ -184,7 +185,11 @@ namespace MoonSharp.Interpreter.Interop
 		{
 			if (!isDirectIndexing)
 			{
-				StandardUserDataOverloadedMethodDescriptor mdesc = m_Methods.GetOrDefault(SPECIAL_GETITEM);
+				StandardUserDataOverloadedMethodDescriptor mdesc;
+
+				lock (m_Lock) 
+					mdesc = m_Methods.GetOrDefault(SPECIAL_GETITEM);
+
 				if (mdesc != null)
 					return ExecuteIndexer(mdesc, script, obj, index, null);
 			}
@@ -194,12 +199,52 @@ namespace MoonSharp.Interpreter.Interop
 			if (index.Type != DataType.String)
 				throw ScriptRuntimeException.BadArgument(1, string.Format("userdata<{0}>.__index", this.Name), "string", index.Type.ToLuaTypeString(), false);
 
-			DynValue v = TryIndex(script, obj, index.String);
-			if (v == null) v = TryIndex(script, obj, UpperFirstLetter(index.String));
-			if (v == null) v = TryIndex(script, obj, Camelify(index.String));
-			if (v == null) v = TryIndex(script, obj, UpperFirstLetter(Camelify(index.String)));
+			DynValue v = null;
+
+			lock (m_Lock)
+			{
+				v =TryIndex(script, obj, index.String);
+				if (v == null) v = TryIndex(script, obj, UpperFirstLetter(index.String));
+				if (v == null) v = TryIndex(script, obj, Camelify(index.String));
+				if (v == null) v = TryIndex(script, obj, UpperFirstLetter(Camelify(index.String)));
+
+				if (v == null && m_ExtMethodsVersion < UserData.GetExtensionMethodsChangeVersion())
+				{
+					m_ExtMethodsVersion = UserData.GetExtensionMethodsChangeVersion();
+
+					v = TryIndexOnExtMethod(script, obj, index.String);
+					if (v == null) v = TryIndexOnExtMethod(script, obj, UpperFirstLetter(index.String));
+					if (v == null) v = TryIndexOnExtMethod(script, obj, Camelify(index.String));
+					if (v == null) v = TryIndexOnExtMethod(script, obj, UpperFirstLetter(Camelify(index.String)));
+				}
+			}
 
 			return v;
+		}
+
+		/// <summary>
+		/// Tries to perform an indexing operation by checking newly added extension methods for the given indexName.
+		/// </summary>
+		/// <param name="script">The script.</param>
+		/// <param name="obj">The object.</param>
+		/// <param name="indexName">Member name to be indexed.</param>
+		/// <returns></returns>
+		/// <exception cref="System.NotImplementedException"></exception>
+		private DynValue TryIndexOnExtMethod(Script script, object obj, string indexName)
+		{
+			List<StandardUserDataMethodDescriptor> methods = UserData.GetExtensionMethodsByName(indexName)
+						.Where(d => d.ExtensionMethodType != null && d.ExtensionMethodType.IsAssignableFrom(this.Type))
+						.ToList();
+
+			if (methods != null && methods.Count > 0)
+			{
+				var ext = new StandardUserDataOverloadedMethodDescriptor(indexName, this.Type);
+				ext.SetExtensionMethodsSnapshot(UserData.GetExtensionMethodsChangeVersion(), methods);
+				m_Methods.Add(indexName, ext);
+				return DynValue.NewCallback(ext.GetCallback(script, obj));
+			}
+
+			return null;			
 		}
 
 		/// <summary>
@@ -237,7 +282,11 @@ namespace MoonSharp.Interpreter.Interop
 		{
 			if (!isDirectIndexing)
 			{
-				StandardUserDataOverloadedMethodDescriptor mdesc = m_Methods.GetOrDefault(SPECIAL_SETITEM);
+				StandardUserDataOverloadedMethodDescriptor mdesc;
+				
+				lock(m_Lock)
+					mdesc = m_Methods.GetOrDefault(SPECIAL_SETITEM);
+
 				if (mdesc != null)
 				{
 					ExecuteIndexer(mdesc, script, obj, index, value);
@@ -250,10 +299,15 @@ namespace MoonSharp.Interpreter.Interop
 			if (index.Type != DataType.String)
 				throw ScriptRuntimeException.BadArgument(1, string.Format("userdata<{0}>.__setindex", this.Name), "string", index.Type.ToLuaTypeString(), false);
 
-			bool v = TrySetIndex(script, obj, index.String, value);
-			if (!v) v = TrySetIndex(script, obj, UpperFirstLetter(index.String), value);
-			if (!v) v = TrySetIndex(script, obj, Camelify(index.String), value);
-			if (!v) v = TrySetIndex(script, obj, UpperFirstLetter(Camelify(index.String)), value);
+			bool v = false;
+
+			lock (m_Lock)
+			{
+				v = TrySetIndex(script, obj, index.String, value);
+				if (!v) v = TrySetIndex(script, obj, UpperFirstLetter(index.String), value);
+				if (!v) v = TrySetIndex(script, obj, Camelify(index.String), value);
+				if (!v) v = TrySetIndex(script, obj, UpperFirstLetter(Camelify(index.String)), value);
+			}
 
 			return v;
 		}
@@ -270,7 +324,10 @@ namespace MoonSharp.Interpreter.Interop
 		{
 			StandardUserDataPropertyDescriptor pdesc;
 
-			if (m_Properties.TryGetValue(indexName, out pdesc))
+			lock(m_Lock)
+				pdesc = m_Properties.GetOrDefault(indexName);
+
+			if (pdesc != null)
 			{
 				pdesc.SetValue(script, obj, value);
 				return true;
@@ -420,7 +477,10 @@ namespace MoonSharp.Interpreter.Interop
 		/// <returns></returns>
 		public virtual DynValue MetaIndex(Script script, object obj, string metaname)
 		{
-			StandardUserDataOverloadedMethodDescriptor desc = m_MetaMethods.GetOrDefault(metaname);
+			StandardUserDataOverloadedMethodDescriptor desc;
+			
+			lock(m_Lock)
+				desc = m_MetaMethods.GetOrDefault(metaname);
 
 			if (desc != null)
 				return desc.GetCallbackAsDynValue(script, obj);

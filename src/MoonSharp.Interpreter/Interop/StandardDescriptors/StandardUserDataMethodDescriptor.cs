@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using MoonSharp.Interpreter;
 using MoonSharp.Interpreter.Diagnostics;
 using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Interop.Converters;
-using MoonSharp.Interpreter.Interop.StandardDescriptors;
 
 namespace MoonSharp.Interpreter.Interop
 {
@@ -38,6 +38,10 @@ namespace MoonSharp.Interpreter.Interop
 		/// Gets a value indicating whether the described method is a constructor
 		/// </summary>
 		public bool IsConstructor { get; private set; }
+		/// <summary>
+		/// Gets the type which this extension method extends, null if this is not an extension method.
+		/// </summary>
+		public Type ExtensionMethodType { get; private set; }
 		/// <summary>
 		/// Gets a sort discriminant to give consistent overload resolution matching in case of perfectly equal scores
 		/// </summary>
@@ -76,6 +80,12 @@ namespace MoonSharp.Interpreter.Interop
 				m_IsAction = ((MethodInfo)methodBase).ReturnType == typeof(void);
 
 			Parameters = methodBase.GetParameters();
+
+			if (methodBase.IsStatic && Parameters.Length > 0 && methodBase.GetCustomAttributes(typeof(ExtensionAttribute), false).Any())
+			{
+				this.ExtensionMethodType = Parameters[0].ParameterType;
+			}
+
 
 			// adjust access mode
 			if (Script.GlobalOptions.Platform.IsRunningOnAOT())
@@ -213,13 +223,21 @@ namespace MoonSharp.Interpreter.Interop
 
 			for (int i = 0; i < pars.Length; i++)
 			{
+				// keep track of out and ref params
 				if (Parameters[i].ParameterType.IsByRef)
 				{
 					if (outParams == null) outParams = new List<int>();
 					outParams.Add(i);
 				}
 
-				if (Parameters[i].ParameterType == typeof(Script))
+				// if an ext method, we have an obj -> fill the first param
+				if (ExtensionMethodType != null && obj != null && i == 0)
+				{
+					pars[i] = obj;
+					continue;
+				}
+				// else, fill types with a supported type
+				else if (Parameters[i].ParameterType == typeof(Script))
 				{
 					pars[i] = script;
 				}
@@ -231,10 +249,12 @@ namespace MoonSharp.Interpreter.Interop
 				{
 					pars[i] = args.SkipMethodCall();
 				}
+				// else, ignore out params
 				else if (Parameters[i].IsOut)
 				{
 					pars[i] = null;
 				}
+				// else, convert it
 				else
 				{
 					var arg = args.RawGet(j, false) ?? DynValue.Void;

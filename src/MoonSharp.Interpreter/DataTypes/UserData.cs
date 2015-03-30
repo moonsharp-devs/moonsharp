@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
+using MoonSharp.Interpreter.DataStructs;
 using MoonSharp.Interpreter.Interop;
 
 namespace MoonSharp.Interpreter
@@ -38,6 +40,8 @@ namespace MoonSharp.Interpreter
 		private static object s_Lock = new object();
 		private static Dictionary<Type, IUserDataDescriptor> s_Registry = new Dictionary<Type, IUserDataDescriptor>();
 		private static InteropAccessMode s_DefaultAccessMode;
+		private static MultiDictionary<string, StandardUserDataMethodDescriptor> s_ExtensionMethodRegistry = new MultiDictionary<string, StandardUserDataMethodDescriptor>();
+		private static int s_ExtensionMethodChangeVersion = 0;
 
 		static UserData()
 		{
@@ -92,14 +96,29 @@ namespace MoonSharp.Interpreter
 		/// Registers all types marked with a MoonSharpUserDataAttribute that ar contained in an assembly.
 		/// </summary>
 		/// <param name="asm">The assembly.</param>
-		public static void RegisterAssembly(Assembly asm = null)
+		/// <param name="includeExtensionTypes">if set to <c>true</c> extension types are registered to the appropriate registry.</param>
+		public static void RegisterAssembly(Assembly asm = null, bool includeExtensionTypes = false)
 		{
 			asm = asm ?? Assembly.GetCallingAssembly();
 
+			if (includeExtensionTypes)
+			{
+				var extensionTypes = from t in asm.GetTypes()
+									 let attributes = t.GetCustomAttributes(typeof(ExtensionAttribute), true)
+									 where attributes != null && attributes.Length > 0
+									 select new { Attributes = attributes, DataType = t };
+
+				foreach (var extType in extensionTypes)
+				{
+					UserData.RegisterExtensionType(extType.DataType);
+				}
+			}
+
+
 			var userDataTypes = from t in asm.GetTypes()
-				let attributes = t.GetCustomAttributes(typeof(MoonSharpUserDataAttribute), true)
-				where attributes != null && attributes.Length > 0
-				select new { Attributes = attributes, DataType = t };
+								let attributes = t.GetCustomAttributes(typeof(MoonSharpUserDataAttribute), true)
+								where attributes != null && attributes.Length > 0
+								select new { Attributes = attributes, DataType = t };
 
 			foreach (var userDataType in userDataTypes)
 			{
@@ -111,7 +130,7 @@ namespace MoonSharp.Interpreter
 		}
 
 		/// <summary>
-		/// Unregisters a type.
+		/// Unregisters a type
 		/// </summary>
 		/// <typeparam name="T">The type to be unregistered</typeparam>
 		public static void UnregisterType<T>()
@@ -120,14 +139,16 @@ namespace MoonSharp.Interpreter
 		}
 
 		/// <summary>
-		/// Unregisters a type.
+		/// Unregisters a type
 		/// </summary>
 		/// <param name="t">The The type to be unregistered</param>
 		public static void UnregisterType(Type t)
 		{
 			lock (s_Lock)
+			{
 				if (s_Registry.ContainsKey(t))
 					s_Registry.Remove(t);
+			}
 		}
 
 		/// <summary>
@@ -198,6 +219,54 @@ namespace MoonSharp.Interpreter
 			}
 		}
 
+		/// <summary>
+		/// Registers an extension Type (that is a type containing extension methods)
+		/// </summary>
+		/// <param name="type">The type.</param>
+		/// <param name="mode">The InteropAccessMode.</param>
+		public static void RegisterExtensionType(Type type, InteropAccessMode mode = InteropAccessMode.Default)
+		{
+			lock (s_Lock)
+			{
+				foreach (MethodInfo mi in type.GetMethods().Where(_mi => _mi.IsStatic))
+				{
+					if (!StandardUserDataMethodDescriptor.CheckMethodIsCompatible(mi, false))
+						continue;
+
+					if (mi.GetCustomAttributes(typeof(ExtensionAttribute), false).Length == 0)
+						continue;
+
+					var desc = new StandardUserDataMethodDescriptor(mi, mode);
+
+					s_ExtensionMethodRegistry.Add(mi.Name, desc);
+
+					++s_ExtensionMethodChangeVersion;
+				}
+			}
+		}
+
+
+		/// <summary>
+		/// Gets all the extension methods which can match a given name
+		/// </summary>
+		/// <param name="name">The name.</param>
+		/// <returns></returns>
+		public static IEnumerable<StandardUserDataMethodDescriptor> GetExtensionMethodsByName(string name)
+		{
+			lock (s_Lock)
+				return s_ExtensionMethodRegistry.Find(name);
+		}
+
+		/// <summary>
+		/// Gets a number which gets incremented everytime the extension methods registry changes.
+		/// Use this to invalidate caches based on extension methods
+		/// </summary>
+		/// <returns></returns>
+		public static int GetExtensionMethodsChangeVersion()
+		{
+			return s_ExtensionMethodChangeVersion;
+		}
+
 
 
 		private static IUserDataDescriptor RegisterType_Impl(Type type, InteropAccessMode accessMode, string friendlyName, IUserDataDescriptor descriptor)
@@ -215,7 +284,7 @@ namespace MoonSharp.Interpreter
 			if (accessMode == InteropAccessMode.Default)
 				accessMode = s_DefaultAccessMode;
 
-			lock(s_Lock)
+			lock (s_Lock)
 			{
 				if (!s_Registry.ContainsKey(type))
 				{
@@ -257,7 +326,7 @@ namespace MoonSharp.Interpreter
 
 		private static IUserDataDescriptor GetDescriptorForType(Type type, bool searchInterfaces)
 		{
-			lock(s_Lock)
+			lock (s_Lock)
 			{
 				IUserDataDescriptor typeDescriptor = null;
 
