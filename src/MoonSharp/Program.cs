@@ -66,7 +66,7 @@ namespace MoonSharp
 
 					try
 					{
-						DynValue result = interpreter.ExecuteRepl(s);
+						DynValue result = interpreter.Evaluate(s);
 
 						if (result != null && result.Type != DataType.Void)
 							Console.WriteLine("{0}", result);

@@ -18,7 +18,10 @@ namespace MoonSharp.Interpreter.CoreLib
 		public static DynValue debug(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			Script script = executionContext.GetScript();
-			
+
+			if (script.Options.DebugInput == null)
+				throw new ScriptRuntimeException("debug.debug not supported on this platform/configuration");
+
 			ReplInterpreter interpreter = new ReplInterpreter(script)
 				{
 					HandleDynamicExprs = false,
@@ -31,7 +34,7 @@ namespace MoonSharp.Interpreter.CoreLib
 
 				try
 				{
-					DynValue result = interpreter.ExecuteRepl(s);
+					DynValue result = interpreter.Evaluate(s);
 
 					if (result != null && result.Type != DataType.Void)
 						script.Options.DebugPrint(string.Format("{0}", result));

@@ -127,6 +127,9 @@
     <Compile Include="..\..\Interop\StandardDescriptors\StandardUserDataOverloadedMethodDescriptor.cs">
       <Link>StandardUserDataOverloadedMethodDescriptor.cs</Link>
     </Compile>
+    <Compile Include="..\..\Interop\StandardDescriptors\StandardUserDataFieldDescriptor.cs">
+      <Link>StandardUserDataFieldDescriptor.cs</Link>
+    </Compile>
     <Compile Include="..\..\IO\BinDumpBinaryReader.cs">
       <Link>BinDumpBinaryReader.cs</Link>
     </Compile>
@@ -402,7 +405,10 @@
     <Compile Include="..\..\Loaders\InvalidScriptLoader.cs">
       <Link>InvalidScriptLoader.cs</Link>
     </Compile>
-    <Compile Include="..\..\Loaders\ReplInterpreterScriptLoader.cs">
+    <Compile Include="..\..\REPL\ReplHistoryNavigator.cs">
+      <Link>ReplHistoryNavigator.cs</Link>
+    </Compile>
+    <Compile Include="..\..\REPL\ReplInterpreterScriptLoader.cs">
       <Link>ReplInterpreterScriptLoader.cs</Link>
     </Compile>
     <Compile Include="..\..\Loaders\ScriptLoaderBase.cs">
@@ -449,6 +455,9 @@
     </Compile>
     <Compile Include="..\..\Platforms\PortableWrappers\Stopwatch.cs">
       <Link>Stopwatch.cs</Link>
+    </Compile>
+    <Compile Include="..\..\REPL\ReplInterpreter.cs">
+      <Link>ReplInterpreter.cs</Link>
     </Compile>
     <Compile Include="..\..\Script.cs">
       <Link>Script.cs</Link>

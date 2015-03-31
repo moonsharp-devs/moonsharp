@@ -26,24 +26,24 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 
 		public FunctionDefinitionExpression(ScriptLoadingContext lcontext, Table globalContext)
-			: this(lcontext, false, globalContext)
+			: this(lcontext, false, globalContext, false)
 		{ }
 
-		public FunctionDefinitionExpression(ScriptLoadingContext lcontext, bool pushSelfParam)
-			: this(lcontext, pushSelfParam, null)
+		public FunctionDefinitionExpression(ScriptLoadingContext lcontext, bool pushSelfParam, bool isLambda)
+			: this(lcontext, pushSelfParam, null, isLambda)
 		{ }
 
 
-		private FunctionDefinitionExpression(ScriptLoadingContext lcontext, bool pushSelfParam, Table globalContext)
+		private FunctionDefinitionExpression(ScriptLoadingContext lcontext, bool pushSelfParam, Table globalContext, bool isLambda)
 			: base(lcontext)
 		{
 			if (globalContext != null)
 				CheckTokenType(lcontext, TokenType.Function);
 
-			// here lexer should be at the '('.
-			Token openRound = CheckTokenType(lcontext, TokenType.Brk_Open_Round);
+			// here lexer should be at the '(' or at the '|'
+			Token openRound = CheckTokenType(lcontext, isLambda ? TokenType.Lambda : TokenType.Brk_Open_Round);
 
-			List<string> paramnames = BuildParamList(lcontext, pushSelfParam, openRound);
+			List<string> paramnames = BuildParamList(lcontext, pushSelfParam, openRound, isLambda);
 			// here lexer is at first token of body
 
 			m_Begin = openRound.GetSourceRefUpTo(lcontext.Lexer.Current);
@@ -63,7 +63,10 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 			m_ParamNames = DefineArguments(paramnames, lcontext);
 
-			m_Statement = CreateBody(lcontext);
+			if(isLambda)
+				m_Statement = CreateLambdaBody(lcontext);
+			else
+				m_Statement = CreateBody(lcontext);
 
 			m_StackFrame = lcontext.Scope.PopFunction();
 
@@ -71,6 +74,18 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			lcontext.Source.Refs.Add(m_End);
 
 		}
+
+
+		private Statement CreateLambdaBody(ScriptLoadingContext lcontext)
+		{
+			Token start = lcontext.Lexer.Current;
+			Expression e = Expression.Expr(lcontext);
+			Token end = lcontext.Lexer.Current;
+			SourceRef sref = start.GetSourceRefUpTo(end);
+			Statement s = new ReturnStatement(lcontext, e, sref);
+			return s;
+		}
+
 
 		private Statement CreateBody(ScriptLoadingContext lcontext)
 		{
@@ -88,15 +103,17 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			return s;
 		}
 
-		private List<string> BuildParamList(ScriptLoadingContext lcontext, bool pushSelfParam, Token openBracketToken)
+		private List<string> BuildParamList(ScriptLoadingContext lcontext, bool pushSelfParam, Token openBracketToken, bool isLambda)
 		{
+			TokenType closeToken = isLambda ? TokenType.Lambda : TokenType.Brk_Close_Round;
+
 			List<string> paramnames = new List<string>();
 
 			// method decls with ':' must push an implicit 'self' param
 			if (pushSelfParam)
 				paramnames.Add("self");
 
-			while (lcontext.Lexer.Current.Type != TokenType.Brk_Close_Round)
+			while (lcontext.Lexer.Current.Type != closeToken)
 			{
 				Token t = lcontext.Lexer.Current;
 
@@ -122,12 +139,12 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 				}
 				else
 				{
-					CheckMatch(lcontext, openBracketToken, TokenType.Brk_Close_Round, ")");
+					CheckMatch(lcontext, openBracketToken, closeToken, isLambda ? "|" : ")");
 					break;
 				}
 			}
 
-			if (lcontext.Lexer.Current.Type == TokenType.Brk_Close_Round)
+			if (lcontext.Lexer.Current.Type == closeToken)
 				lcontext.Lexer.Next();
 
 			return paramnames;

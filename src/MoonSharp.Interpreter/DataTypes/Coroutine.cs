@@ -64,6 +64,26 @@ namespace MoonSharp.Interpreter
 
 
 		/// <summary>
+		/// Gets this coroutine as a typed enumerable which can be looped over for resuming.
+		/// </summary>
+		/// <returns></returns>
+		public IEnumerable<DynValue> AsTypedEnumerable()
+		{
+			while (this.State == CoroutineState.NotStarted || this.State == CoroutineState.Suspended)
+				yield return Resume();
+		}
+
+		/// <summary>
+		/// Gets this coroutine as a System.Collections.IEnumerator. This should bridge with Unity3D coroutines.
+		/// </summary>
+		/// <returns></returns>
+		public System.Collections.IEnumerator AsEnumerator()
+		{
+			return AsTypedEnumerable().GetEnumerator();
+		}
+
+
+		/// <summary>
 		/// Resumes the coroutine
 		/// </summary>
 		/// <param name="args">The arguments.</param>

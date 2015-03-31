@@ -37,26 +37,26 @@ namespace MoonSharp.Interpreter.REPL
 		/// <summary>
 		/// Gets a value indicating whether this instance has a pending command 
 		/// </summary>
-		public bool HasPendingCommand { get { return m_CurrentCommand.Length > 0; } }
+		public virtual bool HasPendingCommand { get { return m_CurrentCommand.Length > 0; } }
 
 		/// <summary>
 		/// Gets the current pending command.
 		/// </summary>
-		public string CurrentPendingCommand { get { return m_CurrentCommand; } }
+		public virtual string CurrentPendingCommand { get { return m_CurrentCommand; } }
 
 		/// <summary>
 		/// Gets the classic prompt (">" or ">>") given the current state of the interpreter
 		/// </summary>
-		public string ClassicPrompt { get { return HasPendingCommand ? ">>" : ">"; } }
+		public virtual string ClassicPrompt { get { return HasPendingCommand ? ">>" : ">"; } }
 
 		/// <summary>
-		/// Executes a REPL command.
-		/// This method returns the result of the computation, or null if more input is needed for a computation.
+		/// Evaluate a REPL command.
+		/// This method returns the result of the computation, or null if more input is needed for having valid code.
 		/// In case of errors, exceptions are propagated to the caller.
 		/// </summary>
 		/// <param name="input">The input.</param>
 		/// <returns>This method returns the result of the computation, or null if more input is needed for a computation.</returns>
-		public DynValue ExecuteRepl(string input)
+		public virtual DynValue Evaluate(string input)
 		{
 			bool isFirstLine = !HasPendingCommand;
 

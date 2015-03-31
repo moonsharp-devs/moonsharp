@@ -19,6 +19,7 @@ namespace MoonSharp.Interpreter.Tree
 		False,
 		For,
 		Function,
+		Lambda,
 		Goto,
 		If,
 		In,

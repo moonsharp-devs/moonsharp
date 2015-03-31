@@ -44,7 +44,6 @@ namespace MoonSharp.Interpreter.Interop
 		/// 
 		/// </summary>
 		/// <param name="script">The script originating the request</param>
-		/// <param name="obj">The object (null if a static request is done)</param>
 		/// <param name="metaname">The name of the metamember.</param>
 		/// <returns></returns>
 		DynValue MetaIndex(Script script, string metaname);

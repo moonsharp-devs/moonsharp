@@ -44,8 +44,10 @@ namespace MoonSharp.Interpreter.Interop
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="StandardUserDataOverloadedMethodDescriptor"/> class.
+		/// Initializes a new instance of the <see cref="StandardUserDataOverloadedMethodDescriptor" /> class.
 		/// </summary>
+		/// <param name="name">The name.</param>
+		/// <param name="declaringType">The declaring type.</param>
 		/// <param name="descriptor">The descriptor of the first overloaded method.</param>
 		public StandardUserDataOverloadedMethodDescriptor(string name, Type declaringType, StandardUserDataMethodDescriptor descriptor)
 			: this(name, declaringType)
@@ -54,8 +56,10 @@ namespace MoonSharp.Interpreter.Interop
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="StandardUserDataOverloadedMethodDescriptor"/> class.
+		/// Initializes a new instance of the <see cref="StandardUserDataOverloadedMethodDescriptor" /> class.
 		/// </summary>
+		/// <param name="name">The name.</param>
+		/// <param name="declaringType">The declaring type.</param>
 		/// <param name="descriptors">The descriptors of the overloaded methods.</param>
 		public StandardUserDataOverloadedMethodDescriptor(string name, Type declaringType, IEnumerable<StandardUserDataMethodDescriptor> descriptors)
 			: this(name, declaringType)
@@ -264,6 +268,7 @@ namespace MoonSharp.Interpreter.Interop
 		/// <param name="context">The context.</param>
 		/// <param name="args">The arguments.</param>
 		/// <param name="method">The method.</param>
+		/// <param name="isExtMethod">if set to <c>true</c>, is an extension method.</param>
 		/// <returns></returns>
 		private int CalcScoreForOverload(ScriptExecutionContext context, CallbackArguments args, StandardUserDataMethodDescriptor method, bool isExtMethod)
 		{

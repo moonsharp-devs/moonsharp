@@ -86,7 +86,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 				}
 			}
 
-			m_FuncDef = new FunctionDefinitionExpression(lcontext, m_IsMethodCallingConvention);
+			m_FuncDef = new FunctionDefinitionExpression(lcontext, m_IsMethodCallingConvention, false);
 			lcontext.Source.Refs.Add(m_SourceRef);
 		}
 

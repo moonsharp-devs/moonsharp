@@ -121,6 +121,7 @@
     <Compile Include="Interop\Converters\TableConversions.cs" />
     <Compile Include="Interop\CustomConvertersCollection.cs" />
     <Compile Include="Interop\StandardDescriptors\StandardUserDataOverloadedMethodDescriptor.cs" />
+    <Compile Include="Interop\StandardDescriptors\StandardUserDataFieldDescriptor.cs" />
     <Compile Include="IO\BinDumpBinaryReader.cs" />
     <Compile Include="IO\BinDumpBinaryWriter.cs">
       <SubType>Code</SubType>
@@ -226,6 +227,7 @@
     <Compile Include="Loaders\EmbeddedResourcesScriptLoader.cs" />
     <Compile Include="Loaders\FileSystemScriptLoader.cs" />
     <Compile Include="Loaders\InvalidScriptLoader.cs" />
+    <Compile Include="REPL\ReplHistoryNavigator.cs" />
     <Compile Include="REPL\ReplInterpreterScriptLoader.cs" />
     <Compile Include="Loaders\ScriptLoaderBase.cs" />
     <Compile Include="Loaders\IScriptLoader.cs" />

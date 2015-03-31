@@ -57,6 +57,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SilverlightTestRunner", "Te
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoonSharp.RemoteDebugger.net40-client", "MoonSharp.RemoteDebugger\_Projects\MoonSharp.RemoteDebugger.net40-client\MoonSharp.RemoteDebugger.net40-client.csproj", "{F9D383B9-2639-4738-A897-4D9F8801B8C9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoonSharpSL5ReplDemo", "DevTools\MoonSharpSL5ReplDemo\MoonSharpSL5ReplDemo.csproj", "{69B110B4-E578-4854-8F63-D80E4E14E1B6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -383,6 +385,21 @@ Global
 		{F9D383B9-2639-4738-A897-4D9F8801B8C9}.Release|ARM.ActiveCfg = Release|Any CPU
 		{F9D383B9-2639-4738-A897-4D9F8801B8C9}.Release|x64.ActiveCfg = Release|Any CPU
 		{F9D383B9-2639-4738-A897-4D9F8801B8C9}.Release|x86.ActiveCfg = Release|Any CPU
+		{69B110B4-E578-4854-8F63-D80E4E14E1B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69B110B4-E578-4854-8F63-D80E4E14E1B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69B110B4-E578-4854-8F63-D80E4E14E1B6}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{69B110B4-E578-4854-8F63-D80E4E14E1B6}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{69B110B4-E578-4854-8F63-D80E4E14E1B6}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{69B110B4-E578-4854-8F63-D80E4E14E1B6}.Dev|Any CPU.ActiveCfg = Debug|Any CPU
+		{69B110B4-E578-4854-8F63-D80E4E14E1B6}.Dev|Any CPU.Build.0 = Debug|Any CPU
+		{69B110B4-E578-4854-8F63-D80E4E14E1B6}.Dev|ARM.ActiveCfg = Debug|Any CPU
+		{69B110B4-E578-4854-8F63-D80E4E14E1B6}.Dev|x64.ActiveCfg = Debug|Any CPU
+		{69B110B4-E578-4854-8F63-D80E4E14E1B6}.Dev|x86.ActiveCfg = Debug|Any CPU
+		{69B110B4-E578-4854-8F63-D80E4E14E1B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69B110B4-E578-4854-8F63-D80E4E14E1B6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{69B110B4-E578-4854-8F63-D80E4E14E1B6}.Release|ARM.ActiveCfg = Release|Any CPU
+		{69B110B4-E578-4854-8F63-D80E4E14E1B6}.Release|x64.ActiveCfg = Release|Any CPU
+		{69B110B4-E578-4854-8F63-D80E4E14E1B6}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -406,5 +423,6 @@ Global
 		{642B8AC9-97EB-4AA8-8F1D-D3F94CABCE37} = {023F1F7D-5F49-430F-9CC4-5FF891439548}
 		{6D867B0C-EFC6-48C8-972C-EE0A2F99FEB4} = {023F1F7D-5F49-430F-9CC4-5FF891439548}
 		{F9D383B9-2639-4738-A897-4D9F8801B8C9} = {5014C740-F6C7-4995-8D40-C250FB159A20}
+		{69B110B4-E578-4854-8F63-D80E4E14E1B6} = {3C626068-E8CE-4F62-8974-F42A56F4EFD3}
 	EndGlobalSection
 EndGlobal

@@ -26,6 +26,37 @@ namespace MoonSharp.Interpreter.Tests
 			Assert.AreEqual(5, res.Number);
 		}
 
+		[Test]
+		public void LambdaFunctions()
+		{
+			string script = @"
+g = |f, x|f(x, x+1)
+f = |x, y, z|x*(y+z)
+return g(|x,y|f(x,y,1), 2)
+";
+			DynValue res = Script.RunString(script);
+
+			Assert.AreEqual(DataType.Number, res.Type);
+			Assert.AreEqual(8, res.Number);
+		}
+
+
+
+		[Test]
+		public void ClosureOnParamLambda()
+		{
+			string script = @"
+				local function g (z)
+				  return |a| a + z
+				end
+
+				return (g(3)(2));";
+
+			DynValue res = Script.RunString(script);
+
+			Assert.AreEqual(DataType.Number, res.Type);
+			Assert.AreEqual(5, res.Number);
+		}
 
 
 		[Test]

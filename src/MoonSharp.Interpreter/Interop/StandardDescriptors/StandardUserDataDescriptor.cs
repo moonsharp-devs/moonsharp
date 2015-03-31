@@ -36,6 +36,7 @@ namespace MoonSharp.Interpreter.Interop
 		private Dictionary<string, StandardUserDataOverloadedMethodDescriptor> m_MetaMethods = new Dictionary<string, StandardUserDataOverloadedMethodDescriptor>();
 		private Dictionary<string, StandardUserDataOverloadedMethodDescriptor> m_Methods = new Dictionary<string, StandardUserDataOverloadedMethodDescriptor>();
 		private Dictionary<string, StandardUserDataPropertyDescriptor> m_Properties = new Dictionary<string, StandardUserDataPropertyDescriptor>();
+		private Dictionary<string, StandardUserDataFieldDescriptor> m_Fields = new Dictionary<string, StandardUserDataFieldDescriptor>();
 
 		const string SPECIAL_GETITEM = "get_Item";
 		const string SPECIAL_SETITEM = "set_Item";
@@ -131,6 +132,19 @@ namespace MoonSharp.Interpreter.Interop
 
 						var pd = new StandardUserDataPropertyDescriptor(pi, this.AccessMode);
 						m_Properties.Add(pd.Name, pd);
+					}
+				}
+
+				// get fields
+				foreach (FieldInfo fi in type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
+				{
+					if (CheckVisibility(fi.GetCustomAttributes(true), fi.IsPublic))
+					{
+						if (fi.IsSpecialName)
+							continue;
+
+						var pd = new StandardUserDataFieldDescriptor(fi, this.AccessMode);
+						m_Fields.Add(pd.Name, pd);
 					}
 				}
 			}
@@ -266,6 +280,11 @@ namespace MoonSharp.Interpreter.Interop
 			if (m_Properties.TryGetValue(indexName, out pdesc))
 				return pdesc.GetValue(script, obj);
 
+			StandardUserDataFieldDescriptor fdesc;
+
+			if (m_Fields.TryGetValue(indexName, out fdesc))
+				return fdesc.GetValue(script, obj);
+
 			return null;
 		}
 
@@ -332,9 +351,22 @@ namespace MoonSharp.Interpreter.Interop
 				pdesc.SetValue(script, obj, value);
 				return true;
 			}
-			else
+			else 
 			{
-				return false;
+				StandardUserDataFieldDescriptor fdesc;
+
+				lock (m_Lock)
+					fdesc = m_Fields.GetOrDefault(indexName);
+
+				if (fdesc != null)
+				{
+					fdesc.SetValue(script, obj, value);
+					return true;
+				}
+				else
+				{
+					return false;
+				}
 			}
 		}
 
@@ -349,6 +381,8 @@ namespace MoonSharp.Interpreter.Interop
 				m.OptimizeSetter();
 			}
 
+			foreach (var m in this.m_Fields.Values)
+				m.OptimizeGetter();
 		}
 
 		/// <summary>
@@ -474,6 +508,7 @@ namespace MoonSharp.Interpreter.Interop
 		/// <param name="script">The script originating the request</param>
 		/// <param name="obj">The object (null if a static request is done)</param>
 		/// <param name="metaname">The name of the metamember.</param>
+		/// </summary>
 		/// <returns></returns>
 		public virtual DynValue MetaIndex(Script script, object obj, string metaname)
 		{

@@ -149,7 +149,9 @@ namespace MoonSharp.Interpreter.Tree
 					return new TableConstructor(lcontext);
 				case TokenType.Function:
 					lcontext.Lexer.Next();
-					return new FunctionDefinitionExpression(lcontext, false);
+					return new FunctionDefinitionExpression(lcontext, false, false);
+				case TokenType.Lambda:
+					return new FunctionDefinitionExpression(lcontext, false, true);
 				default:
 					return PrimaryExp(lcontext);
 			}

@@ -163,6 +163,75 @@ checkresume(6, false, 'cannot resume dead coroutine');
 			script.DoString(code);
 		}
 
+		[Test]
+		public void Coroutine_Direct_Resume()
+		{
+			string code = @"
+				return function()
+					local x = 0
+					while true do
+						x = x + 1
+						coroutine.yield(x)
+						if (x > 5) then
+							return 7
+						end
+					end
+				end
+				";
+
+			// Load the code and get the returned function
+			Script script = new Script();
+			DynValue function = script.DoString(code);
+
+			// Create the coroutine in C#
+			DynValue coroutine = script.CreateCoroutine(function);
+
+			// Loop the coroutine 
+			string ret = "";
+			while (coroutine.Coroutine.State != CoroutineState.Dead)
+			{
+				DynValue x = coroutine.Coroutine.Resume();
+				ret = ret + x.ToString();
+			}
+
+			Assert.AreEqual("1234567", ret);
+		}
+
+
+		[Test]
+		public void Coroutine_Direct_AsEnumerable()
+		{
+			string code = @"
+				return function()
+					local x = 0
+					while true do
+						x = x + 1
+						coroutine.yield(x)
+						if (x > 5) then
+							return 7
+						end
+					end
+				end
+				";
+
+			// Load the code and get the returned function
+			Script script = new Script();
+			DynValue function = script.DoString(code);
+
+			// Create the coroutine in C#
+			DynValue coroutine = script.CreateCoroutine(function);
+
+			// Loop the coroutine 
+			string ret = "";
+
+			foreach (DynValue x in coroutine.Coroutine.AsTypedEnumerable())
+			{
+				ret = ret + x.ToString();
+			}
+
+			Assert.AreEqual("1234567", ret);
+		}
+
 
 
 

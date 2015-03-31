@@ -95,6 +95,9 @@
     <Compile Include="..\..\EndToEnd\UserDataOverloadsTests.cs">
       <Link>UserDataOverloadsTests.cs</Link>
     </Compile>
+    <Compile Include="..\..\EndToEnd\UserDataFieldsTests.cs">
+      <Link>UserDataFieldsTests.cs</Link>
+    </Compile>
     <Compile Include="..\..\EndToEnd\UserDataPropertiesTests.cs">
       <SubType>Code</SubType>
       <Link>UserDataPropertiesTests.cs</Link>

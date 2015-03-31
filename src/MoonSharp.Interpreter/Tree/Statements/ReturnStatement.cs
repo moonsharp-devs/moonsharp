@@ -14,6 +14,17 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		Expression m_Expression = null;
 		SourceRef m_Ref;
 
+		public ReturnStatement(ScriptLoadingContext lcontext, Expression e, SourceRef sref)
+			: base(lcontext)
+		{
+			m_Expression = e;
+			m_Ref = sref;
+			lcontext.Source.Refs.Add(sref);
+		}
+
+
+
+
 		public ReturnStatement(ScriptLoadingContext lcontext)
 			: base(lcontext)
 		{

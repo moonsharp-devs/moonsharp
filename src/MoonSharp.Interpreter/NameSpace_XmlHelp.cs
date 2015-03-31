@@ -83,6 +83,15 @@ namespace MoonSharp.Interpreter.Platforms
 	internal static class NamespaceDoc { }
 }
 
+namespace MoonSharp.Interpreter.REPL
+{
+	/// <summary>
+	/// Contains classes useful to implement REPL interpreters.
+	/// See : <see href="http://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop" />
+	/// </summary>
+	internal static class NamespaceDoc { }
+}
+
 
 
 
