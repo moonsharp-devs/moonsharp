@@ -7,6 +7,6 @@ namespace System
 {
 	public static class VERSION
 	{
-		public const string NUMB = "0.9.0.2";
+		public const string NUMB = "0.9.2.0";
 	}
 }
