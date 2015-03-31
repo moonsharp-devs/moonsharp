@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using MoonSharp.Interpreter.Debugging;
 using MoonSharp.Interpreter.Execution;
+using MoonSharp.Interpreter.REPL;
 
 namespace MoonSharp.Interpreter.CoreLib
 {
@@ -17,21 +18,25 @@ namespace MoonSharp.Interpreter.CoreLib
 		public static DynValue debug(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			Script script = executionContext.GetScript();
+			
+			ReplInterpreter interpreter = new ReplInterpreter(script)
+				{
+					HandleDynamicExprs = false,
+					HandleClassicExprsSyntax = true
+				};
 
 			while (true)
 			{
+				string s = script.Options.DebugInput(interpreter.ClassicPrompt + " ");
+
 				try
 				{
-					string cmd = script.Options.DebugInput();
+					DynValue result = interpreter.ExecuteRepl(s);
 
-					if (cmd == "cont")
-						return DynValue.Void;
-
-					DynValue v = script.LoadString(cmd, null, "stdin");
-					DynValue result = script.Call(v);
-					script.Options.DebugPrint(string.Format("={0}", result));
+					if (result != null && result.Type != DataType.Void)
+						script.Options.DebugPrint(string.Format("{0}", result));
 				}
-				catch (ScriptRuntimeException ex)
+				catch (InterpreterException ex)
 				{
 					script.Options.DebugPrint(string.Format("{0}", ex.DecoratedMessage ?? ex.Message));
 				}

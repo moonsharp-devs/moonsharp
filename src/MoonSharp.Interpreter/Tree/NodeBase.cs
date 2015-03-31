@@ -21,39 +21,33 @@ namespace MoonSharp.Interpreter.Tree
 
 		public abstract void Compile(ByteCode bc);
 
-		//protected SourceRef BuildSourceRef(IToken token, ITerminalNode terminalNode)
-		//{
-		//	return RegisterSourceRef(new SourceRef(LoadingContext.Source.SourceID, token.Column, token.Column + terminalNode.GetText().Length, token.Line, token.Line, true));
-		//}
 
-		//protected SourceRef BuildSourceRef(IToken token1, IToken token2 = null)
-		//{
-		//	token2 = token2 ?? token1;
-		//	return RegisterSourceRef(new SourceRef(LoadingContext.Source.SourceID, token1.Column, token2.Column + token2.Text.Length, token1.Line, token2.Line, true));
-		//}
-
-		//protected SourceRef BuildSourceRef(ITerminalNode terminalNode)
-		//{
-		//	return BuildSourceRef(terminalNode.Symbol, terminalNode);
-		//}
-
+		protected static Token UnexpectedTokenType(Token t)
+		{
+			throw new SyntaxErrorException(t, "unexpected symbol near '{0}'", t.Text)
+			{
+				IsPrematureStreamTermination = (t.Type == TokenType.Eof)
+			};
+		}
 
 		protected static Token CheckTokenType(ScriptLoadingContext lcontext, TokenType tokenType)
 		{
 			Token t = lcontext.Lexer.Current;
 			if (t.Type != tokenType)
-				throw new SyntaxErrorException(t, "unexpected symbol near '{0}'", t.Text);
+				return UnexpectedTokenType(t);
 
 			lcontext.Lexer.Next();
 
 			return t;
 		}
 
+
+
 		protected static Token CheckTokenType(ScriptLoadingContext lcontext, TokenType tokenType1, TokenType tokenType2)
 		{
 			Token t = lcontext.Lexer.Current;
 			if (t.Type != tokenType1 && t.Type != tokenType2)
-				throw new SyntaxErrorException(t, "unexpected symbol near '{0}'", t.Text);
+				return UnexpectedTokenType(t);
 
 			lcontext.Lexer.Next();
 
@@ -63,7 +57,7 @@ namespace MoonSharp.Interpreter.Tree
 		{
 			Token t = lcontext.Lexer.Current;
 			if (t.Type != tokenType1 && t.Type != tokenType2 && t.Type != tokenType3)
-				throw new SyntaxErrorException(t, "unexpected symbol near '{0}'", t.Text);
+				return UnexpectedTokenType(t);
 
 			lcontext.Lexer.Next();
 
@@ -74,16 +68,21 @@ namespace MoonSharp.Interpreter.Tree
 		{
 			Token t = lcontext.Lexer.Current;
 			if (t.Type != tokenType)
-				throw new SyntaxErrorException(t, "unexpected symbol near '{0}'", t.Text);
+				UnexpectedTokenType(t);
 		}
 
 		protected static Token CheckMatch(ScriptLoadingContext lcontext, Token originalToken, TokenType expectedTokenType, string expectedTokenText)
 		{
 			Token t = lcontext.Lexer.Current;
 			if (t.Type != expectedTokenType)
+			{
 				throw new SyntaxErrorException(lcontext.Lexer.Current,
 					"'{0}' expected (to close '{1}' at line {2}) near '{3}'",
-					expectedTokenText, originalToken.Text, originalToken.FromLine, t.Text);
+					expectedTokenText, originalToken.Text, originalToken.FromLine, t.Text)
+										{
+											IsPrematureStreamTermination = (t.Type == TokenType.Eof)
+										};
+			}
 
 			lcontext.Lexer.Next();
 

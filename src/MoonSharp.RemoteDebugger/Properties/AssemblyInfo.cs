@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("http://www.moonsharp.org")]
 [assembly: AssemblyProduct("MoonSharp.Debugger")]
-[assembly: AssemblyCopyright("Copyright © 2014, Marco Mastropaolo")]
+[assembly: AssemblyCopyright("Copyright © 2014-2015, Marco Mastropaolo")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

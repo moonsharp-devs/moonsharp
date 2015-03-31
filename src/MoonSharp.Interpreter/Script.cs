@@ -52,7 +52,7 @@ namespace MoonSharp.Interpreter
 			DefaultOptions = new ScriptOptions()
 			{
 				DebugPrint = s => { Script.GlobalOptions.Platform.DefaultPrint(s); },
-				DebugInput = () => { return Script.GlobalOptions.Platform.DefaultInput(); },
+				DebugInput = s => { return Script.GlobalOptions.Platform.DefaultInput(s); },
 				CheckThreadAccess = true,
 				ScriptLoader = PlatformAutoDetector.GetDefaultScriptLoader(),
 				TailCallOptimizationThreshold = 65536

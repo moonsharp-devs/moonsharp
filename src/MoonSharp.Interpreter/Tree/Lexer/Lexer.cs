@@ -230,6 +230,11 @@ namespace MoonSharp.Interpreter.Tree
 				case '"':
 				case '\'':
 					return ReadSimpleStringToken(fromLine, fromCol);
+				case '\0':
+					throw new SyntaxErrorException(CreateToken(TokenType.Invalid, fromLine, fromCol), "unexpected symbol near '{0}'", CursorChar())
+					{
+						IsPrematureStreamTermination = true
+					};
 				default:
 					{
 						if (char.IsLetter(c) || c == '_')
@@ -242,6 +247,7 @@ namespace MoonSharp.Interpreter.Tree
 							return ReadNumberToken(fromLine, fromCol);
 						}
 					}
+
 					throw new SyntaxErrorException(CreateToken(TokenType.Invalid, fromLine, fromCol), "unexpected symbol near '{0}'", CursorChar());
 			}
 
@@ -263,7 +269,7 @@ namespace MoonSharp.Interpreter.Tree
 					{
 						throw new SyntaxErrorException(
 							CreateToken(TokenType.Invalid, fromLine, fromCol),
-							"unfinished long {0} near '<eof>'", subtypeforerrors);
+							"unfinished long {0} near '<eof>'", subtypeforerrors) { IsPrematureStreamTermination = true };
 					}
 					else if (c == '=')
 					{
@@ -278,7 +284,7 @@ namespace MoonSharp.Interpreter.Tree
 					{
 						throw new SyntaxErrorException(
 							CreateToken(TokenType.Invalid, fromLine, fromCol),
-							"invalid long {0} delimiter near '{1}'", subtypeforerrors, c);
+							"invalid long {0} delimiter near '{1}'", subtypeforerrors, c) { IsPrematureStreamTermination = true };
 					}
 				}
 			}
@@ -297,7 +303,7 @@ namespace MoonSharp.Interpreter.Tree
 				{
 					throw new SyntaxErrorException(
 							CreateToken(TokenType.Invalid, fromLine, fromCol),
-							"unfinished long {0} near '{1}'", subtypeforerrors, text.ToString());
+							"unfinished long {0} near '{1}'", subtypeforerrors, text.ToString()) { IsPrematureStreamTermination = true };
 				}
 				else if (c == ']' && CursorMatches(end_pattern))
 				{
@@ -505,7 +511,7 @@ namespace MoonSharp.Interpreter.Tree
 
 			throw new SyntaxErrorException(
 				CreateToken(TokenType.Invalid, fromLine, fromCol),
-				"unfinished string near '{0}'", text.ToString());
+				"unfinished string near '{0}'", text.ToString()) { IsPrematureStreamTermination = true };
 		}
 
 		private Token PotentiallyDoubleCharOperator(char expectedSecondChar, TokenType singleCharToken, TokenType doubleCharToken, int fromLine, int fromCol)

@@ -16,6 +16,12 @@ namespace MoonSharp.Interpreter
 	{
 		internal Token Token { get; private set; }
 
+		/// <summary>
+		/// Gets or sets a value indicating whether this exception was caused by premature stream termination (that is, unexpected EOF).
+		/// This can be used in REPL interfaces to tell between unrecoverable errors and those which can be recovered by extra input.
+		/// </summary>
+		public bool IsPrematureStreamTermination { get; set; }
+
 		internal SyntaxErrorException(Token t, string format, params object[] args)
 			: base(format, args)
 		{

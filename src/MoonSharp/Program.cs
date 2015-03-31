@@ -8,6 +8,7 @@ using System.Text;
 using MoonSharp.Interpreter;
 using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Loaders;
+using MoonSharp.Interpreter.REPL;
 using MoonSharp.RemoteDebugger;
 using MoonSharp.RemoteDebugger.Network;
 
@@ -23,11 +24,8 @@ namespace MoonSharp
 			Script.DefaultOptions.ScriptLoader = new ReplInterpreterScriptLoader();
 
 			Console.WriteLine("MoonSharp REPL {0} [{1}]", Script.VERSION, Script.GlobalOptions.Platform.GetPlatformName());
-			Console.WriteLine("Copyright (C) 2014 Marco Mastropaolo");
+			Console.WriteLine("Copyright (C) 2014-2015 Marco Mastropaolo");
 			Console.WriteLine("http://www.moonsharp.org");
-			Console.WriteLine("Based on Lua 5.1 - 5.3, Copyright (C) 1994-2014 Lua.org");
-			Console.WriteLine("License: https://raw.githubusercontent.com/xanathar/moonsharp/master/LICENSE");
-
 			Console.WriteLine();
 
 			if (args.Length == 1)
@@ -37,65 +35,43 @@ namespace MoonSharp
 				script.DoFile(args[0]);
 
 				Console.WriteLine("Done.");
-				
+
 				if (System.Diagnostics.Debugger.IsAttached)
 					Console.ReadKey();
 			}
 			else
 			{
-				Console.WriteLine("Type <enter> twice to execute code.\n");
-				Console.WriteLine("Type !help to see help.");
+				Console.WriteLine("Type Lua code to execute it or type !help to see help on commands.\n");
+				Console.WriteLine("Welcome.\n");
 
 				Script script = new Script(CoreModules.Preset_Complete);
 
-				string cmd = "";
+				ReplInterpreter interpreter = new ReplInterpreter(script)
+				{
+					HandleDynamicExprs = true,
+					HandleClassicExprsSyntax = true
+				};
 
 				while (true)
 				{
-					Console.Write("{0}> ", string.IsNullOrEmpty(cmd) ? "" : ">");
+					Console.Write(interpreter.ClassicPrompt + " ");
+
 					string s = Console.ReadLine();
 
-					if (s.StartsWith("!"))
+					if (!interpreter.HasPendingCommand && s.StartsWith("!"))
 					{
 						ParseCommand(script, s.Substring(1));
 						continue;
 					}
 
-					if (s != "")
-					{
-						cmd += s + "\n";
-						continue;
-					}
-
-					if (cmd.Length == 0)
-						continue;
-
-					//Console.WriteLine("=====");
-					//Console.WriteLine("{0}", cmd);
-					//Console.WriteLine("=====");
-
-					if (cmd == "exit")
-						return;
-
 					try
 					{
-						DynValue result = null;
+						DynValue result = interpreter.ExecuteRepl(s);
 
-						if (cmd.StartsWith("?"))
-						{
-							var code = cmd.Substring(1);
-							var exp = script.CreateDynamicExpression(code);
-							result = exp.Evaluate();
-						}
-						else
-						{
-							var v = script.LoadString(cmd, null, "stdin");
-							result = script.Call(v);
-						}
-
-						Console.WriteLine("={0}", result);
+						if (result != null && result.Type != DataType.Void)
+							Console.WriteLine("{0}", result);
 					}
-					catch (ScriptRuntimeException ex)
+					catch (InterpreterException ex)
 					{
 						Console.WriteLine("{0}", ex.DecoratedMessage ?? ex.Message);
 					}
@@ -103,14 +79,7 @@ namespace MoonSharp
 					{
 						Console.WriteLine("{0}", ex.Message);
 					}
-
-					cmd = "";
-
 				}
-
-
-
-
 			}
 		}
 
@@ -120,15 +89,20 @@ namespace MoonSharp
 		{
 			if (p == "help")
 			{
-				Console.WriteLine("Type Lua code followed by two <enter> keystrokes to execute Lua code, ");
+				Console.WriteLine("Type Lua code to execute Lua code, multilines are accepted, ");
 				Console.WriteLine("or type one of the following commands to execute them.");
 				Console.WriteLine("");
 				Console.WriteLine("Commands:");
 				Console.WriteLine("");
+				Console.WriteLine("	!exit - Exits the interpreter");
 				Console.WriteLine("	!debug - Starts the debugger");
 				Console.WriteLine("	!run <filename> - Executes the specified Lua script");
 				Console.WriteLine("	!compile <filename> - Compiles the file in a binary format");
 				Console.WriteLine("");
+			}
+			else if (p == "exit")
+			{
+				Environment.Exit(0);
 			}
 			else if (p == "debug" && m_Debugger == null)
 			{

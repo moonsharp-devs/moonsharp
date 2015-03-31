@@ -228,7 +228,11 @@ namespace MoonSharp.Interpreter.Tree
 				case TokenType.Name:
 					return new SymbolRefExpression(T, lcontext);
 				default:
-					throw new SyntaxErrorException(T, "unexpected symbol near '{0}'", T.Text);
+					throw new SyntaxErrorException(T, "unexpected symbol near '{0}'", T.Text)
+					{
+						IsPrematureStreamTermination = (T.Type == TokenType.Eof)
+					};
+
 			}
 		}
 

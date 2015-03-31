@@ -61,7 +61,10 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 					}
 					break;
 				default:
-					throw new SyntaxErrorException(lcontext.Lexer.Current, "function arguments expected");
+					throw new SyntaxErrorException(lcontext.Lexer.Current, "function arguments expected")
+					{
+						IsPrematureStreamTermination = (lcontext.Lexer.Current.Type == TokenType.Eof)
+					};
 			}
 		}
 

@@ -57,7 +57,7 @@ namespace MoonSharp.Interpreter.Platforms
 		/// If a meaningful implementation cannot be provided, this method should return null.
 		/// </summary>
 		/// <returns></returns>
-		string DefaultInput();
+		string DefaultInput(string prompt);
 
 		/// <summary>
 		/// A function used to open files in the 'io' module.

@@ -77,7 +77,10 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			Statement s = new CompositeStatement(lcontext);
 
 			if (lcontext.Lexer.Current.Type != TokenType.End)
-				throw new SyntaxErrorException(lcontext.Lexer.Current, "'end' expected near '{0}'", lcontext.Lexer.Current.Text);
+				throw new SyntaxErrorException(lcontext.Lexer.Current, "'end' expected near '{0}'", lcontext.Lexer.Current.Text)
+				{
+					IsPrematureStreamTermination = (lcontext.Lexer.Current.Type == TokenType.Eof)
+				};
 
 			m_End = lcontext.Lexer.Current.GetSourceRef();
 
@@ -107,7 +110,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 					paramnames.Add(WellKnownSymbols.VARARGS);
 				}
 				else
-					throw new SyntaxErrorException(t, "unexpected symbol near '{0}'", t.Text);
+					UnexpectedTokenType(t);
 
 				lcontext.Lexer.Next();
 

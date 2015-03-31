@@ -45,9 +45,9 @@ namespace MoonSharp.Interpreter
 		public Action<string> DebugPrint { get; set; }
 
 		/// <summary>
-		/// Gets or sets the debug input handler
+		/// Gets or sets the debug input handler (takes a prompt as an input, for interactive interpreters, like debug.debug).
 		/// </summary>
-		public Func<string> DebugInput { get; set; }
+		public Func<string, string> DebugInput { get; set; }
 
 		/// <summary>
 		/// Gets or sets a value indicating whether error messages will use Lua error locations instead of MoonSharp 

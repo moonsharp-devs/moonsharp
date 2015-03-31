@@ -3,8 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MoonSharp.Interpreter.Loaders;
 
-namespace MoonSharp.Interpreter.Loaders
+namespace MoonSharp.Interpreter.REPL
 {
 	/// <summary>
 	/// A script loader loading scripts directly from the file system (does not go through platform object)

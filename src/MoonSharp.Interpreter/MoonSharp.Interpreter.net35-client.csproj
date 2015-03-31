@@ -226,7 +226,7 @@
     <Compile Include="Loaders\EmbeddedResourcesScriptLoader.cs" />
     <Compile Include="Loaders\FileSystemScriptLoader.cs" />
     <Compile Include="Loaders\InvalidScriptLoader.cs" />
-    <Compile Include="Loaders\ReplInterpreterScriptLoader.cs" />
+    <Compile Include="REPL\ReplInterpreterScriptLoader.cs" />
     <Compile Include="Loaders\ScriptLoaderBase.cs" />
     <Compile Include="Loaders\IScriptLoader.cs" />
     <Compile Include="Loaders\UnityAssetsScriptLoader.cs" />
@@ -242,6 +242,7 @@
     <Compile Include="Platforms\PortableWrappers\Attributes.cs" />
     <Compile Include="Platforms\PortableWrappers\ExtensionMethods.cs" />
     <Compile Include="Platforms\PortableWrappers\Stopwatch.cs" />
+    <Compile Include="REPL\ReplInterpreter.cs" />
     <Compile Include="Script.cs" />
     <Compile Include="DataTypes\Table.cs" />
     <Compile Include="Execution\VM\ByteCode.cs" />
