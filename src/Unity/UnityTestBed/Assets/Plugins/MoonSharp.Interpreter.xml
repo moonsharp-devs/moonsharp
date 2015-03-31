@@ -4,6 +4,110 @@
         <name>MoonSharp.Interpreter</name>
     </assembly>
     <members>
+        <member name="T:MoonSharp.Interpreter.CoreLib.CoroutineModule">
+            <summary>
+            Class implementing coroutine Lua functions 
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.CoreLib.BasicModule">
+            <summary>
+            Class implementing basic Lua functions (print, type, tostring, etc) as a MoonSharp module.
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.CoreLib.DebugModule">
+            <summary>
+            Class implementing debug Lua functions. Support for the debug module is partial. 
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.CoreLib.DynamicModule">
+            <summary>
+            Class implementing dynamic expression evaluations at runtime (a MoonSharp addition).
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.CoreLib.ErrorHandlingModule">
+            <summary>
+            Class implementing error handling Lua functions (pcall and xpcall)
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.CoreLib.IO.FileUserData">
+            <summary>
+            Abstract class implementing a file Lua userdata. Methods are meant to be called by Lua code.
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.CoreLib.IO.StreamFileUserDataBase">
+            <summary>
+            Abstract class implementing a file Lua userdata. Methods are meant to be called by Lua code.
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.CoreLib.IO.FileUserDataBase">
+            <summary>
+            Abstract class implementing a file Lua userdata. Methods are meant to be called by Lua code.
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.RefIdObject">
+            <summary>
+            A base class for many MoonSharp objects. 
+            Helds a ReferenceID property which gets a different value for every object instance, for debugging
+            purposes. Note that the ID is not assigned in a thread safe manner for speed reason, so the IDs
+            are guaranteed to be unique only if everything is running on one thread at a time.
+            </summary>
+        </member>
+        <member name="M:MoonSharp.Interpreter.RefIdObject.FormatTypeString(System.String)">
+            <summary>
+            Formats a string with a type name and a ref-id
+            </summary>
+            <param name="typeString">The type name.</param>
+            <returns></returns>
+        </member>
+        <member name="P:MoonSharp.Interpreter.RefIdObject.ReferenceID">
+            <summary>
+            Gets the reference identifier.
+            </summary>
+            <value>
+            The reference identifier.
+            </value>
+        </member>
+        <member name="T:MoonSharp.Interpreter.CoreLib.IoModule">
+            <summary>
+            Class implementing io Lua functions. Proper support requires a compatible IPlatformAccessor
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.CoreLib.IO.StandardIOFileUserDataBase">
+            <summary>
+            Abstract class implementing an unclosable file Lua userdata. Methods are meant to be called by Lua code.
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.CoreLib.LoadModule">
+            <summary>
+            Class implementing loading Lua functions like 'require', 'load', etc.
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.CoreLib.Bit32Module">
+            <summary>
+            Class implementing bit32 Lua functions 
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.CoreLib.MathModule">
+            <summary>
+            Class implementing math Lua functions 
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.CoreLib.MetaTableModule">
+            <summary>
+            Class implementing metatable related Lua functions (xxxmetatable and rawxxx).
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.CoreLib.OsSystemModule">
+            <summary>
+            Class implementing system related Lua functions from the 'os' module.
+            Proper support requires a compatible IPlatformAccessor
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.CoreLib.OsTimeModule">
+            <summary>
+            Class implementing time related Lua functions from the 'os' module.
+            </summary>
+        </member>
         <member name="T:MoonSharp.Interpreter.Interop.LuaStateInterop.LuaBase">
             <summary>
             Classes using the classic interface should inherit from this class.
@@ -34,6 +138,353 @@
             <param name="nresults">The number of expected results.</param>
             <exception cref="T:System.NotImplementedException"></exception>
         </member>
+        <member name="T:MoonSharp.Interpreter.DataStructs.MultiDictionary`2">
+            <summary>
+            A Dictionary where multiple values can be associated to the same key
+            </summary>
+            <typeparam name="K"></typeparam>
+            <typeparam name="V"></typeparam>
+        </member>
+        <member name="T:MoonSharp.Interpreter.MoonSharpUserDataMetamethodAttribute">
+            <summary>
+            Marks a method as the handler of metamethods of a userdata type
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.MoonSharpUserDataMetamethodAttribute.Name">
+            <summary>
+            The interop access mode
+            </summary>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.Converters.ClrToScriptConversions.TryObjectToSimpleDynValue(MoonSharp.Interpreter.Script,System.Object)">
+            <summary>
+            Tries to convert a CLR object to a MoonSharp value, using "simple" logic.
+            Does NOT throw on failure.
+            </summary>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.Converters.ClrToScriptConversions.ObjectToDynValue(MoonSharp.Interpreter.Script,System.Object)">
+            <summary>
+            Tries to convert a CLR object to a MoonSharp value, using more in-depth analysis
+            </summary>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.Converters.ClrToScriptConversions.EnumerationToDynValue(MoonSharp.Interpreter.Script,System.Object)">
+            <summary>
+            Converts an IEnumerable or IEnumerator to a DynValue
+            </summary>
+            <param name="script">The script.</param>
+            <param name="obj">The object.</param>
+            <returns></returns>
+        </member>
+        <member name="T:MoonSharp.Interpreter.Interop.Converters.NumericConversions">
+            <summary>
+            Static functions to handle conversions of numeric types
+            </summary>
+        </member>
+        <member name="F:MoonSharp.Interpreter.Interop.Converters.NumericConversions.NumericTypes">
+            <summary>
+            HashSet of numeric types
+            </summary>
+        </member>
+        <member name="F:MoonSharp.Interpreter.Interop.Converters.NumericConversions.NumericTypesOrdered">
+            <summary>
+            Array of numeric types in order used for some conversions
+            </summary>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.Converters.NumericConversions.DoubleToType(System.Type,System.Double)">
+            <summary>
+            Converts a double to another type
+            </summary>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.Converters.NumericConversions.TypeToDouble(System.Type,System.Object)">
+            <summary>
+            Converts a type to double
+            </summary>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.Converters.ScriptToClrConversions.DynValueToObject(MoonSharp.Interpreter.DynValue)">
+            <summary>
+            Converts a DynValue to a CLR object [simple conversion]
+            </summary>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.Converters.ScriptToClrConversions.DynValueToObjectOfType(MoonSharp.Interpreter.DynValue,System.Type,System.Object,System.Boolean)">
+            <summary>
+            Converts a DynValue to a CLR object of a specific type
+            </summary>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.Converters.ScriptToClrConversions.DynValueToObjectOfTypeWeight(MoonSharp.Interpreter.DynValue,System.Type,System.Boolean)">
+            <summary>
+            Gets a relative weight of how much the conversion is matching the given types.
+            Implementation must follow that of DynValueToObjectOfType.. it's not very DRY in that sense.
+            However here we are in perf-sensitive path.. TODO : double-check the gain and see if a DRY impl is better.
+            </summary>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.Converters.TableConversions.ConvertIListToTable(MoonSharp.Interpreter.Script,System.Collections.IList)">
+            <summary>
+            Converts an IList to a Lua table.
+            </summary>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.Converters.TableConversions.ConvertIDictionaryToTable(MoonSharp.Interpreter.Script,System.Collections.IDictionary)">
+            <summary>
+            Converts an IDictionary to a Lua table.
+            </summary>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.Converters.TableConversions.CanConvertTableToType(MoonSharp.Interpreter.Table,System.Type)">
+            <summary>
+            Determines whether the specified table can be converted to the specified type
+            </summary>
+            <param name="table">The table.</param>
+            <param name="t">The type.</param>
+            <returns></returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.Converters.TableConversions.ConvertTableToType(MoonSharp.Interpreter.Table,System.Type)">
+            <summary>
+            Converts a table to a CLR object of a given type
+            </summary>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.Converters.TableConversions.ConvertTableToDictionaryOfGenericType(System.Type,System.Type,System.Type,MoonSharp.Interpreter.Table)">
+            <summary>
+            Converts a table to a <see cref="T:System.Collections.Generic.Dictionary`2"/>
+            </summary>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.Converters.TableConversions.ConvertTableToArrayOfGenericType(System.Type,System.Type,MoonSharp.Interpreter.Table)">
+            <summary>
+            Converts a table to a T[]
+            </summary>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.Converters.TableConversions.ConvertTableToListOfGenericType(System.Type,System.Type,MoonSharp.Interpreter.Table)">
+            <summary>
+            Converts a table to a <see cref="T:System.Collections.Generic.List`1"/>
+            </summary>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.Converters.TableConversions.TableToList``1(MoonSharp.Interpreter.Table,System.Func{MoonSharp.Interpreter.DynValue,``0})">
+            <summary>
+            Converts a table to a <see cref="T:System.Collections.Generic.List`1"/>, known in advance
+            </summary>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.Converters.TableConversions.TableToDictionary``2(MoonSharp.Interpreter.Table,System.Func{MoonSharp.Interpreter.DynValue,``0},System.Func{MoonSharp.Interpreter.DynValue,``1})">
+            <summary>
+            Converts a table to a Dictionary, known in advance
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.Interop.CustomConvertersCollection">
+            <summary>
+            A collection of custom converters between MoonSharp types and CLR types.
+            If a converter function is not specified or returns null, the standard conversion path applies.
+            </summary>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.CustomConvertersCollection.SetScriptToClrCustomConversion(MoonSharp.Interpreter.DataType,System.Type,System.Func{MoonSharp.Interpreter.DynValue,System.Object})">
+            <summary>
+            Sets a custom converter from a script data type to a CLR data type. Set null to remove a previous custom converter.
+            </summary>
+            <param name="scriptDataType">The script data type</param>
+            <param name="clrDataType">The CLR data type.</param>
+            <param name="converter">The converter, or null.</param>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.CustomConvertersCollection.GetScriptToClrCustomConversion(MoonSharp.Interpreter.DataType,System.Type)">
+            <summary>
+            Gets a custom converter from a script data type to a CLR data type, or null
+            </summary>
+            <param name="scriptDataType">The script data type</param>
+            <param name="clrDataType">The CLR data type.</param>
+            <returns>The converter function, or null if not found</returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.CustomConvertersCollection.SetClrToScriptCustomConversion(System.Type,System.Func{System.Object,MoonSharp.Interpreter.DynValue})">
+            <summary>
+            Sets a custom converter from a CLR data type. Set null to remove a previous custom converter.
+            </summary>
+            <param name="clrDataType">The CLR data type.</param>
+            <param name="converter">The converter, or null.</param>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.CustomConvertersCollection.SetClrToScriptCustomConversion``1(System.Func{``0,MoonSharp.Interpreter.DynValue})">
+            <summary>
+            Sets a custom converter from a CLR data type. Set null to remove a previous custom converter.
+            </summary>
+            <typeparam name="T">The CLR data type.</typeparam>
+            <param name="converter">The converter, or null.</param>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.CustomConvertersCollection.GetClrToScriptCustomConversion(System.Type)">
+            <summary>
+            Gets a custom converter from a CLR data type, or null
+            </summary>
+            <param name="clrDataType">Type of the color data.</param>
+            <returns>The converter function, or null if not found</returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.CustomConvertersCollection.Clear">
+            <summary>
+            Removes all converters
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.Interop.StandardUserDataOverloadedMethodDescriptor">
+            <summary>
+            Class providing easier marshalling of overloaded CLR functions
+            </summary>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.StandardUserDataOverloadedMethodDescriptor.#ctor(System.String,System.Type)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MoonSharp.Interpreter.Interop.StandardUserDataOverloadedMethodDescriptor"/> class.
+            </summary>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.StandardUserDataOverloadedMethodDescriptor.#ctor(System.String,System.Type,MoonSharp.Interpreter.Interop.StandardUserDataMethodDescriptor)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MoonSharp.Interpreter.Interop.StandardUserDataOverloadedMethodDescriptor"/> class.
+            </summary>
+            <param name="name">The name.</param>
+            <param name="declaringType">The declaring type.</param>
+            <param name="descriptor">The descriptor of the first overloaded method.</param>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.StandardUserDataOverloadedMethodDescriptor.#ctor(System.String,System.Type,System.Collections.Generic.IEnumerable{MoonSharp.Interpreter.Interop.StandardUserDataMethodDescriptor})">
+            <summary>
+            Initializes a new instance of the <see cref="T:MoonSharp.Interpreter.Interop.StandardUserDataOverloadedMethodDescriptor"/> class.
+            </summary>
+            <param name="name">The name.</param>
+            <param name="declaringType">The declaring type.</param>
+            <param name="descriptors">The descriptors of the overloaded methods.</param>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.StandardUserDataOverloadedMethodDescriptor.SetExtensionMethodsSnapshot(System.Int32,System.Collections.Generic.List{MoonSharp.Interpreter.Interop.StandardUserDataMethodDescriptor})">
+            <summary>
+            Sets the extension methods snapshot.
+            </summary>
+            <param name="version">The version.</param>
+            <param name="extMethods">The ext methods.</param>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.StandardUserDataOverloadedMethodDescriptor.AddOverload(MoonSharp.Interpreter.Interop.StandardUserDataMethodDescriptor)">
+            <summary>
+            Adds an overload.
+            </summary>
+            <param name="overload">The overload.</param>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.StandardUserDataOverloadedMethodDescriptor.PerformOverloadedCall(MoonSharp.Interpreter.Script,System.Object,MoonSharp.Interpreter.ScriptExecutionContext,MoonSharp.Interpreter.CallbackArguments)">
+            <summary>
+            Performs the overloaded call.
+            </summary>
+            <param name="script">The script.</param>
+            <param name="obj">The object.</param>
+            <param name="context">The context.</param>
+            <param name="args">The arguments.</param>
+            <returns></returns>
+            <exception cref="T:MoonSharp.Interpreter.ScriptRuntimeException">function call doesn't match any overload</exception>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.StandardUserDataOverloadedMethodDescriptor.CalcScoreForOverload(MoonSharp.Interpreter.ScriptExecutionContext,MoonSharp.Interpreter.CallbackArguments,MoonSharp.Interpreter.Interop.StandardUserDataMethodDescriptor,System.Boolean)">
+            <summary>
+            Calculates the score for the overload.
+            </summary>
+            <param name="context">The context.</param>
+            <param name="args">The arguments.</param>
+            <param name="method">The method.</param>
+            <param name="isExtMethod">if set to <c>true</c>, is an extension method.</param>
+            <returns></returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.StandardUserDataOverloadedMethodDescriptor.GetCallback(MoonSharp.Interpreter.Script,System.Object)">
+            <summary>
+            Gets a callback function as a delegate
+            </summary>
+            <param name="script">The script for which the callback must be generated.</param>
+            <param name="obj">The object (null for static).</param>
+            <returns></returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.StandardUserDataOverloadedMethodDescriptor.GetCallbackFunction(MoonSharp.Interpreter.Script,System.Object)">
+            <summary>
+            Gets the callback function.
+            </summary>
+            <param name="script">The script for which the callback must be generated.</param>
+            <param name="obj">The object (null for static).</param>
+            <returns></returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.StandardUserDataOverloadedMethodDescriptor.GetCallbackAsDynValue(MoonSharp.Interpreter.Script,System.Object)">
+            <summary>
+            Gets the callback function as a DynValue.
+            </summary>
+            <param name="script">The script for which the callback must be generated.</param>
+            <param name="obj">The object (null for static).</param>
+            <returns></returns>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Interop.StandardUserDataOverloadedMethodDescriptor.IgnoreExtensionMethods">
+            <summary>
+            Gets or sets a value indicating whether this instance ignores extension methods.
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Interop.StandardUserDataOverloadedMethodDescriptor.Name">
+            <summary>
+            Gets the name of the first described overload
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Interop.StandardUserDataOverloadedMethodDescriptor.DeclaringType">
+            <summary>
+            Gets the name of the first described overload
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Interop.StandardUserDataOverloadedMethodDescriptor.OverloadCount">
+            <summary>
+            Gets the number of overloaded methods contained in this collection
+            </summary>
+            <value>
+            The overload count.
+            </value>
+        </member>
+        <member name="T:MoonSharp.Interpreter.Interop.StandardUserDataFieldDescriptor">
+            <summary>
+            Class providing easier marshalling of CLR fields
+            </summary>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.StandardUserDataFieldDescriptor.#ctor(System.Reflection.FieldInfo,MoonSharp.Interpreter.InteropAccessMode)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MoonSharp.Interpreter.Interop.StandardUserDataPropertyDescriptor"/> class.
+            </summary>
+            <param name="fi">The FieldInfo.</param>
+            <param name="accessMode">The <see cref="T:MoonSharp.Interpreter.InteropAccessMode"/> </param>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.StandardUserDataFieldDescriptor.GetValue(MoonSharp.Interpreter.Script,System.Object)">
+            <summary>
+            Gets the value of the property
+            </summary>
+            <param name="script">The script.</param>
+            <param name="obj">The object.</param>
+            <returns></returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.StandardUserDataFieldDescriptor.SetValue(MoonSharp.Interpreter.Script,System.Object,MoonSharp.Interpreter.DynValue)">
+            <summary>
+            Sets the value of the property
+            </summary>
+            <param name="script">The script.</param>
+            <param name="obj">The object.</param>
+            <param name="v">The value to set.</param>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.StandardUserDataFieldDescriptor.GetGetterCallbackAsDynValue(MoonSharp.Interpreter.Script,System.Object)">
+            <summary>
+            Gets the getter of the property as a DynValue containing a callback
+            </summary>
+            <param name="script">The script.</param>
+            <param name="obj">The object.</param>
+            <returns></returns>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Interop.StandardUserDataFieldDescriptor.FieldInfo">
+            <summary>
+            Gets the FieldInfo got by reflection
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Interop.StandardUserDataFieldDescriptor.AccessMode">
+            <summary>
+            Gets the <see cref="T:MoonSharp.Interpreter.InteropAccessMode"/>
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Interop.StandardUserDataFieldDescriptor.IsStatic">
+            <summary>
+            Gets a value indicating whether the described property is static.
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Interop.StandardUserDataFieldDescriptor.Name">
+            <summary>
+            Gets the name of the property
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.IO.BinDumpBinaryReader">
+            <summary>
+            "Optimized" BinaryReader which shares strings and use a dumb compression for integers
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.IO.BinDumpBinaryWriter">
+            <summary>
+            "Optimized" BinaryWriter which shares strings and use a dumb compression for integers
+            </summary>
+        </member>
         <member name="T:MoonSharp.Interpreter.IO.UndisposableStream">
             <summary>
             An adapter over Stream which bypasses the Dispose and Close methods.
@@ -44,7 +495,7 @@
         <member name="T:MoonSharp.Interpreter.Interop.InteropRegistrationPolicy">
             <summary>
             Enumerations of the possible policies to handle UserData type registrations
-            See also : <seealso cref="T:MoonSharp.Interpreter.UserData"/> .
+            See also : <see cref="T:MoonSharp.Interpreter.UserData"/> .
             </summary>
         </member>
         <member name="F:MoonSharp.Interpreter.Interop.InteropRegistrationPolicy.Explicit">
@@ -56,6 +507,66 @@
             <summary>
             Types are automatically registered if not found in the registry. This is easier to use but potentially unsafe.
             </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.Interop.IUserDataType">
+            <summary>
+            As a convenience, every type deriving from IUserDataType is "self-described". That is, no descriptor is needed/generated
+            and the object itself is used to describe the type for interop. See also <see cref="T:MoonSharp.Interpreter.UserData"/>, <see cref="T:MoonSharp.Interpreter.Interop.IUserDataDescriptor"/> 
+            and <see cref="T:MoonSharp.Interpreter.Interop.StandardUserDataDescriptor"/> .
+            </summary>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.IUserDataType.Index(MoonSharp.Interpreter.Script,MoonSharp.Interpreter.DynValue,System.Boolean)">
+            <summary>
+            Performs an "index" "get" operation.
+            </summary>
+            <param name="script">The script originating the request</param>
+            <param name="index">The index.</param>
+            <param name="isDirectIndexing">If set to true, it's indexed with a name, if false it's indexed through brackets.</param>
+            <returns></returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.IUserDataType.SetIndex(MoonSharp.Interpreter.Script,MoonSharp.Interpreter.DynValue,MoonSharp.Interpreter.DynValue,System.Boolean)">
+            <summary>
+            Performs an "index" "set" operation.
+            </summary>
+            <param name="script">The script originating the request</param>
+            <param name="index">The index.</param>
+            <param name="value">The value to be set</param>
+            <param name="isDirectIndexing">If set to true, it's indexed with a name, if false it's indexed through brackets.</param>
+            <returns></returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.IUserDataType.MetaIndex(MoonSharp.Interpreter.Script,System.String)">
+            <summary>
+            
+            Gets a "meta" operation on this userdata. If a descriptor does not support this functionality,
+            it should return "null" (not a nil). 
+            
+            These standard metamethods can be supported (the return value should be a function accepting the
+            classic parameters of the corresponding metamethod):
+            __add, __sub, __mul, __div, __div, __pow, __unm, __eq, __lt, __le, __lt, __len, __concat, 
+            __pairs, __ipairs, __iterator, __call
+            
+            These standard metamethods are supported through other calls for efficiency:
+            __index, __newindex, __tostring
+            
+            </summary>
+            <param name="script">The script originating the request</param>
+            <param name="metaname">The name of the metamember.</param>
+            <returns></returns>
+        </member>
+        <member name="T:MoonSharp.Interpreter.ScriptFunctionDelegate">
+            <summary>
+            A Delegate type which can wrap a script function
+            </summary>
+            <param name="args">The arguments.</param>
+            <returns>The return value of the script function</returns>
+        </member>
+        <member name="T:MoonSharp.Interpreter.ScriptFunctionDelegate`1">
+            <summary>
+            A Delegate type which can wrap a script function with a generic typed return value
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="args">The arguments.</param>
+            <returns>The return value of the script function</returns>
         </member>
         <member name="T:MoonSharp.Interpreter.TypeValidationFlags">
             <summary>
@@ -87,6 +598,42 @@
             The default : Autoconverting values, no nils.
             </summary>
         </member>
+        <member name="T:MoonSharp.Interpreter.DynamicExpressionException">
+            <summary>
+            Exception thrown when a dynamic expression is invalid
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.ScriptRuntimeException">
+            <summary>
+            Exception for all runtime errors. In addition to constructors, it offers a lot of static methods
+            generating more "standard" Lua errors.
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.InterpreterException">
+            <summary>
+            Base type of all exceptions thrown in MoonSharp
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.InterpreterException.InstructionPtr">
+            <summary>
+            Gets the instruction pointer of the execution (if it makes sense)
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.InterpreterException.CallStack">
+            <summary>
+            Gets the interpreter call stack.
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.InterpreterException.DecoratedMessage">
+            <summary>
+            Gets the decorated message (error message plus error location in script) if possible.
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.ScriptRuntimeException.DoNotDecorateMessage">
+            <summary>
+            Gets or sets a value indicating whether the message should not be decorated
+            </summary>
+        </member>
         <member name="T:MoonSharp.Interpreter.DynamicExpression">
             <summary>
             Represents a dynamic expression in the script
@@ -104,6 +651,126 @@
             <value>
             The script owning this resource.
             </value>
+        </member>
+        <member name="M:MoonSharp.Interpreter.DynamicExpression.Evaluate(MoonSharp.Interpreter.ScriptExecutionContext)">
+            <summary>
+            Evaluates the expression
+            </summary>
+            <param name="context">The context.</param>
+            <returns></returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.DynamicExpression.FindSymbol(MoonSharp.Interpreter.ScriptExecutionContext)">
+            <summary>
+            Finds a symbol in the expression
+            </summary>
+            <param name="context">The context.</param>
+            <returns></returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.DynamicExpression.IsConstant">
+            <summary>
+            Determines whether this instance is a constant expression
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.DynamicExpression.GetHashCode">
+            <summary>
+            Returns a hash code for this instance.
+            </summary>
+            <returns>
+            A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
+            </returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.DynamicExpression.Equals(System.Object)">
+            <summary>
+            Determines whether the specified <see cref="T:System.Object"/>, is equal to this instance.
+            </summary>
+            <param name="obj">The <see cref="T:System.Object"/> to compare with this instance.</param>
+            <returns>
+              <c>true</c> if the specified <see cref="T:System.Object"/> is equal to this instance; otherwise, <c>false</c>.
+            </returns>
+        </member>
+        <member name="P:MoonSharp.Interpreter.DynamicExpression.OwnerScript">
+            <summary>
+            Gets the script owning this resource.
+            </summary>
+            <value>
+            The script owning this resource.
+            </value>
+        </member>
+        <member name="T:MoonSharp.Interpreter.Interop.AnonWrapper">
+            <summary>
+            Internal type used by <see cref="T:MoonSharp.Interpreter.Interop.AnonWrapper`1"/> for registration
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.Interop.AnonWrapper`1">
+            <summary>
+            Wrapper which allows for easier management of userdata without registering a new userdata type - useful 
+            if a type which is not exposed to scripts but can be managed as a "black box" by scripts is desired.
+            </summary>
+            <typeparam name="T">The type to wrap</typeparam>
+        </member>
+        <member name="T:MoonSharp.Interpreter.Interop.IUserDataDescriptor">
+            <summary>
+            Interface used by MoonSharp to access objects of a given type from scripts.
+            </summary>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.IUserDataDescriptor.Index(MoonSharp.Interpreter.Script,System.Object,MoonSharp.Interpreter.DynValue,System.Boolean)">
+            <summary>
+            Performs an "index" "get" operation.
+            </summary>
+            <param name="script">The script originating the request</param>
+            <param name="obj">The object (null if a static request is done)</param>
+            <param name="index">The index.</param>
+            <param name="isDirectIndexing">If set to true, it's indexed with a name, if false it's indexed through brackets.</param>
+            <returns></returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.IUserDataDescriptor.SetIndex(MoonSharp.Interpreter.Script,System.Object,MoonSharp.Interpreter.DynValue,MoonSharp.Interpreter.DynValue,System.Boolean)">
+            <summary>
+            Performs an "index" "set" operation.
+            </summary>
+            <param name="script">The script originating the request</param>
+            <param name="obj">The object (null if a static request is done)</param>
+            <param name="index">The index.</param>
+            <param name="value">The value to be set</param>
+            <param name="isDirectIndexing">If set to true, it's indexed with a name, if false it's indexed through brackets.</param>
+            <returns></returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.IUserDataDescriptor.AsString(System.Object)">
+            <summary>
+            Converts this userdata to string
+            </summary>
+            <param name="obj">The object.</param>
+            <returns></returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.IUserDataDescriptor.MetaIndex(MoonSharp.Interpreter.Script,System.Object,System.String)">
+            <summary>
+            
+            Gets a "meta" operation on this userdata. If a descriptor does not support this functionality,
+            it should return "null" (not a nil). 
+            
+            These standard metamethods can be supported (the return value should be a function accepting the
+            classic parameters of the corresponding metamethod):
+            __add, __sub, __mul, __div, __div, __pow, __unm, __eq, __lt, __le, __lt, __len, __concat, 
+            __pairs, __ipairs, __iterator, __call
+            
+            These standard metamethods are supported through other calls for efficiency:
+            __index, __newindex, __tostring
+            
+            </summary>
+            <param name="script">The script originating the request</param>
+            <param name="obj">The object (null if a static request is done)</param>
+            <param name="metaname">The name of the metamember.</param>
+            <returns></returns>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Interop.IUserDataDescriptor.Name">
+            <summary>
+            Gets the name of the descriptor (usually, the name of the type described).
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Interop.IUserDataDescriptor.Type">
+            <summary>
+            Gets the type this descriptor refers to
+            </summary>
         </member>
         <member name="M:MoonSharp.Interpreter.Interop.LuaStateInterop.Tools.IsNumericType(System.Object)">
             <summary>
@@ -151,6 +818,26 @@
             <param name="input">The input.</param>
             <returns>A string with all string meta chars are replaced</returns>
         </member>
+        <member name="T:MoonSharp.Interpreter.CoreLib.StringModule">
+            <summary>
+            Class implementing string Lua functions 
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.CoreLib.TableIteratorsModule">
+            <summary>
+            Class implementing table Lua iterators (pairs, ipairs, next)
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.CoreLib.TableModule">
+            <summary>
+            Class implementing table Lua functions 
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.CoreLib.TableModule_Globals">
+            <summary>
+            Class exposing table.unpack and table.pack in the global namespace (to work around the most common Lua 5.1 compatibility issue).
+            </summary>
+        </member>
         <member name="T:MoonSharp.Interpreter.Extension_Methods">
             <summary>
             Extension methods used in the whole project.
@@ -165,6 +852,23 @@
             <param name="dictionary">The dictionary.</param>
             <param name="key">The key.</param>
             <returns></returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Extension_Methods.GetOrCreate``2(System.Collections.Generic.Dictionary{``0,``1},``0,System.Func{``1})">
+            <summary>
+            Gets a value from the dictionary or creates it
+            </summary>
+            <typeparam name="TKey">The type of the key.</typeparam>
+            <typeparam name="TValue">The type of the value.</typeparam>
+            <param name="dictionary">The dictionary.</param>
+            <param name="key">The key.</param>
+            <param name="creator">A function which will create the value if it doesn't exist.</param>
+            <returns></returns>
+        </member>
+        <member name="T:MoonSharp.Interpreter.DataStructs.FastStackDynamic`1">
+            <summary>
+            A non preallocated, non_fixed size stack
+            </summary>
+            <typeparam name="T"></typeparam>
         </member>
         <member name="T:MoonSharp.Interpreter.DataStructs.LinkedListIndex`2">
             <summary>
@@ -355,6 +1059,235 @@
             </summary>
             <returns>true if the <see cref="T:System.Collections.Generic.ICollection`1" /> is read-only; otherwise, false.</returns>
         </member>
+        <member name="T:MoonSharp.Interpreter.Coroutine">
+            <summary>
+            A class representing a script coroutine
+            </summary>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Coroutine.AsTypedEnumerable">
+            <summary>
+            Gets this coroutine as a typed enumerable which can be looped over for resuming.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Coroutine.AsEnumerator">
+            <summary>
+            Gets this coroutine as a System.Collections.IEnumerator. This should bridge with Unity3D coroutines.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Coroutine.Resume(MoonSharp.Interpreter.DynValue[])">
+            <summary>
+            Resumes the coroutine
+            </summary>
+            <param name="args">The arguments.</param>
+            <returns></returns>
+            <exception cref="T:System.InvalidOperationException">Only non-CLR coroutines can be resumed with this overload of the Resume method. Use the overload accepting a ScriptExecutionContext instead</exception>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Coroutine.Resume(MoonSharp.Interpreter.ScriptExecutionContext,MoonSharp.Interpreter.DynValue[])">
+            <summary>
+            Resumes the coroutine
+            </summary>
+            <param name="context">The ScriptExecutionContext.</param>
+            <param name="args">The arguments.</param>
+            <returns></returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Coroutine.GetStackTrace(System.Int32,MoonSharp.Interpreter.Debugging.SourceRef)">
+            <summary>
+            Gets the coroutine stack trace for debug purposes
+            </summary>
+            <param name="skip">The skip.</param>
+            <param name="entrySourceRef">The entry source reference.</param>
+            <returns></returns>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Coroutine.Type">
+            <summary>
+            Gets the type of coroutine
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Coroutine.State">
+            <summary>
+            Gets the coroutine state.
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.Coroutine.CoroutineType">
+            <summary>
+            Possible types of coroutine
+            </summary>
+        </member>
+        <member name="F:MoonSharp.Interpreter.Coroutine.CoroutineType.Coroutine">
+            <summary>
+            A valid coroutine
+            </summary>
+        </member>
+        <member name="F:MoonSharp.Interpreter.Coroutine.CoroutineType.ClrCallback">
+            <summary>
+            A CLR callback assigned to a coroutine. 
+            </summary>
+        </member>
+        <member name="F:MoonSharp.Interpreter.Coroutine.CoroutineType.ClrCallbackDead">
+            <summary>
+            A CLR callback assigned to a coroutine and already executed.
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.TailCallData">
+            <summary>
+            Class used to support "tail" continuations - a way for C# / Lua interaction which supports 
+            coroutine yielding (at the expense of a LOT of added complexity in calling code).
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.TailCallData.Function">
+            <summary>
+            Gets or sets the function to call
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.TailCallData.Args">
+            <summary>
+            Gets or sets the arguments to the function
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.TailCallData.Continuation">
+            <summary>
+            Gets or sets the callback to be used as a continuation.
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.TailCallData.ErrorHandler">
+            <summary>
+            Gets or sets the callback to be used in case of errors.
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.TailCallData.ErrorHandlerBeforeUnwind">
+            <summary>
+            Gets or sets the error handler to be called before stack unwinding
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.UserData">
+            <summary>
+            Class exposing C# objects as Lua userdata.
+            For efficiency, a global registry of types is maintained, instead of a per-script one.
+            </summary>
+        </member>
+        <member name="M:MoonSharp.Interpreter.UserData.RegisterType``1(MoonSharp.Interpreter.InteropAccessMode,System.String)">
+            <summary>
+            Registers a type for userdata interop
+            </summary>
+            <typeparam name="T">The type to be registered</typeparam>
+            <param name="accessMode">The access mode (optional).</param>
+            <param name="friendlyName">Friendly name for the type (optional)</param>
+        </member>
+        <member name="M:MoonSharp.Interpreter.UserData.RegisterType(System.Type,MoonSharp.Interpreter.InteropAccessMode,System.String)">
+            <summary>
+            Registers a type for userdata interop
+            </summary>
+            <param name="type">The type to be registered</param>
+            <param name="accessMode">The access mode (optional).</param>
+            <param name="friendlyName">Friendly name for the type (optional)</param>
+        </member>
+        <member name="M:MoonSharp.Interpreter.UserData.RegisterType``1(MoonSharp.Interpreter.Interop.IUserDataDescriptor)">
+            <summary>
+            Registers a type with a custom userdata descriptor
+            </summary>
+            <typeparam name="T">The type to be registered</typeparam>
+            <param name="customDescriptor">The custom descriptor.</param>
+        </member>
+        <member name="M:MoonSharp.Interpreter.UserData.RegisterType(System.Type,MoonSharp.Interpreter.Interop.IUserDataDescriptor)">
+            <summary>
+            Registers a type with a custom userdata descriptor
+            </summary>
+            <param name="type">The type to be registered</param>
+            <param name="customDescriptor">The custom descriptor.</param>
+        </member>
+        <member name="M:MoonSharp.Interpreter.UserData.RegisterAssembly(System.Reflection.Assembly,System.Boolean)">
+            <summary>
+            Registers all types marked with a MoonSharpUserDataAttribute that ar contained in an assembly.
+            </summary>
+            <param name="asm">The assembly.</param>
+            <param name="includeExtensionTypes">if set to <c>true</c> extension types are registered to the appropriate registry.</param>
+        </member>
+        <member name="M:MoonSharp.Interpreter.UserData.UnregisterType``1">
+            <summary>
+            Unregisters a type
+            </summary>
+            <typeparam name="T">The type to be unregistered</typeparam>
+        </member>
+        <member name="M:MoonSharp.Interpreter.UserData.UnregisterType(System.Type)">
+            <summary>
+            Unregisters a type
+            </summary>
+            <param name="t">The The type to be unregistered</param>
+        </member>
+        <member name="M:MoonSharp.Interpreter.UserData.Create(System.Object)">
+            <summary>
+            Creates a userdata DynValue from the specified object
+            </summary>
+            <param name="o">The object</param>
+            <returns></returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.UserData.CreateStatic(System.Type)">
+            <summary>
+            Creates a static userdata DynValue from the specified Type
+            </summary>
+            <param name="t">The type</param>
+            <returns></returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.UserData.CreateStatic``1">
+            <summary>
+            Creates a static userdata DynValue from the specified Type
+            </summary>
+            <typeparam name="T">The Type</typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.UserData.RegisterExtensionType(System.Type,MoonSharp.Interpreter.InteropAccessMode)">
+            <summary>
+            Registers an extension Type (that is a type containing extension methods)
+            </summary>
+            <param name="type">The type.</param>
+            <param name="mode">The InteropAccessMode.</param>
+        </member>
+        <member name="M:MoonSharp.Interpreter.UserData.GetExtensionMethodsByName(System.String)">
+            <summary>
+            Gets all the extension methods which can match a given name
+            </summary>
+            <param name="name">The name.</param>
+            <returns></returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.UserData.GetExtensionMethodsChangeVersion">
+            <summary>
+            Gets a number which gets incremented everytime the extension methods registry changes.
+            Use this to invalidate caches based on extension methods
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:MoonSharp.Interpreter.UserData.UserValue">
+            <summary>
+            Gets or sets the "uservalue". See debug.getuservalue and debug.setuservalue.
+            http://www.lua.org/manual/5.2/manual.html#pdf-debug.setuservalue
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.UserData.Object">
+            <summary>
+            Gets the object associated to this userdata (null for statics)
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.UserData.Descriptor">
+            <summary>
+            Gets the type descriptor of this userdata
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.UserData.RegistrationPolicy">
+            <summary>
+            Gets or sets the registration policy to be used in the whole application
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.UserData.DefaultAccessMode">
+            <summary>
+            Gets or sets the default access mode to be used in the whole application
+            </summary>
+            <value>
+            The default access mode.
+            </value>
+            <exception cref="T:System.ArgumentException">InteropAccessMode is InteropAccessMode.Default</exception>
+        </member>
         <member name="T:MoonSharp.Interpreter.WellKnownSymbols">
             <summary>
             Constants of well known "symbols" in the MoonSharp grammar
@@ -368,6 +1301,134 @@
         <member name="F:MoonSharp.Interpreter.WellKnownSymbols.ENV">
             <summary>
             The environment symbol ("_ENV")
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.YieldRequest">
+            <summary>
+            Class wrapping a request to yield a coroutine
+            </summary>
+        </member>
+        <member name="F:MoonSharp.Interpreter.YieldRequest.ReturnValues">
+            <summary>
+            The return values of the coroutine
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.Debugging.DebuggerAction">
+            <summary>
+            Wrapper for a debugger initiated action 
+            </summary>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Debugging.DebuggerAction.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:MoonSharp.Interpreter.Debugging.DebuggerAction"/> class.
+            </summary>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Debugging.DebuggerAction.ToString">
+            <summary>
+            Returns a <see cref="T:System.String"/> that represents this instance.
+            </summary>
+            <returns>
+            A <see cref="T:System.String"/> that represents this instance.
+            </returns>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Debugging.DebuggerAction.Action">
+            <summary>
+            The type of action
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Debugging.DebuggerAction.TimeStampUTC">
+            <summary>
+            Gets the time stamp UTC of this action
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Debugging.DebuggerAction.SourceID">
+            <summary>
+            Gets or sets the source identifier this action refers to. <see cref="M:MoonSharp.Interpreter.Script.GetSourceCode(System.Int32)"/>
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Debugging.DebuggerAction.SourceLine">
+            <summary>
+            Gets or sets the source line this action refers to.
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Debugging.DebuggerAction.SourceCol">
+            <summary>
+            Gets or sets the source column this action refers to.
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Debugging.DebuggerAction.Age">
+            <summary>
+            Gets the age of this debugger action
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.Debugging.DebuggerAction.ActionType">
+            <summary>
+            Type of the action
+            </summary>
+        </member>
+        <member name="F:MoonSharp.Interpreter.Debugging.DebuggerAction.ActionType.ByteCodeStepIn">
+            <summary>
+            Step-in at the bytecode level
+            </summary>
+        </member>
+        <member name="F:MoonSharp.Interpreter.Debugging.DebuggerAction.ActionType.ByteCodeStepOver">
+            <summary>
+            Step-over at the bytecode level
+            </summary>
+        </member>
+        <member name="F:MoonSharp.Interpreter.Debugging.DebuggerAction.ActionType.ByteCodeStepOut">
+            <summary>
+            Step-out at the bytecode level
+            </summary>
+        </member>
+        <member name="F:MoonSharp.Interpreter.Debugging.DebuggerAction.ActionType.StepIn">
+            <summary>
+            Step-in at the source level
+            </summary>
+        </member>
+        <member name="F:MoonSharp.Interpreter.Debugging.DebuggerAction.ActionType.StepOver">
+            <summary>
+            Step-over at the source level
+            </summary>
+        </member>
+        <member name="F:MoonSharp.Interpreter.Debugging.DebuggerAction.ActionType.StepOut">
+            <summary>
+            Step-out at the source level
+            </summary>
+        </member>
+        <member name="F:MoonSharp.Interpreter.Debugging.DebuggerAction.ActionType.Run">
+            <summary>
+            Continue execution "freely"
+            </summary>
+        </member>
+        <member name="F:MoonSharp.Interpreter.Debugging.DebuggerAction.ActionType.ToggleBreakpoint">
+            <summary>
+            Toggles breakpoint 
+            </summary>
+        </member>
+        <member name="F:MoonSharp.Interpreter.Debugging.DebuggerAction.ActionType.SetBreakpoint">
+            <summary>
+            Sets a breakpoint
+            </summary>
+        </member>
+        <member name="F:MoonSharp.Interpreter.Debugging.DebuggerAction.ActionType.ClearBreakpoint">
+            <summary>
+            Clears a breakpoint
+            </summary>
+        </member>
+        <member name="F:MoonSharp.Interpreter.Debugging.DebuggerAction.ActionType.Refresh">
+            <summary>
+            Refresh the data
+            </summary>
+        </member>
+        <member name="F:MoonSharp.Interpreter.Debugging.DebuggerAction.ActionType.HardRefresh">
+            <summary>
+            Hard refresh of data
+            </summary>
+        </member>
+        <member name="F:MoonSharp.Interpreter.Debugging.DebuggerAction.ActionType.None">
+            <summary>
+            No action
             </summary>
         </member>
         <member name="T:MoonSharp.Interpreter.Debugging.IDebugger">
@@ -435,6 +1496,173 @@
         <member name="M:MoonSharp.Interpreter.Debugging.IDebugger.RefreshBreakpoints(System.Collections.Generic.IEnumerable{MoonSharp.Interpreter.Debugging.SourceRef})">
             <summary>
             Called by the script engine to refresh the breakpoint list.
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.Debugging.SourceRef">
+            <summary>
+            Class representing a reference to source code interval
+            </summary>
+        </member>
+        <member name="F:MoonSharp.Interpreter.Debugging.SourceRef.Breakpoint">
+            <summary>
+            Gets a value indicating whether this instance is a breakpoint
+            </summary>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Debugging.SourceRef.ToString">
+            <summary>
+            Returns a <see cref="T:System.String"/> that represents this instance.
+            </summary>
+            <returns>
+            A <see cref="T:System.String"/> that represents this instance.
+            </returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Debugging.SourceRef.IncludesLocation(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Gets whether the source ref includes the specified location
+            </summary>
+            <param name="sourceIdx">Index of the source.</param>
+            <param name="line">The line.</param>
+            <param name="col">The column.</param>
+            <returns></returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Debugging.SourceRef.SetNoBreakPoint">
+            <summary>
+            Sets the CannotBreakpoint flag.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Debugging.SourceRef.FormatLocation(MoonSharp.Interpreter.Script,System.Boolean)">
+            <summary>
+            Formats the location according to script preferences
+            </summary>
+            <param name="script">The script.</param>
+            <param name="forceClassicFormat">if set to <c>true</c> the classic Lua format is forced.</param>
+            <returns></returns>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Debugging.SourceRef.IsClrLocation">
+            <summary>
+            Gets a value indicating whether this location is inside CLR .
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Debugging.SourceRef.SourceIdx">
+            <summary>
+            Gets the index of the source.
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Debugging.SourceRef.FromChar">
+            <summary>
+            Gets from which column the source code ref starts
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Debugging.SourceRef.ToChar">
+            <summary>
+            Gets to which column the source code ref ends
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Debugging.SourceRef.FromLine">
+            <summary>
+            Gets from which line the source code ref starts
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Debugging.SourceRef.ToLine">
+            <summary>
+            Gets to which line the source code ref ends
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Debugging.SourceRef.IsStepStop">
+            <summary>
+            Gets a value indicating whether this instance is a stop "step" in source mode
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Debugging.SourceRef.CannotBreakpoint">
+            <summary>
+            Gets a value indicating whether this instance cannot be set as a breakpoint
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.Debugging.WatchItem">
+            <summary>
+            A watch item for the debugger to consume.
+            Most properties make or not sense depending on the WatchType.
+            </summary>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Debugging.WatchItem.ToString">
+            <summary>
+            Returns a <see cref="T:System.String"/> that represents this instance.
+            </summary>
+            <returns>
+            A <see cref="T:System.String"/> that represents this instance.
+            </returns>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Debugging.WatchItem.Address">
+            <summary>
+            Gets or sets the address of the item
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Debugging.WatchItem.BasePtr">
+            <summary>
+            Gets or sets the base pointer (base value of v-stack at entering the function).
+            Valid only for call-stack items
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Debugging.WatchItem.RetAddress">
+            <summary>
+            Gets or sets the return address.
+            Valid only for call-stack items
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Debugging.WatchItem.Name">
+            <summary>
+            Gets or sets the name of the item
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Debugging.WatchItem.Value">
+            <summary>
+            Gets or sets the value of the item
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Debugging.WatchItem.LValue">
+            <summary>
+            Gets or sets the symbol reference of the item 
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Debugging.WatchItem.IsError">
+            <summary>
+            Gets or sets a value indicating whether this instance is generating an error.
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Debugging.WatchItem.Location">
+            <summary>
+            Gets or sets the source location this item refers to.
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.Debugging.WatchType">
+            <summary>
+            Enumeration of the possible watch types
+            </summary>
+        </member>
+        <member name="F:MoonSharp.Interpreter.Debugging.WatchType.Watches">
+            <summary>
+            A real variable watch
+            </summary>
+        </member>
+        <member name="F:MoonSharp.Interpreter.Debugging.WatchType.VStack">
+            <summary>
+            The status of the v-stack
+            </summary>
+        </member>
+        <member name="F:MoonSharp.Interpreter.Debugging.WatchType.CallStack">
+            <summary>
+            The call stack
+            </summary>
+        </member>
+        <member name="F:MoonSharp.Interpreter.Debugging.WatchType.Coroutines">
+            <summary>
+            The list of coroutines
+            </summary>
+        </member>
+        <member name="F:MoonSharp.Interpreter.Debugging.WatchType.MaxValue">
+            <summary>
+            The maximum value of this enum
             </summary>
         </member>
         <member name="T:MoonSharp.Interpreter.Diagnostics.PerformanceCounters.GlobalPerformanceStopwatch">
@@ -530,6 +1758,22 @@
             You are free to reuse this instance after calling Dispose.
             </summary>
         </member>
+        <member name="T:MoonSharp.Interpreter.InternalErrorException">
+            <summary>
+            Exception thrown when an inconsistent state is reached in the interpreter
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.SyntaxErrorException">
+            <summary>
+            Exception for all parsing/lexing errors. 
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.SyntaxErrorException.IsPrematureStreamTermination">
+            <summary>
+            Gets or sets a value indicating whether this exception was caused by premature stream termination (that is, unexpected EOF).
+            This can be used in REPL interfaces to tell between unrecoverable errors and those which can be recovered by extra input.
+            </summary>
+        </member>
         <member name="T:MoonSharp.Interpreter.CallbackArguments">
             <summary>
             This class is a container for arguments received by a CallbackFunction
@@ -587,7 +1831,7 @@
             <param name="funcName">Name of the function.</param>
             <returns></returns>
         </member>
-        <member name="M:MoonSharp.Interpreter.CallbackArguments.AsStringUsingMeta(MoonSharp.Interpreter.Execution.ScriptExecutionContext,System.Int32,System.String)">
+        <member name="M:MoonSharp.Interpreter.CallbackArguments.AsStringUsingMeta(MoonSharp.Interpreter.ScriptExecutionContext,System.Int32,System.String)">
             <summary>
             Gets the specified argument as a string, calling the __tostring metamethod if needed, in a NON
             yield-compatible way.
@@ -610,7 +1854,7 @@
         </member>
         <member name="P:MoonSharp.Interpreter.CallbackArguments.Item(System.Int32)">
             <summary>
-            Gets the <see cref="T:MoonSharp.Interpreter.DynValue"/> at the specified index, or Nil if not found (mimicing Lua behavior)
+            Gets the <see cref="T:MoonSharp.Interpreter.DynValue"/> at the specified index, or Void if not found 
             </summary>
         </member>
         <member name="T:MoonSharp.Interpreter.Closure">
@@ -668,14 +1912,35 @@
             <typeparam name="T">The type of return value of the delegate.</typeparam>
             <returns></returns>
         </member>
+        <member name="M:MoonSharp.Interpreter.Closure.GetUpvaluesCount">
+            <summary>
+            Gets the number of upvalues in this closure
+            </summary>
+            <returns>The number of upvalues in this closure</returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Closure.GetUpvalueName(System.Int32)">
+            <summary>
+            Gets the name of the specified upvalue.
+            </summary>
+            <param name="idx">The index of the upvalue.</param>
+            <returns>The upvalue name</returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Closure.GetUpvalue(System.Int32)">
+            <summary>
+            Gets the value of an upvalue 
+            </summary>
+            <param name="idx">The index of the upvalue.</param>
+            <returns>The value of an upvalue </returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Closure.GetUpvaluesType">
+            <summary>
+            Gets the type of the upvalues contained in this closure
+            </summary>
+            <returns></returns>
+        </member>
         <member name="P:MoonSharp.Interpreter.Closure.EntryPointByteCodeLocation">
             <summary>
             Gets the entry point location in bytecode .
-            </summary>
-        </member>
-        <member name="P:MoonSharp.Interpreter.Closure.ClosureContext">
-            <summary>
-            Gets the ClosureContext for upvalues of this function
             </summary>
         </member>
         <member name="P:MoonSharp.Interpreter.Closure.OwnerScript">
@@ -683,19 +1948,44 @@
             Gets the script owning this function
             </summary>
         </member>
-        <member name="T:MoonSharp.Interpreter.CallbackFunction">
+        <member name="P:MoonSharp.Interpreter.Closure.ClosureContext">
             <summary>
-            This class wraps 
+            The current closure context
             </summary>
         </member>
-        <member name="M:MoonSharp.Interpreter.CallbackFunction.#ctor(System.Func{MoonSharp.Interpreter.Execution.ScriptExecutionContext,MoonSharp.Interpreter.CallbackArguments,MoonSharp.Interpreter.DynValue},System.String)">
+        <member name="T:MoonSharp.Interpreter.Closure.UpvaluesType">
+            <summary>
+            Type of closure based on upvalues
+            </summary>
+        </member>
+        <member name="F:MoonSharp.Interpreter.Closure.UpvaluesType.None">
+            <summary>
+            The closure has no upvalues (thus, technically, it's a function and not a closure!)
+            </summary>
+        </member>
+        <member name="F:MoonSharp.Interpreter.Closure.UpvaluesType.Environment">
+            <summary>
+            The closure has _ENV as its only upvalue
+            </summary>
+        </member>
+        <member name="F:MoonSharp.Interpreter.Closure.UpvaluesType.Closure">
+            <summary>
+            The closure is a "real" closure, with multiple upvalues
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.CallbackFunction">
+            <summary>
+            This class wraps a CLR function 
+            </summary>
+        </member>
+        <member name="M:MoonSharp.Interpreter.CallbackFunction.#ctor(System.Func{MoonSharp.Interpreter.ScriptExecutionContext,MoonSharp.Interpreter.CallbackArguments,MoonSharp.Interpreter.DynValue},System.String)">
             <summary>
             Initializes a new instance of the <see cref="T:MoonSharp.Interpreter.CallbackFunction"/> class.
             </summary>
             <param name="callBack">The callback function to be called.</param>
             <param name="name">The callback name, used in stacktraces, debugger, etc..</param>
         </member>
-        <member name="M:MoonSharp.Interpreter.CallbackFunction.Invoke(MoonSharp.Interpreter.Execution.ScriptExecutionContext,System.Collections.Generic.IList{MoonSharp.Interpreter.DynValue},System.Boolean)">
+        <member name="M:MoonSharp.Interpreter.CallbackFunction.Invoke(MoonSharp.Interpreter.ScriptExecutionContext,System.Collections.Generic.IList{MoonSharp.Interpreter.DynValue},System.Boolean)">
             <summary>
             Invokes the callback function
             </summary>
@@ -723,6 +2013,24 @@
             <param name="accessMode">The access mode.</param>
             <returns></returns>
             <exception cref="T:System.ArgumentException">The method is not static.</exception>
+        </member>
+        <member name="M:MoonSharp.Interpreter.CallbackFunction.CheckCallbackSignature(System.Reflection.MethodInfo,System.Boolean)">
+            <summary>
+            Checks the callback signature of a method is compatible for callbacks
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.CallbackFunction.Name">
+            <summary>
+            Gets the name of the function
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.CallbackFunction.ClrCallback">
+            <summary>
+            Gets the call back.
+            </summary>
+            <value>
+            The call back.
+            </value>
         </member>
         <member name="P:MoonSharp.Interpreter.CallbackFunction.DefaultAccessMode">
             <summary>
@@ -786,7 +2094,7 @@
             Creates a new writable value initialized to the specified closure (function).
             </summary>
         </member>
-        <member name="M:MoonSharp.Interpreter.DynValue.NewCallback(System.Func{MoonSharp.Interpreter.Execution.ScriptExecutionContext,MoonSharp.Interpreter.CallbackArguments,MoonSharp.Interpreter.DynValue},System.String)">
+        <member name="M:MoonSharp.Interpreter.DynValue.NewCallback(System.Func{MoonSharp.Interpreter.ScriptExecutionContext,MoonSharp.Interpreter.CallbackArguments,MoonSharp.Interpreter.DynValue},System.String)">
             <summary>
             Creates a new writable value initialized to the specified CLR callback.
             </summary>
@@ -1005,7 +2313,7 @@
         </member>
         <member name="P:MoonSharp.Interpreter.DynValue.ReferenceID">
             <summary>
-            Gets a unique reference identifier. This is guaranteed to be unique only in a single Script object as it's not thread-safe.
+            Gets a unique reference identifier. This is guaranteed to be unique only for dynvalues created in a single thread as it's not thread-safe.
             </summary>
         </member>
         <member name="P:MoonSharp.Interpreter.DynValue.Type">
@@ -1015,43 +2323,43 @@
         </member>
         <member name="P:MoonSharp.Interpreter.DynValue.Function">
             <summary>
-            Gets the function (valid only if the <seealso cref="P:MoonSharp.Interpreter.DynValue.Type"/> is <seealso cref="F:MoonSharp.Interpreter.DataType.Function"/>)
+            Gets the function (valid only if the <see cref="P:MoonSharp.Interpreter.DynValue.Type"/> is <see cref="F:MoonSharp.Interpreter.DataType.Function"/>)
             </summary>
         </member>
         <member name="P:MoonSharp.Interpreter.DynValue.Number">
             <summary>
-            Gets the numeric value (valid only if the <seealso cref="P:MoonSharp.Interpreter.DynValue.Type"/> is <seealso cref="F:MoonSharp.Interpreter.DataType.Number"/>)
+            Gets the numeric value (valid only if the <see cref="P:MoonSharp.Interpreter.DynValue.Type"/> is <see cref="F:MoonSharp.Interpreter.DataType.Number"/>)
             </summary>
         </member>
         <member name="P:MoonSharp.Interpreter.DynValue.Tuple">
             <summary>
-            Gets the values in the tuple (valid only if the <seealso cref="P:MoonSharp.Interpreter.DynValue.Type"/> is Tuple).
-            This field is currently also used to hold arguments in values whose <seealso cref="P:MoonSharp.Interpreter.DynValue.Type"/> is <seealso cref="F:MoonSharp.Interpreter.DataType.TailCallRequest"/>.
+            Gets the values in the tuple (valid only if the <see cref="P:MoonSharp.Interpreter.DynValue.Type"/> is Tuple).
+            This field is currently also used to hold arguments in values whose <see cref="P:MoonSharp.Interpreter.DynValue.Type"/> is <see cref="F:MoonSharp.Interpreter.DataType.TailCallRequest"/>.
             </summary>
         </member>
         <member name="P:MoonSharp.Interpreter.DynValue.Coroutine">
             <summary>
-            Gets the coroutine handle. (valid only if the <seealso cref="P:MoonSharp.Interpreter.DynValue.Type"/> is Thread).
+            Gets the coroutine handle. (valid only if the <see cref="P:MoonSharp.Interpreter.DynValue.Type"/> is Thread).
             </summary>
         </member>
         <member name="P:MoonSharp.Interpreter.DynValue.Table">
             <summary>
-            Gets the table (valid only if the <seealso cref="P:MoonSharp.Interpreter.DynValue.Type"/> is <seealso cref="F:MoonSharp.Interpreter.DataType.Table"/>)
+            Gets the table (valid only if the <see cref="P:MoonSharp.Interpreter.DynValue.Type"/> is <see cref="F:MoonSharp.Interpreter.DataType.Table"/>)
             </summary>
         </member>
         <member name="P:MoonSharp.Interpreter.DynValue.Boolean">
             <summary>
-            Gets the boolean value (valid only if the <seealso cref="P:MoonSharp.Interpreter.DynValue.Type"/> is <seealso cref="F:MoonSharp.Interpreter.DataType.Boolean"/>)
+            Gets the boolean value (valid only if the <see cref="P:MoonSharp.Interpreter.DynValue.Type"/> is <see cref="F:MoonSharp.Interpreter.DataType.Boolean"/>)
             </summary>
         </member>
         <member name="P:MoonSharp.Interpreter.DynValue.String">
             <summary>
-            Gets the string value (valid only if the <seealso cref="P:MoonSharp.Interpreter.DynValue.Type"/> is <seealso cref="F:MoonSharp.Interpreter.DataType.String"/>)
+            Gets the string value (valid only if the <see cref="P:MoonSharp.Interpreter.DynValue.Type"/> is <see cref="F:MoonSharp.Interpreter.DataType.String"/>)
             </summary>
         </member>
         <member name="P:MoonSharp.Interpreter.DynValue.Callback">
             <summary>
-            Gets the CLR callback (valid only if the <seealso cref="P:MoonSharp.Interpreter.DynValue.Type"/> is <seealso cref="F:MoonSharp.Interpreter.DataType.ClrFunction"/>)
+            Gets the CLR callback (valid only if the <see cref="P:MoonSharp.Interpreter.DynValue.Type"/> is <see cref="F:MoonSharp.Interpreter.DataType.ClrFunction"/>)
             </summary>
         </member>
         <member name="P:MoonSharp.Interpreter.DynValue.TailCallData">
@@ -1121,19 +2429,19 @@
             Gets the nil pair
             </summary>
         </member>
-        <member name="T:MoonSharp.Interpreter.Execution.ScriptExecutionContext">
+        <member name="T:MoonSharp.Interpreter.ScriptExecutionContext">
             <summary>
             Class giving access to details of the environment where the script is executing
             </summary>
         </member>
-        <member name="M:MoonSharp.Interpreter.Execution.ScriptExecutionContext.GetMetatable(MoonSharp.Interpreter.DynValue)">
+        <member name="M:MoonSharp.Interpreter.ScriptExecutionContext.GetMetatable(MoonSharp.Interpreter.DynValue)">
             <summary>
             Gets the metatable associated with the given value.
             </summary>
             <param name="value">The value.</param>
             <returns></returns>
         </member>
-        <member name="M:MoonSharp.Interpreter.Execution.ScriptExecutionContext.GetMetamethod(MoonSharp.Interpreter.DynValue,System.String)">
+        <member name="M:MoonSharp.Interpreter.ScriptExecutionContext.GetMetamethod(MoonSharp.Interpreter.DynValue,System.String)">
             <summary>
             Gets the specified metamethod associated with the given value.
             </summary>
@@ -1141,28 +2449,28 @@
             <param name="metamethod">The metamethod name.</param>
             <returns></returns>
         </member>
-        <member name="M:MoonSharp.Interpreter.Execution.ScriptExecutionContext.GetMetamethodTailCall(MoonSharp.Interpreter.DynValue,System.String,MoonSharp.Interpreter.DynValue[])">
+        <member name="M:MoonSharp.Interpreter.ScriptExecutionContext.GetMetamethodTailCall(MoonSharp.Interpreter.DynValue,System.String,MoonSharp.Interpreter.DynValue[])">
             <summary>
             prepares a tail call request for the specified metamethod, or null if no metamethod is found.
             </summary>
         </member>
-        <member name="M:MoonSharp.Interpreter.Execution.ScriptExecutionContext.GetBinaryMetamethod(MoonSharp.Interpreter.DynValue,MoonSharp.Interpreter.DynValue,System.String)">
+        <member name="M:MoonSharp.Interpreter.ScriptExecutionContext.GetBinaryMetamethod(MoonSharp.Interpreter.DynValue,MoonSharp.Interpreter.DynValue,System.String)">
             <summary>
             Gets the metamethod to be used for a binary operation using op1 and op2.
             </summary>
         </member>
-        <member name="M:MoonSharp.Interpreter.Execution.ScriptExecutionContext.GetScript">
+        <member name="M:MoonSharp.Interpreter.ScriptExecutionContext.GetScript">
             <summary>
             Gets the script object associated with this request
             </summary>
             <returns></returns>
         </member>
-        <member name="M:MoonSharp.Interpreter.Execution.ScriptExecutionContext.GetCallingCoroutine">
+        <member name="M:MoonSharp.Interpreter.ScriptExecutionContext.GetCallingCoroutine">
             <summary>
             Gets the coroutine which is performing the call
             </summary>
         </member>
-        <member name="M:MoonSharp.Interpreter.Execution.ScriptExecutionContext.EmulateClassicCall(MoonSharp.Interpreter.CallbackArguments,System.String,System.Func{MoonSharp.Interpreter.Interop.LuaStateInterop.LuaState,System.Int32})">
+        <member name="M:MoonSharp.Interpreter.ScriptExecutionContext.EmulateClassicCall(MoonSharp.Interpreter.CallbackArguments,System.String,System.Func{MoonSharp.Interpreter.Interop.LuaStateInterop.LuaState,System.Int32})">
             <summary>
             Calls a callback function implemented in "classic way". 
             Useful to port C code from Lua, or C# code from UniLua and KopiLua.
@@ -1175,7 +2483,7 @@
             <param name="callback">The callback.</param>
             <returns></returns>
         </member>
-        <member name="M:MoonSharp.Interpreter.Execution.ScriptExecutionContext.Call(MoonSharp.Interpreter.DynValue,MoonSharp.Interpreter.DynValue[])">
+        <member name="M:MoonSharp.Interpreter.ScriptExecutionContext.Call(MoonSharp.Interpreter.DynValue,MoonSharp.Interpreter.DynValue[])">
             <summary>
             Calls the specified function, supporting most cases. The called function must not yield.
             </summary>
@@ -1184,41 +2492,120 @@
             <returns></returns>
             <exception cref="T:MoonSharp.Interpreter.ScriptRuntimeException">If the function yields, returns a tail call request with continuations/handlers or, of course, if it encounters errors.</exception>
         </member>
-        <member name="M:MoonSharp.Interpreter.Execution.ScriptExecutionContext.EvaluateSymbol(MoonSharp.Interpreter.SymbolRef)">
+        <member name="M:MoonSharp.Interpreter.ScriptExecutionContext.EvaluateSymbol(MoonSharp.Interpreter.SymbolRef)">
             <summary>
             Tries to get the reference of a symbol in the current execution state
             </summary>
         </member>
-        <member name="M:MoonSharp.Interpreter.Execution.ScriptExecutionContext.EvaluateSymbolByName(System.String)">
+        <member name="M:MoonSharp.Interpreter.ScriptExecutionContext.EvaluateSymbolByName(System.String)">
             <summary>
             Tries to get the value of a symbol in the current execution state
             </summary>
         </member>
-        <member name="M:MoonSharp.Interpreter.Execution.ScriptExecutionContext.FindSymbolByName(System.String)">
+        <member name="M:MoonSharp.Interpreter.ScriptExecutionContext.FindSymbolByName(System.String)">
             <summary>
             Finds a symbol by name in the current execution state
             </summary>
         </member>
-        <member name="M:MoonSharp.Interpreter.Execution.ScriptExecutionContext.PerformMessageDecorationBeforeUnwind(MoonSharp.Interpreter.DynValue,MoonSharp.Interpreter.ScriptRuntimeException)">
+        <member name="M:MoonSharp.Interpreter.ScriptExecutionContext.PerformMessageDecorationBeforeUnwind(MoonSharp.Interpreter.DynValue,MoonSharp.Interpreter.ScriptRuntimeException)">
             <summary>
             Performs a message decoration before unwinding after an error. To be used in the implementation of xpcall like functions.
             </summary>
             <param name="messageHandler">The message handler.</param>
             <param name="exception">The exception.</param>
         </member>
-        <member name="P:MoonSharp.Interpreter.Execution.ScriptExecutionContext.CallingLocation">
+        <member name="P:MoonSharp.Interpreter.ScriptExecutionContext.IsDynamicExecution">
+            <summary>
+            Gets a value indicating whether this instance is running a dynamic execution.
+            Under a dynamic execution, most methods of ScriptExecutionContext are not reliable as the
+            processing engine of the script is not "really" running or is not available.
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.ScriptExecutionContext.CallingLocation">
             <summary>
             Gets the location of the code calling back 
             </summary>
         </member>
-        <member name="P:MoonSharp.Interpreter.Execution.ScriptExecutionContext.AdditionalData">
+        <member name="P:MoonSharp.Interpreter.ScriptExecutionContext.AdditionalData">
             <summary>
             Gets or sets the additional data associated to this CLR function call.
             </summary>
         </member>
-        <member name="P:MoonSharp.Interpreter.Execution.ScriptExecutionContext.CurrentGlobalEnv">
+        <member name="P:MoonSharp.Interpreter.ScriptExecutionContext.CurrentGlobalEnv">
             <summary>
             Gets the current global env, or null if not found.
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.Debugging.SourceCode">
+            <summary>
+            Class representing the source code of a given script
+            </summary>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Debugging.SourceCode.GetCodeSnippet(MoonSharp.Interpreter.Debugging.SourceRef)">
+            <summary>
+            Gets the code snippet represented by a source ref
+            </summary>
+            <param name="sourceCodeRef">The source code reference.</param>
+            <returns></returns>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Debugging.SourceCode.Name">
+            <summary>
+            Gets the name of the source code
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Debugging.SourceCode.Code">
+            <summary>
+            Gets the source code as a string
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Debugging.SourceCode.Lines">
+            <summary>
+            Gets the source code lines.
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Debugging.SourceCode.OwnerScript">
+            <summary>
+            Gets the script owning this resource.
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Debugging.SourceCode.SourceID">
+            <summary>
+            Gets the source identifier inside a script
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.CoroutineState">
+            <summary>
+            State of coroutines
+            </summary>
+        </member>
+        <member name="F:MoonSharp.Interpreter.CoroutineState.Main">
+            <summary>
+            This is the main coroutine
+            </summary>
+        </member>
+        <member name="F:MoonSharp.Interpreter.CoroutineState.NotStarted">
+            <summary>
+            Coroutine has not started yet
+            </summary>
+        </member>
+        <member name="F:MoonSharp.Interpreter.CoroutineState.Suspended">
+            <summary>
+            Coroutine is suspended
+            </summary>
+        </member>
+        <member name="F:MoonSharp.Interpreter.CoroutineState.Running">
+            <summary>
+            Coroutine is running
+            </summary>
+        </member>
+        <member name="F:MoonSharp.Interpreter.CoroutineState.Dead">
+            <summary>
+            Coroutine has terminated
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.Interop.EnumerableWrapper">
+            <summary>
+            Wrappers for enumerables as return types
             </summary>
         </member>
         <member name="T:MoonSharp.Interpreter.LinqHelpers">
@@ -1226,16 +2613,214 @@
             LINQ helper methods
             </summary>
         </member>
+        <member name="M:MoonSharp.Interpreter.LinqHelpers.Convert``1(System.Collections.Generic.IEnumerable{MoonSharp.Interpreter.DynValue},MoonSharp.Interpreter.DataType)">
+            <summary>
+            Converts the specified enumerable dynvalues of a given script type to objects of a given type
+            </summary>
+            <typeparam name="T">The desired type</typeparam>
+            <param name="enumerable">The enumerable.</param>
+            <param name="type">The type.</param>
+        </member>
+        <member name="M:MoonSharp.Interpreter.LinqHelpers.OfDataType(System.Collections.Generic.IEnumerable{MoonSharp.Interpreter.DynValue},MoonSharp.Interpreter.DataType)">
+            <summary>
+            Filters an enumeration for items of the given script type
+            </summary>
+            <param name="enumerable">The enumerable.</param>
+            <param name="type">The script type.</param>
+        </member>
+        <member name="M:MoonSharp.Interpreter.LinqHelpers.AsObjects(System.Collections.Generic.IEnumerable{MoonSharp.Interpreter.DynValue})">
+            <summary>
+            Converts the elements to CLR objects
+            </summary>
+            <param name="enumerable">The enumerable.</param>
+        </member>
+        <member name="M:MoonSharp.Interpreter.LinqHelpers.AsObjects``1(System.Collections.Generic.IEnumerable{MoonSharp.Interpreter.DynValue})">
+            <summary>
+            Converts the elements to CLR objects of the desired type
+            </summary>
+            <typeparam name="T">The desired type</typeparam>
+            <param name="enumerable">The enumerable.</param>
+        </member>
         <member name="T:MoonSharp.Interpreter.Interop.LuaStateInterop.LuaState">
             <summary>
             
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.MoonSharpUserDataAttribute">
+            <summary>
+            Marks a type of automatic registration as userdata (which happens only if UserData.RegisterAssembly is called).
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.MoonSharpUserDataAttribute.AccessMode">
+            <summary>
+            The interop access mode
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.Interop.MoonSharpVisibleAttribute">
+            <summary>
+            Forces a class member visibility to scripts. Can be used to hide public members or to expose non-public ones.
+            </summary>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.MoonSharpVisibleAttribute.#ctor(System.Boolean)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MoonSharp.Interpreter.Interop.MoonSharpVisibleAttribute"/> class.
+            </summary>
+            <param name="visible">if set to true the member will be exposed to scripts, if false the member will be hidden.</param>
+        </member>
+        <member name="T:MoonSharp.Interpreter.AutoDescribingUserDataDescriptor">
+            <summary>
+            Descriptor which acts as a non-containing adapter from IUserDataType to IUserDataDescriptor
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.Interop.StandardUserDataDescriptor">
+            <summary>
+            Standard descriptor for userdata types.
+            </summary>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.StandardUserDataDescriptor.#ctor(System.Type,MoonSharp.Interpreter.InteropAccessMode,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MoonSharp.Interpreter.Interop.StandardUserDataDescriptor"/> class.
+            </summary>
+            <param name="type">The type this descriptor refers to.</param>
+            <param name="accessMode">The interop access mode this descriptor uses for members access</param>
+            <param name="friendlyName">A human readable friendly name of the descriptor.</param>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.StandardUserDataDescriptor.Index(MoonSharp.Interpreter.Script,System.Object,MoonSharp.Interpreter.DynValue,System.Boolean)">
+            <summary>
+            Performs an "index" "get" operation. This tries to resolve minor variations of member names.
+            </summary>
+            <param name="script">The script originating the request</param>
+            <param name="obj">The object (null if a static request is done)</param>
+            <param name="index">The index.</param>
+            <param name="isDirectIndexing">If set to true, it's indexed with a name, if false it's indexed through brackets.</param>
+            <returns></returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.StandardUserDataDescriptor.TryIndexOnExtMethod(MoonSharp.Interpreter.Script,System.Object,System.String)">
+            <summary>
+            Tries to perform an indexing operation by checking newly added extension methods for the given indexName.
+            </summary>
+            <param name="script">The script.</param>
+            <param name="obj">The object.</param>
+            <param name="indexName">Member name to be indexed.</param>
+            <returns></returns>
+            <exception cref="T:System.NotImplementedException"></exception>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.StandardUserDataDescriptor.TryIndex(MoonSharp.Interpreter.Script,System.Object,System.String)">
+            <summary>
+            Tries to perform an indexing operation by checking methods and properties for the given indexName
+            </summary>
+            <param name="script">The script.</param>
+            <param name="obj">The object.</param>
+            <param name="indexName">Member name to be indexed.</param>
+            <returns></returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.StandardUserDataDescriptor.SetIndex(MoonSharp.Interpreter.Script,System.Object,MoonSharp.Interpreter.DynValue,MoonSharp.Interpreter.DynValue,System.Boolean)">
+            <summary>
+            Performs an "index" "set" operation. This tries to resolve minor variations of member names.
+            </summary>
+            <param name="script">The script originating the request</param>
+            <param name="obj">The object (null if a static request is done)</param>
+            <param name="index">The index.</param>
+            <param name="value">The value to be set</param>
+            <param name="isDirectIndexing">If set to true, it's indexed with a name, if false it's indexed through brackets.</param>
+            <returns></returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.StandardUserDataDescriptor.TrySetIndex(MoonSharp.Interpreter.Script,System.Object,System.String,MoonSharp.Interpreter.DynValue)">
+            <summary>
+            Tries to perform an indexing "set" operation by checking methods and properties for the given indexName
+            </summary>
+            <param name="script">The script.</param>
+            <param name="obj">The object.</param>
+            <param name="indexName">Member name to be indexed.</param>
+            <param name="value">The value.</param>
+            <returns></returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.StandardUserDataDescriptor.Camelify(System.String)">
+            <summary>
+            Converts the specified name from underscore_case to camelCase.
+            </summary>
+            <param name="name">The name.</param>
+            <returns></returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.StandardUserDataDescriptor.UpperFirstLetter(System.String)">
+            <summary>
+            Converts the specified name to one with an uppercase first letter (something to Something).
+            </summary>
+            <param name="name">The name.</param>
+            <returns></returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.StandardUserDataDescriptor.AsString(System.Object)">
+            <summary>
+            Converts this userdata to string
+            </summary>
+            <param name="obj">The object.</param>
+            <returns></returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.StandardUserDataDescriptor.ExecuteIndexer(MoonSharp.Interpreter.Interop.StandardUserDataOverloadedMethodDescriptor,MoonSharp.Interpreter.Script,System.Object,MoonSharp.Interpreter.DynValue,MoonSharp.Interpreter.DynValue)">
+            <summary>
+            Executes the specified indexer method.
+            </summary>
+            <param name="mdesc">The method descriptor</param>
+            <param name="script">The script.</param>
+            <param name="obj">The object.</param>
+            <param name="index">The indexer parameter</param>
+            <param name="value">The dynvalue to set on a setter, or null.</param>
+            <returns></returns>
+            <exception cref="T:System.NotImplementedException"></exception>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.StandardUserDataDescriptor.MetaIndex(MoonSharp.Interpreter.Script,System.Object,System.String)">
+            <summary>
+            Gets a "meta" operation on this userdata. If a descriptor does not support this functionality,
+            it should return "null" (not a nil). 
+            See <see cref="M:MoonSharp.Interpreter.Interop.IUserDataDescriptor.MetaIndex(MoonSharp.Interpreter.Script,System.Object,System.String)"/> for further details.
+            
+            If a method exists marked with <see cref="T:MoonSharp.Interpreter.MoonSharpUserDataMetamethodAttribute"/> for the specific
+            metamethod requested, that method is returned.
+            
+            If the above fails, the following dispatching occur:
+            
+            __add, __sub, __mul, __div, __mod and __unm are dispatched to C# operator overloads (if they exist)
+            __eq is dispatched to System.Object.Equals.
+            __lt and __le are dispatched IComparable.Compare, if the type implements IComparable or IComparable{object}
+            __len is dispatched to Length and Count properties, if those exist.
+            __iterator is handled if the object implements IEnumerable or IEnumerator.
+            __tonumber is dispatched to implicit or explicit conversion operators to standard numeric types.
+            __tobool is dispatched to an implicit or explicit conversion operator to bool. If that fails, operator true is used.
+            
+            <param name="script">The script originating the request</param>
+            <param name="obj">The object (null if a static request is done)</param>
+            <param name="metaname">The name of the metamember.</param>
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Interop.StandardUserDataDescriptor.Name">
+            <summary>
+            Gets the name of the descriptor (usually, the name of the type described).
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Interop.StandardUserDataDescriptor.Type">
+            <summary>
+            Gets the type this descriptor refers to
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Interop.StandardUserDataDescriptor.AccessMode">
+            <summary>
+            Gets the interop access mode this descriptor uses for members access
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Interop.StandardUserDataDescriptor.FriendlyName">
+            <summary>
+            Gets a human readable friendly name of the descriptor
             </summary>
         </member>
         <member name="T:MoonSharp.Interpreter.InteropAccessMode">
             <summary>
             Enumerations of the possible strategies to marshal CLR objects to MoonSharp userdata and functions
             when using automatic descriptors.
-            See also : <seealso cref="T:MoonSharp.Interpreter.CallbackFunction"/> and <seealso cref="T:MoonSharp.Interpreter.UserData"/> .
+            Note that these are "hints" and MoonSharp is free to ignore the access mode specified (if different from
+            HideMembers) and downgrade the access mode to "Reflection". 
+            This particularly happens when running on AOT platforms like iOS.
+            See also : <see cref="T:MoonSharp.Interpreter.CallbackFunction"/> and <see cref="T:MoonSharp.Interpreter.UserData"/> .
             </summary>
         </member>
         <member name="F:MoonSharp.Interpreter.InteropAccessMode.Reflection">
@@ -1270,9 +2855,265 @@
             Use the default access mode
             </summary>
         </member>
+        <member name="T:MoonSharp.Interpreter.Interop.StandardUserDataMethodDescriptor">
+            <summary>
+            Class providing easier marshalling of CLR functions
+            </summary>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.StandardUserDataMethodDescriptor.#ctor(System.Reflection.MethodBase,MoonSharp.Interpreter.InteropAccessMode)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MoonSharp.Interpreter.Interop.StandardUserDataMethodDescriptor"/> class.
+            </summary>
+            <param name="methodBase">The MethodBase (MethodInfo or ConstructorInfo) got through reflection.</param>
+            <param name="accessMode">The interop access mode.</param>
+            <exception cref="T:System.ArgumentException">Invalid accessMode</exception>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.StandardUserDataMethodDescriptor.CheckMethodIsCompatible(System.Reflection.MethodBase,System.Boolean)">
+            <summary>
+            Checks if the method is compatible with a standard descriptor
+            </summary>
+            <param name="methodBase">The MethodBase.</param>
+            <param name="throwException">if set to <c>true</c> an exception with the proper error message is thrown if not compatible.</param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentException">
+            Method cannot contain unresolved generic parameters
+            or
+            Method cannot contain by-ref parameters
+            </exception>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.StandardUserDataMethodDescriptor.GetCallback(MoonSharp.Interpreter.Script,System.Object)">
+            <summary>
+            Gets a callback function as a delegate
+            </summary>
+            <param name="script">The script for which the callback must be generated.</param>
+            <param name="obj">The object (null for static).</param>
+            <returns></returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.StandardUserDataMethodDescriptor.GetCallbackFunction(MoonSharp.Interpreter.Script,System.Object)">
+            <summary>
+            Gets the callback function.
+            </summary>
+            <param name="script">The script for which the callback must be generated.</param>
+            <param name="obj">The object (null for static).</param>
+            <returns></returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.StandardUserDataMethodDescriptor.GetCallbackAsDynValue(MoonSharp.Interpreter.Script,System.Object)">
+            <summary>
+            Gets the callback function as a DynValue.
+            </summary>
+            <param name="script">The script for which the callback must be generated.</param>
+            <param name="obj">The object (null for static).</param>
+            <returns></returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.StandardUserDataMethodDescriptor.CreateCallbackDynValue(MoonSharp.Interpreter.Script,System.Reflection.MethodInfo,System.Object)">
+            <summary>
+            Creates a callback DynValue starting from a MethodInfo.
+            </summary>
+            <param name="script">The script.</param>
+            <param name="mi">The mi.</param>
+            <param name="obj">The object.</param>
+            <returns></returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.StandardUserDataMethodDescriptor.Callback(MoonSharp.Interpreter.Script,System.Object,MoonSharp.Interpreter.ScriptExecutionContext,MoonSharp.Interpreter.CallbackArguments)">
+            <summary>
+            The internal callback which actually executes the method
+            </summary>
+            <param name="script">The script.</param>
+            <param name="obj">The object.</param>
+            <param name="context">The context.</param>
+            <param name="args">The arguments.</param>
+            <returns></returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.StandardUserDataMethodDescriptor.CompareTo(MoonSharp.Interpreter.Interop.StandardUserDataMethodDescriptor)">
+            <summary>
+            Compares the current object with another object of the same type.
+            </summary>
+            <param name="other">An object to compare with this object.</param>
+            <returns>
+            A value that indicates the relative order of the objects being compared. The return value has the following meanings: Value Meaning Less than zero This object is less than the <paramref name="other" /> parameter.Zero This object is equal to <paramref name="other" />. Greater than zero This object is greater than <paramref name="other" />.
+            </returns>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Interop.StandardUserDataMethodDescriptor.MethodInfo">
+            <summary>
+            Gets the method information (can be a MethodInfo or ConstructorInfo)
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Interop.StandardUserDataMethodDescriptor.AccessMode">
+            <summary>
+            Gets the access mode used for interop
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Interop.StandardUserDataMethodDescriptor.IsStatic">
+            <summary>
+            Gets a value indicating whether the described method is static.
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Interop.StandardUserDataMethodDescriptor.Name">
+            <summary>
+            Gets the name of the described method
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Interop.StandardUserDataMethodDescriptor.IsConstructor">
+            <summary>
+            Gets a value indicating whether the described method is a constructor
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Interop.StandardUserDataMethodDescriptor.ExtensionMethodType">
+            <summary>
+            Gets the type which this extension method extends, null if this is not an extension method.
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Interop.StandardUserDataMethodDescriptor.SortDiscriminant">
+            <summary>
+            Gets a sort discriminant to give consistent overload resolution matching in case of perfectly equal scores
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Interop.StandardUserDataMethodDescriptor.Parameters">
+            <summary>
+            Gets the type of the arguments of the underlying CLR function
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.Interop.StandardUserDataPropertyDescriptor">
+            <summary>
+            Class providing easier marshalling of CLR properties
+            </summary>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.StandardUserDataPropertyDescriptor.#ctor(System.Reflection.PropertyInfo,MoonSharp.Interpreter.InteropAccessMode)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MoonSharp.Interpreter.Interop.StandardUserDataPropertyDescriptor"/> class.
+            </summary>
+            <param name="pi">The PropertyInfo.</param>
+            <param name="accessMode">The <see cref="T:MoonSharp.Interpreter.InteropAccessMode"/> </param>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.StandardUserDataPropertyDescriptor.GetValue(MoonSharp.Interpreter.Script,System.Object)">
+            <summary>
+            Gets the value of the property
+            </summary>
+            <param name="script">The script.</param>
+            <param name="obj">The object.</param>
+            <returns></returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.StandardUserDataPropertyDescriptor.SetValue(MoonSharp.Interpreter.Script,System.Object,MoonSharp.Interpreter.DynValue)">
+            <summary>
+            Sets the value of the property
+            </summary>
+            <param name="script">The script.</param>
+            <param name="obj">The object.</param>
+            <param name="v">The value to set.</param>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.StandardUserDataPropertyDescriptor.GetGetterCallbackAsDynValue(MoonSharp.Interpreter.Script,System.Object)">
+            <summary>
+            Gets the getter of the property as a DynValue containing a callback
+            </summary>
+            <param name="script">The script.</param>
+            <param name="obj">The object.</param>
+            <returns></returns>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Interop.StandardUserDataPropertyDescriptor.PropertyInfo">
+            <summary>
+            Gets the PropertyInfo got by reflection
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Interop.StandardUserDataPropertyDescriptor.AccessMode">
+            <summary>
+            Gets the <see cref="T:MoonSharp.Interpreter.InteropAccessMode"/>
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Interop.StandardUserDataPropertyDescriptor.IsStatic">
+            <summary>
+            Gets a value indicating whether the described property is static.
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Interop.StandardUserDataPropertyDescriptor.Name">
+            <summary>
+            Gets the name of the property
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.Execution.ClosureContext">
+            <summary>
+            The scope of a closure (container of upvalues)
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Execution.ClosureContext.Symbols">
+            <summary>
+            Gets the symbols.
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.SymbolRefType">
+            <summary>
+            Enumeration of the types of SymbolRef
+            </summary>
+        </member>
+        <member name="F:MoonSharp.Interpreter.SymbolRefType.Local">
+            <summary>
+            The symbol ref of a local variable
+            </summary>
+        </member>
+        <member name="F:MoonSharp.Interpreter.SymbolRefType.Upvalue">
+            <summary>
+            The symbol ref of an upvalue variable
+            </summary>
+        </member>
+        <member name="F:MoonSharp.Interpreter.SymbolRefType.Global">
+            <summary>
+            The symbol ref of a global variable
+            </summary>
+        </member>
+        <member name="F:MoonSharp.Interpreter.SymbolRefType.DefaultEnv">
+            <summary>
+            The symbol ref of the global environment
+            </summary>
+        </member>
         <member name="T:MoonSharp.Interpreter.SymbolRef">
             <summary>
             This class stores a possible l-value (that is a potential target of an assignment)
+            </summary>
+        </member>
+        <member name="M:MoonSharp.Interpreter.SymbolRef.Global(System.String,MoonSharp.Interpreter.SymbolRef)">
+            <summary>
+            Creates a new symbol reference pointing to a global var
+            </summary>
+            <param name="name">The name.</param>
+            <param name="envSymbol">The _ENV symbol.</param>
+            <returns></returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.SymbolRef.Local(System.String,System.Int32)">
+            <summary>
+            Creates a new symbol reference pointing to a local var
+            </summary>
+            <param name="name">The name.</param>
+            <param name="index">The index of the var in local scope.</param>
+            <returns></returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.SymbolRef.Upvalue(System.String,System.Int32)">
+            <summary>
+            Creates a new symbol reference pointing to an upvalue var
+            </summary>
+            <param name="name">The name.</param>
+            <param name="index">The index of the var in closure scope.</param>
+            <returns></returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.SymbolRef.ToString">
+            <summary>
+            Returns a <see cref="T:System.String"/> that represents this instance.
+            </summary>
+            <returns>
+            A <see cref="T:System.String"/> that represents this instance.
+            </returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.SymbolRef.WriteBinary(System.IO.BinaryWriter)">
+            <summary>
+            Writes this instance to a binary stream
+            </summary>
+        </member>
+        <member name="M:MoonSharp.Interpreter.SymbolRef.ReadBinary(System.IO.BinaryReader)">
+            <summary>
+            Reads a symbolref from a binary stream 
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.SymbolRef.DefaultEnv">
+            <summary>
+            Gets the default _ENV.
             </summary>
         </member>
         <member name="T:MoonSharp.Interpreter.DataType">
@@ -1385,6 +3226,11 @@
         <member name="T:MoonSharp.Interpreter.Loaders.EmbeddedResourcesScriptLoader">
             <summary>
             A script loader loading scripts from an assembly resources
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.Loaders.ScriptLoaderBase">
+            <summary>
+            A base implementation of IScriptLoader, offering resolution of module names.
             </summary>
         </member>
         <member name="T:MoonSharp.Interpreter.Loaders.IScriptLoader">
@@ -1542,21 +3388,104 @@
             A script loader used for platforms we cannot initialize in any better way..
             </summary>
         </member>
-        <member name="T:MoonSharp.Interpreter.Loaders.ReplInterpreterScriptLoader">
+        <member name="T:MoonSharp.Interpreter.REPL.ReplHistoryInterpreter">
+            <summary>
+            An implementation of <see cref="T:MoonSharp.Interpreter.REPL.ReplInterpreter"/> which supports a very basic history of recent input lines.
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.REPL.ReplInterpreter">
+            <summary>
+            This class provides a simple REPL intepreter ready to be reused in a simple way.
+            </summary>
+        </member>
+        <member name="M:MoonSharp.Interpreter.REPL.ReplInterpreter.#ctor(MoonSharp.Interpreter.Script)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MoonSharp.Interpreter.REPL.ReplInterpreter"/> class.
+            </summary>
+            <param name="script">The script.</param>
+        </member>
+        <member name="M:MoonSharp.Interpreter.REPL.ReplInterpreter.Evaluate(System.String)">
+            <summary>
+            Evaluate a REPL command.
+            This method returns the result of the computation, or null if more input is needed for having valid code.
+            In case of errors, exceptions are propagated to the caller.
+            </summary>
+            <param name="input">The input.</param>
+            <returns>This method returns the result of the computation, or null if more input is needed for a computation.</returns>
+        </member>
+        <member name="P:MoonSharp.Interpreter.REPL.ReplInterpreter.HandleDynamicExprs">
+            <summary>
+            Gets or sets a value indicating whether this instances handle inputs starting with a "?" as a 
+            dynamic expression to evaluate instead of script code (likely invalid)
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.REPL.ReplInterpreter.HandleClassicExprsSyntax">
+            <summary>
+            Gets or sets a value indicating whether this instances handle inputs starting with a "=" as a 
+            non-dynamic expression to evaluate (just like the Lua interpreter does by default).
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.REPL.ReplInterpreter.HasPendingCommand">
+            <summary>
+            Gets a value indicating whether this instance has a pending command 
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.REPL.ReplInterpreter.CurrentPendingCommand">
+            <summary>
+            Gets the current pending command.
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.REPL.ReplInterpreter.ClassicPrompt">
+            <summary>
+            Gets the classic prompt (">" or ">>") given the current state of the interpreter
+            </summary>
+        </member>
+        <member name="M:MoonSharp.Interpreter.REPL.ReplHistoryInterpreter.#ctor(MoonSharp.Interpreter.Script,System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MoonSharp.Interpreter.REPL.ReplHistoryInterpreter"/> class.
+            </summary>
+            <param name="script">The script.</param>
+            <param name="historySize">Size of the history.</param>
+        </member>
+        <member name="M:MoonSharp.Interpreter.REPL.ReplHistoryInterpreter.Evaluate(System.String)">
+            <summary>
+            Evaluate a REPL command.
+            This method returns the result of the computation, or null if more input is needed for having valid code.
+            In case of errors, exceptions are propagated to the caller.
+            </summary>
+            <param name="input">The input.</param>
+            <returns>
+            This method returns the result of the computation, or null if more input is needed for a computation.
+            </returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.REPL.ReplHistoryInterpreter.HistoryPrev">
+            <summary>
+            Gets the previous item in history, or null
+            </summary>
+        </member>
+        <member name="M:MoonSharp.Interpreter.REPL.ReplHistoryInterpreter.HistoryNext">
+            <summary>
+            Gets the next item in history, or null
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.REPL.ReplInterpreterScriptLoader">
             <summary>
             A script loader loading scripts directly from the file system (does not go through platform object)
             AND starts with module paths taken from environment variables (again, not going through the platform object)
             </summary>
         </member>
-        <member name="M:MoonSharp.Interpreter.Loaders.ReplInterpreterScriptLoader.#ctor">
+        <member name="M:MoonSharp.Interpreter.REPL.ReplInterpreterScriptLoader.#ctor">
             <summary>
-            Initializes a new instance of the <see cref="T:MoonSharp.Interpreter.Loaders.ReplInterpreterScriptLoader"/> class.
+            Initializes a new instance of the <see cref="T:MoonSharp.Interpreter.REPL.ReplInterpreterScriptLoader"/> class.
             </summary>
         </member>
         <member name="T:MoonSharp.Interpreter.Loaders.UnityAssetsScriptLoader">
             <summary>
             A script loader which can load scripts from assets in Unity3D.
-            Scripts should be saved as .txt files in a subdirectory of Assets/Resources
+            Scripts should be saved as .txt files in a subdirectory of Assets/Resources.
+            
+            When MoonSharp is activated on Unity3D and the default script loader is used,
+            scripts should be saved as .txt files in Assets/Resources/MoonSharp/Scripts.
             </summary>
         </member>
         <member name="M:MoonSharp.Interpreter.Loaders.UnityAssetsScriptLoader.#ctor(System.String)">
@@ -1587,13 +3516,77 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="T:MoonSharp.Interpreter.MoonSharpModuleConstantAttribute">
+            <summary>
+            In a module type, mark fields with this attribute to have them exposed as a module constant.
+            
+            See <see cref="T:MoonSharp.Interpreter.MoonSharpModuleAttribute"/> for more information about modules.
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.NamespaceDoc">
+            <summary>
+            Namespace containing all the most commonly used classes for MoonSharp operation.
+            When in doubt, refer to <see cref="T:MoonSharp.Interpreter.Script"/> and <see cref="T:MoonSharp.Interpreter.DynValue"/> classes as starting points.
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.CoreLib.NamespaceDoc">
+            <summary>
+            Namespace containing the implementation of the Lua standard library, as MoonSharp modules.
+            There's seldom the need to access these classes directly.
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.CoreLib.IO.NamespaceDoc">
+            <summary>
+            Namespace containing userdata classes for the 'io' module
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.Debugging.NamespaceDoc">
+            <summary>
+            Namespace containing classes used to support debuggers
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.Diagnostics.NamespaceDoc">
+            <summary>
+            Namespace containing classes used to support self diagnostics (e.g. performance counters)
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.Interop.NamespaceDoc">
+            <summary>
+            Namespace containing classes used to customize and support advanced interoperations between
+            scripts and CLR code.
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.Interop.LuaStateInterop.NamespaceDoc">
+            <summary>
+            Namespace containing classes used to provide a minimal support for porting code based on the classic
+            "LuaState" model (e.g. code based on KopiLua, UniLua or Lua itself).
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.Loaders.NamespaceDoc">
+            <summary>
+            Namespace containing classes used to customized how scripts are loaded from external files.
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.Platforms.NamespaceDoc">
+            <summary>
+            Namespace containing classes used to customize how the interfacing with the operative system happens
+            for the 'os' and 'io' modules, and for future modules/classes which may require OS access.
+            See <see cref="T:MoonSharp.Interpreter.Platforms.IPlatformAccessor"/> and <see cref="P:MoonSharp.Interpreter.ScriptGlobalOptions.Platform"/> .
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.REPL.NamespaceDoc">
+            <summary>
+            Contains classes useful to implement REPL interpreters.
+            See : <see href="http://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop" />
+            </summary>
+        </member>
         <member name="T:MoonSharp.Interpreter.Platforms.IPlatformAccessor">
             <summary>
             Interface to abstract all accesses made to the underlying platform (OS, framework) by the scripting engine.
             Can be used both to support "non-standard" platforms (i.e. non-posix, non-windows) and/or to sandbox the behaviour
             of the scripting engine.
             
-            It's recommended that no class implement IPlatformAccessor directly, and rather extend PlatformAccessorBase.
+            It's recommended that no class implement IPlatformAccessor directly, and rather extend <see cref="T:MoonSharp.Interpreter.Platforms.PlatformAccessorBase"/>.
             </summary>
         </member>
         <member name="M:MoonSharp.Interpreter.Platforms.IPlatformAccessor.FilterSupportedCoreModules(MoonSharp.Interpreter.CoreModules)">
@@ -1633,7 +3626,7 @@
             </summary>
             <param name="content">The content.</param>
         </member>
-        <member name="M:MoonSharp.Interpreter.Platforms.IPlatformAccessor.DefaultInput">
+        <member name="M:MoonSharp.Interpreter.Platforms.IPlatformAccessor.DefaultInput(System.String)">
             <summary>
             Default handler for interactive line input calls. Can be customized in ScriptOptions.
             If a meaningful implementation cannot be provided, this method should return null.
@@ -1730,6 +3723,16 @@
             <param name="content">The content.</param>
         </member>
         <member name="M:MoonSharp.Interpreter.Platforms.PlatformAccessorBase.DefaultInput">
+            <summary>
+            DEPRECATED.
+            This is kept for backward compatibility, see the overload taking a prompt as an input parameter.
+            
+            Default handler for interactive line input calls. Can be customized in ScriptOptions.
+            If an inheriting class whants to give a meaningful implementation, this method MUST be overridden.
+            </summary>
+            <returns>null</returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Platforms.PlatformAccessorBase.DefaultInput(System.String)">
             <summary>
             Default handler for interactive line input calls. Can be customized in ScriptOptions.
             If an inheriting class whants to give a meaningful implementation, this method MUST be overridden.
@@ -1980,9 +3983,29 @@
             <param name="content">The content.</param>
             <exception cref="T:System.NotImplementedException"></exception>
         </member>
+        <member name="T:MoonSharp.Interpreter.Platforms.StandardFileType">
+            <summary>
+            Enumeration of standard file handles
+            </summary>
+        </member>
+        <member name="F:MoonSharp.Interpreter.Platforms.StandardFileType.StdIn">
+            <summary>
+            Standard Input
+            </summary>
+        </member>
+        <member name="F:MoonSharp.Interpreter.Platforms.StandardFileType.StdOut">
+            <summary>
+            Standard Output
+            </summary>
+        </member>
+        <member name="F:MoonSharp.Interpreter.Platforms.StandardFileType.StdErr">
+            <summary>
+            Standard Error Output
+            </summary>
+        </member>
         <member name="T:MoonSharp.Interpreter.Platforms.StandardPlatformAccessor">
             <summary>
-            Class providing the IPlatformAccessor interface for standard implementations.
+            Class providing the IPlatformAccessor interface for standard full-feaured implementations.
             </summary>
         </member>
         <member name="M:MoonSharp.Interpreter.Platforms.StandardPlatformAccessor.ParseFileAccess(System.String)">
@@ -2245,7 +4268,7 @@
             <summary>
             Calls the specified function.
             </summary>
-            <param name="function">The Lua/MoonSharp function to be called - callbacks are not supported.</param>
+            <param name="function">The Lua/MoonSharp function to be called</param>
             <returns>
             The return value(s) of the function call.
             </returns>
@@ -2255,7 +4278,7 @@
             <summary>
             Calls the specified function.
             </summary>
-            <param name="function">The Lua/MoonSharp function to be called - callbacks are not supported.</param>
+            <param name="function">The Lua/MoonSharp function to be called</param>
             <param name="args">The arguments to pass to the function.</param>
             <returns>
             The return value(s) of the function call.
@@ -2266,7 +4289,7 @@
             <summary>
             Calls the specified function.
             </summary>
-            <param name="function">The Lua/MoonSharp function to be called - callbacks are not supported.</param>
+            <param name="function">The Lua/MoonSharp function to be called</param>
             <param name="args">The arguments to pass to the function.</param>
             <returns>
             The return value(s) of the function call.
@@ -2277,7 +4300,7 @@
             <summary>
             Calls the specified function.
             </summary>
-            <param name="function">The Lua/MoonSharp function to be called - callbacks are not supported.</param>
+            <param name="function">The Lua/MoonSharp function to be called</param>
             <returns></returns>
             <exception cref="T:System.ArgumentException">Thrown if function is not of DataType.Function</exception>
         </member>
@@ -2285,7 +4308,7 @@
             <summary>
             Calls the specified function.
             </summary>
-            <param name="function">The Lua/MoonSharp function to be called - callbacks are not supported.</param>
+            <param name="function">The Lua/MoonSharp function to be called </param>
             <param name="args">The arguments to pass to the function.</param>
             <returns></returns>
             <exception cref="T:System.ArgumentException">Thrown if function is not of DataType.Function</exception>
@@ -2373,13 +4396,12 @@
             <param name="constant">The constant to return.</param>
             <returns></returns>
         </member>
-        <member name="P:MoonSharp.Interpreter.Script.Platform">
+        <member name="M:MoonSharp.Interpreter.Script.CreateDynamicExecutionContext(MoonSharp.Interpreter.CallbackFunction)">
             <summary>
-            Gets or sets the platform abstraction to use.
+            Gets an execution context exposing only partial functionality, which should be used for
+            those cases where the execution engine is not really running - for example for dynamic expression
+            or calls from CLR to CLR callbacks
             </summary>
-            <value>
-            The current platform abstraction.
-            </value>
         </member>
         <member name="P:MoonSharp.Interpreter.Script.DefaultOptions">
             <summary>
@@ -2390,6 +4412,11 @@
         <member name="P:MoonSharp.Interpreter.Script.Options">
             <summary>
             Gets access to the script options. 
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Script.GlobalOptions">
+            <summary>
+            Gets the global options, that is options which cannot be customized per-script.
             </summary>
         </member>
         <member name="P:MoonSharp.Interpreter.Script.PerformanceStats">
@@ -2436,6 +4463,27 @@
             <summary>
             Gets the integral key from a double.
             </summary>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Table.GetWithObjectKey(System.Object)">
+            <summary>
+            Gets the dynvalue associated with the specified key (expressed as a System.Object)
+            </summary>
+            <param name="key">The key.</param>
+            <returns></returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Table.GetAsObject(System.Object)">
+            <summary>
+            Gets the dynvalue associated with the specified key (expressed as a System.Object) as a System.Object.
+            </summary>
+            <param name="key">The key.</param>
+            <returns></returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Table.SetAsObject(System.Object,System.Object)">
+            <summary>
+            Sets the dynvalue associated with the specified key. Both expressed as System.Object.
+            </summary>
+            <param name="key">The key.</param>
+            <param name="value">The value.</param>
         </member>
         <member name="M:MoonSharp.Interpreter.Table.Set(MoonSharp.Interpreter.DynValue,MoonSharp.Interpreter.DynValue)">
             <summary>
@@ -2488,7 +4536,9 @@
         </member>
         <member name="M:MoonSharp.Interpreter.Table.CollectDeadKeys">
             <summary>
-            Collects the dead keys.
+            Collects the dead keys. This frees up memory but invalidates pending iterators.
+            It's called automatically internally when the semantics of Lua tables allow, but can be forced
+            externally if it's known that no iterators are pending.
             </summary>
         </member>
         <member name="M:MoonSharp.Interpreter.Table.NextKey(MoonSharp.Interpreter.DynValue)">
@@ -2553,6 +4603,12 @@
             Enumerates the values
             </summary>
             <returns></returns>
+        </member>
+        <member name="T:MoonSharp.Interpreter.DataStructs.FastStack`1">
+            <summary>
+            A preallocated, non-resizable, stack
+            </summary>
+            <typeparam name="T"></typeparam>
         </member>
         <member name="T:MoonSharp.Interpreter.CoreModules">
             <summary>
@@ -2661,6 +4717,94 @@
             Beware that using this preset allows scripts unlimited access to the system.
             </summary>
         </member>
+        <member name="T:MoonSharp.Interpreter.ModuleRegister">
+            <summary>
+            Class managing modules (mostly as extension methods)
+            </summary>
+        </member>
+        <member name="M:MoonSharp.Interpreter.ModuleRegister.RegisterCoreModules(MoonSharp.Interpreter.Table,MoonSharp.Interpreter.CoreModules)">
+            <summary>
+            Register the core modules to a table
+            </summary>
+            <param name="table">The table.</param>
+            <param name="modules">The modules.</param>
+            <returns></returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.ModuleRegister.RegisterConstants(MoonSharp.Interpreter.Table)">
+            <summary>
+            Registers the standard constants (_G, _VERSION, _MOONSHARP) to a table
+            </summary>
+            <param name="table">The table.</param>
+            <returns></returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.ModuleRegister.RegisterModuleType(MoonSharp.Interpreter.Table,System.Type)">
+            <summary>
+            Registers a module type to the specified table
+            </summary>
+            <param name="gtable">The table.</param>
+            <param name="t">The type</param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentException">If the module contains some incompatibility</exception>
+        </member>
+        <member name="M:MoonSharp.Interpreter.ModuleRegister.RegisterModuleType``1(MoonSharp.Interpreter.Table)">
+            <summary>
+            Registers a module type to the specified table
+            </summary>
+            <typeparam name="T">The module type</typeparam>
+            <param name="table">The table.</param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentException">If the module contains some incompatibility</exception>
+        </member>
+        <member name="T:MoonSharp.Interpreter.MoonSharpModuleMethodAttribute">
+            <summary>
+            In a module type, mark methods or fields with this attribute to have them exposed as module functions.
+            Methods must have the signature "public static DynValue ...(ScriptExecutionContextCallbackArguments)".
+            Fields must be static or const strings, with an anonymous Lua function inside.
+            
+            See <see cref="T:MoonSharp.Interpreter.MoonSharpModuleAttribute"/> for more information about modules.
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.MoonSharpModuleMethodAttribute.Name">
+            <summary>
+            Gets or sets the name of the function in the module (defaults to member name)
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.MoonSharpModuleAttribute">
+            <summary>
+            Marks a CLR type to be a MoonSharp module.
+            Modules are the fastest way to bring interop between scripts and CLR code, albeit at the cost of a very increased
+            complexity in writing them. Modules is what's used for the standard library, for maximum efficiency.
+            
+            Modules are basically classes containing only static methods, with the callback function signature.
+            
+            See <see cref="T:MoonSharp.Interpreter.Table"/> and <see cref="T:MoonSharp.Interpreter.ModuleRegister"/> for (extension) methods used to register modules to a 
+            table.
+            
+            See <see cref="T:MoonSharp.Interpreter.CallbackFunction"/> for information regarding the standard callback signature along with easier ways
+            to marshal methods.
+            
+            See <see cref="T:MoonSharp.Interpreter.UserData"/> for easier object marshalling.
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.ScriptGlobalOptions">
+            <summary>
+            Class containing script global options, that is options which cannot be customized per-script.
+            <see cref="P:MoonSharp.Interpreter.Script.GlobalOptions"/>
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.ScriptGlobalOptions.CustomConverters">
+            <summary>
+            Gets or sets the custom converters.
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.ScriptGlobalOptions.Platform">
+            <summary>
+            Gets or sets the platform abstraction to use.
+            </summary>
+            <value>
+            The current platform abstraction.
+            </value>
+        </member>
         <member name="T:MoonSharp.Interpreter.ScriptOptions">
             <summary>
             This class contains options to customize behaviour of Script objects.
@@ -2678,7 +4822,7 @@
         </member>
         <member name="P:MoonSharp.Interpreter.ScriptOptions.DebugInput">
             <summary>
-            Gets or sets the debug input handler
+            Gets or sets the debug input handler (takes a prompt as an input, for interactive interpreters, like debug.debug).
             </summary>
         </member>
         <member name="P:MoonSharp.Interpreter.ScriptOptions.UseLuaErrorLocations">
@@ -2700,6 +4844,20 @@
         <member name="P:MoonSharp.Interpreter.ScriptOptions.Stderr">
             <summary>
             Gets or sets the stream used as stderr. If null, a default stream is used.
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.ScriptOptions.TailCallOptimizationThreshold">
+            <summary>
+            Gets or sets the stack depth threshold at which MoonSharp starts doing
+            tail call optimizations.
+            TCOs can provide the little benefit of avoiding stack overflows in corner case
+            scenarios, at the expense of losing debug information and error stack traces 
+            in all other, more common scenarios. MoonSharp choice is to start performing
+            TCOs only after a certain threshold of stack usage is reached - by default
+            half the current stack depth (128K entries), thus 64K entries, on either
+            the internal stacks.
+            Set this to int.MaxValue to disable TCOs entirely, or to 0 to always have
+            TCOs enabled.
             </summary>
         </member>
         <member name="P:MoonSharp.Interpreter.ScriptOptions.CheckThreadAccess">
