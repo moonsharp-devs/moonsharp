@@ -55,8 +55,8 @@ namespace MoonSharp.Interpreter.Loaders
 
 		/// <summary>
 		/// Resolves the name of a module to a filename (which will later be passed to OpenScriptFile).
-		/// The resolution happens first on paths included in the LUA_PATH global variable, and -
-		/// if the variable does not exist - by consulting the
+		/// The resolution happens first on paths included in the LUA_PATH global variable (if and only if
+		/// the IgnoreLuaPathGlobal is false), and - if the variable does not exist - by consulting the
 		/// ScriptOptions.ModulesPaths array. Override to provide a different behaviour.
 		/// </summary>
 		/// <param name="modname">The modname.</param>
@@ -64,10 +64,13 @@ namespace MoonSharp.Interpreter.Loaders
 		/// <returns></returns>
 		public virtual string ResolveModuleName(string modname, Table globalContext)
 		{
-			DynValue s = globalContext.RawGet("LUA_PATH");
+			if (!this.IgnoreLuaPathGlobal)
+			{
+				DynValue s = globalContext.RawGet("LUA_PATH");
 
-			if (s != null && s.Type == DataType.String)
-				return ResolveModuleName(modname, UnpackStringPaths(s.String));
+				if (s != null && s.Type == DataType.String)
+					return ResolveModuleName(modname, UnpackStringPaths(s.String));
+			}
 
 			return ResolveModuleName(modname, this.ModulePaths);
 		}
@@ -126,5 +129,11 @@ namespace MoonSharp.Interpreter.Loaders
 		{
 			return filename;
 		}
+
+		/// <summary>
+		/// Gets or sets a value indicating whether the LUA_PATH global is checked or not to get the path where modules are contained.
+		/// If true, the LUA_PATH global is NOT checked.
+		/// </summary>
+		public bool IgnoreLuaPathGlobal { get; set; }
 	}
 }

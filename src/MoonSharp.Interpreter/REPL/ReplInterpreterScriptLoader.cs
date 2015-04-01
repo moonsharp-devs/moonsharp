@@ -9,7 +9,15 @@ namespace MoonSharp.Interpreter.REPL
 {
 	/// <summary>
 	/// A script loader loading scripts directly from the file system (does not go through platform object)
-	/// AND starts with module paths taken from environment variables (again, not going through the platform object)
+	/// AND starts with module paths taken from environment variables (again, not going through the platform object).
+	/// 
+	/// The paths are preconstructed using :
+	///		* The MOONSHARP_PATH variable if it exists
+	///		* The LUA_PATH otherwise
+	///		* The '?;?.lua" path otherwise again
+	///		
+	/// Also, everytime a module is require(d), the "LUA_PATH" global variable is checked. If it exists, those paths
+	/// will be used to load the module instead of the global ones.
 	/// </summary>
 	public class ReplInterpreterScriptLoader : FileSystemScriptLoader
 	{
@@ -31,6 +39,26 @@ namespace MoonSharp.Interpreter.REPL
 			{
 				ModulePaths = UnpackStringPaths("?;?.lua");
 			}
+		}
+
+		/// <summary>
+		/// Resolves the name of a module to a filename (which will later be passed to OpenScriptFile).
+		/// The resolution happens first on paths included in the LUA_PATH global variable, and -
+		/// if the variable does not exist - by consulting the
+		/// ScriptOptions.ModulesPaths array. Override to provide a different behaviour.
+		/// </summary>
+		/// <param name="modname">The modname.</param>
+		/// <param name="globalContext">The global context.</param>
+		/// <returns></returns>
+		public override string ResolveModuleName(string modname, Table globalContext)
+		{
+			DynValue s = globalContext.RawGet("LUA_PATH");
+
+			if (s != null && s.Type == DataType.String)
+				return ResolveModuleName(modname, UnpackStringPaths(s.String));
+
+			else
+				return base.ResolveModuleName(modname, globalContext);
 		}
 	}
 }

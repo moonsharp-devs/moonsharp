@@ -150,9 +150,15 @@
             Marks a method as the handler of metamethods of a userdata type
             </summary>
         </member>
+        <member name="M:MoonSharp.Interpreter.MoonSharpUserDataMetamethodAttribute.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MoonSharp.Interpreter.MoonSharpUserDataMetamethodAttribute"/> class.
+            </summary>
+            <param name="name">The metamethod name (like '__div', '__ipairs', etc.)</param>
+        </member>
         <member name="P:MoonSharp.Interpreter.MoonSharpUserDataMetamethodAttribute.Name">
             <summary>
-            The interop access mode
+            The metamethod name (like '__div', '__ipairs', etc.)
             </summary>
         </member>
         <member name="M:MoonSharp.Interpreter.Interop.Converters.ClrToScriptConversions.TryObjectToSimpleDynValue(MoonSharp.Interpreter.Script,System.Object)">
@@ -614,6 +620,25 @@
             Base type of all exceptions thrown in MoonSharp
             </summary>
         </member>
+        <member name="M:MoonSharp.Interpreter.InterpreterException.#ctor(System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MoonSharp.Interpreter.InterpreterException"/> class.
+            </summary>
+            <param name="ex">The ex.</param>
+        </member>
+        <member name="M:MoonSharp.Interpreter.InterpreterException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MoonSharp.Interpreter.InterpreterException"/> class.
+            </summary>
+            <param name="message">The message that describes the error.</param>
+        </member>
+        <member name="M:MoonSharp.Interpreter.InterpreterException.#ctor(System.String,System.Object[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:MoonSharp.Interpreter.InterpreterException"/> class.
+            </summary>
+            <param name="format">The format.</param>
+            <param name="args">The arguments.</param>
+        </member>
         <member name="P:MoonSharp.Interpreter.InterpreterException.InstructionPtr">
             <summary>
             Gets the instruction pointer of the execution (if it makes sense)
@@ -629,10 +654,342 @@
             Gets the decorated message (error message plus error location in script) if possible.
             </summary>
         </member>
+        <member name="M:MoonSharp.Interpreter.ScriptRuntimeException.#ctor(System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MoonSharp.Interpreter.ScriptRuntimeException"/> class.
+            </summary>
+            <param name="ex">The ex.</param>
+        </member>
+        <member name="M:MoonSharp.Interpreter.ScriptRuntimeException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MoonSharp.Interpreter.ScriptRuntimeException"/> class.
+            </summary>
+            <param name="message">The message that describes the error.</param>
+        </member>
+        <member name="M:MoonSharp.Interpreter.ScriptRuntimeException.#ctor(System.String,System.Object[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:MoonSharp.Interpreter.ScriptRuntimeException"/> class.
+            </summary>
+            <param name="format">The format.</param>
+            <param name="args">The arguments.</param>
+        </member>
+        <member name="M:MoonSharp.Interpreter.ScriptRuntimeException.ArithmeticOnNonNumber(MoonSharp.Interpreter.DynValue,MoonSharp.Interpreter.DynValue)">
+            <summary>
+            Creates a ScriptRuntimeException with a predefined error message specifying that
+            an arithmetic operation was attempted on non-numbers
+            </summary>
+            <param name="l">The left operand.</param>
+            <param name="r">The right operand (or null).</param>
+            <returns>The exception to be raised.</returns>
+            <exception cref="T:MoonSharp.Interpreter.InternalErrorException">If both are numbers</exception>
+        </member>
+        <member name="M:MoonSharp.Interpreter.ScriptRuntimeException.ConcatOnNonString(MoonSharp.Interpreter.DynValue,MoonSharp.Interpreter.DynValue)">
+            <summary>
+            Creates a ScriptRuntimeException with a predefined error message specifying that
+            a concat operation was attempted on non-strings
+            </summary>
+            <param name="l">The left operand.</param>
+            <param name="r">The right operand.</param>
+            <returns>The exception to be raised.</returns>
+            <exception cref="T:MoonSharp.Interpreter.InternalErrorException">If both are numbers or strings</exception>
+        </member>
+        <member name="M:MoonSharp.Interpreter.ScriptRuntimeException.LenOnInvalidType(MoonSharp.Interpreter.DynValue)">
+            <summary>
+            Creates a ScriptRuntimeException with a predefined error message specifying that
+            a len operator was applied on an invalid operand
+            </summary>
+            <param name="r">The operand.</param>
+            <returns>The exception to be raised.</returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.ScriptRuntimeException.CompareInvalidType(MoonSharp.Interpreter.DynValue,MoonSharp.Interpreter.DynValue)">
+            <summary>
+            Creates a ScriptRuntimeException with a predefined error message specifying that
+            a comparison operator was applied on an invalid combination of operand types
+            </summary>
+            <param name="l">The left operand.</param>
+            <param name="r">The right operand.</param>
+            <returns>The exception to be raised.</returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.ScriptRuntimeException.BadArgument(System.Int32,System.String,System.String)">
+            <summary>
+            Creates a ScriptRuntimeException with a predefined error message specifying that
+            a function was called with a bad argument
+            </summary>
+            <param name="argNum">The argument number (0-based).</param>
+            <param name="funcName">Name of the function generating this error.</param>
+            <param name="message">The error message.</param>
+            <returns>The exception to be raised.</returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.ScriptRuntimeException.BadArgumentUserData(System.Int32,System.String,System.Type,System.Object,System.Boolean)">
+            <summary>
+            Creates a ScriptRuntimeException with a predefined error message specifying that
+            a function was called with a bad userdata argument
+            </summary>
+            <param name="argNum">The argument number (0-based).</param>
+            <param name="funcName">Name of the function generating this error.</param>
+            <param name="expected">The expected System.Type.</param>
+            <param name="got">The object which was used.</param>
+            <param name="allowNil">True if nils were allowed in this call.</param>
+            <returns>
+            The exception to be raised.
+            </returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.ScriptRuntimeException.BadArgument(System.Int32,System.String,MoonSharp.Interpreter.DataType,MoonSharp.Interpreter.DataType,System.Boolean)">
+            <summary>
+            Creates a ScriptRuntimeException with a predefined error message specifying that
+            a function was called with a bad argument
+            </summary>
+            <param name="argNum">The argument number (0-based).</param>
+            <param name="funcName">Name of the function generating this error.</param>
+            <param name="expected">The expected data type.</param>
+            <param name="got">The data type received.</param>
+            <param name="allowNil">True if nils were allowed in this call.</param>
+            <returns>
+            The exception to be raised.
+            </returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.ScriptRuntimeException.BadArgument(System.Int32,System.String,System.String,System.String,System.Boolean)">
+            <summary>
+            Creates a ScriptRuntimeException with a predefined error message specifying that
+            a function was called with a bad argument
+            </summary>
+            <param name="argNum">The argument number (0-based).</param>
+            <param name="funcName">Name of the function generating this error.</param>
+            <param name="expected">The expected type description.</param>
+            <param name="got">The description of the type received.</param>
+            <param name="allowNil">True if nils were allowed in this call.</param>
+            <returns>
+            The exception to be raised.
+            </returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.ScriptRuntimeException.BadArgumentNoValue(System.Int32,System.String,MoonSharp.Interpreter.DataType)">
+            <summary>
+            Creates a ScriptRuntimeException with a predefined error message specifying that
+            a function was called with no value when a value was required.
+            
+            This function creates a message like "bad argument #xxx to 'yyy' (zzz expected, got no value)"
+            while <see cref="M:MoonSharp.Interpreter.ScriptRuntimeException.BadArgumentValueExpected(System.Int32,System.String)"/> creates a message like "bad argument #xxx to 'yyy' (value expected)"
+            </summary>
+            <param name="argNum">The argument number (0-based).</param>
+            <param name="funcName">Name of the function generating this error.</param>
+            <param name="expected">The expected data type.</param>
+            <returns>
+            The exception to be raised.
+            </returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.ScriptRuntimeException.BadArgumentIndexOutOfRange(System.String,System.Int32)">
+            <summary>
+            Creates a ScriptRuntimeException with a predefined error message specifying that
+            an out of range index was specified
+            </summary>
+            <param name="argNum">The argument number (0-based).</param>
+            <param name="funcName">Name of the function generating this error.</param>
+            <returns>
+            The exception to be raised.
+            </returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.ScriptRuntimeException.BadArgumentNoNegativeNumbers(System.Int32,System.String)">
+            <summary>
+            Creates a ScriptRuntimeException with a predefined error message specifying that
+            a function was called with a negative number when a positive one was expected.
+            </summary>
+            <param name="argNum">The argument number (0-based).</param>
+            <param name="funcName">Name of the function generating this error.</param>
+            <returns>
+            The exception to be raised.
+            </returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.ScriptRuntimeException.BadArgumentValueExpected(System.Int32,System.String)">
+            <summary>
+            Creates a ScriptRuntimeException with a predefined error message specifying that
+            a function was called with no value when a value was required.
+            This function creates a message like "bad argument #xxx to 'yyy' (value expected)"
+            while <see cref="M:MoonSharp.Interpreter.ScriptRuntimeException.BadArgumentNoValue(System.Int32,System.String,MoonSharp.Interpreter.DataType)"/> creates a message like "bad argument #xxx to 'yyy' (zzz expected, got no value)"
+            </summary>
+            <param name="argNum">The argument number (0-based).</param>
+            <param name="funcName">Name of the function generating this error.</param>
+            <returns>
+            The exception to be raised.
+            </returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.ScriptRuntimeException.IndexType(MoonSharp.Interpreter.DynValue)">
+            <summary>
+            Creates a ScriptRuntimeException with a predefined error message specifying that
+            an invalid attempt to index the specified object was made
+            </summary>
+            <param name="obj">The object.</param>
+            <returns>
+            The exception to be raised.
+            </returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.ScriptRuntimeException.LoopInIndex">
+            <summary>
+            Creates a ScriptRuntimeException with a predefined error message specifying that
+            a loop was detected when performing __index over metatables.
+            </summary>
+            <returns>
+            The exception to be raised.
+            </returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.ScriptRuntimeException.LoopInNewIndex">
+            <summary>
+            Creates a ScriptRuntimeException with a predefined error message specifying that
+            a loop was detected when performing __newindex over metatables.
+            </summary>
+            <returns>
+            The exception to be raised.
+            </returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.ScriptRuntimeException.LoopInCall">
+            <summary>
+            Creates a ScriptRuntimeException with a predefined error message specifying that
+            a loop was detected when performing __call over metatables.
+            </summary>
+            <returns>
+            The exception to be raised.
+            </returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.ScriptRuntimeException.TableIndexIsNil">
+            <summary>
+            Creates a ScriptRuntimeException with a predefined error message specifying that
+            a table indexing operation used nil as the key.
+            </summary>
+            <returns>
+            The exception to be raised.
+            </returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.ScriptRuntimeException.TableIndexIsNaN">
+            <summary>
+            Creates a ScriptRuntimeException with a predefined error message specifying that
+            a table indexing operation used a NaN as the key.
+            </summary>
+            <returns>
+            The exception to be raised.
+            </returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.ScriptRuntimeException.ConvertToNumberFailed(System.Int32)">
+            <summary>
+            Creates a ScriptRuntimeException with a predefined error message specifying that
+            a conversion to number failed.
+            </summary>
+            <param name="stage">
+            Selects the correct error message:
+            0 - "value must be a number"
+            1 - "'for' initial value must be a number"
+            2 - "'for' step must be a number"
+            3 - "'for' limit must be a number"
+            </param>
+            <returns>
+            The exception to be raised.
+            </returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.ScriptRuntimeException.ConvertObjectFailed(System.Object)">
+            <summary>
+            Creates a ScriptRuntimeException with a predefined error message specifying that
+            a conversion of a CLR type to a Lua type has failed.
+            </summary>
+            <param name="obj">The object which could not be converted.</param>
+            <returns>
+            The exception to be raised.
+            </returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.ScriptRuntimeException.ConvertObjectFailed(MoonSharp.Interpreter.DataType)">
+            <summary>
+            Creates a ScriptRuntimeException with a predefined error message specifying that
+            a conversion of a Lua type to a CLR type has failed.
+            </summary>
+            <param name="t">The Lua type.</param>
+            <returns>
+            The exception to be raised.
+            </returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.ScriptRuntimeException.ConvertObjectFailed(MoonSharp.Interpreter.DataType,System.Type)">
+            <summary>
+            Creates a ScriptRuntimeException with a predefined error message specifying that
+            a constrained conversion of a Lua type to a CLR type has failed.
+            </summary>
+            <param name="t">The Lua type.</param>
+            <param name="t2">The expected CLR type.</param>
+            <returns>
+            The exception to be raised.
+            </returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.ScriptRuntimeException.UserDataArgumentTypeMismatch(MoonSharp.Interpreter.DataType,System.Type)">
+            <summary>
+            Creates a ScriptRuntimeException with a predefined error message specifying that
+            a userdata of a specific CLR type was expected and a non-userdata type was passed.
+            </summary>
+            <param name="t">The Lua type.</param>
+            <param name="clrType">The expected CLR type.</param>
+            <returns>
+            The exception to be raised.
+            </returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.ScriptRuntimeException.UserDataMissingField(System.String,System.String)">
+            <summary>
+            Creates a ScriptRuntimeException with a predefined error message specifying that
+            an attempt to index an invalid member of a userdata was done.
+            </summary>
+            <param name="typename">The name of the userdata type.</param>
+            <param name="fieldname">The field name.</param>
+            <returns>
+            The exception to be raised.
+            </returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.ScriptRuntimeException.CannotResumeNotSuspended(MoonSharp.Interpreter.CoroutineState)">
+            <summary>
+            Creates a ScriptRuntimeException with a predefined error message specifying that
+            an attempt resume a coroutine in an invalid state was done.
+            </summary>
+            <param name="state">The state of the coroutine.</param>
+            <returns>
+            The exception to be raised.
+            </returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.ScriptRuntimeException.CannotYield">
+            <summary>
+            Creates a ScriptRuntimeException with a predefined error message specifying that
+            an attempt to yield across a CLR boundary was made.
+            </summary>
+            <returns>
+            The exception to be raised.
+            </returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.ScriptRuntimeException.CannotYieldMain">
+            <summary>
+            Creates a ScriptRuntimeException with a predefined error message specifying that
+            an attempt to yield from the main coroutine was made.
+            </summary>
+            <returns>
+            The exception to be raised.
+            </returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.ScriptRuntimeException.AttemptToCallNonFunc(MoonSharp.Interpreter.DataType,System.String)">
+            <summary>
+            Creates a ScriptRuntimeException with a predefined error message specifying that
+            an attempt to call a non-function was made
+            </summary>
+            <param name="type">The lua non-function data type.</param>
+            <param name="debugText">The debug text to aid location (appears as "near 'xxx'").</param>
+            <returns></returns>
+        </member>
         <member name="P:MoonSharp.Interpreter.ScriptRuntimeException.DoNotDecorateMessage">
             <summary>
             Gets or sets a value indicating whether the message should not be decorated
             </summary>
+        </member>
+        <member name="M:MoonSharp.Interpreter.DynamicExpressionException.#ctor(System.String,System.Object[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:MoonSharp.Interpreter.DynamicExpressionException"/> class.
+            </summary>
+            <param name="format">The format.</param>
+            <param name="args">The arguments.</param>
+        </member>
+        <member name="M:MoonSharp.Interpreter.DynamicExpressionException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MoonSharp.Interpreter.DynamicExpressionException"/> class.
+            </summary>
+            <param name="message">The message.</param>
         </member>
         <member name="T:MoonSharp.Interpreter.DynamicExpression">
             <summary>
@@ -651,6 +1008,11 @@
             <value>
             The script owning this resource.
             </value>
+        </member>
+        <member name="F:MoonSharp.Interpreter.DynamicExpression.ExpressionCode">
+            <summary>
+            The code which generated this expression
+            </summary>
         </member>
         <member name="M:MoonSharp.Interpreter.DynamicExpression.Evaluate(MoonSharp.Interpreter.ScriptExecutionContext)">
             <summary>
@@ -708,6 +1070,22 @@
             if a type which is not exposed to scripts but can be managed as a "black box" by scripts is desired.
             </summary>
             <typeparam name="T">The type to wrap</typeparam>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.AnonWrapper`1.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:MoonSharp.Interpreter.Interop.AnonWrapper`1"/> class.
+            </summary>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Interop.AnonWrapper`1.#ctor(`0)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MoonSharp.Interpreter.Interop.AnonWrapper`1"/> class.
+            </summary>
+            <param name="o">The o.</param>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Interop.AnonWrapper`1.Value">
+            <summary>
+            Gets or sets the value this instance wraps.
+            </summary>
         </member>
         <member name="T:MoonSharp.Interpreter.Interop.IUserDataDescriptor">
             <summary>
@@ -1067,24 +1445,81 @@
         <member name="M:MoonSharp.Interpreter.Coroutine.AsTypedEnumerable">
             <summary>
             Gets this coroutine as a typed enumerable which can be looped over for resuming.
+            Returns its result as DynValue(s)
             </summary>
             <returns></returns>
+            <exception cref="T:System.InvalidOperationException">Only non-CLR coroutines can be resumed with this overload of the Resume method. Use the overload accepting a ScriptExecutionContext instead</exception>
         </member>
-        <member name="M:MoonSharp.Interpreter.Coroutine.AsEnumerator">
+        <member name="M:MoonSharp.Interpreter.Coroutine.AsEnumerable">
             <summary>
-            Gets this coroutine as a System.Collections.IEnumerator. This should bridge with Unity3D coroutines.
+            Gets this coroutine as a typed enumerable which can be looped over for resuming.
+            Returns its result as System.Object. Only the first element of tuples is returned.
+            Only non-CLR coroutines can be resumed with this method. Use an overload of the Resume method accepting a ScriptExecutionContext instead.
             </summary>
             <returns></returns>
+            <exception cref="T:System.InvalidOperationException">Only non-CLR coroutines can be resumed with this overload of the Resume method. Use the overload accepting a ScriptExecutionContext instead</exception>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Coroutine.AsEnumerable``1">
+            <summary>
+            Gets this coroutine as a typed enumerable which can be looped over for resuming.
+            Returns its result as the specified type. Only the first element of tuples is returned.
+            Only non-CLR coroutines can be resumed with this method. Use an overload of the Resume method accepting a ScriptExecutionContext instead.
+            </summary>
+            <returns></returns>
+            <exception cref="T:System.InvalidOperationException">Only non-CLR coroutines can be resumed with this overload of the Resume method. Use the overload accepting a ScriptExecutionContext instead</exception>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Coroutine.AsUnityCoroutine">
+            <summary>
+            The purpose of this method is to convert a MoonSharp/Lua coroutine to a Unity3D coroutine.
+            This loops over the coroutine, discarding returned values, and returning null for each invocation.
+            This means however that the coroutine will be invoked each frame.
+            Only non-CLR coroutines can be resumed with this method. Use an overload of the Resume method accepting a ScriptExecutionContext instead.
+            </summary>
+            <returns></returns>
+            <exception cref="T:System.InvalidOperationException">Only non-CLR coroutines can be resumed with this overload of the Resume method. Use the overload accepting a ScriptExecutionContext instead</exception>
         </member>
         <member name="M:MoonSharp.Interpreter.Coroutine.Resume(MoonSharp.Interpreter.DynValue[])">
             <summary>
-            Resumes the coroutine
+            Resumes the coroutine.
+            Only non-CLR coroutines can be resumed with this overload of the Resume method. Use the overload accepting a ScriptExecutionContext instead.
             </summary>
             <param name="args">The arguments.</param>
             <returns></returns>
             <exception cref="T:System.InvalidOperationException">Only non-CLR coroutines can be resumed with this overload of the Resume method. Use the overload accepting a ScriptExecutionContext instead</exception>
         </member>
         <member name="M:MoonSharp.Interpreter.Coroutine.Resume(MoonSharp.Interpreter.ScriptExecutionContext,MoonSharp.Interpreter.DynValue[])">
+            <summary>
+            Resumes the coroutine.
+            </summary>
+            <param name="context">The ScriptExecutionContext.</param>
+            <param name="args">The arguments.</param>
+            <returns></returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Coroutine.Resume">
+            <summary>
+            Resumes the coroutine.
+            Only non-CLR coroutines can be resumed with this overload of the Resume method. Use the overload accepting a ScriptExecutionContext instead.
+            </summary>
+            <returns></returns>
+            <exception cref="T:System.InvalidOperationException">Only non-CLR coroutines can be resumed with this overload of the Resume method. Use the overload accepting a ScriptExecutionContext instead</exception>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Coroutine.Resume(MoonSharp.Interpreter.ScriptExecutionContext)">
+            <summary>
+            Resumes the coroutine.
+            </summary>
+            <param name="context">The ScriptExecutionContext.</param>
+            <returns></returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Coroutine.Resume(System.Object[])">
+            <summary>
+            Resumes the coroutine.
+            Only non-CLR coroutines can be resumed with this overload of the Resume method. Use the overload accepting a ScriptExecutionContext instead.
+            </summary>
+            <param name="args">The arguments.</param>
+            <returns></returns>
+            <exception cref="T:System.InvalidOperationException">Only non-CLR coroutines can be resumed with this overload of the Resume method. Use the overload accepting a ScriptExecutionContext instead.</exception>
+        </member>
+        <member name="M:MoonSharp.Interpreter.Coroutine.Resume(MoonSharp.Interpreter.ScriptExecutionContext,System.Object[])">
             <summary>
             Resumes the coroutine
             </summary>
@@ -1109,6 +1544,15 @@
             <summary>
             Gets the coroutine state.
             </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Coroutine.OwnerScript">
+            <summary>
+            Gets the script owning this resource.
+            </summary>
+            <value>
+            The script owning this resource.
+            </value>
+            <exception cref="T:System.NotImplementedException"></exception>
         </member>
         <member name="T:MoonSharp.Interpreter.Coroutine.CoroutineType">
             <summary>
@@ -1665,10 +2109,55 @@
             The maximum value of this enum
             </summary>
         </member>
+        <member name="T:MoonSharp.Interpreter.Diagnostics.PerformanceCounter">
+            <summary>
+            Enumeration of the possible performance counters
+            </summary>
+        </member>
+        <member name="F:MoonSharp.Interpreter.Diagnostics.PerformanceCounter.AstCreation">
+            <summary>
+            Measures the time spent parsing the source creating the AST
+            </summary>
+        </member>
+        <member name="F:MoonSharp.Interpreter.Diagnostics.PerformanceCounter.Compilation">
+            <summary>
+            Measures the time spent converting ASTs in bytecode
+            </summary>
+        </member>
+        <member name="F:MoonSharp.Interpreter.Diagnostics.PerformanceCounter.Execution">
+            <summary>
+            Measures the time spent in executing scripts
+            </summary>
+        </member>
+        <member name="F:MoonSharp.Interpreter.Diagnostics.PerformanceCounter.AdaptersCompilation">
+            <summary>
+            Measures the on the fly creation/compilation of functions in userdata descriptors
+            </summary>
+        </member>
+        <member name="F:MoonSharp.Interpreter.Diagnostics.PerformanceCounter.LastValue">
+            <summary>
+            Sentinel value to get the enum size
+            </summary>
+        </member>
         <member name="T:MoonSharp.Interpreter.Diagnostics.PerformanceCounters.GlobalPerformanceStopwatch">
             <summary>
             This class is not *really* IDisposable.. it's just use to have a RAII like pattern.
             You are free to reuse this instance after calling Dispose.
+            </summary>
+        </member>
+        <member name="T:MoonSharp.Interpreter.Diagnostics.PerformanceCounterType">
+            <summary>
+            Enumeration of unit of measures of the performance counters
+            </summary>
+        </member>
+        <member name="F:MoonSharp.Interpreter.Diagnostics.PerformanceCounterType.MemoryBytes">
+            <summary>
+            The performance counter is specified in bytes (of memory)
+            </summary>
+        </member>
+        <member name="F:MoonSharp.Interpreter.Diagnostics.PerformanceCounterType.TimeMilliseconds">
+            <summary>
+            The performance counter is specified in milliseconds
             </summary>
         </member>
         <member name="T:MoonSharp.Interpreter.Diagnostics.PerformanceStatistics">
@@ -1841,6 +2330,13 @@
             <param name="funcName">Name of the function.</param>
             <returns></returns>
             <exception cref="T:MoonSharp.Interpreter.ScriptRuntimeException">'tostring' must return a string to '{0}'</exception>
+        </member>
+        <member name="M:MoonSharp.Interpreter.CallbackArguments.SkipMethodCall">
+            <summary>
+            Returns a copy of CallbackArguments where the first ("self") argument is skipped if this was a method call,
+            otherwise returns itself.
+            </summary>
+            <returns></returns>
         </member>
         <member name="P:MoonSharp.Interpreter.CallbackArguments.Count">
             <summary>
@@ -2164,6 +2660,19 @@
             <summary>
             Returns this value as readonly - eventually cloning it in the process if it isn't readonly to start with.
             </summary>
+        </member>
+        <member name="M:MoonSharp.Interpreter.DynValue.Clone">
+            <summary>
+            Clones this instance.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:MoonSharp.Interpreter.DynValue.Clone(System.Boolean)">
+            <summary>
+            Clones this instance, overriding the "readonly" status.
+            </summary>
+            <param name="readOnly">if set to <c>true</c> the new instance is set as readonly, or writeable otherwise.</param>
+            <returns></returns>
         </member>
         <member name="M:MoonSharp.Interpreter.DynValue.CloneAsWritable">
             <summary>
@@ -2651,6 +3160,11 @@
             Marks a type of automatic registration as userdata (which happens only if UserData.RegisterAssembly is called).
             </summary>
         </member>
+        <member name="M:MoonSharp.Interpreter.MoonSharpUserDataAttribute.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:MoonSharp.Interpreter.MoonSharpUserDataAttribute"/> class.
+            </summary>
+        </member>
         <member name="P:MoonSharp.Interpreter.MoonSharpUserDataAttribute.AccessMode">
             <summary>
             The interop access mode
@@ -2666,6 +3180,11 @@
             Initializes a new instance of the <see cref="T:MoonSharp.Interpreter.Interop.MoonSharpVisibleAttribute"/> class.
             </summary>
             <param name="visible">if set to true the member will be exposed to scripts, if false the member will be hidden.</param>
+        </member>
+        <member name="P:MoonSharp.Interpreter.Interop.MoonSharpVisibleAttribute.Visible">
+            <summary>
+            Gets a value indicating whether this <see cref="T:MoonSharp.Interpreter.Interop.MoonSharpVisibleAttribute"/> is set to "visible".
+            </summary>
         </member>
         <member name="T:MoonSharp.Interpreter.AutoDescribingUserDataDescriptor">
             <summary>
@@ -3111,6 +3630,26 @@
             Reads a symbolref from a binary stream 
             </summary>
         </member>
+        <member name="P:MoonSharp.Interpreter.SymbolRef.Type">
+            <summary>
+            Gets the type of this symbol reference
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.SymbolRef.Index">
+            <summary>
+            Gets the index of this symbol in its scope context
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.SymbolRef.Name">
+            <summary>
+            Gets the name of this symbol
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.SymbolRef.Environment">
+            <summary>
+            Gets the environment this symbol refers to (for global symbols only)
+            </summary>
+        </member>
         <member name="P:MoonSharp.Interpreter.SymbolRef.DefaultEnv">
             <summary>
             Gets the default _ENV.
@@ -3488,6 +4027,11 @@
             scripts should be saved as .txt files in Assets/Resources/MoonSharp/Scripts.
             </summary>
         </member>
+        <member name="F:MoonSharp.Interpreter.Loaders.UnityAssetsScriptLoader.DEFAULT_PATH">
+            <summary>
+            The default path where scripts are meant to be stored (if not changed)
+            </summary>
+        </member>
         <member name="M:MoonSharp.Interpreter.Loaders.UnityAssetsScriptLoader.#ctor(System.String)">
             <summary>
             Initializes a new instance of the <see cref="T:MoonSharp.Interpreter.Loaders.UnityAssetsScriptLoader"/> class.
@@ -3510,6 +4054,13 @@
             </returns>
             <exception cref="T:System.Exception">UnityAssetsScriptLoader.LoadFile : Cannot load  + file</exception>
         </member>
+        <member name="M:MoonSharp.Interpreter.Loaders.UnityAssetsScriptLoader.ScriptFileExists(System.String)">
+            <summary>
+            Checks if a given file exists
+            </summary>
+            <param name="file">The file.</param>
+            <returns></returns>
+        </member>
         <member name="M:MoonSharp.Interpreter.Loaders.UnityAssetsScriptLoader.GetLoadedScripts">
             <summary>
             Gets the list of loaded scripts filenames (useful for debugging purposes).
@@ -3521,6 +4072,11 @@
             In a module type, mark fields with this attribute to have them exposed as a module constant.
             
             See <see cref="T:MoonSharp.Interpreter.MoonSharpModuleAttribute"/> for more information about modules.
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.MoonSharpModuleConstantAttribute.Name">
+            <summary>
+            Gets or sets the name of the constant - if different from the name of the field itself
             </summary>
         </member>
         <member name="T:MoonSharp.Interpreter.NamespaceDoc">
@@ -4145,7 +4701,7 @@
         </member>
         <member name="M:MoonSharp.Interpreter.Script.#ctor">
             <summary>
-            Initializes a new instance of the <see cref="T:MoonSharp.Interpreter.Script"/> class.
+            Initializes a new instance of the <see cref="T:MoonSharp.Interpreter.Script"/> clas.s
             </summary>
         </member>
         <member name="M:MoonSharp.Interpreter.Script.#ctor(MoonSharp.Interpreter.CoreModules)">
@@ -4615,6 +5171,11 @@
             Enumeration (combinable as flags) of all the standard library modules
             </summary>
         </member>
+        <member name="F:MoonSharp.Interpreter.CoreModules.None">
+            <summary>
+            Value used to specify no modules to be loaded (equals 0).
+            </summary>
+        </member>
         <member name="F:MoonSharp.Interpreter.CoreModules.Basic">
             <summary>
             The basic methods. Includes "assert", "collectgarbage", "error", "print", "select", "type", "tonumber" and "tostring".
@@ -4784,6 +5345,12 @@
             to marshal methods.
             
             See <see cref="T:MoonSharp.Interpreter.UserData"/> for easier object marshalling.
+            </summary>
+        </member>
+        <member name="P:MoonSharp.Interpreter.MoonSharpModuleAttribute.Namespace">
+            <summary>
+            Gets or sets the namespace, that is the name of the table which will contain the defined functions.
+            Can be null to be in the global table.
             </summary>
         </member>
         <member name="T:MoonSharp.Interpreter.ScriptGlobalOptions">

@@ -116,6 +116,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AsyncExtensions.cs" />
+    <Compile Include="CodeAnalysis\AstNode.cs" />
     <Compile Include="CoreLib\CoroutineModule.cs" />
     <Compile Include="CoreLib\BasicModule.cs" />
     <Compile Include="CoreLib\DebugModule.cs" />
