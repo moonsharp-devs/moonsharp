@@ -1,5 +1,4 @@
-﻿#if !PCL
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -18,6 +17,9 @@ namespace MoonSharp.Interpreter.Loaders
 	{
 		Dictionary<string, string> m_Resources = new Dictionary<string, string>();
 
+		/// <summary>
+		/// The default path where scripts are meant to be stored (if not changed)
+		/// </summary>
 		public const string DEFAULT_PATH = "MoonSharp/Scripts";
 
 		/// <summary>
@@ -42,10 +44,11 @@ namespace MoonSharp.Interpreter.Loaders
 				MethodInfo textAssetNameGet = textAssetType.GetProperty("name").GetGetMethod();
 				MethodInfo textAssetTextGet = textAssetType.GetProperty("text").GetGetMethod();
 
-				Array array = (Array)resourcesType.InvokeMember("LoadAll",
-					 System.Reflection.BindingFlags.InvokeMethod | System.Reflection.BindingFlags.Public |
-					  System.Reflection.BindingFlags.Static,
-					  null, null, new object[] { assetsPath, textAssetType });
+
+				MethodInfo loadAll = resourcesType.GetMethod("LoadAll", 
+					new Type[] { typeof(string), typeof(Type) });
+
+				Array array = (Array)loadAll.Invoke(null, new object[] { assetsPath, textAssetType });
 
 				for (int i = 0; i < array.Length; i++)
 				{
@@ -102,6 +105,11 @@ your own IScriptLoader (possibly extending ScriptLoaderBase).", file, DEFAULT_PA
 			}
 		}
 
+		/// <summary>
+		/// Checks if a given file exists
+		/// </summary>
+		/// <param name="file">The file.</param>
+		/// <returns></returns>
 		public override bool ScriptFileExists(string file)
 		{
 			file = GetFileName(file);
@@ -123,4 +131,3 @@ your own IScriptLoader (possibly extending ScriptLoaderBase).", file, DEFAULT_PA
 	}
 }
 
-#endif

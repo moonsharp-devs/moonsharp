@@ -9,7 +9,7 @@ namespace MoonSharp.Interpreter.CoreLib.IO
 	/// <summary>
 	/// Abstract class implementing a file Lua userdata. Methods are meant to be called by Lua code.
 	/// </summary>
-	public abstract class StreamFileUserDataBase : FileUserDataBase
+	internal abstract class StreamFileUserDataBase : FileUserDataBase
 	{
 		protected Stream m_Stream;
 		protected StreamReader m_Reader;

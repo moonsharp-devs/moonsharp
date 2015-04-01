@@ -23,6 +23,10 @@ namespace MoonSharp.Interpreter
 	[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
 	public sealed class MoonSharpModuleAttribute : Attribute
 	{
+		/// <summary>
+		/// Gets or sets the namespace, that is the name of the table which will contain the defined functions.
+		/// Can be null to be in the global table.
+		/// </summary>
 		public string Namespace { get; set; }
 	}
 }

@@ -28,7 +28,7 @@ namespace MoonSharp.Interpreter
 		/// <summary>
 		/// The version of the MoonSharp engine
 		/// </summary>
-		public const string VERSION = "0.9.2.0"; 
+		public const string VERSION = "0.9.3.0"; 
 
 		/// <summary>
 		/// The Lua version being supported
@@ -60,7 +60,7 @@ namespace MoonSharp.Interpreter
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="Script"/> class.
+		/// Initializes a new instance of the <see cref="Script"/> clas.s
 		/// </summary>
 		public Script()
 			: this(CoreModules.Preset_Default)

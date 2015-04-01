@@ -16,6 +16,9 @@ namespace MoonSharp.Interpreter
 		/// </summary>
 		public InteropAccessMode AccessMode { get; set; }
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MoonSharpUserDataAttribute"/> class.
+		/// </summary>
 		public MoonSharpUserDataAttribute()
 		{
 			AccessMode = InteropAccessMode.Default;

@@ -21,9 +21,21 @@ namespace MoonSharp.Interpreter
 		internal int i_Index;
 		internal string i_Name;
 
+		/// <summary>
+		/// Gets the type of this symbol reference
+		/// </summary>
 		public SymbolRefType Type { get { return i_Type; } }
+		/// <summary>
+		/// Gets the index of this symbol in its scope context
+		/// </summary>
 		public int Index { get { return i_Index; } }
+		/// <summary>
+		/// Gets the name of this symbol
+		/// </summary>
 		public string Name { get { return i_Name; } }
+		/// <summary>
+		/// Gets the environment this symbol refers to (for global symbols only)
+		/// </summary>
 		public SymbolRef Environment { get { return i_Env; } }
 
 

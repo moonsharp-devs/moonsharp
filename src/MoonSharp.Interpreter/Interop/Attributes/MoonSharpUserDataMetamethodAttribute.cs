@@ -12,10 +12,14 @@ namespace MoonSharp.Interpreter
 	public sealed class MoonSharpUserDataMetamethodAttribute : Attribute
 	{
 		/// <summary>
-		/// The interop access mode
+		/// The metamethod name (like '__div', '__ipairs', etc.)
 		/// </summary>
 		public string Name { get; private set; }
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MoonSharpUserDataMetamethodAttribute"/> class.
+		/// </summary>
+		/// <param name="name">The metamethod name (like '__div', '__ipairs', etc.)</param>
 		public MoonSharpUserDataMetamethodAttribute(string name)
 		{
 			Name = name;

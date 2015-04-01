@@ -13,6 +13,9 @@ namespace MoonSharp.Interpreter
 	[AttributeUsage(AttributeTargets.Field, Inherited = false, AllowMultiple = false)]
 	public sealed class MoonSharpModuleConstantAttribute : Attribute
 	{
+		/// <summary>
+		/// Gets or sets the name of the constant - if different from the name of the field itself
+		/// </summary>
 		public string Name { get; set; }
 	}
 }

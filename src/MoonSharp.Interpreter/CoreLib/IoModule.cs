@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Disable warnings about XML documentation
+#pragma warning disable 1591
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -88,7 +91,7 @@ namespace MoonSharp.Interpreter.CoreLib
 			SetDefaultFile(executionContext.GetScript(), file, fileHandle);
 		}
 
-		public static void SetDefaultFile(Script script, StandardFileType file, FileUserDataBase fileHandle)
+		internal static void SetDefaultFile(Script script, StandardFileType file, FileUserDataBase fileHandle)
 		{
 			Table R = script.Registry;
 			R.Set("853BEAAF298648839E2C99D005E1DF94_" + file.ToString(), UserData.Create(fileHandle));

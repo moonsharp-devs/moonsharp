@@ -11,6 +11,9 @@ namespace MoonSharp.Interpreter
 	[Flags]
 	public enum CoreModules
 	{
+		/// <summary>
+		/// Value used to specify no modules to be loaded (equals 0).
+		/// </summary>
 		None = 0,
 
 		/// <summary>

@@ -75,8 +75,8 @@ namespace MoonSharp.Interpreter
 	/// </summary>
 	public static class LuaTypeExtensions
 	{
-		public const DataType MaxMetaTypes = DataType.Table;
-		public const DataType MaxConvertibleTypes = DataType.ClrFunction;
+		internal const DataType MaxMetaTypes = DataType.Table;
+		internal const DataType MaxConvertibleTypes = DataType.ClrFunction;
 
 		/// <summary>
 		/// Determines whether this data type can have type metatables.

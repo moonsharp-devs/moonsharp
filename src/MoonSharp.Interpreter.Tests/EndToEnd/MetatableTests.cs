@@ -203,6 +203,49 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		}
 
 
+		public class MyObject
+		{
+			public int GetSomething()
+			{
+				return 10;
+			}
+		}
+
+		[Test]
+		public void MetatableExtensibleObjectSample()
+		{
+			string code = @"    
+
+				--declare this once for all
+				extensibleObjectMeta = {
+					__index = function(t, name) local obj = rawget(t, 'wrappedobj'); if (obj) then return obj[name]; end end
+				}
+
+				-- create a new wrapped object called myobj, wrapping the object o
+				myobj = { wrappedobj = o };
+				setmetatable(myobj, extensibleObjectMeta);
+
+				function myobj.extended()
+					return 12;	
+				end
+
+
+				return myobj.extended() * myobj.getSomething();
+				";
+
+			Script script = new Script();
+			UserData.RegisterType<MyObject>();
+			script.Globals["o"] = new MyObject();
+			
+			DynValue res = script.DoString(code);
+
+			Assert.AreEqual(DataType.Number, res.Type);
+			Assert.AreEqual(120, res.Number);
+		}
+
+
+
+
 
 
 	}

@@ -15,6 +15,9 @@ namespace MoonSharp.Interpreter
 		DynamicExprExpression m_Exp;
 		DynValue m_Constant;
 
+		/// <summary>
+		/// The code which generated this expression
+		/// </summary>
 		public readonly string ExpressionCode;
 
 		internal DynamicExpression(Script S, string strExpr, DynamicExprExpression expr)

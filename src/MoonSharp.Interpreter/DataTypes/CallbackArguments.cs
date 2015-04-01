@@ -199,6 +199,11 @@ namespace MoonSharp.Interpreter
 		}
 
 
+		/// <summary>
+		/// Returns a copy of CallbackArguments where the first ("self") argument is skipped if this was a method call,
+		/// otherwise returns itself.
+		/// </summary>
+		/// <returns></returns>
 		public CallbackArguments SkipMethodCall()
 		{
 			if (this.IsMethodCall)

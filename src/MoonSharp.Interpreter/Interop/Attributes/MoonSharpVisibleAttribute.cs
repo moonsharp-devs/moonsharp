@@ -11,6 +11,9 @@ namespace MoonSharp.Interpreter.Interop
 	[AttributeUsage(AttributeTargets.Method | AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
 	public sealed class MoonSharpVisibleAttribute : Attribute
 	{
+		/// <summary>
+		/// Gets a value indicating whether this <see cref="MoonSharpVisibleAttribute"/> is set to "visible".
+		/// </summary>
 		public bool Visible { get; private set; }
 
 		/// <summary>

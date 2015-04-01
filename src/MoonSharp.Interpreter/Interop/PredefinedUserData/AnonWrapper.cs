@@ -19,15 +19,25 @@ namespace MoonSharp.Interpreter.Interop
 	/// <typeparam name="T">The type to wrap</typeparam>
 	public class AnonWrapper<T> : AnonWrapper
 	{
+		/// <summary>
+		/// Initializes a new instance of the <see cref="AnonWrapper{T}"/> class.
+		/// </summary>
 		public AnonWrapper()
 		{
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="AnonWrapper{T}"/> class.
+		/// </summary>
+		/// <param name="o">The o.</param>
 		public AnonWrapper(T o)
 		{
 			Value = o;
 		}
 
+		/// <summary>
+		/// Gets or sets the value this instance wraps.
+		/// </summary>
 		public T Value { get; set; }
 	}
 

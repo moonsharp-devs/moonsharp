@@ -1,4 +1,5 @@
-﻿//
+﻿#pragma warning disable 1591
+//
 // This part taken from KopiLua - https://github.com/NLua/KopiLua
 //
 // =========================================================================================================

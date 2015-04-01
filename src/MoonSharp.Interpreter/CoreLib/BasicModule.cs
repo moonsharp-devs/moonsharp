@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Disable warnings about XML documentation
+#pragma warning disable 1591
+
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -159,14 +162,14 @@ namespace MoonSharp.Interpreter.CoreLib
 				num = args.Count + num;
 
 				if (num < 1)
-					throw ScriptRuntimeException.IndexOutOfRange("select", 1);
+					throw ScriptRuntimeException.BadArgumentIndexOutOfRange("select", 0);
 
 				for (int i = num; i < args.Count; i++)
 					values.Add(args[i]);
 			}
 			else
 			{
-				throw ScriptRuntimeException.IndexOutOfRange("select", 1);
+				throw ScriptRuntimeException.BadArgumentIndexOutOfRange("select", 0);
 			}
 
 			return DynValue.NewTupleNested(values.ToArray());

@@ -359,11 +359,20 @@ namespace MoonSharp.Interpreter
 			}
 		}
 
+		/// <summary>
+		/// Clones this instance.
+		/// </summary>
+		/// <returns></returns>
 		public DynValue Clone()
 		{
 			return Clone(this.ReadOnly);
 		}
 
+		/// <summary>
+		/// Clones this instance, overriding the "readonly" status.
+		/// </summary>
+		/// <param name="readOnly">if set to <c>true</c> the new instance is set as readonly, or writeable otherwise.</param>
+		/// <returns></returns>
 		public DynValue Clone(bool readOnly)
 		{
 			DynValue v = new DynValue();
@@ -784,6 +793,16 @@ namespace MoonSharp.Interpreter
 		{
 			return (T)MoonSharp.Interpreter.Interop.Converters.ScriptToClrConversions.DynValueToObjectOfType(this, typeof(T), null, false);
 		}
+
+#if HASDYNAMIC
+		/// <summary>
+		/// Converts this MoonSharp DynValue to a CLR object, marked as dynamic
+		/// </summary>
+		public dynamic ToDynamic()
+		{
+			return MoonSharp.Interpreter.Interop.Converters.ScriptToClrConversions.DynValueToObject(this);
+		}
+#endif
 
 		/// <summary>
 		/// Checks the type of this value corresponds to the desired type. A propert ScriptRuntimeException is thrown

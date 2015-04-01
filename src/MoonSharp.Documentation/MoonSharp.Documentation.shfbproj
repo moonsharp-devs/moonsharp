@@ -13,7 +13,7 @@
     <RootNamespace>MoonSharp.Documentation</RootNamespace>
     <Name>MoonSharp.Documentation</Name>
     <!-- SHFB properties -->
-    <FrameworkVersion>.NET Framework 3.5</FrameworkVersion>
+    <FrameworkVersion>.NET Framework 4.5</FrameworkVersion>
     <OutputPath>.\Help\</OutputPath>
     <HtmlHelpName>MoonSharp.Reference.Documentation</HtmlHelpName>
     <Language>en-US</Language>
@@ -34,8 +34,8 @@
     <CppCommentsFixup>False</CppCommentsFixup>
     <CleanIntermediates>True</CleanIntermediates>
     <DocumentationSources>
-      <DocumentationSource sourceFile="..\MoonSharp.Interpreter\bin\Release\MoonSharp.Interpreter.dll" xmlns="" />
-      <DocumentationSource sourceFile="..\MoonSharp.Interpreter\bin\Release\MoonSharp.Interpreter.xml" xmlns="" />
+      <DocumentationSource sourceFile="..\MoonSharp.Interpreter\_Projects\MoonSharp.Interpreter.net40-client\bin\Release\MoonSharp.Interpreter.dll" />
+      <DocumentationSource sourceFile="..\MoonSharp.Interpreter\_Projects\MoonSharp.Interpreter.net40-client\bin\Release\MoonSharp.Interpreter.xml" />
     </DocumentationSources>
     <MaximumGroupParts>2</MaximumGroupParts>
     <NamespaceGrouping>False</NamespaceGrouping>
@@ -44,11 +44,12 @@
     <RootNamespaceContainer>False</RootNamespaceContainer>
     <PresentationStyle>VS2013</PresentationStyle>
     <Preliminary>False</Preliminary>
-    <NamingMethod>Guid</NamingMethod>
-    <HelpTitle>Moon# Reference Guide</HelpTitle>
+    <NamingMethod>MemberName</NamingMethod>
+    <HelpTitle>MoonSharp Reference Guide</HelpTitle>
     <ContentPlacement>AboveNamespaces</ContentPlacement>
     <FeedbackEMailLinkText>info%40moonsharp.org</FeedbackEMailLinkText>
     <FeedbackEMailAddress>info%40moonsharp.org</FeedbackEMailAddress>
+    <MissingTags>Summary, Parameter, AutoDocumentCtors, Namespace, TypeParameter, AutoDocumentDispose</MissingTags>
   </PropertyGroup>
   <!-- There are no properties for these groups.  AnyCPU needs to appear in order for Visual Studio to perform
 			 the build.  The others are optional common platform types that may appear. -->
@@ -70,6 +71,9 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Dev' ">
     <OutputPath>bin\Dev\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Devp4' ">
+    <OutputPath>bin\Devp4\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="Content" />

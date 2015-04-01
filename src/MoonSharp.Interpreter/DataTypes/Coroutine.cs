@@ -11,7 +11,7 @@ namespace MoonSharp.Interpreter
 	/// <summary>
 	/// A class representing a script coroutine
 	/// </summary>
-	public class Coroutine : RefIdObject
+	public class Coroutine : RefIdObject, IScriptPrivateResource
 	{
 		/// <summary>
 		/// Possible types of coroutine
@@ -45,6 +45,7 @@ namespace MoonSharp.Interpreter
 		{
 			Type = CoroutineType.ClrCallback;
 			m_ClrCallback = function;
+			OwnerScript = null;
 		}
 
 		internal Coroutine(Processor proc)
@@ -52,6 +53,7 @@ namespace MoonSharp.Interpreter
 			Type = CoroutineType.Coroutine;
 			m_Processor = proc;
 			m_Processor.AssociatedCoroutine = this;
+			OwnerScript = proc.GetScript();
 		}
 
 		internal void MarkClrCallbackAsDead()
@@ -65,26 +67,69 @@ namespace MoonSharp.Interpreter
 
 		/// <summary>
 		/// Gets this coroutine as a typed enumerable which can be looped over for resuming.
+		/// Returns its result as DynValue(s)
 		/// </summary>
 		/// <returns></returns>
+		/// <exception cref="System.InvalidOperationException">Only non-CLR coroutines can be resumed with this overload of the Resume method. Use the overload accepting a ScriptExecutionContext instead</exception>
 		public IEnumerable<DynValue> AsTypedEnumerable()
 		{
+			if (Type != CoroutineType.Coroutine)
+				throw new InvalidOperationException("Only non-CLR coroutines can be resumed with this overload of the Resume method. Use the overload accepting a ScriptExecutionContext instead");
+
 			while (this.State == CoroutineState.NotStarted || this.State == CoroutineState.Suspended)
 				yield return Resume();
 		}
 
+
 		/// <summary>
-		/// Gets this coroutine as a System.Collections.IEnumerator. This should bridge with Unity3D coroutines.
+		/// Gets this coroutine as a typed enumerable which can be looped over for resuming.
+		/// Returns its result as System.Object. Only the first element of tuples is returned.
+		/// Only non-CLR coroutines can be resumed with this method. Use an overload of the Resume method accepting a ScriptExecutionContext instead.
 		/// </summary>
 		/// <returns></returns>
-		public System.Collections.IEnumerator AsEnumerator()
+		/// <exception cref="System.InvalidOperationException">Only non-CLR coroutines can be resumed with this overload of the Resume method. Use the overload accepting a ScriptExecutionContext instead</exception>
+		public IEnumerable<object> AsEnumerable()
 		{
-			return AsTypedEnumerable().GetEnumerator();
+			foreach(DynValue v in AsTypedEnumerable())
+			{
+				yield return v.ToScalar().ToObject();
+			}
 		}
 
+		/// <summary>
+		/// Gets this coroutine as a typed enumerable which can be looped over for resuming.
+		/// Returns its result as the specified type. Only the first element of tuples is returned.
+		/// Only non-CLR coroutines can be resumed with this method. Use an overload of the Resume method accepting a ScriptExecutionContext instead.
+		/// </summary>
+		/// <returns></returns>
+		/// <exception cref="System.InvalidOperationException">Only non-CLR coroutines can be resumed with this overload of the Resume method. Use the overload accepting a ScriptExecutionContext instead</exception>
+		public IEnumerable<T> AsEnumerable<T>()
+		{
+			foreach(DynValue v in AsTypedEnumerable())
+			{
+				yield return v.ToScalar().ToObject<T>();
+			}
+		}
 
 		/// <summary>
-		/// Resumes the coroutine
+		/// The purpose of this method is to convert a MoonSharp/Lua coroutine to a Unity3D coroutine.
+		/// This loops over the coroutine, discarding returned values, and returning null for each invocation.
+		/// This means however that the coroutine will be invoked each frame.
+		/// Only non-CLR coroutines can be resumed with this method. Use an overload of the Resume method accepting a ScriptExecutionContext instead.
+		/// </summary>
+		/// <returns></returns>
+		/// <exception cref="System.InvalidOperationException">Only non-CLR coroutines can be resumed with this overload of the Resume method. Use the overload accepting a ScriptExecutionContext instead</exception>
+		public System.Collections.IEnumerator AsUnityCoroutine()
+		{
+			foreach (DynValue v in AsTypedEnumerable())
+			{
+				yield return null;
+			}
+		}
+
+		/// <summary>
+		/// Resumes the coroutine.
+		/// Only non-CLR coroutines can be resumed with this overload of the Resume method. Use the overload accepting a ScriptExecutionContext instead.
 		/// </summary>
 		/// <param name="args">The arguments.</param>
 		/// <returns></returns>
@@ -99,7 +144,7 @@ namespace MoonSharp.Interpreter
 
 
 		/// <summary>
-		/// Resumes the coroutine
+		/// Resumes the coroutine.
 		/// </summary>
 		/// <param name="context">The ScriptExecutionContext.</param>
 		/// <param name="args">The arguments.</param>
@@ -117,6 +162,68 @@ namespace MoonSharp.Interpreter
 			else
 				throw ScriptRuntimeException.CannotResumeNotSuspended(CoroutineState.Dead);
 		}
+
+		/// <summary>
+		/// Resumes the coroutine.
+		/// Only non-CLR coroutines can be resumed with this overload of the Resume method. Use the overload accepting a ScriptExecutionContext instead.
+		/// </summary>
+		/// <returns></returns>
+		/// <exception cref="System.InvalidOperationException">Only non-CLR coroutines can be resumed with this overload of the Resume method. Use the overload accepting a ScriptExecutionContext instead</exception>
+		public DynValue Resume()
+		{
+			return Resume(new DynValue[0]);
+		}
+
+
+		/// <summary>
+		/// Resumes the coroutine.
+		/// </summary>
+		/// <param name="context">The ScriptExecutionContext.</param>
+		/// <returns></returns>
+		public DynValue Resume(ScriptExecutionContext context)
+		{
+			return Resume(context, new DynValue[0]);
+		}
+
+		/// <summary>
+		/// Resumes the coroutine.
+		/// Only non-CLR coroutines can be resumed with this overload of the Resume method. Use the overload accepting a ScriptExecutionContext instead.
+		/// </summary>
+		/// <param name="args">The arguments.</param>
+		/// <returns></returns>
+		/// <exception cref="System.InvalidOperationException">Only non-CLR coroutines can be resumed with this overload of the Resume method. Use the overload accepting a ScriptExecutionContext instead.</exception>
+		public DynValue Resume(params object[] args)
+		{
+			if (Type != CoroutineType.Coroutine)
+				throw new InvalidOperationException("Only non-CLR coroutines can be resumed with this overload of the Resume method. Use the overload accepting a ScriptExecutionContext instead");
+
+			DynValue[] dargs = new DynValue[args.Length];
+
+			for (int i = 0; i < dargs.Length; i++)
+				dargs[i] = DynValue.FromObject(this.OwnerScript, args[i]);
+
+			return Resume(dargs);
+		}
+
+
+		/// <summary>
+		/// Resumes the coroutine
+		/// </summary>
+		/// <param name="context">The ScriptExecutionContext.</param>
+		/// <param name="args">The arguments.</param>
+		/// <returns></returns>
+		public DynValue Resume(ScriptExecutionContext context, params object[] args)
+		{
+			DynValue[] dargs = new DynValue[args.Length];
+
+			for (int i = 0; i < dargs.Length; i++)
+				dargs[i] = DynValue.FromObject(context.GetScript(), args[i]);
+
+			return Resume(context, dargs);
+		}
+
+
+
 
 		/// <summary>
 		/// Gets the coroutine state.
@@ -151,6 +258,17 @@ namespace MoonSharp.Interpreter
 			return stack.Skip(skip).ToArray();
 		}
 
-
+		/// <summary>
+		/// Gets the script owning this resource.
+		/// </summary>
+		/// <value>
+		/// The script owning this resource.
+		/// </value>
+		/// <exception cref="System.NotImplementedException"></exception>
+		public Script OwnerScript
+		{
+			get;
+			private set;
+		}
 	}
 }

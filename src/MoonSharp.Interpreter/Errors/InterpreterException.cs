@@ -11,18 +11,31 @@ namespace MoonSharp.Interpreter
 	/// </summary>
 	public class InterpreterException : Exception 
 	{
+		/// <summary>
+		/// Initializes a new instance of the <see cref="InterpreterException"/> class.
+		/// </summary>
+		/// <param name="ex">The ex.</param>
 		protected InterpreterException(Exception ex)
 			: base(ex.Message, ex)
 		{
 
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="InterpreterException"/> class.
+		/// </summary>
+		/// <param name="message">The message that describes the error.</param>
 		protected InterpreterException(string message)
 			: base(message)
 		{
 
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="InterpreterException"/> class.
+		/// </summary>
+		/// <param name="format">The format.</param>
+		/// <param name="args">The arguments.</param>
 		protected InterpreterException(string format, params object[] args)
 			: base(string.Format(format, args))
 		{
