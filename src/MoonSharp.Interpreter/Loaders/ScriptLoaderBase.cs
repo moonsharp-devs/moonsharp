@@ -40,6 +40,9 @@ namespace MoonSharp.Interpreter.Loaders
 		/// <returns></returns>
 		protected virtual string ResolveModuleName(string modname, string[] paths)
 		{
+			if (paths == null) 
+				return null;
+
 			modname = modname.Replace('.', '/');
 
 			foreach (string path in paths)

@@ -14,6 +14,7 @@ public class TestRunner : MonoBehaviour
 	// Use this for initialization
 	void Start()
 	{
+		Debug.Log("STARTED!");
 		StartCoroutine(DoTests());
 	}
 

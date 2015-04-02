@@ -1,9 +1,10 @@
 ﻿<Properties StartupItem="XamarinTestBed_Android\XamarinTestBed_Android.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" ActiveRuntime="MS.NET" PreferredExecutionTarget="Android.3inch" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="XamarinTestBed_Android\MainActivity.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="XamarinTestBed_Android\Scripts\Test.lua">
     <Files>
       <File FileName="XamarinTestBed_Android\MainActivity.cs" Line="27" Column="27" />
       <File FileName="XamarinTestBed_Android\XamarinLoader.cs" Line="1" Column="1" />
+      <File FileName="XamarinTestBed_Android\Scripts\Test.lua" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

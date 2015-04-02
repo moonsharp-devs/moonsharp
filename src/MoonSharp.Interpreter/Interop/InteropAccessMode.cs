@@ -22,10 +22,11 @@ namespace MoonSharp.Interpreter
 		Reflection,
 		/// <summary>
 		/// Optimization is done on the fly the first time a member is accessed.
+		/// This saves memory for all members that are never accessed, at the cost of an increased script execution time.
 		/// </summary>
 		LazyOptimized,
 		/// <summary>
-		/// Optimization is done at registration time
+		/// Optimization is done at registration time.
 		/// </summary>
 		Preoptimized,
 		/// <summary>
