@@ -136,6 +136,7 @@
     <Compile Include="CoreLib\OsTimeModule.cs" />
     <Compile Include="CoreLib\StringLib\KopiLua_StrLib.cs" />
     <Compile Include="DataStructs\MultiDictionary.cs" />
+    <Compile Include="DataStructs\ReferenceEqualityComparer.cs" />
     <Compile Include="Interop\Attributes\MoonSharpUserDataMetamethodAttribute.cs" />
     <Compile Include="Interop\Converters\ClrToScriptConversions.cs" />
     <Compile Include="Interop\Converters\NumericConversions.cs" />
@@ -143,6 +144,7 @@
     <Compile Include="Interop\Converters\StringConversions.cs" />
     <Compile Include="Interop\Converters\TableConversions.cs" />
     <Compile Include="Interop\CustomConvertersCollection.cs" />
+    <Compile Include="Interop\StandardDescriptors\StandardUserDataEventDescriptor.cs" />
     <Compile Include="Interop\StandardDescriptors\StandardUserDataOverloadedMethodDescriptor.cs" />
     <Compile Include="Interop\StandardDescriptors\StandardUserDataFieldDescriptor.cs" />
     <Compile Include="IO\BinDumpBinaryReader.cs" />

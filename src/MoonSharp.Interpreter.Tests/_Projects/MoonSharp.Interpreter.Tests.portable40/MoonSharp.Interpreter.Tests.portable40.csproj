@@ -108,6 +108,9 @@
     <Compile Include="..\..\EndToEnd\TailCallTests.cs">
       <Link>TailCallTests.cs</Link>
     </Compile>
+    <Compile Include="..\..\EndToEnd\UserDataEventsTests.cs">
+      <Link>UserDataEventsTests.cs</Link>
+    </Compile>
     <Compile Include="..\..\EndToEnd\UserDataMetaTests.cs">
       <Link>UserDataMetaTests.cs</Link>
     </Compile>

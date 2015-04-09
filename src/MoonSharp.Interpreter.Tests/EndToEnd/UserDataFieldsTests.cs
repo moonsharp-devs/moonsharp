@@ -14,11 +14,118 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		public class SomeClass
 		{
 			public int IntProp;
+			public const int ConstIntProp = 115;
+			public readonly int RoIntProp = 123;
 			public int? NIntProp;
 			public object ObjProp;
 			public static string StaticProp;
 			private string PrivateProp;
 		}
+
+		public void Test_ConstIntFieldGetter(InteropAccessMode opt)
+		{
+			string script = @"    
+				x = myobj.ConstIntProp;
+				return x;";
+
+			Script S = new Script();
+
+			SomeClass obj = new SomeClass() { IntProp = 321 };
+
+			UserData.UnregisterType<SomeClass>();
+			UserData.RegisterType<SomeClass>(opt);
+
+			S.Globals.Set("myobj", UserData.Create(obj));
+
+			DynValue res = S.DoString(script);
+
+			Assert.AreEqual(DataType.Number, res.Type);
+			Assert.AreEqual(115, res.Number);
+		}
+
+		public void Test_ReadOnlyIntFieldGetter(InteropAccessMode opt)
+		{
+			string script = @"    
+				x = myobj.RoIntProp;
+				return x;";
+
+			Script S = new Script();
+
+			SomeClass obj = new SomeClass() { IntProp = 321 };
+
+			UserData.UnregisterType<SomeClass>();
+			UserData.RegisterType<SomeClass>(opt);
+
+			S.Globals.Set("myobj", UserData.Create(obj));
+
+			DynValue res = S.DoString(script);
+
+			Assert.AreEqual(DataType.Number, res.Type);
+			Assert.AreEqual(123, res.Number);
+		}
+
+		public void Test_ConstIntFieldSetter(InteropAccessMode opt)
+		{
+			try
+			{
+				string script = @"    
+				myobj.ConstIntProp = 1;
+				return myobj.ConstIntProp;";
+
+				Script S = new Script();
+
+				SomeClass obj = new SomeClass() { IntProp = 321 };
+
+				UserData.UnregisterType<SomeClass>();
+				UserData.RegisterType<SomeClass>(opt);
+
+				S.Globals.Set("myobj", UserData.Create(obj));
+
+				DynValue res = S.DoString(script);
+
+				Assert.AreEqual(DataType.Number, res.Type);
+				Assert.AreEqual(115, res.Number);
+			}
+			catch (ScriptRuntimeException)
+			{
+				return;
+			}
+
+			Assert.Fail();
+		}
+
+		public void Test_ReadOnlyIntFieldSetter(InteropAccessMode opt)
+		{
+			try
+			{
+				string script = @"    
+				myobj.RoIntProp = 1;
+				return myobj.RoIntProp;";
+
+				Script S = new Script();
+
+				SomeClass obj = new SomeClass() { IntProp = 321 };
+
+				UserData.UnregisterType<SomeClass>();
+				UserData.RegisterType<SomeClass>(opt);
+
+				S.Globals.Set("myobj", UserData.Create(obj));
+
+				DynValue res = S.DoString(script);
+
+				Assert.AreEqual(DataType.Number, res.Type);
+				Assert.AreEqual(123, res.Number);
+			}
+			catch (ScriptRuntimeException)
+			{
+				return;
+			}
+
+			Assert.Fail();
+		}
+
+
+
 
 		public void Test_IntFieldGetter(InteropAccessMode opt)
 		{
@@ -28,7 +135,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 			Script S = new Script();
 
-			SomeClass obj = new SomeClass() {  IntProp = 321 };
+			SomeClass obj = new SomeClass() { IntProp = 321 };
 
 			UserData.UnregisterType<SomeClass>();
 			UserData.RegisterType<SomeClass>(opt);
@@ -77,7 +184,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 			Script S = new Script();
 
-			SomeClass obj1 = new SomeClass() { ObjProp="ciao" };
+			SomeClass obj1 = new SomeClass() { ObjProp = "ciao" };
 			SomeClass obj2 = new SomeClass() { ObjProp = obj1 };
 
 			UserData.UnregisterType<SomeClass>();
@@ -139,7 +246,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			Assert.AreEqual(null, obj2.NIntProp);
 
 			DynValue res = S.DoString(script);
-	
+
 			Assert.AreEqual(null, obj1.NIntProp);
 			Assert.AreEqual(19, obj2.NIntProp);
 		}
@@ -386,14 +493,97 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			Assert.AreEqual(19, obj.IntProp);
 		}
 
+
+
+
 		[Test]
-		public void Interop_Boh()
+		public void Interop_ConstIntFieldGetter_None()
 		{
-			Script s = new Script();
-			long big = long.MaxValue;
-			var v = DynValue.FromObject(s, big);
-			Assert.IsNotNull(v);
+			Test_ConstIntFieldGetter(InteropAccessMode.Reflection);
 		}
+
+		[Test]
+		public void Interop_ConstIntFieldGetter_Lazy()
+		{
+			Test_ConstIntFieldGetter(InteropAccessMode.LazyOptimized);
+		}
+
+		[Test]
+		public void Interop_ConstIntFieldGetter_Precomputed()
+		{
+			Test_ConstIntFieldGetter(InteropAccessMode.Preoptimized);
+		}
+
+
+
+		[Test]
+		public void Interop_ConstIntFieldSetter_None()
+		{
+			Test_ConstIntFieldSetter(InteropAccessMode.Reflection);
+		}
+
+		[Test]
+		public void Interop_ConstIntFieldSetter_Lazy()
+		{
+			Test_ConstIntFieldSetter(InteropAccessMode.LazyOptimized);
+		}
+
+		[Test]
+		public void Interop_ConstIntFieldSetter_Precomputed()
+		{
+			Test_ConstIntFieldSetter(InteropAccessMode.Preoptimized);
+		}
+
+
+
+		[Test]
+		public void Interop_ReadOnlyIntFieldGetter_None()
+		{
+			Test_ReadOnlyIntFieldGetter(InteropAccessMode.Reflection);
+		}
+
+		[Test]
+		public void Interop_ReadOnlyIntFieldGetter_Lazy()
+		{
+			Test_ReadOnlyIntFieldGetter(InteropAccessMode.LazyOptimized);
+		}
+
+		[Test]
+		public void Interop_ReadOnlyIntFieldGetter_Precomputed()
+		{
+			Test_ReadOnlyIntFieldGetter(InteropAccessMode.Preoptimized);
+		}
+
+
+
+		[Test]
+		public void Interop_ReadOnlyIntFieldSetter_None()
+		{
+			Test_ReadOnlyIntFieldSetter(InteropAccessMode.Reflection);
+		}
+
+		[Test]
+		public void Interop_ReadOnlyIntFieldSetter_Lazy()
+		{
+			Test_ReadOnlyIntFieldSetter(InteropAccessMode.LazyOptimized);
+		}
+
+		[Test]
+		public void Interop_ReadOnlyIntFieldSetter_Precomputed()
+		{
+			Test_ReadOnlyIntFieldSetter(InteropAccessMode.Preoptimized);
+		}
+
+
+
+
+
+
+
+
+
+
+
 
 	}
 }

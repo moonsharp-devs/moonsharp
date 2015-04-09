@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MoonSharp.Interpreter;
+using MoonSharp.Interpreter.Interop;
 
 namespace Tutorials.Chapters
 {
@@ -15,6 +16,14 @@ namespace Tutorials.Chapters
 		[MoonSharpUserData]
 		class MyClass
 		{
+			public event EventHandler SomethingHappened;
+
+			public void RaiseTheEvent()
+			{
+				if (SomethingHappened != null)
+					SomethingHappened(this, EventArgs.Empty);
+			}
+
 			public double calcHypotenuse(double a, double b)
 			{
 				return Math.Sqrt(a * a + b * b);
@@ -377,6 +386,91 @@ namespace Tutorials.Chapters
 			script.DoString(scriptCode);
 		}
 
+
+		[Tutorial]
+		static void Events()
+		{
+			string scriptCode = @"    
+				function handler(o, a)
+					print('handled!', o, a);
+				end
+
+				myobj.somethingHappened.add(handler);
+				myobj.raiseTheEvent();
+				myobj.somethingHappened.remove(handler);
+				myobj.raiseTheEvent();
+			";
+
+			UserData.RegisterType<EventArgs>();
+			UserData.RegisterType<MyClass>();
+			Script script = new Script();
+			script.Globals["myobj"] = new MyClass();
+			script.DoString(scriptCode);
+		}
+
+
+
+
+
+
+#pragma warning disable 414 
+		public class SampleClass
+		{
+			// Not visible - it's private
+			private void Method1() { }
+			// Visible - it's public
+			public void Method2() { }
+			// Visible - it's private but forced visible by attribute
+			[MoonSharpVisible(true)]
+			private void Method3() { }
+			// Not visible - it's public but forced hidden by attribute
+			[MoonSharpVisible(false)]
+			public void Method4() { }
+
+			// Not visible - it's private
+			private int Field1 = 0;
+			// Visible - it's public
+			public int Field2 = 0;
+			// Visible - it's private but forced visible by attribute
+			[MoonSharpVisible(true)]
+			private int Field3 = 0;
+			// Not visible - it's public but forced hidden by attribute
+			[MoonSharpVisible(false)]
+			public int Field4 = 0;
+
+			// Not visible at all - it's private
+			private int Property1 { get; set; }
+			// Read/write - it's public
+			public int Property2 { get; set; }
+			// Readonly - it's public, but the setter is private
+			public int Property3 { get; private set; }
+			// Write only! - the MoonSharpVisible makes the getter hidden and the setter visible!
+			public int Property4 { [MoonSharpVisible(false)] get; [MoonSharpVisible(true)] private set; }
+			// Write only! - the MoonSharpVisible makes the whole property hidden but another attribute resets the setter as visible!
+			[MoonSharpVisible(false)]
+			public int Property5 { get; [MoonSharpVisible(true)] private set; }
+			// Not visible at all - the MoonSharpVisible hides everything
+			[MoonSharpVisible(false)]
+			public int Property6 { get; set; }
+
+			// Not visible - it's private
+			private event EventHandler Event1;
+			// Visible - it's public
+			public event EventHandler Event2;
+			// Visible - it's private but forced visible by attribute
+			[MoonSharpVisible(true)]
+			private event EventHandler Event3;
+			// Not visible - it's public but forced hidden by attribute
+			[MoonSharpVisible(false)]
+			public event EventHandler Event4;
+			// Not visible - visibility modifiers over add and remove are not currently supported!
+			[MoonSharpVisible(false)]
+			public event EventHandler Event5 { [MoonSharpVisible(true)] add { } [MoonSharpVisible(true)] remove { } }
+
+			
+
+		}
+#pragma warning restore 414
 
 	}
 }

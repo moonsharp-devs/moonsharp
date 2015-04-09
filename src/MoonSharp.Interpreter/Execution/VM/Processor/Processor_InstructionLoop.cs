@@ -628,7 +628,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				{
 					Instruction I = this.m_RootChunk.Code[instructionPtr];
 										
-					// and we are followed by a blatant RET 1
+					// and we are followed *exactly* by a RET 1
 					if (I.OpCode == OpCode.Ret && I.NumVal == 1)
 					{
 						CallStackItem csi = m_ExecutionStack.Peek();

@@ -31,8 +31,35 @@ namespace MoonSharp.Interpreter.Interop
 		/// Gets the name of the property
 		/// </summary>
 		public string Name { get; private set; }
+		/// <summary>
+		/// Gets a value indicating whether this instance is a constant 
+		/// </summary>
+		public bool IsConst { get; private set; }
+		/// <summary>
+		/// Gets a value indicating whether this instance is readonly 
+		/// </summary>
+		public bool IsReadonly { get; private set; }
+
+
+		object m_ConstValue = null;
 
 		Func<object, object> m_OptimizedGetter = null;
+
+
+		/// <summary>
+		/// Tries to create a new StandardUserDataFieldDescriptor, returning <c>null</c> in case the field is not 
+		/// visible to script code.
+		/// </summary>
+		/// <param name="fi">The FieldInfo.</param>
+		/// <param name="accessMode">The <see cref="InteropAccessMode" /></param>
+		/// <returns>A new StandardUserDataFieldDescriptor or null.</returns>
+		public static StandardUserDataFieldDescriptor TryCreateIfVisible(FieldInfo fi, InteropAccessMode accessMode)
+		{
+			if (StandardUserDataDescriptor.GetVisibilityFromAttributes(fi) ?? fi.IsPublic)
+				return new StandardUserDataFieldDescriptor(fi, accessMode);
+
+			return null;
+		}
 
 
 		/// <summary>
@@ -40,7 +67,7 @@ namespace MoonSharp.Interpreter.Interop
 		/// </summary>
 		/// <param name="fi">The FieldInfo.</param>
 		/// <param name="accessMode">The <see cref="InteropAccessMode" /> </param>
-		internal StandardUserDataFieldDescriptor(FieldInfo fi, InteropAccessMode accessMode)
+		public StandardUserDataFieldDescriptor(FieldInfo fi, InteropAccessMode accessMode)
 		{
 			if (Script.GlobalOptions.Platform.IsRunningOnAOT())
 				accessMode = InteropAccessMode.Reflection;
@@ -49,6 +76,16 @@ namespace MoonSharp.Interpreter.Interop
 			this.AccessMode = accessMode;
 			this.Name = fi.Name;
 			this.IsStatic = this.FieldInfo.IsStatic;
+
+			if (this.FieldInfo.IsLiteral)
+			{
+				IsConst = true;
+				m_ConstValue = FieldInfo.GetValue(null);
+			}
+			else
+			{
+				IsReadonly = this.FieldInfo.IsInitOnly;
+			}
 
 			if (AccessMode == InteropAccessMode.Preoptimized)
 			{
@@ -65,6 +102,10 @@ namespace MoonSharp.Interpreter.Interop
 		/// <returns></returns>
 		public DynValue GetValue(Script script, object obj)
 		{
+			// optimization+workaround of Unity bug.. 
+			if (IsConst)
+				return ClrToScriptConversions.ObjectToDynValue(script, m_ConstValue);
+
 			if (AccessMode == InteropAccessMode.LazyOptimized && m_OptimizedGetter == null)
 				OptimizeGetter();
 
@@ -80,6 +121,9 @@ namespace MoonSharp.Interpreter.Interop
 
 		internal void OptimizeGetter()
 		{
+			if (this.IsConst)
+				return;
+
 			using (PerformanceStatistics.StartGlobalStopwatch(PerformanceCounter.AdaptersCompilation))
 			{
 				if (IsStatic)
@@ -110,6 +154,9 @@ namespace MoonSharp.Interpreter.Interop
 		/// <param name="v">The value to set.</param>
 		public void SetValue(Script script, object obj, DynValue v)
 		{
+			if (IsReadonly || IsConst)
+				throw new ScriptRuntimeException("userdata field '{0}.{1}' cannot be written to.", this.FieldInfo.DeclaringType.Name, this.Name);
+
 			object value = ScriptToClrConversions.DynValueToObjectOfType(v, this.FieldInfo.FieldType, null, false);
 
 			try
@@ -129,6 +176,12 @@ namespace MoonSharp.Interpreter.Interop
 				// optimized setters fall here
 				throw ScriptRuntimeException.UserDataArgumentTypeMismatch(v.Type, FieldInfo.FieldType);
 			}
+#if !PCL
+			catch (FieldAccessException ex)
+			{
+				throw new ScriptRuntimeException(ex);
+			}
+#endif
 		}
 
 		/// <summary>
@@ -141,5 +194,6 @@ namespace MoonSharp.Interpreter.Interop
 		{
 			return DynValue.NewCallback((p1, p2) => GetValue(script, obj));
 		}
+
 	}
 }

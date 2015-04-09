@@ -126,6 +126,7 @@
     </Compile>
     <Compile Include="EndToEnd\StringLibTests.cs" />
     <Compile Include="EndToEnd\TailCallTests.cs" />
+    <Compile Include="EndToEnd\UserDataEventsTests.cs" />
     <Compile Include="EndToEnd\UserDataMetaTests.cs" />
     <Compile Include="EndToEnd\UserDataIndexerTests.cs" />
     <Compile Include="EndToEnd\UserDataMethodsTests.cs" />

@@ -475,5 +475,6 @@ namespace MoonSharp.Interpreter
 			else
 				return new ScriptRuntimeException("attempt to call a {0} value", functype);
 		}
+
 	}
 }

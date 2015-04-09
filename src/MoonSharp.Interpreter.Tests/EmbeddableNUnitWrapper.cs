@@ -80,6 +80,11 @@ namespace NUnit.Framework
 		}
 
 
+
+		internal static void Fail()
+		{
+			Assert.IsTrue(false);
+		}
 	}
 
 

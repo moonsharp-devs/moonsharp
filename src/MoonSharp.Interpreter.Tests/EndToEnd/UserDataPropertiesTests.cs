@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MoonSharp.Interpreter.Interop;
 using NUnit.Framework;
 
 namespace MoonSharp.Interpreter.Tests.EndToEnd
@@ -15,7 +16,27 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			public int? NIntProp { get; set; }
 			public object ObjProp { get; set; }
 			public static string StaticProp { get; set; }
-			private string PrivateProp { get { return "Hello"; } }
+
+			public int RoIntProp { get { return 5; } }
+			public int RoIntProp2 { get; private set; }
+
+			public int WoIntProp { set { IntProp = value; } }
+			public int WoIntProp2 { internal get; set; }
+
+			[MoonSharpVisible(false)]
+			internal int AccessOverrProp
+			{
+				get;
+				[MoonSharpVisible(true)]
+				set;
+			}
+
+
+			public SomeClass()
+			{
+				RoIntProp2 = 1234;
+				WoIntProp2 = 1235;
+			}
 
 			public static IEnumerable<int> Numbers
 			{
@@ -35,7 +56,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 			Script S = new Script();
 
-			SomeClass obj = new SomeClass() {  IntProp = 321 };
+			SomeClass obj = new SomeClass() { IntProp = 321 };
 
 			UserData.UnregisterType<SomeClass>();
 			UserData.RegisterType<SomeClass>(opt);
@@ -84,7 +105,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 			Script S = new Script();
 
-			SomeClass obj1 = new SomeClass() { ObjProp="ciao" };
+			SomeClass obj1 = new SomeClass() { ObjProp = "ciao" };
 			SomeClass obj2 = new SomeClass() { ObjProp = obj1 };
 
 			UserData.UnregisterType<SomeClass>();
@@ -146,7 +167,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			Assert.AreEqual(null, obj2.NIntProp);
 
 			DynValue res = S.DoString(script);
-	
+
 			Assert.AreEqual(null, obj1.NIntProp);
 			Assert.AreEqual(19, obj2.NIntProp);
 		}
@@ -243,6 +264,239 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			Assert.AreEqual(DataType.Number, res.Type);
 			Assert.AreEqual(10, res.Number);
 		}
+
+		public void Test_RoIntPropertyGetter(InteropAccessMode opt)
+		{
+			string script = @"    
+				x = myobj.RoIntProp;
+				return x;";
+
+			Script S = new Script();
+
+			SomeClass obj = new SomeClass();
+
+			UserData.UnregisterType<SomeClass>();
+			UserData.RegisterType<SomeClass>(opt);
+
+			S.Globals.Set("myobj", UserData.Create(obj));
+
+			DynValue res = S.DoString(script);
+
+			Assert.AreEqual(DataType.Number, res.Type);
+			Assert.AreEqual(5, res.Number);
+		}
+
+		public void Test_RoIntProperty2Getter(InteropAccessMode opt)
+		{
+			string script = @"    
+				x = myobj.RoIntProp2;
+				return x;";
+
+			Script S = new Script();
+
+			SomeClass obj = new SomeClass();
+
+			UserData.UnregisterType<SomeClass>();
+			UserData.RegisterType<SomeClass>(opt);
+
+			S.Globals.Set("myobj", UserData.Create(obj));
+
+			DynValue res = S.DoString(script);
+
+			Assert.AreEqual(DataType.Number, res.Type);
+			Assert.AreEqual(1234, res.Number);
+		}
+
+		public void Test_RoIntPropertySetter(InteropAccessMode opt)
+		{
+			try
+			{
+				string script = @"    
+				myobj.RoIntProp = 19;
+				return myobj.RoIntProp;
+			";
+
+				Script S = new Script();
+
+				SomeClass obj = new SomeClass();
+
+				UserData.UnregisterType<SomeClass>();
+				UserData.RegisterType<SomeClass>(opt);
+
+				S.Globals.Set("myobj", UserData.Create(obj));
+
+				DynValue res = S.DoString(script);
+			}
+			catch (ScriptRuntimeException)
+			{
+				return;
+			}
+
+			Assert.Fail();
+		}
+
+		public void Test_RoIntProperty2Setter(InteropAccessMode opt)
+		{
+			try
+			{
+				string script = @"    
+				myobj.RoIntProp2 = 19;
+				return myobj.RoIntProp2;
+			";
+
+				Script S = new Script();
+
+				SomeClass obj = new SomeClass();
+
+				UserData.UnregisterType<SomeClass>();
+				UserData.RegisterType<SomeClass>(opt);
+
+				S.Globals.Set("myobj", UserData.Create(obj));
+
+				DynValue res = S.DoString(script);
+			}
+			catch (ScriptRuntimeException)
+			{
+				return;
+			}
+
+			Assert.Fail();
+		}
+
+
+		public void Test_WoIntPropertySetter(InteropAccessMode opt)
+		{
+			string script = @"    
+				myobj.WoIntProp = 19;
+			";
+
+			Script S = new Script();
+
+			SomeClass obj = new SomeClass();
+
+			UserData.UnregisterType<SomeClass>();
+			UserData.RegisterType<SomeClass>(opt);
+
+			S.Globals.Set("myobj", UserData.Create(obj));
+
+			DynValue res = S.DoString(script);
+
+			Assert.AreEqual(19, obj.IntProp);
+		}
+
+		public void Test_WoIntProperty2Setter(InteropAccessMode opt)
+		{
+			string script = @"    
+				myobj.WoIntProp2 = 19;
+			";
+
+			Script S = new Script();
+
+			SomeClass obj = new SomeClass();
+
+			UserData.UnregisterType<SomeClass>();
+			UserData.RegisterType<SomeClass>(opt);
+
+			S.Globals.Set("myobj", UserData.Create(obj));
+
+			DynValue res = S.DoString(script);
+
+			Assert.AreEqual(19, obj.WoIntProp2);
+		}
+
+
+		public void Test_WoIntPropertyGetter(InteropAccessMode opt)
+		{
+			try
+			{
+				string script = @"    
+				x = myobj.WoIntProp;
+				return x;";
+
+				Script S = new Script();
+
+				SomeClass obj = new SomeClass();
+
+				UserData.UnregisterType<SomeClass>();
+				UserData.RegisterType<SomeClass>(opt);
+
+				S.Globals.Set("myobj", UserData.Create(obj));
+
+				DynValue res = S.DoString(script);
+
+				Assert.AreEqual(DataType.Number, res.Type);
+				Assert.AreEqual(5, res.Number);
+			}
+			catch (ScriptRuntimeException)
+			{
+				return;
+			}
+
+			Assert.Fail();
+		}
+
+		public void Test_WoIntProperty2Getter(InteropAccessMode opt)
+		{
+			try
+			{
+				string script = @"    
+				x = myobj.WoIntProp2;
+				return x;";
+
+				Script S = new Script();
+
+				SomeClass obj = new SomeClass();
+
+				UserData.UnregisterType<SomeClass>();
+				UserData.RegisterType<SomeClass>(opt);
+
+				S.Globals.Set("myobj", UserData.Create(obj));
+
+				DynValue res = S.DoString(script);
+
+				Assert.AreEqual(DataType.Number, res.Type);
+				Assert.AreEqual(1234, res.Number);
+			}
+			catch (ScriptRuntimeException)
+			{
+				return;
+			}
+
+			Assert.Fail();
+		}
+
+
+		public void Test_PropertyAccessOverrides(InteropAccessMode opt)
+		{
+			SomeClass obj = new SomeClass();
+
+			try
+			{
+				string script = @"    
+				myobj.AccessOverrProp = 19;
+				return myobj.AccessOverrProp;
+			";
+
+				Script S = new Script();
+
+				obj.AccessOverrProp = 13;
+
+				UserData.UnregisterType<SomeClass>();
+				UserData.RegisterType<SomeClass>(opt);
+
+				S.Globals.Set("myobj", UserData.Create(obj));
+
+				DynValue res = S.DoString(script);
+			}
+			catch (ScriptRuntimeException)
+			{
+				Assert.AreEqual(19, obj.AccessOverrProp);
+				return;
+			}
+
+			Assert.Fail();
+		}
+
 
 		[Test]
 		public void Interop_IntPropertyGetter_None()
@@ -412,6 +666,170 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		}
 
 		[Test]
+		public void Interop_RoIntPropertyGetter_None()
+		{
+			Test_RoIntPropertyGetter(InteropAccessMode.Reflection);
+		}
+
+		[Test]
+		public void Interop_RoIntPropertyGetter_Lazy()
+		{
+			Test_RoIntPropertyGetter(InteropAccessMode.LazyOptimized);
+		}
+
+		[Test]
+		public void Interop_RoIntPropertyGetter_Precomputed()
+		{
+			Test_RoIntPropertyGetter(InteropAccessMode.Preoptimized);
+		}
+
+		[Test]
+		public void Interop_RoIntProperty2Getter_None()
+		{
+			Test_RoIntProperty2Getter(InteropAccessMode.Reflection);
+		}
+
+		[Test]
+		public void Interop_RoIntProperty2Getter_Lazy()
+		{
+			Test_RoIntProperty2Getter(InteropAccessMode.LazyOptimized);
+		}
+
+		[Test]
+		public void Interop_RoIntProperty2Getter_Precomputed()
+		{
+			Test_RoIntProperty2Getter(InteropAccessMode.Preoptimized);
+		}
+
+		[Test]
+		public void Interop_RoIntPropertySetter_None()
+		{
+			Test_RoIntPropertySetter(InteropAccessMode.Reflection);
+		}
+
+		[Test]
+		public void Interop_RoIntPropertySetter_Lazy()
+		{
+			Test_RoIntPropertySetter(InteropAccessMode.LazyOptimized);
+		}
+
+		[Test]
+		public void Interop_RoIntPropertySetter_Precomputed()
+		{
+			Test_RoIntPropertySetter(InteropAccessMode.Preoptimized);
+		}
+
+		[Test]
+		public void Interop_RoIntProperty2Setter_None()
+		{
+			Test_RoIntProperty2Setter(InteropAccessMode.Reflection);
+		}
+
+		[Test]
+		public void Interop_RoIntProperty2Setter_Lazy()
+		{
+			Test_RoIntProperty2Setter(InteropAccessMode.LazyOptimized);
+		}
+
+		[Test]
+		public void Interop_RoIntProperty2Setter_Precomputed()
+		{
+			Test_RoIntProperty2Setter(InteropAccessMode.Preoptimized);
+		}
+
+		[Test]
+		public void Interop_WoIntPropertyGetter_None()
+		{
+			Test_WoIntPropertyGetter(InteropAccessMode.Reflection);
+		}
+
+		[Test]
+		public void Interop_WoIntPropertyGetter_Lazy()
+		{
+			Test_WoIntPropertyGetter(InteropAccessMode.LazyOptimized);
+		}
+
+		[Test]
+		public void Interop_WoIntPropertyGetter_Precomputed()
+		{
+			Test_WoIntPropertyGetter(InteropAccessMode.Preoptimized);
+		}
+
+		[Test]
+		public void Interop_WoIntProperty2Getter_None()
+		{
+			Test_WoIntProperty2Getter(InteropAccessMode.Reflection);
+		}
+
+		[Test]
+		public void Interop_WoIntProperty2Getter_Lazy()
+		{
+			Test_WoIntProperty2Getter(InteropAccessMode.LazyOptimized);
+		}
+
+		[Test]
+		public void Interop_WoIntProperty2Getter_Precomputed()
+		{
+			Test_WoIntProperty2Getter(InteropAccessMode.Preoptimized);
+		}
+
+		[Test]
+		public void Interop_WoIntPropertySetter_None()
+		{
+			Test_WoIntPropertySetter(InteropAccessMode.Reflection);
+		}
+
+		[Test]
+		public void Interop_WoIntPropertySetter_Lazy()
+		{
+			Test_WoIntPropertySetter(InteropAccessMode.LazyOptimized);
+		}
+
+		[Test]
+		public void Interop_WoIntPropertySetter_Precomputed()
+		{
+			Test_WoIntPropertySetter(InteropAccessMode.Preoptimized);
+		}
+
+		[Test]
+		public void Interop_WoIntProperty2Setter_None()
+		{
+			Test_WoIntProperty2Setter(InteropAccessMode.Reflection);
+		}
+
+		[Test]
+		public void Interop_WoIntProperty2Setter_Lazy()
+		{
+			Test_WoIntProperty2Setter(InteropAccessMode.LazyOptimized);
+		}
+
+		[Test]
+		public void Interop_WoIntProperty2Setter_Precomputed()
+		{
+			Test_WoIntProperty2Setter(InteropAccessMode.Preoptimized);
+		}
+		
+		[Test]
+		public void Interop_PropertyAccessOverrides_None()
+		{
+			Test_PropertyAccessOverrides(InteropAccessMode.Reflection);
+		}
+
+		[Test]
+		public void Interop_PropertyAccessOverrides_Lazy()
+		{
+			Test_PropertyAccessOverrides(InteropAccessMode.LazyOptimized);
+		}
+
+		[Test]
+		public void Interop_PropertyAccessOverrides_Precomputed()
+		{
+			Test_PropertyAccessOverrides(InteropAccessMode.Preoptimized);
+		}		
+		
+		
+		
+		[Test]
 		public void Interop_IntPropertySetterWithSimplifiedSyntax()
 		{
 			string script = @"    
@@ -435,7 +853,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		}
 
 		[Test]
-		public void Interop_Boh()
+		public void Interop_OutOfRangeNumber()
 		{
 			Script s = new Script();
 			long big = long.MaxValue;

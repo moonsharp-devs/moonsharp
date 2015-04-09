@@ -12,9 +12,10 @@ namespace MoonSharp.Interpreter.REPL
 	/// AND starts with module paths taken from environment variables (again, not going through the platform object).
 	/// 
 	/// The paths are preconstructed using :
-	///		* The MOONSHARP_PATH variable if it exists
-	///		* The LUA_PATH otherwise
-	///		* The '?;?.lua" path otherwise again
+	///		* The MOONSHARP_PATH environment variable if it exists
+	///		* The LUA_PATH_5_2 environment variable if MOONSHARP_PATH does not exists
+	///		* The LUA_PATH environment variable if LUA_PATH_5_2 and MOONSHARP_PATH do not exists
+	///		* The "?;?.lua" path if all the above fail
 	///		
 	/// Also, everytime a module is require(d), the "LUA_PATH" global variable is checked. If it exists, those paths
 	/// will be used to load the module instead of the global ones.
@@ -28,6 +29,12 @@ namespace MoonSharp.Interpreter.REPL
 		{
 			string env = Environment.GetEnvironmentVariable("MOONSHARP_PATH");
 			if (!string.IsNullOrEmpty(env)) ModulePaths = UnpackStringPaths(env);
+
+			if (ModulePaths == null)
+			{
+				env = Environment.GetEnvironmentVariable("LUA_PATH_5_2");
+				if (!string.IsNullOrEmpty(env)) ModulePaths = UnpackStringPaths(env);
+			}
 
 			if (ModulePaths == null)
 			{

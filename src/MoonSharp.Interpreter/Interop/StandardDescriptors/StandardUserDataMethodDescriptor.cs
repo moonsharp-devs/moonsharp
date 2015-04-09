@@ -58,6 +58,25 @@ namespace MoonSharp.Interpreter.Interop
 
 
 		/// <summary>
+		/// Tries to create a new StandardUserDataMethodDescriptor, returning <c>null</c> in case the method is not 
+		/// visible to script code.
+		/// </summary>
+		/// <param name="methodBase">The MethodBase.</param>
+		/// <param name="accessMode">The <see cref="InteropAccessMode" /></param>
+		/// <returns>A new StandardUserDataMethodDescriptor or null.</returns>
+		public static StandardUserDataMethodDescriptor TryCreateIfVisible(MethodBase methodBase, InteropAccessMode accessMode)
+		{
+			if (!CheckMethodIsCompatible(methodBase, false))
+				return null;
+
+			if (StandardUserDataDescriptor.GetVisibilityFromAttributes(methodBase) ?? methodBase.IsPublic)
+				return new StandardUserDataMethodDescriptor(methodBase, accessMode);
+
+			return null;
+		}
+
+
+		/// <summary>
 		/// Initializes a new instance of the <see cref="StandardUserDataMethodDescriptor"/> class.
 		/// </summary>
 		/// <param name="methodBase">The MethodBase (MethodInfo or ConstructorInfo) got through reflection.</param>
@@ -115,9 +134,10 @@ namespace MoonSharp.Interpreter.Interop
 		/// <param name="throwException">if set to <c>true</c> an exception with the proper error message is thrown if not compatible.</param>
 		/// <returns></returns>
 		/// <exception cref="System.ArgumentException">
-		/// Method cannot contain unresolved generic parameters
+		/// Thrown if throwException is <c>true</c> and one of this applies:
+		/// The method contains unresolved generic parameters, or has an unresolved generic return type
 		/// or
-		/// Method cannot contain by-ref parameters
+		/// The method contains pointer parameters, or has a pointer return type
 		/// </exception>
 		public static bool CheckMethodIsCompatible(MethodBase methodBase, bool throwException)
 		{

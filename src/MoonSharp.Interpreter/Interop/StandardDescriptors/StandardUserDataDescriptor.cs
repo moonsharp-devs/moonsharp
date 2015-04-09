@@ -31,12 +31,12 @@ namespace MoonSharp.Interpreter.Interop
 		/// </summary>
 		public string FriendlyName { get; private set; }
 
-		private object m_Lock = new object();
 		private int m_ExtMethodsVersion = 0;
 		private Dictionary<string, StandardUserDataOverloadedMethodDescriptor> m_MetaMethods = new Dictionary<string, StandardUserDataOverloadedMethodDescriptor>();
 		private Dictionary<string, StandardUserDataOverloadedMethodDescriptor> m_Methods = new Dictionary<string, StandardUserDataOverloadedMethodDescriptor>();
 		private Dictionary<string, StandardUserDataPropertyDescriptor> m_Properties = new Dictionary<string, StandardUserDataPropertyDescriptor>();
 		private Dictionary<string, StandardUserDataFieldDescriptor> m_Fields = new Dictionary<string, StandardUserDataFieldDescriptor>();
+		private Dictionary<string, StandardUserDataEventDescriptor> m_Events = new Dictionary<string, StandardUserDataEventDescriptor>();
 
 		const string SPECIAL_GETITEM = "get_Item";
 		const string SPECIAL_SETITEM = "set_Item";
@@ -71,9 +71,10 @@ namespace MoonSharp.Interpreter.Interop
 
 				foreach (ConstructorInfo ci in type.GetConstructors(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
 				{
-					if (CheckVisibility(ci.GetCustomAttributes(true), ci.IsPublic))
+					StandardUserDataMethodDescriptor md = StandardUserDataMethodDescriptor.TryCreateIfVisible(ci, this.AccessMode);
+
+					if (md != null)
 					{
-						var md = new StandardUserDataMethodDescriptor(ci, this.AccessMode);
 						if (constructors == null) constructors = new StandardUserDataOverloadedMethodDescriptor("__new", this.Type) { IgnoreExtensionMethods = true };
 						constructors.AddOverload(md);
 					}
@@ -84,7 +85,9 @@ namespace MoonSharp.Interpreter.Interop
 				// get methods
 				foreach (MethodInfo mi in type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
 				{
-					if (CheckVisibility(mi.GetCustomAttributes(true), mi.IsPublic))
+					StandardUserDataMethodDescriptor md = StandardUserDataMethodDescriptor.TryCreateIfVisible(mi, this.AccessMode);
+
+					if (md != null)
 					{
 						if (!StandardUserDataMethodDescriptor.CheckMethodIsCompatible(mi, false))
 							continue;
@@ -97,8 +100,6 @@ namespace MoonSharp.Interpreter.Interop
 							name = GetConversionMethodName(mi.ReturnType);
 						}
 
-						var md = new StandardUserDataMethodDescriptor(mi, this.AccessMode);
-
 						if (m_Methods.ContainsKey(name))
 						{
 							m_Methods[name].AddOverload(md);
@@ -108,7 +109,7 @@ namespace MoonSharp.Interpreter.Interop
 							m_Methods.Add(name, new StandardUserDataOverloadedMethodDescriptor(name, this.Type, md));
 						}
 
-						foreach(string metaname in GetMetaNamesFromAttributes(mi))
+						foreach (string metaname in GetMetaNamesFromAttributes(mi))
 						{
 							if (m_MetaMethods.ContainsKey(metaname))
 							{
@@ -125,27 +126,32 @@ namespace MoonSharp.Interpreter.Interop
 				// get properties
 				foreach (PropertyInfo pi in type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
 				{
-					if (CheckVisibility(pi.GetCustomAttributes(true), IsPropertyInfoPublic(pi)))
-					{
-						if (pi.IsSpecialName || pi.GetIndexParameters().Any())
-							continue;
+					if (pi.IsSpecialName || pi.GetIndexParameters().Any())
+						continue;
 
-						var pd = new StandardUserDataPropertyDescriptor(pi, this.AccessMode);
+					var pd = StandardUserDataPropertyDescriptor.TryCreateIfVisible(pi, this.AccessMode);
+					if (pd != null)
 						m_Properties.Add(pd.Name, pd);
-					}
 				}
 
 				// get fields
 				foreach (FieldInfo fi in type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
 				{
-					if (CheckVisibility(fi.GetCustomAttributes(true), fi.IsPublic))
-					{
-						if (fi.IsSpecialName)
-							continue;
+					if (fi.IsSpecialName)
+						continue;
 
-						var pd = new StandardUserDataFieldDescriptor(fi, this.AccessMode);
-						m_Fields.Add(pd.Name, pd);
-					}
+					var fd = StandardUserDataFieldDescriptor.TryCreateIfVisible(fi, this.AccessMode);
+					if (fd != null) m_Fields.Add(fd.Name, fd);
+				}
+
+				// get events
+				foreach (EventInfo ei in type.GetEvents(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
+				{
+					if (ei.IsSpecialName)
+						continue;
+
+					var ed = StandardUserDataEventDescriptor.TryCreateIfVisible(ei, this.AccessMode);
+					if (ed != null) m_Events.Add(ei.Name, ed);
 				}
 			}
 		}
@@ -176,14 +182,28 @@ namespace MoonSharp.Interpreter.Interop
 			return (getter != null && getter.IsPublic) || (setter != null && setter.IsPublic);
 		}
 
-		private bool CheckVisibility(object[] attributes, bool isPublic)
+		/// <summary>
+		/// Determines whether a 
+		/// <see cref="MoonSharpVisibleAttribute" /> is changing visibility of a member
+		/// to scripts.
+		/// </summary>
+		/// <param name="mi">The member to check.</param>
+		/// <returns>
+		/// <c>true</c> if visibility is forced visible, 
+		/// <c>false</c> if visibility is forced hidden or the specified MemberInfo is null,
+		/// <c>if no attribute was found</c>
+		/// </returns>
+		public static bool? GetVisibilityFromAttributes(MemberInfo mi)
 		{
-			MoonSharpVisibleAttribute va = attributes.OfType<MoonSharpVisibleAttribute>().SingleOrDefault();
+			if (mi == null)
+				return false;
+
+			MoonSharpVisibleAttribute va = mi.GetCustomAttributes(true).OfType<MoonSharpVisibleAttribute>().SingleOrDefault();
 
 			if (va != null)
 				return va.Visible;
 			else
-				return isPublic;
+				return null;
 		}
 
 
@@ -199,10 +219,7 @@ namespace MoonSharp.Interpreter.Interop
 		{
 			if (!isDirectIndexing)
 			{
-				StandardUserDataOverloadedMethodDescriptor mdesc;
-
-				lock (m_Lock) 
-					mdesc = m_Methods.GetOrDefault(SPECIAL_GETITEM);
+				StandardUserDataOverloadedMethodDescriptor mdesc = m_Methods.GetOrDefault(SPECIAL_GETITEM);
 
 				if (mdesc != null)
 					return ExecuteIndexer(mdesc, script, obj, index, null);
@@ -213,24 +230,19 @@ namespace MoonSharp.Interpreter.Interop
 			if (index.Type != DataType.String)
 				throw ScriptRuntimeException.BadArgument(1, string.Format("userdata<{0}>.__index", this.Name), "string", index.Type.ToLuaTypeString(), false);
 
-			DynValue v = null;
+			DynValue v = TryIndex(script, obj, index.String);
+			if (v == null) v = TryIndex(script, obj, UpperFirstLetter(index.String));
+			if (v == null) v = TryIndex(script, obj, Camelify(index.String));
+			if (v == null) v = TryIndex(script, obj, UpperFirstLetter(Camelify(index.String)));
 
-			lock (m_Lock)
+			if (v == null && m_ExtMethodsVersion < UserData.GetExtensionMethodsChangeVersion())
 			{
-				v =TryIndex(script, obj, index.String);
-				if (v == null) v = TryIndex(script, obj, UpperFirstLetter(index.String));
-				if (v == null) v = TryIndex(script, obj, Camelify(index.String));
-				if (v == null) v = TryIndex(script, obj, UpperFirstLetter(Camelify(index.String)));
+				m_ExtMethodsVersion = UserData.GetExtensionMethodsChangeVersion();
 
-				if (v == null && m_ExtMethodsVersion < UserData.GetExtensionMethodsChangeVersion())
-				{
-					m_ExtMethodsVersion = UserData.GetExtensionMethodsChangeVersion();
-
-					v = TryIndexOnExtMethod(script, obj, index.String);
-					if (v == null) v = TryIndexOnExtMethod(script, obj, UpperFirstLetter(index.String));
-					if (v == null) v = TryIndexOnExtMethod(script, obj, Camelify(index.String));
-					if (v == null) v = TryIndexOnExtMethod(script, obj, UpperFirstLetter(Camelify(index.String)));
-				}
+				v = TryIndexOnExtMethod(script, obj, index.String);
+				if (v == null) v = TryIndexOnExtMethod(script, obj, UpperFirstLetter(index.String));
+				if (v == null) v = TryIndexOnExtMethod(script, obj, Camelify(index.String));
+				if (v == null) v = TryIndexOnExtMethod(script, obj, UpperFirstLetter(Camelify(index.String)));
 			}
 
 			return v;
@@ -258,7 +270,7 @@ namespace MoonSharp.Interpreter.Interop
 				return DynValue.NewCallback(ext.GetCallback(script, obj));
 			}
 
-			return null;			
+			return null;
 		}
 
 		/// <summary>
@@ -285,6 +297,11 @@ namespace MoonSharp.Interpreter.Interop
 			if (m_Fields.TryGetValue(indexName, out fdesc))
 				return fdesc.GetValue(script, obj);
 
+			StandardUserDataEventDescriptor edesc;
+
+			if (m_Events.TryGetValue(indexName, out edesc))
+				return edesc.GetValue(script, obj);
+
 			return null;
 		}
 
@@ -301,10 +318,7 @@ namespace MoonSharp.Interpreter.Interop
 		{
 			if (!isDirectIndexing)
 			{
-				StandardUserDataOverloadedMethodDescriptor mdesc;
-				
-				lock(m_Lock)
-					mdesc = m_Methods.GetOrDefault(SPECIAL_SETITEM);
+				StandardUserDataOverloadedMethodDescriptor mdesc = m_Methods.GetOrDefault(SPECIAL_SETITEM);
 
 				if (mdesc != null)
 				{
@@ -318,15 +332,10 @@ namespace MoonSharp.Interpreter.Interop
 			if (index.Type != DataType.String)
 				throw ScriptRuntimeException.BadArgument(1, string.Format("userdata<{0}>.__setindex", this.Name), "string", index.Type.ToLuaTypeString(), false);
 
-			bool v = false;
-
-			lock (m_Lock)
-			{
-				v = TrySetIndex(script, obj, index.String, value);
-				if (!v) v = TrySetIndex(script, obj, UpperFirstLetter(index.String), value);
-				if (!v) v = TrySetIndex(script, obj, Camelify(index.String), value);
-				if (!v) v = TrySetIndex(script, obj, UpperFirstLetter(Camelify(index.String)), value);
-			}
+			bool v = TrySetIndex(script, obj, index.String, value);
+			if (!v) v = TrySetIndex(script, obj, UpperFirstLetter(index.String), value);
+			if (!v) v = TrySetIndex(script, obj, Camelify(index.String), value);
+			if (!v) v = TrySetIndex(script, obj, UpperFirstLetter(Camelify(index.String)), value);
 
 			return v;
 		}
@@ -341,22 +350,16 @@ namespace MoonSharp.Interpreter.Interop
 		/// <returns></returns>
 		protected virtual bool TrySetIndex(Script script, object obj, string indexName, DynValue value)
 		{
-			StandardUserDataPropertyDescriptor pdesc;
-
-			lock(m_Lock)
-				pdesc = m_Properties.GetOrDefault(indexName);
+			StandardUserDataPropertyDescriptor pdesc = m_Properties.GetOrDefault(indexName);
 
 			if (pdesc != null)
 			{
 				pdesc.SetValue(script, obj, value);
 				return true;
 			}
-			else 
+			else
 			{
-				StandardUserDataFieldDescriptor fdesc;
-
-				lock (m_Lock)
-					fdesc = m_Fields.GetOrDefault(indexName);
+				StandardUserDataFieldDescriptor fdesc = m_Fields.GetOrDefault(indexName);
 
 				if (fdesc != null)
 				{
@@ -512,10 +515,7 @@ namespace MoonSharp.Interpreter.Interop
 		/// <returns></returns>
 		public virtual DynValue MetaIndex(Script script, object obj, string metaname)
 		{
-			StandardUserDataOverloadedMethodDescriptor desc;
-			
-			lock(m_Lock)
-				desc = m_MetaMethods.GetOrDefault(metaname);
+			StandardUserDataOverloadedMethodDescriptor desc = m_MetaMethods.GetOrDefault(metaname);
 
 			if (desc != null)
 				return desc.GetCallbackAsDynValue(script, obj);

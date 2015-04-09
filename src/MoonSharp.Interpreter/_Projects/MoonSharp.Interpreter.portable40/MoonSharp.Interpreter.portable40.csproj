@@ -59,6 +59,9 @@
     <Compile Include="..\..\AsyncExtensions.cs">
       <Link>AsyncExtensions.cs</Link>
     </Compile>
+    <Compile Include="..\..\CodeAnalysis\AstNode.cs">
+      <Link>AstNode.cs</Link>
+    </Compile>
     <Compile Include="..\..\CoreLib\CoroutineModule.cs">
       <Link>CoroutineModule.cs</Link>
     </Compile>
@@ -116,6 +119,9 @@
     <Compile Include="..\..\DataStructs\MultiDictionary.cs">
       <Link>MultiDictionary.cs</Link>
     </Compile>
+    <Compile Include="..\..\DataStructs\ReferenceEqualityComparer.cs">
+      <Link>ReferenceEqualityComparer.cs</Link>
+    </Compile>
     <Compile Include="..\..\Interop\Attributes\MoonSharpUserDataMetamethodAttribute.cs">
       <Link>MoonSharpUserDataMetamethodAttribute.cs</Link>
     </Compile>
@@ -136,6 +142,9 @@
     </Compile>
     <Compile Include="..\..\Interop\CustomConvertersCollection.cs">
       <Link>CustomConvertersCollection.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\StandardDescriptors\StandardUserDataEventDescriptor.cs">
+      <Link>StandardUserDataEventDescriptor.cs</Link>
     </Compile>
     <Compile Include="..\..\Interop\StandardDescriptors\StandardUserDataOverloadedMethodDescriptor.cs">
       <Link>StandardUserDataOverloadedMethodDescriptor.cs</Link>
