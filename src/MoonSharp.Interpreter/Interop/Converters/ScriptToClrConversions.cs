@@ -22,8 +22,10 @@ namespace MoonSharp.Interpreter.Interop.Converters
 		internal const int WEIGHT_NUMBER_DOWNCAST = 99;
 		internal const int WEIGHT_NO_MATCH = 0;
 		internal const int WEIGHT_NO_EXTRA_PARAMS_BONUS = 100;
-		internal const int WEIGHT_EXTRA_PARAMS_MALUS = 1;
+		internal const int WEIGHT_EXTRA_PARAMS_MALUS = 2;
 		internal const int WEIGHT_BYREF_BONUSMALUS = -10;
+		internal const int WEIGHT_VARARGS_MALUS = 1;
+		internal const int WEIGHT_VARARGS_EMPTY = 40;
 
 		/// <summary>
 		/// Converts a DynValue to a CLR object [simple conversion]

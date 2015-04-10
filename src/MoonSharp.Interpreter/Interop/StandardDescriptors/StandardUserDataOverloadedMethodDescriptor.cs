@@ -279,6 +279,7 @@ namespace MoonSharp.Interpreter.Interop
 			int totalScore = ScriptToClrConversions.WEIGHT_EXACT_MATCH;
 			int argsBase = args.IsMethodCall ? 1 : 0;
 			int argsCnt = argsBase;
+			bool varArgsUsed = false;
 
 			for (int i = 0; i < method.Parameters.Length; i++)
 			{
@@ -290,17 +291,57 @@ namespace MoonSharp.Interpreter.Interop
 				if ((parameterType == typeof(Script)) || (parameterType == typeof(ScriptExecutionContext)) || (parameterType == typeof(CallbackArguments)))
 					continue;
 
-				var arg = args.RawGet(argsCnt, false) ?? DynValue.Void;
+				if (i == method.Parameters.Length - 1 && method.VarArgsArrayType != null)
+				{
+					int varargCnt = 0;
+					DynValue firstArg = null;
+					int scoreBeforeVargars = totalScore;
 
-				int score = ScriptToClrConversions.DynValueToObjectOfTypeWeight(arg,
-					parameterType, !(method.Parameters[i].DefaultValue.IsDbNull()));
+					// update score for varargs
+					while (true)
+					{
+						var arg = args.RawGet(argsCnt, false);
+						if (arg == null) break;
 
-				if (parameterType.IsByRef)
-					score = Math.Max(0, score - ScriptToClrConversions.WEIGHT_BYREF_BONUSMALUS);
+						if (firstArg == null) firstArg = arg;
 
-				totalScore = Math.Min(totalScore, score);
+						argsCnt += 1;
 
-				argsCnt += 1;
+						varargCnt += 1;
+
+						int score = CalcScoreForSingleArgument(method.VarArgsElementType, arg, isOptional: false);
+						totalScore = Math.Min(totalScore, score);
+					}
+
+					// check if exact-match
+					if (varargCnt == 1)
+					{
+						if (firstArg.Type == DataType.UserData && firstArg.UserData.Object != null)
+						{
+							if (method.VarArgsArrayType.IsAssignableFrom(firstArg.UserData.Object.GetType()))
+							{
+								totalScore = scoreBeforeVargars;
+								continue;
+							}
+						}
+					}
+
+					// apply varargs penalty to score
+					if (varargCnt == 0)
+						totalScore = Math.Min(totalScore, ScriptToClrConversions.WEIGHT_VARARGS_EMPTY);
+
+					varArgsUsed = true;
+				}
+				else
+				{
+					var arg = args.RawGet(argsCnt, false) ?? DynValue.Void;
+
+					int score = CalcScoreForSingleArgument(parameterType, arg, !(method.Parameters[i].DefaultValue.IsDbNull()));
+
+					totalScore = Math.Min(totalScore, score);
+
+					argsCnt += 1;
+				}
 			}
 
 			if (totalScore > 0)
@@ -308,6 +349,11 @@ namespace MoonSharp.Interpreter.Interop
 				if ((args.Count - argsBase) <= method.Parameters.Length)
 				{
 					totalScore += ScriptToClrConversions.WEIGHT_NO_EXTRA_PARAMS_BONUS;
+					totalScore *= 1000;
+				}
+				else if (varArgsUsed)
+				{
+					totalScore -= ScriptToClrConversions.WEIGHT_VARARGS_MALUS;
 					totalScore *= 1000;
 				}
 				else
@@ -322,6 +368,17 @@ namespace MoonSharp.Interpreter.Interop
 			System.Diagnostics.Debug.WriteLine(string.Format("[OVERLOAD] : Score {0} for method {1}", totalScore, method.SortDiscriminant));
 #endif
 			return totalScore;
+		}
+
+		private static int CalcScoreForSingleArgument(Type parameterType, DynValue arg, bool isOptional)
+		{
+			int score = ScriptToClrConversions.DynValueToObjectOfTypeWeight(arg,
+				parameterType, isOptional);
+
+			if (parameterType.IsByRef)
+				score = Math.Max(0, score + ScriptToClrConversions.WEIGHT_BYREF_BONUSMALUS);
+
+			return score;
 		}
 
 

@@ -101,7 +101,7 @@ namespace MoonSharp.Interpreter.Interop
 
 
 		/// <summary>
-		/// Removes all converters
+		/// Removes all converters.
 		/// </summary>
 		public void Clear()
 		{

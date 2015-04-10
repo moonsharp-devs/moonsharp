@@ -413,7 +413,8 @@ namespace Tutorials.Chapters
 
 
 
-#pragma warning disable 414 
+#pragma warning disable 67
+#pragma warning disable 414
 		public class SampleClass
 		{
 			// Not visible - it's private
@@ -467,10 +468,11 @@ namespace Tutorials.Chapters
 			[MoonSharpVisible(false)]
 			public event EventHandler Event5 { [MoonSharpVisible(true)] add { } [MoonSharpVisible(true)] remove { } }
 
-			
+
 
 		}
 #pragma warning restore 414
+#pragma warning restore 67
 
 	}
 }

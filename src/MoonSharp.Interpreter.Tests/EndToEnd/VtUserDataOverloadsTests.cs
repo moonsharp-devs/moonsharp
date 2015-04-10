@@ -6,14 +6,14 @@ using NUnit.Framework;
 
 namespace MoonSharp.Interpreter.Tests.EndToEnd
 {
-	public static class OverloadsExtMethods
+	public static class VtOverloadsExtMethods
 	{
-		public static string Method1(this UserDataOverloadsTests.OverloadsTestClass obj, string x, bool b)
+		public static string Method1(this VtUserDataOverloadsTests.OverloadsTestClass obj, string x, bool b)
 		{
 			return "X" + obj.Method1();
 		}
 
-		public static string Method3(this UserDataOverloadsTests.OverloadsTestClass obj)
+		public static string Method3(this VtUserDataOverloadsTests.OverloadsTestClass obj)
 		{
 			return "X" + obj.Method1(0.17);
 		}
@@ -21,10 +21,20 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 
 	[TestFixture]
-	public class UserDataOverloadsTests
+	public class VtUserDataOverloadsTests
 	{
-		public class OverloadsTestClass
+		public struct OverloadsTestClass
 		{
+			public static void UnCalled()
+			{
+				var otc = new OverloadsTestClass();
+				otc.Method1();
+				OverloadsTestClass.Method1(false);
+				otc.Method1(0);
+				otc.Method1(0.0);
+				otc.Method1(0.0, "");
+			}
+
 			public string MethodV(string fmt, params object[] args)
 			{
 				return "varargs:" + string.Format(fmt, args);
@@ -106,64 +116,64 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 
 		[Test]
-		public void Interop_Overloads_Varargs1()
+		public void VInterop_Overloads_Varargs1()
 		{
 			RunTestOverload("o:methodV('{0}-{1}', 15, true)", "exact:15-True");
 		}
 
 		[Test]
-		public void Interop_Overloads_Varargs2()
+		public void VInterop_Overloads_Varargs2()
 		{
 			RunTestOverload("o:methodV('{0}-{1}-{2}', 15, true, false)", "varargs:15-True-False");
 		}
 
 
 		[Test]
-		public void Interop_Overloads_ByRef()
+		public void VInterop_Overloads_ByRef()
 		{
 			RunTestOverload("o:method2('x', 'y')", "v");
 		}
 
 		[Test]
-		public void Interop_Overloads_ByRef2()
+		public void VInterop_Overloads_ByRef2()
 		{
 			RunTestOverload("o:method2('x', 'y', 5)", "R", true);
 		}
 
 		[Test]
-		public void Interop_Overloads_NoParams()
+		public void VInterop_Overloads_NoParams()
 		{
 			RunTestOverload("o:method1()", "1");
 		}
 
 		[Test]
-		public void Interop_Overloads_NumDowncast()
+		public void VInterop_Overloads_NumDowncast()
 		{
 			RunTestOverload("o:method1(5)", "3");
 		}
 
 		[Test]
-		public void Interop_Overloads_NilSelectsNonOptional()
+		public void VInterop_Overloads_NilSelectsNonOptional()
 		{
 			RunTestOverload("o:method1(5, nil)", "4");
 		}
 
 		[Test]
-		public void Interop_Overloads_FullDecl()
+		public void VInterop_Overloads_FullDecl()
 		{
 			RunTestOverload("o:method1(5, nil, 0)", "5");
 		}
 
 		[Test]
-		public void Interop_Overloads_Static1()
+		public void VInterop_Overloads_Static1()
 		{
 			RunTestOverload("s:method1(true)", "s");
 		}
 
 		[Test]
-		public void Interop_Overloads_ExtMethods()
+		public void VInterop_Overloads_ExtMethods()
 		{
-			UserData.RegisterExtensionType(typeof(OverloadsExtMethods));
+			UserData.RegisterExtensionType(typeof(VtOverloadsExtMethods));
 
 			RunTestOverload("o:method1('xx', true)", "X1");
 			RunTestOverload("o:method3()", "X3");
@@ -171,9 +181,9 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 		[Test]
 		[ExpectedException(typeof(ScriptRuntimeException))]
-		public void Interop_Overloads_ExtMethods2()
+		public void VInterop_Overloads_ExtMethods2()
 		{
-			UserData.RegisterExtensionType(typeof(OverloadsExtMethods));
+			UserData.RegisterExtensionType(typeof(VtOverloadsExtMethods));
 			RunTestOverload("s:method3()", "X3");
 		}
 
@@ -181,7 +191,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 		[Test]
 		[ExpectedException(typeof(ScriptRuntimeException))]
-		public void Interop_Overloads_Static2()
+		public void VInterop_Overloads_Static2()
 		{
 			// pollute cache
 			RunTestOverload("o:method1(5)", "3");
@@ -190,7 +200,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		}
 
 		[Test]
-		public void Interop_Overloads_Cache1()
+		public void VInterop_Overloads_Cache1()
 		{
 			RunTestOverload("o:method1(5)", "3");
 			RunTestOverload("o:method1(5)", "3");
@@ -199,7 +209,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		}
 
 		[Test]
-		public void Interop_Overloads_Cache2()
+		public void VInterop_Overloads_Cache2()
 		{
 			RunTestOverload("o:method1()", "1");
 			RunTestOverload("o:method1(5)", "3");

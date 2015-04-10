@@ -8,9 +8,9 @@ using NUnit.Framework;
 namespace MoonSharp.Interpreter.Tests.EndToEnd
 {
 	[TestFixture]
-	public class UserDataMethodsTests
+	public class VtUserDataMethodsTests
 	{
-		public class SomeClass : IComparable
+		public struct SomeClass : IComparable
 		{
 			public string ManipulateString(string input, ref string tobeconcat, out string lowercase)
 			{
@@ -154,11 +154,11 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		}
 
 
-		public class SomeOtherClassCustomDescriptor
+		public struct SomeOtherClassCustomDescriptor
 		{
 		}
 
-		public class CustomDescriptor : IUserDataDescriptor
+		public struct CustomDescriptor : IUserDataDescriptor
 		{
 			public string Name
 			{
@@ -194,7 +194,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 
 
-		public class SelfDescribingClass : IUserDataType
+		public struct SelfDescribingClass : IUserDataType
 		{
 			public DynValue Index(Script script, DynValue index, bool isNameIndex)
 			{
@@ -212,7 +212,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			}
 		}
 
-		public class SomeOtherClassWithDualInterfaces : Interface1, Interface2
+		public struct SomeOtherClassWithDualInterfaces : Interface1, Interface2
 		{
 			public string Test1()
 			{
@@ -475,8 +475,6 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 			Script S = new Script();
 
-			SomeClass obj = new SomeClass();
-
 			UserData.UnregisterType<SomeClass>();
 			UserData.RegisterType<SomeClass>(opt);
 
@@ -563,226 +561,225 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 
 		[Test]
-		public void Interop_ConcatMethod_None()
+		public void VInterop_ConcatMethod_None()
 		{
 			Test_ConcatMethod(InteropAccessMode.Reflection);
 		}
 
 		[Test]
-		public void Interop_ConcatMethod_Lazy()
+		public void VInterop_ConcatMethod_Lazy()
 		{
 			Test_ConcatMethod(InteropAccessMode.LazyOptimized);
 		}
 
 		[Test]
-		public void Interop_ConcatMethod_Precomputed()
+		public void VInterop_ConcatMethod_Precomputed()
 		{
 			Test_ConcatMethod(InteropAccessMode.Preoptimized);
 		}
 
 		[Test]
-		public void Interop_ConcatMethodSemicolon_None()
+		public void VInterop_ConcatMethodSemicolon_None()
 		{
 			Test_ConcatMethodSemicolon(InteropAccessMode.Reflection);
 		}
 
 		[Test]
-		public void Interop_ConcatMethodSemicolon_Lazy()
+		public void VInterop_ConcatMethodSemicolon_Lazy()
 		{
 			Test_ConcatMethodSemicolon(InteropAccessMode.LazyOptimized);
 		}
 
 		[Test]
-		public void Interop_ConcatMethodSemicolon_Precomputed()
+		public void VInterop_ConcatMethodSemicolon_Precomputed()
 		{
 			Test_ConcatMethodSemicolon(InteropAccessMode.Preoptimized);
 		}
 
-
 		[Test]
-		public void Interop_ConstructorAndConcatMethodSemicolon_None()
+		public void VInterop_ConstructorAndConcatMethodSemicolon_None()
 		{
 			Test_ConstructorAndConcatMethodSemicolon(InteropAccessMode.Reflection);
 		}
 
 		[Test]
-		public void Interop_ConstructorAndConcatMethodSemicolon_Lazy()
+		public void VInterop_ConstructorAndConcatMethodSemicolon_Lazy()
 		{
 			Test_ConstructorAndConcatMethodSemicolon(InteropAccessMode.LazyOptimized);
 		}
 
 		[Test]
-		public void Interop_ConstructorAndConcatMethodSemicolon_Precomputed()
+		public void VInterop_ConstructorAndConcatMethodSemicolon_Precomputed()
 		{
 			Test_ConstructorAndConcatMethodSemicolon(InteropAccessMode.Preoptimized);
 		}
 
 		[Test]
-		public void Interop_ConcatMethodStaticCplxCustomConv_None()
+		public void VInterop_ConcatMethodStaticCplxCustomConv_None()
 		{
 			Test_ConcatMethodStaticComplexCustomConv(InteropAccessMode.Reflection);
 		}
 
 		[Test]
-		public void Interop_ConcatMethodStaticCplxCustomConv_Lazy()
+		public void VInterop_ConcatMethodStaticCplxCustomConv_Lazy()
 		{
 			Test_ConcatMethodStaticComplexCustomConv(InteropAccessMode.LazyOptimized);
 		}
 
 		[Test]
-		public void Interop_ConcatMethodStaticCplxCustomConv_Precomputed()
+		public void VInterop_ConcatMethodStaticCplxCustomConv_Precomputed()
 		{
 			Test_ConcatMethodStaticComplexCustomConv(InteropAccessMode.Preoptimized);
 		}
 
 		[Test]
-		public void Interop_ConcatMethodStaticCplx_None()
+		public void VInterop_ConcatMethodStaticCplx_None()
 		{
 			Test_ConcatMethodStaticComplex(InteropAccessMode.Reflection);
 		}
 
 		[Test]
-		public void Interop_ConcatMethodStaticCplx_Lazy()
+		public void VInterop_ConcatMethodStaticCplx_Lazy()
 		{
 			Test_ConcatMethodStaticComplex(InteropAccessMode.LazyOptimized);
 		}
 
 		[Test]
-		public void Interop_ConcatMethodStaticCplx_Precomputed()
+		public void VInterop_ConcatMethodStaticCplx_Precomputed()
 		{
 			Test_ConcatMethodStaticComplex(InteropAccessMode.Preoptimized);
 		}
 
 		[Test]
-		public void Interop_ConcatMethodStaticCplxRec_None()
+		public void VInterop_ConcatMethodStaticCplxRec_None()
 		{
 			Test_ConcatMethodStaticComplexRec(InteropAccessMode.Reflection);
 		}
 
 		[Test]
-		public void Interop_ConcatMethodStaticCplxRec_Lazy()
+		public void VInterop_ConcatMethodStaticCplxRec_Lazy()
 		{
 			Test_ConcatMethodStaticComplexRec(InteropAccessMode.LazyOptimized);
 		}
 
 		[Test]
-		public void Interop_ConcatMethodStaticCplxRec_Precomputed()
+		public void VInterop_ConcatMethodStaticCplxRec_Precomputed()
 		{
 			Test_ConcatMethodStaticComplexRec(InteropAccessMode.Preoptimized);
 		}
 
 		[Test]
-		public void Interop_ConcatMethodStatic_None()
+		public void VInterop_ConcatMethodStatic_None()
 		{
 			Test_ConcatMethodStatic(InteropAccessMode.Reflection);
 		}
 
 		[Test]
-		public void Interop_ConcatMethodStatic_Lazy()
+		public void VInterop_ConcatMethodStatic_Lazy()
 		{
 			Test_ConcatMethodStatic(InteropAccessMode.LazyOptimized);
 		}
 
 		[Test]
-		public void Interop_ConcatMethodStatic_Precomputed()
+		public void VInterop_ConcatMethodStatic_Precomputed()
 		{
 			Test_ConcatMethodStatic(InteropAccessMode.Preoptimized);
 		}
 
 
 		[Test]
-		public void Interop_ConcatMethodStaticSimplifiedSyntax_None()
+		public void VInterop_ConcatMethodStaticSimplifiedSyntax_None()
 		{
 			Test_ConcatMethodStaticSimplifiedSyntax(InteropAccessMode.Reflection);
 		}
 
 		[Test]
-		public void Interop_ConcatMethodStaticSimplifiedSyntax_Lazy()
+		public void VInterop_ConcatMethodStaticSimplifiedSyntax_Lazy()
 		{
 			Test_ConcatMethodStaticSimplifiedSyntax(InteropAccessMode.LazyOptimized);
 		}
 
 		[Test]
-		public void Interop_ConcatMethodStaticSimplifiedSyntax_Precomputed()
+		public void VInterop_ConcatMethodStaticSimplifiedSyntax_Precomputed()
 		{
 			Test_ConcatMethodStaticSimplifiedSyntax(InteropAccessMode.Preoptimized);
 		}
 
 		[Test]
-		public void Interop_VarArgs_None()
+		public void VInterop_VarArgs_None()
 		{
 			Test_VarArgs(InteropAccessMode.Reflection);
 		}
 
 		[Test]
-		public void Interop_VarArgs_Lazy()
+		public void VInterop_VarArgs_Lazy()
 		{
 			Test_VarArgs(InteropAccessMode.LazyOptimized);
 		}
 
 		[Test]
-		public void Interop_VarArgs_Precomputed()
+		public void VInterop_VarArgs_Precomputed()
 		{
 			Test_VarArgs(InteropAccessMode.Preoptimized);
 		}
 
 
 		[Test]
-		public void Interop_DelegateMethod_None()
+		public void VInterop_DelegateMethod_None()
 		{
 			Test_DelegateMethod(InteropAccessMode.Reflection);
 		}
 
 		[Test]
-		public void Interop_DelegateMethod_Lazy()
+		public void VInterop_DelegateMethod_Lazy()
 		{
 			Test_DelegateMethod(InteropAccessMode.LazyOptimized);
 		}
 
 		[Test]
-		public void Interop_DelegateMethod_Precomputed()
+		public void VInterop_DelegateMethod_Precomputed()
 		{
 			Test_DelegateMethod(InteropAccessMode.Preoptimized);
 		}
 
 		[Test]
-		public void Interop_OutRefParams_None()
+		public void VInterop_OutRefParams_None()
 		{
 			Test_RefOutParams(InteropAccessMode.Reflection);
 		}
 
 		[Test]
-		public void Interop_OutRefParams_Lazy()
+		public void VInterop_OutRefParams_Lazy()
 		{
 			Test_RefOutParams(InteropAccessMode.LazyOptimized);
 		}
 
 		[Test]
-		public void Interop_OutRefParams_Precomputed()
+		public void VInterop_OutRefParams_Precomputed()
 		{
 			Test_RefOutParams(InteropAccessMode.Preoptimized);
 		}
 
 		[Test]
-		public void Interop_ListMethod_None()
+		public void VInterop_ListMethod_None()
 		{
 			Test_ListMethod(InteropAccessMode.Reflection);
 		}
 
 		[Test]
-		public void Interop_ListMethod_Lazy()
+		public void VInterop_ListMethod_Lazy()
 		{
 			Test_ListMethod(InteropAccessMode.LazyOptimized);
 		}
 
 		[Test]
-		public void Interop_ListMethod_Precomputed()
+		public void VInterop_ListMethod_Precomputed()
 		{
 			Test_ListMethod(InteropAccessMode.Preoptimized);
 		}
 
 		[Test]
-		public void Interop_TestAutoregisterPolicy()
+		public void VInterop_TestAutoregisterPolicy()
 		{
 			try
 			{
@@ -808,7 +805,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		}
 
 		[Test]
-		public void Interop_TestAutoregisterPolicyWithDualInterfaces()
+		public void VInterop_TestAutoregisterPolicyWithDualInterfaces()
 		{
 			string script = @"return myobj:Test1() .. myobj:Test2()";
 
@@ -830,7 +827,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		}
 
 		[Test]
-		public void Interop_TestNamesCamelized()
+		public void VInterop_TestNamesCamelized()
 		{
 			UserData.UnregisterType<SomeClass>();
 
@@ -860,7 +857,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		}
 
 		[Test]
-		public void Interop_TestSelfDescribingType()
+		public void VInterop_TestSelfDescribingType()
 		{
 			UserData.UnregisterType<SelfDescribingClass>();
 
@@ -888,7 +885,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		}
 
 		[Test]
-		public void Interop_TestCustomDescribedType()
+		public void VInterop_TestCustomDescribedType()
 		{
 			UserData.UnregisterType<SomeOtherClassCustomDescriptor>();
 

@@ -131,7 +131,10 @@ namespace MoonSharp.Interpreter
 		}
 
 		/// <summary>
-		/// Unregisters a type
+		/// Unregisters a type. 
+		/// WARNING: unregistering types at runtime is a dangerous practice and may cause unwanted errors.
+		/// Use this only for testing purposes or to re-register the same type in a slightly different way.
+		/// Additionally, it's a good practice to discard all previous loaded scripts after calling this method.
 		/// </summary>
 		/// <typeparam name="T">The type to be unregistered</typeparam>
 		public static void UnregisterType<T>()
@@ -140,7 +143,10 @@ namespace MoonSharp.Interpreter
 		}
 
 		/// <summary>
-		/// Unregisters a type
+		/// Unregisters a type.
+		/// WARNING: unregistering types at runtime is a dangerous practice and may cause unwanted errors.
+		/// Use this only for testing purposes or to re-register the same type in a slightly different way.
+		/// Additionally, it's a good practice to discard all previous loaded scripts after calling this method.
 		/// </summary>
 		/// <param name="t">The The type to be unregistered</param>
 		public static void UnregisterType(Type t)

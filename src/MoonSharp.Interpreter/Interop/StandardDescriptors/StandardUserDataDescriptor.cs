@@ -80,6 +80,15 @@ namespace MoonSharp.Interpreter.Interop
 					}
 				}
 
+				// valuetypes don't reflect their empty ctor.. actually empty ctors are a perversion, we don't care and implement ours
+				if (type.IsValueType)
+				{
+					if (constructors == null)
+						constructors = new StandardUserDataOverloadedMethodDescriptor("__new", this.Type);
+
+					constructors.AddOverload(new StandardUserDataMethodDescriptor(type, accessMode));
+				}
+
 				if (constructors != null) m_Methods.Add("__new", constructors);
 
 				// get methods

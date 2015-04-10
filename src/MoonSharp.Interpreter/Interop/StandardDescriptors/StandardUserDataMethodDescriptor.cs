@@ -50,7 +50,20 @@ namespace MoonSharp.Interpreter.Interop
 		/// Gets the type of the arguments of the underlying CLR function
 		/// </summary>
 		public ParameterInfo[] Parameters { get; private set; }
-
+		/// <summary>
+		/// Gets a value indicating the type of the ParamArray parameter of a var-args function. If the function is not var-args,
+		/// null is returned.
+		/// </summary>
+		public Type VarArgsArrayType { get; private set; }
+		/// <summary>
+		/// Gets a value indicating the type of the elements of the ParamArray parameter of a var-args function. If the function is not var-args,
+		/// null is returned.
+		/// </summary>
+		public Type VarArgsElementType { get; private set; }
+		/// <summary>
+		/// If this is a placeholder for a valuetype default ctor, this property is equal to the value type to be constructed.
+		/// </summary>
+		public Type ValueTypeDefaultCtor { get; private set; }
 
 		private Func<object, object[], object> m_OptimizedFunc = null;
 		private Action<object, object[]> m_OptimizedAction = null;
@@ -74,6 +87,32 @@ namespace MoonSharp.Interpreter.Interop
 
 			return null;
 		}
+
+		/// <summary>
+		/// Initializes a new instance of the
+		/// <see cref="StandardUserDataMethodDescriptor" /> class
+		/// representing the default empty ctor for a value type.
+		/// </summary>
+		/// <param name="valueType">Type of the value.</param>
+		/// <param name="accessMode">The interop access mode.</param>
+		/// <exception cref="System.ArgumentException">valueType is not a value type</exception>
+		public StandardUserDataMethodDescriptor(Type valueType, InteropAccessMode accessMode = InteropAccessMode.Default)
+		{
+			if (!valueType.IsValueType)
+				throw new ArgumentException("valueType is not a value type");
+
+			this.Name = "__new";
+			this.MethodInfo = null;
+			IsConstructor = true;
+			this.IsStatic = true;
+			Parameters = new ParameterInfo[0];
+
+			// adjust access mode
+			this.AccessMode = InteropAccessMode.Reflection;
+
+			ValueTypeDefaultCtor = valueType;
+		}
+
 
 
 		/// <summary>
@@ -118,6 +157,18 @@ namespace MoonSharp.Interpreter.Interop
 
 			if (Parameters.Any(p => p.ParameterType.IsByRef))
 				accessMode = InteropAccessMode.Reflection;
+
+			if (Parameters.Length > 0)
+			{
+				ParameterInfo plast = Parameters[Parameters.Length - 1];
+
+				if (plast.ParameterType.IsArray && plast.GetCustomAttributes(typeof(ParamArrayAttribute), true).Any())
+				{
+					VarArgsArrayType = plast.ParameterType;
+					VarArgsElementType = plast.ParameterType.GetElementType();
+				}
+			}
+
 
 			SortDiscriminant = string.Join(":", Parameters.Select(pi => pi.ParameterType.FullName).ToArray());
 
@@ -231,6 +282,12 @@ namespace MoonSharp.Interpreter.Interop
 		/// <returns></returns>
 		internal DynValue Callback(Script script, object obj, ScriptExecutionContext context, CallbackArguments args)
 		{
+			if (ValueTypeDefaultCtor != null)
+			{
+				object vto = Activator.CreateInstance(ValueTypeDefaultCtor);
+				return ClrToScriptConversions.ObjectToDynValue(script, vto);
+			}
+
 			if (AccessMode == InteropAccessMode.LazyOptimized &&
 				m_OptimizedFunc == null && m_OptimizedAction == null)
 				Optimize();
@@ -274,13 +331,56 @@ namespace MoonSharp.Interpreter.Interop
 				{
 					pars[i] = null;
 				}
+				else if (i == Parameters.Length - 1 && VarArgsArrayType != null)
+				{
+					List<DynValue> extraArgs = new List<DynValue>();
+
+					while (true)
+					{
+						DynValue arg = args.RawGet(j, false);
+						j += 1;
+						if (arg != null)
+							extraArgs.Add(arg);
+						else
+							break;
+					}
+
+					// here we have to worry we already have an array.. damn. We only support this for userdata.
+					// remains to be analyzed what's the correct behavior here. For example, let's take a params object[]..
+					// given a single table parameter, should it use it as an array or as an object itself ?
+					if (extraArgs.Count == 1)
+					{
+						DynValue arg = extraArgs[0];
+
+						if (arg.Type == DataType.UserData && arg.UserData.Object != null)
+						{
+							if (VarArgsArrayType.IsAssignableFrom(arg.UserData.Object.GetType()))
+							{
+								pars[i] = arg.UserData.Object;
+								continue;
+							}
+						}
+					}
+
+					// ok let's create an array, and loop
+					Array vararg = CreateVarArgArray(extraArgs.Count);
+
+					for (int ii = 0; ii < extraArgs.Count; ii++)
+					{
+						vararg.SetValue(ScriptToClrConversions.DynValueToObjectOfType(extraArgs[ii], VarArgsElementType,
+						null, false), ii);
+					}
+
+					pars[i] = vararg;
+
+				}
 				// else, convert it
 				else
 				{
 					var arg = args.RawGet(j, false) ?? DynValue.Void;
 					pars[i] = ScriptToClrConversions.DynValueToObjectOfType(arg, Parameters[i].ParameterType,
 						Parameters[i].DefaultValue, !Parameters[i].DefaultValue.IsDbNull());
-					j++;
+					j += 1;
 				}
 			}
 
@@ -324,6 +424,11 @@ namespace MoonSharp.Interpreter.Interop
 
 				return DynValue.NewTuple(rets);
 			}
+		}
+
+		private Array CreateVarArgArray(int len)
+		{
+			return Array.CreateInstance(VarArgsElementType, len);
 		}
 
 		internal void Optimize()

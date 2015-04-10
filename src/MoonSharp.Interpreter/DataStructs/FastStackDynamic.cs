@@ -6,7 +6,7 @@ using System.Text;
 namespace MoonSharp.Interpreter.DataStructs
 {
 #if USE_DYNAMIC_STACKS
-	public class FastStack<T> : FastStackDynamic<T>
+	internal class FastStack<T> : FastStackDynamic<T>
 #endif
 
 	/// <summary>

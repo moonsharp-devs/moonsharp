@@ -127,6 +127,12 @@
     <Compile Include="EndToEnd\StringLibTests.cs" />
     <Compile Include="EndToEnd\TailCallTests.cs" />
     <Compile Include="EndToEnd\UserDataEventsTests.cs" />
+    <Compile Include="EndToEnd\VtUserDataPropertiesTests.cs" />
+    <Compile Include="EndToEnd\VtUserDataOverloadsTests.cs" />
+    <Compile Include="EndToEnd\VtUserDataMethodsTests.cs" />
+    <Compile Include="EndToEnd\VtUserDataMetaTests.cs" />
+    <Compile Include="EndToEnd\VtUserDataIndexerTests.cs" />
+    <Compile Include="EndToEnd\VtUserDataFieldsTests.cs" />
     <Compile Include="EndToEnd\UserDataMetaTests.cs" />
     <Compile Include="EndToEnd\UserDataIndexerTests.cs" />
     <Compile Include="EndToEnd\UserDataMethodsTests.cs" />

@@ -190,7 +190,7 @@ namespace MoonSharp.Interpreter.Interop
 		{
 			using (PerformanceStatistics.StartGlobalStopwatch(PerformanceCounter.AdaptersCompilation))
 			{
-				if (m_Setter != null)
+				if (m_Setter != null && !(PropertyInfo.DeclaringType.IsValueType))
 				{
 					MethodInfo setterMethod = PropertyInfo.GetSetMethod(true);
 
@@ -244,7 +244,7 @@ namespace MoonSharp.Interpreter.Interop
 				}
 				else
 				{
-					PropertyInfo.SetValue(IsStatic ? null : obj, value, null);
+					m_Setter.Invoke(IsStatic ? null : obj, new object[] { value }); // convoluted workaround for --full-aot Mono execution
 				}
 			}
 			catch (ArgumentException)
