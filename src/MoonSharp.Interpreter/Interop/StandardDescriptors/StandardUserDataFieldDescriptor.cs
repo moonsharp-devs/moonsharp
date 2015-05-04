@@ -55,7 +55,7 @@ namespace MoonSharp.Interpreter.Interop
 		/// <returns>A new StandardUserDataFieldDescriptor or null.</returns>
 		public static StandardUserDataFieldDescriptor TryCreateIfVisible(FieldInfo fi, InteropAccessMode accessMode)
 		{
-			if (StandardUserDataDescriptor.GetVisibilityFromAttributes(fi) ?? fi.IsPublic)
+			if (fi.GetVisibilityFromAttributes() ?? fi.IsPublic)
 				return new StandardUserDataFieldDescriptor(fi, accessMode);
 
 			return null;

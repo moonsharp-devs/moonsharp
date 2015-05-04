@@ -72,7 +72,7 @@ namespace MoonSharp.Interpreter.Interop
 			if (!CheckEventIsCompatible(ei, false))
 				return null;
 
-			if (StandardUserDataDescriptor.GetVisibilityFromAttributes(ei) ?? (ei.GetAddMethod().IsPublic && ei.GetRemoveMethod().IsPublic))
+			if (ei.GetVisibilityFromAttributes() ?? (ei.GetAddMethod().IsPublic && ei.GetRemoveMethod().IsPublic))
 				return new StandardUserDataEventDescriptor(ei, accessMode);
 
 			return null;

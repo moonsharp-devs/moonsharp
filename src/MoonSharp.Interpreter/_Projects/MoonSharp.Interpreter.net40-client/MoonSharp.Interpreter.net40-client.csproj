@@ -146,6 +146,12 @@
     <Compile Include="..\..\Interop\CustomConvertersCollection.cs">
       <Link>CustomConvertersCollection.cs</Link>
     </Compile>
+    <Compile Include="..\..\Interop\DescriptorHelpers.cs">
+      <Link>DescriptorHelpers.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\BasicDescriptors\DispatchingUserDataDescriptor.cs">
+      <Link>DispatchingUserDataDescriptor.cs</Link>
+    </Compile>
     <Compile Include="..\..\Interop\StandardDescriptors\StandardUserDataEventDescriptor.cs">
       <Link>StandardUserDataEventDescriptor.cs</Link>
     </Compile>

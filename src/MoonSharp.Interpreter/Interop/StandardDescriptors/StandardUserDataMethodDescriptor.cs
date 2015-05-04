@@ -82,7 +82,7 @@ namespace MoonSharp.Interpreter.Interop
 			if (!CheckMethodIsCompatible(methodBase, false))
 				return null;
 
-			if (StandardUserDataDescriptor.GetVisibilityFromAttributes(methodBase) ?? methodBase.IsPublic)
+			if (methodBase.GetVisibilityFromAttributes() ?? methodBase.IsPublic)
 				return new StandardUserDataMethodDescriptor(methodBase, accessMode);
 
 			return null;

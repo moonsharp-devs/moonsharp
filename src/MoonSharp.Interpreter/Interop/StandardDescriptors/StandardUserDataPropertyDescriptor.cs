@@ -64,9 +64,9 @@ namespace MoonSharp.Interpreter.Interop
 			MethodInfo getter = pi.GetGetMethod(true);
 			MethodInfo setter = pi.GetSetMethod(true);
 
-			bool? pvisible = StandardUserDataDescriptor.GetVisibilityFromAttributes(pi);
-			bool? gvisible = StandardUserDataDescriptor.GetVisibilityFromAttributes(getter);
-			bool? svisible = StandardUserDataDescriptor.GetVisibilityFromAttributes(setter);
+			bool? pvisible = pi.GetVisibilityFromAttributes();
+			bool? gvisible = getter.GetVisibilityFromAttributes();
+			bool? svisible = setter.GetVisibilityFromAttributes();
 
 			if (pvisible.HasValue)
 			{

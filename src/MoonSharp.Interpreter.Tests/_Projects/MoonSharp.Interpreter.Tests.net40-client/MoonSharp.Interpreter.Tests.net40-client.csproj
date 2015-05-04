@@ -111,6 +111,24 @@
     <Compile Include="..\..\EndToEnd\UserDataEventsTests.cs">
       <Link>UserDataEventsTests.cs</Link>
     </Compile>
+    <Compile Include="..\..\EndToEnd\VtUserDataPropertiesTests.cs">
+      <Link>VtUserDataPropertiesTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\EndToEnd\VtUserDataOverloadsTests.cs">
+      <Link>VtUserDataOverloadsTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\EndToEnd\VtUserDataMethodsTests.cs">
+      <Link>VtUserDataMethodsTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\EndToEnd\VtUserDataMetaTests.cs">
+      <Link>VtUserDataMetaTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\EndToEnd\VtUserDataIndexerTests.cs">
+      <Link>VtUserDataIndexerTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\EndToEnd\VtUserDataFieldsTests.cs">
+      <Link>VtUserDataFieldsTests.cs</Link>
+    </Compile>
     <Compile Include="..\..\EndToEnd\UserDataMetaTests.cs">
       <Link>UserDataMetaTests.cs</Link>
     </Compile>

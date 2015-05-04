@@ -6,43 +6,19 @@ using System.Text;
 using System.Threading;
 using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Interop.Converters;
+using MoonSharp.Interpreter.Interop.StandardDescriptors;
 
 namespace MoonSharp.Interpreter.Interop
 {
 	/// <summary>
 	/// Standard descriptor for userdata types.
 	/// </summary>
-	public class StandardUserDataDescriptor : IUserDataDescriptor
+	public class StandardUserDataDescriptor : DispatchingUserDataDescriptor
 	{
-		/// <summary>
-		/// Gets the name of the descriptor (usually, the name of the type described).
-		/// </summary>
-		public string Name { get; private set; }
-		/// <summary>
-		/// Gets the type this descriptor refers to
-		/// </summary>
-		public Type Type { get; private set; }
 		/// <summary>
 		/// Gets the interop access mode this descriptor uses for members access
 		/// </summary>
 		public InteropAccessMode AccessMode { get; private set; }
-		/// <summary>
-		/// Gets a human readable friendly name of the descriptor
-		/// </summary>
-		public string FriendlyName { get; private set; }
-
-		private int m_ExtMethodsVersion = 0;
-		private Dictionary<string, StandardUserDataOverloadedMethodDescriptor> m_MetaMethods = new Dictionary<string, StandardUserDataOverloadedMethodDescriptor>();
-		private Dictionary<string, StandardUserDataOverloadedMethodDescriptor> m_Methods = new Dictionary<string, StandardUserDataOverloadedMethodDescriptor>();
-		private Dictionary<string, StandardUserDataPropertyDescriptor> m_Properties = new Dictionary<string, StandardUserDataPropertyDescriptor>();
-		private Dictionary<string, StandardUserDataFieldDescriptor> m_Fields = new Dictionary<string, StandardUserDataFieldDescriptor>();
-		private Dictionary<string, StandardUserDataEventDescriptor> m_Events = new Dictionary<string, StandardUserDataEventDescriptor>();
-
-		const string SPECIAL_GETITEM = "get_Item";
-		const string SPECIAL_SETITEM = "set_Item";
-
-		const string CASTINGS_EXPLICIT = "op_Explicit";
-		const string CASTINGS_IMPLICIT = "op_Implicit";
 
 
 		/// <summary>
@@ -51,7 +27,8 @@ namespace MoonSharp.Interpreter.Interop
 		/// <param name="type">The type this descriptor refers to.</param>
 		/// <param name="accessMode">The interop access mode this descriptor uses for members access</param>
 		/// <param name="friendlyName">A human readable friendly name of the descriptor.</param>
-		protected internal StandardUserDataDescriptor(Type type, InteropAccessMode accessMode, string friendlyName)
+		public StandardUserDataDescriptor(Type type, InteropAccessMode accessMode, string friendlyName = null)
+			: base(type, friendlyName)
 		{
 			if (Script.GlobalOptions.Platform.IsRunningOnAOT())
 				accessMode = InteropAccessMode.Reflection;
@@ -59,617 +36,94 @@ namespace MoonSharp.Interpreter.Interop
 			if (accessMode == InteropAccessMode.Default)
 				accessMode = UserData.DefaultAccessMode;
 
-			Type = type;
-			Name = type.FullName;
 			AccessMode = accessMode;
-			FriendlyName = friendlyName;
 
-			if (AccessMode != InteropAccessMode.HideMembers)
+			FillMemberList();
+		}
+
+		/// <summary>
+		/// Fills the member list.
+		/// </summary>
+		private void FillMemberList()
+		{
+			Type type = this.Type;
+			var accessMode = this.AccessMode;
+
+			if (AccessMode == InteropAccessMode.HideMembers)
+				return;
+
+			// add declared constructors
+			foreach (ConstructorInfo ci in type.GetConstructors(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
 			{
-				// get first constructor 
-				StandardUserDataOverloadedMethodDescriptor constructors = null;
+				AddConstructor(StandardUserDataMethodDescriptor.TryCreateIfVisible(ci, this.AccessMode));
+			}
 
-				foreach (ConstructorInfo ci in type.GetConstructors(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
+			// valuetypes don't reflect their empty ctor.. actually empty ctors are a perversion, we don't care and implement ours
+			if (type.IsValueType)
+				AddConstructor(new StandardUserDataMethodDescriptor(type, accessMode));
+
+
+			// add methods to method list and metamethods
+			foreach (MethodInfo mi in type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
+			{
+				StandardUserDataMethodDescriptor md = StandardUserDataMethodDescriptor.TryCreateIfVisible(mi, this.AccessMode);
+
+				if (md != null)
 				{
-					StandardUserDataMethodDescriptor md = StandardUserDataMethodDescriptor.TryCreateIfVisible(ci, this.AccessMode);
+					if (!StandardUserDataMethodDescriptor.CheckMethodIsCompatible(mi, false))
+						continue;
 
-					if (md != null)
+					// transform explicit/implicit conversions to a friendlier name.
+					string name = mi.Name;
+					if (mi.IsSpecialName && (mi.Name == SPECIALNAME_CAST_EXPLICIT || mi.Name == SPECIALNAME_CAST_IMPLICIT))
 					{
-						if (constructors == null) constructors = new StandardUserDataOverloadedMethodDescriptor("__new", this.Type) { IgnoreExtensionMethods = true };
-						constructors.AddOverload(md);
+						name = mi.ReturnType.GetConversionMethodName();
+					}
+
+					AddMethod(name, md);
+
+					foreach (string metaname in mi.GetMetaNamesFromAttributes())
+					{
+						AddMetaMethod(metaname, md);
 					}
 				}
-
-				// valuetypes don't reflect their empty ctor.. actually empty ctors are a perversion, we don't care and implement ours
-				if (type.IsValueType)
-				{
-					if (constructors == null)
-						constructors = new StandardUserDataOverloadedMethodDescriptor("__new", this.Type);
-
-					constructors.AddOverload(new StandardUserDataMethodDescriptor(type, accessMode));
-				}
-
-				if (constructors != null) m_Methods.Add("__new", constructors);
-
-				// get methods
-				foreach (MethodInfo mi in type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
-				{
-					StandardUserDataMethodDescriptor md = StandardUserDataMethodDescriptor.TryCreateIfVisible(mi, this.AccessMode);
-
-					if (md != null)
-					{
-						if (!StandardUserDataMethodDescriptor.CheckMethodIsCompatible(mi, false))
-							continue;
-
-						Dictionary<string, StandardUserDataOverloadedMethodDescriptor> dic = m_Methods;
-
-						string name = mi.Name;
-						if (mi.IsSpecialName && (mi.Name == CASTINGS_EXPLICIT || mi.Name == CASTINGS_IMPLICIT))
-						{
-							name = GetConversionMethodName(mi.ReturnType);
-						}
-
-						if (m_Methods.ContainsKey(name))
-						{
-							m_Methods[name].AddOverload(md);
-						}
-						else
-						{
-							m_Methods.Add(name, new StandardUserDataOverloadedMethodDescriptor(name, this.Type, md));
-						}
-
-						foreach (string metaname in GetMetaNamesFromAttributes(mi))
-						{
-							if (m_MetaMethods.ContainsKey(metaname))
-							{
-								m_MetaMethods[metaname].AddOverload(md);
-							}
-							else
-							{
-								m_MetaMethods.Add(metaname, new StandardUserDataOverloadedMethodDescriptor(metaname, this.Type, md) { IgnoreExtensionMethods = true });
-							}
-						}
-					}
-				}
-
-				// get properties
-				foreach (PropertyInfo pi in type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
-				{
-					if (pi.IsSpecialName || pi.GetIndexParameters().Any())
-						continue;
-
-					var pd = StandardUserDataPropertyDescriptor.TryCreateIfVisible(pi, this.AccessMode);
-					if (pd != null)
-						m_Properties.Add(pd.Name, pd);
-				}
-
-				// get fields
-				foreach (FieldInfo fi in type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
-				{
-					if (fi.IsSpecialName)
-						continue;
-
-					var fd = StandardUserDataFieldDescriptor.TryCreateIfVisible(fi, this.AccessMode);
-					if (fd != null) m_Fields.Add(fd.Name, fd);
-				}
-
-				// get events
-				foreach (EventInfo ei in type.GetEvents(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
-				{
-					if (ei.IsSpecialName)
-						continue;
-
-					var ed = StandardUserDataEventDescriptor.TryCreateIfVisible(ei, this.AccessMode);
-					if (ed != null) m_Events.Add(ei.Name, ed);
-				}
 			}
-		}
 
-		private List<string> GetMetaNamesFromAttributes(MethodInfo mi)
-		{
-			return mi.GetCustomAttributes(typeof(MoonSharpUserDataMetamethodAttribute), true)
-				.OfType<MoonSharpUserDataMetamethodAttribute>()
-				.Select(a => a.Name)
-				.ToList();
-		}
-
-		private string GetConversionMethodName(Type type)
-		{
-			StringBuilder sb = new StringBuilder(type.Name);
-
-			for (int i = 0; i < sb.Length; i++)
-				if (!char.IsLetterOrDigit(sb[i])) sb[i] = '_';
-
-			return "__to" + sb.ToString();
-		}
-
-		private bool IsPropertyInfoPublic(PropertyInfo pi)
-		{
-			MethodInfo getter = pi.GetGetMethod();
-			MethodInfo setter = pi.GetSetMethod();
-
-			return (getter != null && getter.IsPublic) || (setter != null && setter.IsPublic);
-		}
-
-		/// <summary>
-		/// Determines whether a 
-		/// <see cref="MoonSharpVisibleAttribute" /> is changing visibility of a member
-		/// to scripts.
-		/// </summary>
-		/// <param name="mi">The member to check.</param>
-		/// <returns>
-		/// <c>true</c> if visibility is forced visible, 
-		/// <c>false</c> if visibility is forced hidden or the specified MemberInfo is null,
-		/// <c>if no attribute was found</c>
-		/// </returns>
-		public static bool? GetVisibilityFromAttributes(MemberInfo mi)
-		{
-			if (mi == null)
-				return false;
-
-			MoonSharpVisibleAttribute va = mi.GetCustomAttributes(true).OfType<MoonSharpVisibleAttribute>().SingleOrDefault();
-
-			if (va != null)
-				return va.Visible;
-			else
-				return null;
-		}
-
-
-		/// <summary>
-		/// Performs an "index" "get" operation. This tries to resolve minor variations of member names.
-		/// </summary>
-		/// <param name="script">The script originating the request</param>
-		/// <param name="obj">The object (null if a static request is done)</param>
-		/// <param name="index">The index.</param>
-		/// <param name="isDirectIndexing">If set to true, it's indexed with a name, if false it's indexed through brackets.</param>
-		/// <returns></returns>
-		public virtual DynValue Index(Script script, object obj, DynValue index, bool isDirectIndexing)
-		{
-			if (!isDirectIndexing)
+			// get properties
+			foreach (PropertyInfo pi in type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
 			{
-				StandardUserDataOverloadedMethodDescriptor mdesc = m_Methods.GetOrDefault(SPECIAL_GETITEM);
+				if (pi.IsSpecialName || pi.GetIndexParameters().Any())
+					continue;
 
-				if (mdesc != null)
-					return ExecuteIndexer(mdesc, script, obj, index, null);
+				AddProperty(pi.Name, StandardUserDataPropertyDescriptor.TryCreateIfVisible(pi, this.AccessMode));
 			}
 
-			index = index.ToScalar();
-
-			if (index.Type != DataType.String)
-				throw ScriptRuntimeException.BadArgument(1, string.Format("userdata<{0}>.__index", this.Name), "string", index.Type.ToLuaTypeString(), false);
-
-			DynValue v = TryIndex(script, obj, index.String);
-			if (v == null) v = TryIndex(script, obj, UpperFirstLetter(index.String));
-			if (v == null) v = TryIndex(script, obj, Camelify(index.String));
-			if (v == null) v = TryIndex(script, obj, UpperFirstLetter(Camelify(index.String)));
-
-			if (v == null && m_ExtMethodsVersion < UserData.GetExtensionMethodsChangeVersion())
+			// get fields
+			foreach (FieldInfo fi in type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
 			{
-				m_ExtMethodsVersion = UserData.GetExtensionMethodsChangeVersion();
+				if (fi.IsSpecialName)
+					continue;
 
-				v = TryIndexOnExtMethod(script, obj, index.String);
-				if (v == null) v = TryIndexOnExtMethod(script, obj, UpperFirstLetter(index.String));
-				if (v == null) v = TryIndexOnExtMethod(script, obj, Camelify(index.String));
-				if (v == null) v = TryIndexOnExtMethod(script, obj, UpperFirstLetter(Camelify(index.String)));
+				AddField(fi.Name, StandardUserDataFieldDescriptor.TryCreateIfVisible(fi, this.AccessMode));
 			}
 
-			return v;
-		}
-
-		/// <summary>
-		/// Tries to perform an indexing operation by checking newly added extension methods for the given indexName.
-		/// </summary>
-		/// <param name="script">The script.</param>
-		/// <param name="obj">The object.</param>
-		/// <param name="indexName">Member name to be indexed.</param>
-		/// <returns></returns>
-		/// <exception cref="System.NotImplementedException"></exception>
-		private DynValue TryIndexOnExtMethod(Script script, object obj, string indexName)
-		{
-			List<StandardUserDataMethodDescriptor> methods = UserData.GetExtensionMethodsByName(indexName)
-						.Where(d => d.ExtensionMethodType != null && d.ExtensionMethodType.IsAssignableFrom(this.Type))
-						.ToList();
-
-			if (methods != null && methods.Count > 0)
+			// get events
+			foreach (EventInfo ei in type.GetEvents(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
 			{
-				var ext = new StandardUserDataOverloadedMethodDescriptor(indexName, this.Type);
-				ext.SetExtensionMethodsSnapshot(UserData.GetExtensionMethodsChangeVersion(), methods);
-				m_Methods.Add(indexName, ext);
-				return DynValue.NewCallback(ext.GetCallback(script, obj));
-			}
+				if (ei.IsSpecialName)
+					continue;
 
-			return null;
-		}
-
-		/// <summary>
-		/// Tries to perform an indexing operation by checking methods and properties for the given indexName
-		/// </summary>
-		/// <param name="script">The script.</param>
-		/// <param name="obj">The object.</param>
-		/// <param name="indexName">Member name to be indexed.</param>
-		/// <returns></returns>
-		protected virtual DynValue TryIndex(Script script, object obj, string indexName)
-		{
-			StandardUserDataOverloadedMethodDescriptor mdesc;
-
-			if (m_Methods.TryGetValue(indexName, out mdesc))
-				return DynValue.NewCallback(mdesc.GetCallback(script, obj));
-
-			StandardUserDataPropertyDescriptor pdesc;
-
-			if (m_Properties.TryGetValue(indexName, out pdesc))
-				return pdesc.GetValue(script, obj);
-
-			StandardUserDataFieldDescriptor fdesc;
-
-			if (m_Fields.TryGetValue(indexName, out fdesc))
-				return fdesc.GetValue(script, obj);
-
-			StandardUserDataEventDescriptor edesc;
-
-			if (m_Events.TryGetValue(indexName, out edesc))
-				return edesc.GetValue(script, obj);
-
-			return null;
-		}
-
-		/// <summary>
-		/// Performs an "index" "set" operation. This tries to resolve minor variations of member names.
-		/// </summary>
-		/// <param name="script">The script originating the request</param>
-		/// <param name="obj">The object (null if a static request is done)</param>
-		/// <param name="index">The index.</param>
-		/// <param name="value">The value to be set</param>
-		/// <param name="isDirectIndexing">If set to true, it's indexed with a name, if false it's indexed through brackets.</param>
-		/// <returns></returns>
-		public virtual bool SetIndex(Script script, object obj, DynValue index, DynValue value, bool isDirectIndexing)
-		{
-			if (!isDirectIndexing)
-			{
-				StandardUserDataOverloadedMethodDescriptor mdesc = m_Methods.GetOrDefault(SPECIAL_SETITEM);
-
-				if (mdesc != null)
-				{
-					ExecuteIndexer(mdesc, script, obj, index, value);
-					return true;
-				}
-			}
-
-			index = index.ToScalar();
-
-			if (index.Type != DataType.String)
-				throw ScriptRuntimeException.BadArgument(1, string.Format("userdata<{0}>.__setindex", this.Name), "string", index.Type.ToLuaTypeString(), false);
-
-			bool v = TrySetIndex(script, obj, index.String, value);
-			if (!v) v = TrySetIndex(script, obj, UpperFirstLetter(index.String), value);
-			if (!v) v = TrySetIndex(script, obj, Camelify(index.String), value);
-			if (!v) v = TrySetIndex(script, obj, UpperFirstLetter(Camelify(index.String)), value);
-
-			return v;
-		}
-
-		/// <summary>
-		/// Tries to perform an indexing "set" operation by checking methods and properties for the given indexName
-		/// </summary>
-		/// <param name="script">The script.</param>
-		/// <param name="obj">The object.</param>
-		/// <param name="indexName">Member name to be indexed.</param>
-		/// <param name="value">The value.</param>
-		/// <returns></returns>
-		protected virtual bool TrySetIndex(Script script, object obj, string indexName, DynValue value)
-		{
-			StandardUserDataPropertyDescriptor pdesc = m_Properties.GetOrDefault(indexName);
-
-			if (pdesc != null)
-			{
-				pdesc.SetValue(script, obj, value);
-				return true;
-			}
-			else
-			{
-				StandardUserDataFieldDescriptor fdesc = m_Fields.GetOrDefault(indexName);
-
-				if (fdesc != null)
-				{
-					fdesc.SetValue(script, obj, value);
-					return true;
-				}
-				else
-				{
-					return false;
-				}
+				AddEvent(ei.Name, StandardUserDataEventDescriptor.TryCreateIfVisible(ei, this.AccessMode));
 			}
 		}
 
-		internal void Optimize()
-		{
-			foreach (var m in this.m_Methods.Values)
-				m.Optimize();
-
-			foreach (var m in this.m_Properties.Values)
-			{
-				m.OptimizeGetter();
-				m.OptimizeSetter();
-			}
-
-			foreach (var m in this.m_Fields.Values)
-				m.OptimizeGetter();
-		}
-
-		/// <summary>
-		/// Converts the specified name from underscore_case to camelCase.
-		/// </summary>
-		/// <param name="name">The name.</param>
-		/// <returns></returns>
-		protected static string Camelify(string name)
-		{
-			StringBuilder sb = new StringBuilder(name.Length);
-
-			bool lastWasUnderscore = false;
-			for (int i = 0; i < name.Length; i++)
-			{
-				if (name[i] == '_' && i != 0)
-				{
-					lastWasUnderscore = true;
-				}
-				else
-				{
-					if (lastWasUnderscore)
-						sb.Append(char.ToUpperInvariant(name[i]));
-					else
-						sb.Append(name[i]);
-
-					lastWasUnderscore = false;
-				}
-			}
-
-			return sb.ToString();
-		}
-
-		/// <summary>
-		/// Converts the specified name to one with an uppercase first letter (something to Something).
-		/// </summary>
-		/// <param name="name">The name.</param>
-		/// <returns></returns>
-		protected static string UpperFirstLetter(string name)
-		{
-			if (!string.IsNullOrEmpty(name))
-				return char.ToUpperInvariant(name[0]) + name.Substring(1);
-
-			return name;
-		}
-
-		/// <summary>
-		/// Converts this userdata to string
-		/// </summary>
-		/// <param name="obj">The object.</param>
-		/// <returns></returns>
-		public virtual string AsString(object obj)
-		{
-			return (obj != null) ? obj.ToString() : null;
-		}
 
 
 
-		/// <summary>
-		/// Executes the specified indexer method.
-		/// </summary>
-		/// <param name="mdesc">The method descriptor</param>
-		/// <param name="script">The script.</param>
-		/// <param name="obj">The object.</param>
-		/// <param name="index">The indexer parameter</param>
-		/// <param name="value">The dynvalue to set on a setter, or null.</param>
-		/// <returns></returns>
-		/// <exception cref="System.NotImplementedException"></exception>
-		protected virtual DynValue ExecuteIndexer(StandardUserDataOverloadedMethodDescriptor mdesc, Script script, object obj, DynValue index, DynValue value)
-		{
-			var callback = mdesc.GetCallback(script, obj);
-
-			IList<DynValue> values;
-
-			if (index.Type == DataType.Tuple)
-			{
-				if (value == null)
-				{
-					values = index.Tuple;
-				}
-				else
-				{
-					values = new List<DynValue>(index.Tuple);
-					values.Add(value);
-				}
-			}
-			else
-			{
-				if (value == null)
-				{
-					values = new DynValue[] { index };
-				}
-				else
-				{
-					values = new DynValue[] { index, value };
-				}
-			}
-
-			CallbackArguments args = new CallbackArguments(values, false);
-			ScriptExecutionContext execCtx = script.CreateDynamicExecutionContext();
-
-			return callback(execCtx, args);
-		}
 
 
-		/// <summary>
-		/// Gets a "meta" operation on this userdata. If a descriptor does not support this functionality,
-		/// it should return "null" (not a nil). 
-		/// See <see cref="IUserDataDescriptor.MetaIndex" /> for further details.
-		/// 
-		/// If a method exists marked with <see cref="MoonSharpUserDataMetamethodAttribute" /> for the specific
-		/// metamethod requested, that method is returned.
-		/// 
-		/// If the above fails, the following dispatching occur:
-		/// 
-		/// __add, __sub, __mul, __div, __mod and __unm are dispatched to C# operator overloads (if they exist)
-		/// __eq is dispatched to System.Object.Equals.
-		/// __lt and __le are dispatched IComparable.Compare, if the type implements IComparable or IComparable{object}
-		/// __len is dispatched to Length and Count properties, if those exist.
-		/// __iterator is handled if the object implements IEnumerable or IEnumerator.
-		/// __tonumber is dispatched to implicit or explicit conversion operators to standard numeric types.
-		/// __tobool is dispatched to an implicit or explicit conversion operator to bool. If that fails, operator true is used.
-		/// 
-		/// <param name="script">The script originating the request</param>
-		/// <param name="obj">The object (null if a static request is done)</param>
-		/// <param name="metaname">The name of the metamember.</param>
-		/// </summary>
-		/// <returns></returns>
-		public virtual DynValue MetaIndex(Script script, object obj, string metaname)
-		{
-			StandardUserDataOverloadedMethodDescriptor desc = m_MetaMethods.GetOrDefault(metaname);
-
-			if (desc != null)
-				return desc.GetCallbackAsDynValue(script, obj);
-
-			switch (metaname)
-			{
-				case "__add":
-					return DispatchMetaOnMethod(script, obj, "op_Addition");
-				case "__sub":
-					return DispatchMetaOnMethod(script, obj, "op_Subtraction");
-				case "__mul":
-					return DispatchMetaOnMethod(script, obj, "op_Multiply");
-				case "__div":
-					return DispatchMetaOnMethod(script, obj, "op_Division");
-				case "__mod":
-					return DispatchMetaOnMethod(script, obj, "op_Modulus");
-				case "__unm":
-					return DispatchMetaOnMethod(script, obj, "op_UnaryNegation");
-				case "__eq":
-					return MultiDispatchEqual(script, obj);
-				case "__lt":
-					return MultiDispatchLessThan(script, obj);
-				case "__le":
-					return MultiDispatchLessThanOrEqual(script, obj);
-				case "__len":
-					return TryDispatchLength(script, obj);
-				case "__tonumber":
-					return TryDispatchToNumber(script, obj);
-				case "__tobool":
-					return TryDispatchToBool(script, obj);
-				case "__iterator":
-					return ClrToScriptConversions.EnumerationToDynValue(script, obj);
-				default:
-					return null;
-			}
-		}
-
-		private int PerformComparison(object obj, object p1, object p2)
-		{
-			IComparable comp = (IComparable)obj;
-
-			if (comp != null)
-			{
-				if (object.ReferenceEquals(obj, p1))
-					return comp.CompareTo(p2);
-				else if (object.ReferenceEquals(obj, p2))
-					return -comp.CompareTo(p1);
-			}
-
-			throw new InternalErrorException("unexpected case");
-		}
 
 
-		private DynValue MultiDispatchLessThanOrEqual(Script script, object obj)
-		{
-			IComparable comp = obj as IComparable;
-			if (comp != null)
-			{
-				return DynValue.NewCallback(
-					(context, args) =>
-						DynValue.NewBoolean(PerformComparison(obj, args[0].ToObject(), args[1].ToObject()) <= 0));
-			}
-
-			return null;
-		}
-
-		private DynValue MultiDispatchLessThan(Script script, object obj)
-		{
-			IComparable comp = obj as IComparable;
-			if (comp != null)
-			{
-				return DynValue.NewCallback(
-					(context, args) =>
-						DynValue.NewBoolean(PerformComparison(obj, args[0].ToObject(), args[1].ToObject()) < 0));
-			}
-
-			return null;
-		}
-
-		private DynValue TryDispatchLength(Script script, object obj)
-		{
-			if (obj == null) return null;
-
-			var lenprop = m_Properties.GetOrDefault("Length");
-			if (lenprop != null) return lenprop.GetGetterCallbackAsDynValue(script, obj);
-
-			var countprop = m_Properties.GetOrDefault("Count");
-			if (countprop != null) return countprop.GetGetterCallbackAsDynValue(script, obj);
-
-			return null;
-		}
-
-
-		private DynValue MultiDispatchEqual(Script script, object obj)
-		{
-			return DynValue.NewCallback(
-				(context, args) => DynValue.NewBoolean(CheckEquality(obj, args[0].ToObject(), args[1].ToObject())));
-		}
-
-
-		private bool CheckEquality(object obj, object p1, object p2)
-		{
-			if (obj != null)
-			{
-				if (object.ReferenceEquals(obj, p1))
-					return obj.Equals(p2);
-				else if (object.ReferenceEquals(obj, p2))
-					return obj.Equals(p1);
-			}
-
-			if (p1 != null) return p1.Equals(p2);
-			else if (p2 != null) return p2.Equals(p1);
-			else return true;
-		}
-
-		private DynValue DispatchMetaOnMethod(Script script, object obj, string methodName)
-		{
-			StandardUserDataOverloadedMethodDescriptor desc = m_Methods.GetOrDefault(methodName);
-
-			if (desc != null)
-				return desc.GetCallbackAsDynValue(script, obj);
-			else
-				return null;
-		}
-
-
-		private DynValue TryDispatchToNumber(Script script, object obj)
-		{
-			foreach (Type t in NumericConversions.NumericTypesOrdered)
-			{
-				var name = GetConversionMethodName(t);
-				var v = DispatchMetaOnMethod(script, obj, name);
-				if (v != null) return v;
-			}
-			return null;
-		}
-
-
-		private DynValue TryDispatchToBool(Script script, object obj)
-		{
-			var name = GetConversionMethodName(typeof(bool));
-			var v = DispatchMetaOnMethod(script, obj, name);
-			if (v != null) return v;
-			return DispatchMetaOnMethod(script, obj, "op_True");
-		}
 
 	}
 }

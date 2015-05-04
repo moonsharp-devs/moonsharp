@@ -144,6 +144,8 @@
     <Compile Include="Interop\Converters\StringConversions.cs" />
     <Compile Include="Interop\Converters\TableConversions.cs" />
     <Compile Include="Interop\CustomConvertersCollection.cs" />
+    <Compile Include="Interop\DescriptorHelpers.cs" />
+    <Compile Include="Interop\BasicDescriptors\DispatchingUserDataDescriptor.cs" />
     <Compile Include="Interop\StandardDescriptors\StandardUserDataEventDescriptor.cs" />
     <Compile Include="Interop\StandardDescriptors\StandardUserDataOverloadedMethodDescriptor.cs" />
     <Compile Include="Interop\StandardDescriptors\StandardUserDataFieldDescriptor.cs" />
@@ -336,7 +338,9 @@
     <Compile Include="Tree\Statements\ScopeBlockStatement.cs" />
     <Compile Include="Tree\Statements\WhileStatement.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Interop\StandardDescriptors\ReflectionDescriptors\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

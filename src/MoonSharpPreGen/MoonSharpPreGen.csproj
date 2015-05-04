@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{56301BAA-FD15-46D4-9C77-84F9DC299C56}</ProjectGuid>
+    <ProjectGuid>{70FFEF13-A326-46F9-BDCC-DC74DAB31165}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Tutorials</RootNamespace>
-    <AssemblyName>Tutorials</AssemblyName>
+    <RootNamespace>MoonSharpPreGen</RootNamespace>
+    <AssemblyName>MoonSharpPreGen</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -32,6 +32,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="DotArguments">
+      <HintPath>..\packages\DotArguments.0.3.1\lib\DotArguments.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -41,42 +44,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Chapters\Chapter12.cs" />
-    <Compile Include="Chapters\Chapter11.cs" />
-    <Compile Include="Chapters\Chapter7.cs" />
-    <Compile Include="Chapters\Chapter8.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Chapters\Chapter10.cs" />
-    <Compile Include="Chapters\Chapter9.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Chapters\Chapter6.cs" />
-    <Compile Include="Chapters\Chapter5.cs" />
-    <Compile Include="Chapters\Chapter1.cs" />
-    <Compile Include="Chapters\Chapter2.cs" />
-    <Compile Include="Chapters\Chapter3.cs" />
-    <Compile Include="Chapters\Chapter4.cs" />
-    <Compile Include="TutorialAttribute.cs" />
-    <Compile Include="Chapters\X1.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="readme.md" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Scripts\Test.lua" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\MoonSharp.Interpreter\_Projects\MoonSharp.Interpreter.net40-client\MoonSharp.Interpreter.net40-client.csproj">
+    <ProjectReference Include="..\MoonSharp.Interpreter\_Projects\MoonSharp.Interpreter.net40-client\MoonSharp.Interpreter.net40-client.csproj">
       <Project>{88d2880c-a863-4b16-abef-f67bd1e98bd1}</Project>
       <Name>MoonSharp.Interpreter.net40-client</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\MoonSharp.RemoteDebugger\_Projects\MoonSharp.RemoteDebugger.net40-client\MoonSharp.RemoteDebugger.net40-client.csproj">
-      <Project>{f9d383b9-2639-4738-a897-4d9f8801b8c9}</Project>
-      <Name>MoonSharp.RemoteDebugger.net40-client</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
