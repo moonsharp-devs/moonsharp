@@ -125,6 +125,21 @@
     <Compile Include="..\..\Interop\Attributes\MoonSharpUserDataMetamethodAttribute.cs">
       <Link>MoonSharpUserDataMetamethodAttribute.cs</Link>
     </Compile>
+    <Compile Include="..\..\Interop\BasicDescriptors\IMemberDescriptor.cs">
+      <Link>IMemberDescriptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\BasicDescriptors\IOptimizableDescriptor.cs">
+      <Link>IOptimizableDescriptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\BasicDescriptors\IOverloadableMemberDescriptor.cs">
+      <Link>IOverloadableMemberDescriptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\BasicDescriptors\MemberDescriptorAccess.cs">
+      <Link>MemberDescriptorAccess.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\BasicDescriptors\OverloadableParameterDescriptor.cs">
+      <Link>OverloadableParameterDescriptor.cs</Link>
+    </Compile>
     <Compile Include="..\..\Interop\Converters\ClrToScriptConversions.cs">
       <Link>ClrToScriptConversions.cs</Link>
     </Compile>
@@ -149,14 +164,26 @@
     <Compile Include="..\..\Interop\BasicDescriptors\DispatchingUserDataDescriptor.cs">
       <Link>DispatchingUserDataDescriptor.cs</Link>
     </Compile>
-    <Compile Include="..\..\Interop\StandardDescriptors\StandardUserDataEventDescriptor.cs">
+    <Compile Include="..\..\Interop\StandardDescriptors\EnumDescriptor.cs">
+      <Link>EnumDescriptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\StandardDescriptors\StandardEnumUserDataDescriptor.cs">
+      <Link>StandardEnumUserDataDescriptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\StandardDescriptors\ReflectionDescriptors\StandardUserDataDynValueDescriptor.cs">
+      <Link>StandardUserDataDynValueDescriptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\StandardDescriptors\ReflectionDescriptors\StandardUserDataEventDescriptor.cs">
       <Link>StandardUserDataEventDescriptor.cs</Link>
     </Compile>
-    <Compile Include="..\..\Interop\StandardDescriptors\StandardUserDataOverloadedMethodDescriptor.cs">
+    <Compile Include="..\..\Interop\StandardDescriptors\ReflectionDescriptors\StandardUserDataOverloadedMethodDescriptor.cs">
       <Link>StandardUserDataOverloadedMethodDescriptor.cs</Link>
     </Compile>
-    <Compile Include="..\..\Interop\StandardDescriptors\StandardUserDataFieldDescriptor.cs">
+    <Compile Include="..\..\Interop\StandardDescriptors\ReflectionDescriptors\StandardUserDataFieldDescriptor.cs">
       <Link>StandardUserDataFieldDescriptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\StandardDescriptors\ReflectionDescriptors\ValueTypeDefaultCtorDescriptor.cs">
+      <Link>ValueTypeDefaultCtorDescriptor.cs</Link>
     </Compile>
     <Compile Include="..\..\IO\BinDumpBinaryReader.cs">
       <Link>BinDumpBinaryReader.cs</Link>
@@ -381,10 +408,10 @@
     <Compile Include="..\..\Interop\InteropAccessMode.cs">
       <Link>InteropAccessMode.cs</Link>
     </Compile>
-    <Compile Include="..\..\Interop\StandardDescriptors\StandardUserDataMethodDescriptor.cs">
+    <Compile Include="..\..\Interop\StandardDescriptors\ReflectionDescriptors\StandardUserDataMethodDescriptor.cs">
       <Link>StandardUserDataMethodDescriptor.cs</Link>
     </Compile>
-    <Compile Include="..\..\Interop\StandardDescriptors\StandardUserDataPropertyDescriptor.cs">
+    <Compile Include="..\..\Interop\StandardDescriptors\ReflectionDescriptors\StandardUserDataPropertyDescriptor.cs">
       <SubType>Code</SubType>
       <Link>StandardUserDataPropertyDescriptor.cs</Link>
     </Compile>
