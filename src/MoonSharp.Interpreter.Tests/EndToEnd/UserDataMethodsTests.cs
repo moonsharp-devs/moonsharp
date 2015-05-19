@@ -919,6 +919,39 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			Assert.AreEqual(24, res.Number);
 		}
 
+
+		[Test]
+		public void Interop_StaticInstanceAccessRaisesError()
+		{
+			try
+			{
+				UserData.UnregisterType<SomeClass>();
+
+				string script = @"    
+				t = { 'asd', 'qwe', 'zxc', ['x'] = 'X', ['y'] = 'Y' };
+				x = mystatic.ConcatI(1, 'ciao', myobj, true, t, t, 'eheh', t, myobj);
+				return x;";
+
+				Script S = new Script();
+
+				SomeClass obj = new SomeClass();
+
+				UserData.UnregisterType<SomeClass>();
+				UserData.RegisterType<SomeClass>();
+
+				S.Globals.Set("mystatic", UserData.CreateStatic<SomeClass>());
+				S.Globals.Set("myobj", UserData.Create(obj));
+
+				DynValue res = S.DoString(script);
+
+				Assert.Fail();
+			}
+			catch (Exception ex)
+			{
+				Assert.IsTrue(ex.Message.Contains("attempt to access instance member"));
+			}
+		}
+
 	}
 }
 

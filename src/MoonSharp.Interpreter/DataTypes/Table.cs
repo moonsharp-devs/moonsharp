@@ -45,6 +45,17 @@ namespace MoonSharp.Interpreter
 		}
 
 		/// <summary>
+		/// Removes all items from the Table.
+		/// </summary>
+		public void Clear()
+		{
+			m_Values.Clear();
+			m_StringMap.Clear();
+			m_ArrayMap.Clear();
+			m_ValueMap.Clear();
+		}
+
+		/// <summary>
 		/// Gets the integral key from a double.
 		/// </summary>
 		private int GetIntegralKey(double d)
@@ -492,11 +503,5 @@ namespace MoonSharp.Interpreter
 				return m_Values.Select(n => n.Value);
 			}
 		}
-
-
-
-
-
-
 	}
 }

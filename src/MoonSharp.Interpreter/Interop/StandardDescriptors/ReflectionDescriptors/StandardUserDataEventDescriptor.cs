@@ -193,7 +193,7 @@ namespace MoonSharp.Interpreter.Interop
 		/// <returns></returns>
 		public DynValue GetValue(Script script, object obj)
 		{
-			this.CheckAccess(MemberDescriptorAccess.CanRead);
+			this.CheckAccess(MemberDescriptorAccess.CanRead, obj);
 
 			if (IsStatic) 
 				obj = this;
@@ -345,7 +345,7 @@ namespace MoonSharp.Interpreter.Interop
 
 		public void SetValue(Script script, object obj, DynValue v)
 		{
-			this.CheckAccess(MemberDescriptorAccess.CanWrite);
+			this.CheckAccess(MemberDescriptorAccess.CanWrite, obj);
 		}
 	
 	}

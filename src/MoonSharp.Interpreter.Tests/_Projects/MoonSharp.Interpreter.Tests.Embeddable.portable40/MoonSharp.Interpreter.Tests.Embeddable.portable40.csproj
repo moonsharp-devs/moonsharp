@@ -98,6 +98,9 @@
     <Compile Include="..\..\EndToEnd\UserDataEnumsTest.cs">
       <Link>UserDataEnumsTest.cs</Link>
     </Compile>
+    <Compile Include="..\..\EndToEnd\UserDataNestedTypesTests.cs">
+      <Link>UserDataNestedTypesTests.cs</Link>
+    </Compile>
     <Compile Include="..\..\EndToEnd\VtUserDataPropertiesTests.cs">
       <Link>VtUserDataPropertiesTests.cs</Link>
     </Compile>

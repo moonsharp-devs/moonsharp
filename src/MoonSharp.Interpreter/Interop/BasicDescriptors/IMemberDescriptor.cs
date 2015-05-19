@@ -26,6 +26,8 @@ namespace MoonSharp.Interpreter.Interop.BasicDescriptors
 		MemberDescriptorAccess MemberAccess { get; }
 		/// <summary>
 		/// Gets the value of this member as a <see cref="DynValue"/> to be exposed to scripts.
+		/// Implementors should raise exceptions if the value cannot be read or if access to an
+		/// instance member through a static userdata is attempted.
 		/// </summary>
 		/// <param name="script">The script.</param>
 		/// <param name="obj">The object owning this member, or null if static.</param>
@@ -33,6 +35,8 @@ namespace MoonSharp.Interpreter.Interop.BasicDescriptors
 		DynValue GetValue(Script script, object obj);
 		/// <summary>
 		/// Sets the value of this member from a <see cref="DynValue"/>.
+		/// Implementors should raise exceptions if the value cannot be read or if access to an
+		/// instance member through a static userdata is attempted.
 		/// </summary>
 		/// <param name="script">The script.</param>
 		/// <param name="obj">The object owning this member, or null if static.</param>
@@ -121,8 +125,11 @@ namespace MoonSharp.Interpreter.Interop.BasicDescriptors
 		/// </summary>
 		/// <param name="desc">The desc.</param>
 		/// <param name="access">The access.</param>
-		public static void CheckAccess(this IMemberDescriptor desc, MemberDescriptorAccess access)
+		public static void CheckAccess(this IMemberDescriptor desc, MemberDescriptorAccess access, object obj)
 		{
+			if (!desc.IsStatic && obj == null)
+				throw ScriptRuntimeException.AccessInstanceMemberOnStatics(desc);
+
 			if (access.HasAllFlags(MemberDescriptorAccess.CanExecute) && !desc.CanExecute())
 				throw new ScriptRuntimeException("userdata member {0} cannot be called.", desc.Name);
 

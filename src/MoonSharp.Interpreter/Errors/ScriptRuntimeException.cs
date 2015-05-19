@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using MoonSharp.Interpreter.Execution.VM;
+using MoonSharp.Interpreter.Interop;
+using MoonSharp.Interpreter.Interop.BasicDescriptors;
 
 namespace MoonSharp.Interpreter
 {
@@ -476,5 +478,25 @@ namespace MoonSharp.Interpreter
 				return new ScriptRuntimeException("attempt to call a {0} value", functype);
 		}
 
+
+		/// <summary>
+		/// Creates a ScriptRuntimeException with a predefined error message specifying that
+		/// an attempt to access a non-static member from a static userdata was made
+		/// </summary>
+		/// <param name="desc">The member descriptor.</param>
+		public static ScriptRuntimeException AccessInstanceMemberOnStatics(IMemberDescriptor desc)
+		{
+			return new ScriptRuntimeException("attempt to access instance member {0} from a static userdata", desc.Name);
+		}
+
+		/// <summary>
+		/// Creates a ScriptRuntimeException with a predefined error message specifying that
+		/// an attempt to access a non-static member from a static userdata was made
+		/// </summary>
+		/// <param name="desc">The member descriptor.</param>
+		public static ScriptRuntimeException AccessInstanceMemberOnStatics(IUserDataDescriptor typeDescr, IMemberDescriptor desc)
+		{
+			return new ScriptRuntimeException("attempt to access instance member {0}.{1} from a static userdata", typeDescr.Name, desc.Name);
+		}
 	}
 }

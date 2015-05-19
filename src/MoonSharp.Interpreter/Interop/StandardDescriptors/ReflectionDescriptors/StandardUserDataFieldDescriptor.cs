@@ -103,7 +103,7 @@ namespace MoonSharp.Interpreter.Interop
 		/// <returns></returns>
 		public DynValue GetValue(Script script, object obj)
 		{
-			this.CheckAccess(MemberDescriptorAccess.CanRead);
+			this.CheckAccess(MemberDescriptorAccess.CanRead, obj);
 
 			// optimization+workaround of Unity bug.. 
 			if (IsConst)
@@ -157,7 +157,7 @@ namespace MoonSharp.Interpreter.Interop
 		/// <param name="v">The value to set.</param>
 		public void SetValue(Script script, object obj, DynValue v)
 		{
-			this.CheckAccess(MemberDescriptorAccess.CanWrite);
+			this.CheckAccess(MemberDescriptorAccess.CanWrite, obj);
 
 			if (IsReadonly || IsConst)
 				throw new ScriptRuntimeException("userdata field '{0}.{1}' cannot be written to.", this.FieldInfo.DeclaringType.Name, this.Name);

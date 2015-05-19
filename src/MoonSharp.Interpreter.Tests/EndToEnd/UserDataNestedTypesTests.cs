@@ -11,6 +11,16 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 	{
 		public class SomeType
 		{
+			public enum SomeNestedEnum
+			{
+				Asdasdasd,
+			}
+
+			public static SomeNestedEnum Get()
+			{
+				return SomeNestedEnum.Asdasdasd;
+			}
+
 			public class SomeNestedType
 			{
 				public static string Get()
@@ -66,6 +76,21 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			}
 
 		}
+
+		[Test]
+		public void Interop_NestedTypes_Public_Enum()
+		{
+			Script S = new Script();
+
+			UserData.RegisterType<SomeType>();
+
+			S.Globals.Set("o", UserData.CreateStatic<SomeType>());
+
+			DynValue res = S.DoString("return o:Get()");
+
+			Assert.AreEqual(DataType.UserData, res.Type);
+		}
+
 
 		[Test]
 		public void Interop_NestedTypes_Public_Ref()

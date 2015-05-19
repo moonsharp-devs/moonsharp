@@ -258,6 +258,8 @@ namespace MoonSharp.Interpreter.Interop
 		/// <returns></returns>
 		public DynValue Execute(Script script, object obj, ScriptExecutionContext context, CallbackArguments args)
 		{
+			this.CheckAccess(MemberDescriptorAccess.CanExecute, obj);
+
 			if (AccessMode == InteropAccessMode.LazyOptimized &&
 				m_OptimizedFunc == null && m_OptimizedAction == null)
 				((IOptimizableDescriptor)this).Optimize();
@@ -476,6 +478,7 @@ namespace MoonSharp.Interpreter.Interop
 		/// </returns>
 		public DynValue GetValue(Script script, object obj)
 		{
+			this.CheckAccess(MemberDescriptorAccess.CanRead, obj);
 			return this.GetCallbackAsDynValue(script, obj);
 		}
 
@@ -488,7 +491,7 @@ namespace MoonSharp.Interpreter.Interop
 		/// <exception cref="System.NotImplementedException"></exception>
 		public void SetValue(Script script, object obj, DynValue v)
 		{
-			this.CheckAccess(MemberDescriptorAccess.CanWrite);
+			this.CheckAccess(MemberDescriptorAccess.CanWrite, obj);
 		}
 	}
 }

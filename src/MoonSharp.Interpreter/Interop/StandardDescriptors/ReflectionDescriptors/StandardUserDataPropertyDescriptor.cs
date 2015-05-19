@@ -144,7 +144,7 @@ namespace MoonSharp.Interpreter.Interop
 		/// <returns></returns>
 		public DynValue GetValue(Script script, object obj)
 		{
-			this.CheckAccess(MemberDescriptorAccess.CanRead);
+			this.CheckAccess(MemberDescriptorAccess.CanRead, obj);
 
 			if (m_Getter == null)
 				throw new ScriptRuntimeException("userdata property '{0}.{1}' cannot be read from.", this.PropertyInfo.DeclaringType.Name, this.Name);
@@ -228,7 +228,7 @@ namespace MoonSharp.Interpreter.Interop
 		/// <param name="v">The value to set.</param>
 		public void SetValue(Script script, object obj, DynValue v)
 		{
-			this.CheckAccess(MemberDescriptorAccess.CanWrite);
+			this.CheckAccess(MemberDescriptorAccess.CanWrite, obj);
 
 			if (m_Setter == null)
 				throw new ScriptRuntimeException("userdata property '{0}.{1}' cannot be written to.", this.PropertyInfo.DeclaringType.Name, this.Name);

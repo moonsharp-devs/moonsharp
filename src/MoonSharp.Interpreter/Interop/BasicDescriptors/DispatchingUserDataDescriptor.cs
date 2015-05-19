@@ -233,7 +233,9 @@ namespace MoonSharp.Interpreter.Interop.BasicDescriptors
 			IMemberDescriptor desc;
 
 			if (m_Members.TryGetValue(indexName, out desc))
+			{
 				return desc.GetValue(script, obj);
+			}
 
 			return null;
 		}
@@ -440,7 +442,9 @@ namespace MoonSharp.Interpreter.Interop.BasicDescriptors
 			IMemberDescriptor desc = m_MetaMembers.GetOrDefault(metaname);
 
 			if (desc != null)
+			{
 				return desc.GetValue(script, obj);
+			}
 
 			switch (metaname)
 			{
@@ -561,7 +565,9 @@ namespace MoonSharp.Interpreter.Interop.BasicDescriptors
 			IMemberDescriptor desc = m_Members.GetOrDefault(methodName);
 
 			if (desc != null)
+			{
 				return desc.GetValue(script, obj);
+			}
 			else
 				return null;
 		}

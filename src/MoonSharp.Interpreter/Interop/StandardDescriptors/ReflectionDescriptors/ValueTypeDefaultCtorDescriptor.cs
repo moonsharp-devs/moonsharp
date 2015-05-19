@@ -77,6 +77,8 @@ namespace MoonSharp.Interpreter.Interop
 
 		public DynValue Execute(Script script, object obj, ScriptExecutionContext context, CallbackArguments args)
 		{
+			this.CheckAccess(MemberDescriptorAccess.CanRead, obj);
+
 			object vto = Activator.CreateInstance(ValueTypeDefaultCtor);
 			return ClrToScriptConversions.ObjectToDynValue(script, vto);
 		}
@@ -95,13 +97,15 @@ namespace MoonSharp.Interpreter.Interop
 
 		public DynValue GetValue(Script script, object obj)
 		{
+			this.CheckAccess(MemberDescriptorAccess.CanRead, obj);
+
 			object vto = Activator.CreateInstance(ValueTypeDefaultCtor);
 			return ClrToScriptConversions.ObjectToDynValue(script, vto);
 		}
 
 		public void SetValue(Script script, object obj, DynValue value)
 		{
-			this.CheckAccess(MemberDescriptorAccess.CanWrite);
+			this.CheckAccess(MemberDescriptorAccess.CanWrite, obj);
 		}
 	}
 }

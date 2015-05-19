@@ -108,5 +108,13 @@ namespace MoonSharp.Interpreter.DataStructs
 
 			return m_Map.ContainsKey(key);
 		}
+
+		/// <summary>
+		/// Clears this instance (removes all elements)
+		/// </summary>
+		public void Clear()
+		{
+			m_Map.Clear();
+		}
 	}
 }

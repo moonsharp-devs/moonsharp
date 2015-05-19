@@ -444,12 +444,12 @@ namespace MoonSharp.Interpreter.Interop
 		}
 
 		/// <summary>
-		/// Gets a value indicating whether the described property is static.
+		/// Gets a value indicating whether there is at least one static method in the resolution list
 		/// </summary>
 		/// <exception cref="System.NotImplementedException"></exception>
 		public bool IsStatic
 		{
-			get { return m_ExtOverloads.Count == 0 && m_Overloads.All(o => o.IsStatic); }
+			get { return m_Overloads.Any(o => o.IsStatic); }
 		}
 
 		/// <summary>
@@ -482,7 +482,7 @@ namespace MoonSharp.Interpreter.Interop
 		/// <exception cref="System.NotImplementedException"></exception>
 		public void SetValue(Script script, object obj, DynValue value)
 		{
-			this.CheckAccess(MemberDescriptorAccess.CanWrite);
+			this.CheckAccess(MemberDescriptorAccess.CanWrite, obj);
 		}
 	}
 }

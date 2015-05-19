@@ -12,7 +12,9 @@ namespace MoonSharp.Interpreter.Interop.BasicDescriptors
 	public interface IOverloadableMemberDescriptor : IMemberDescriptor
 	{
 		/// <summary>
-		/// Invokes the member from script
+		/// Invokes the member from script.
+		/// Implementors should raise exceptions if the value cannot be executed or if access to an
+		/// instance member through a static userdata is attempted.
 		/// </summary>
 		/// <param name="script">The script.</param>
 		/// <param name="obj">The object.</param>
