@@ -115,6 +115,16 @@ namespace MoonSharp.Interpreter.Interop
 
 				AddMember(ei.Name, StandardUserDataEventDescriptor.TryCreateIfVisible(ei, this.AccessMode));
 			}
+
+			// get nested types and create statics
+			foreach (Type nestedType in type.GetNestedTypes(BindingFlags.NonPublic | BindingFlags.Public))
+			{
+				if (nestedType.IsNestedPublic || nestedType.GetCustomAttributes(typeof(MoonSharpUserDataAttribute), true).Length > 0)
+				{
+					UserData.RegisterType(nestedType, this.AccessMode);
+					AddDynValue(nestedType.Name, UserData.CreateStatic(nestedType));
+				}
+			}
 		}
 
 
