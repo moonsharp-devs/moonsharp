@@ -1432,7 +1432,34 @@ namespace MoonSharp.Interpreter.Tests
 			Assert.AreEqual((1 + (double)0x921FB54442D18 / (double)0x10000000000000) * 2, result.Number);
 		}
 
+		[Test]
+		public void Simple_Delegate_Interop_1()
+		{
+			int a = 3;
+			var script = new Script();
+			script.Globals["action"] = new Action(() => a = 5);
+			script.DoString("action()");
+			Assert.AreEqual(5, a);
+		}
 
+		[Test]
+		public void Simple_Delegate_Interop_2()
+		{
+			try
+			{
+				UserData.RegistrationPolicy = Interop.InteropRegistrationPolicy.Automatic;
+
+				int a = 3;
+				var script = new Script();
+				script.Globals["action"] = new Action(() => a = 5);
+				script.DoString("action()");
+				Assert.AreEqual(5, a);
+			}
+			finally
+			{
+				UserData.RegistrationPolicy = Interop.InteropRegistrationPolicy.Explicit;
+			}
+		}
 
 
 	}

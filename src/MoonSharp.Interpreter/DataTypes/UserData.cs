@@ -378,7 +378,11 @@ namespace MoonSharp.Interpreter
 
 				if (RegistrationPolicy == InteropRegistrationPolicy.Automatic)
 				{
-					return RegisterType_Impl(type, DefaultAccessMode, type.FullName, null);
+					// no autoreg of delegates
+					if (!(typeof(Delegate)).IsAssignableFrom(type))
+					{
+						return RegisterType_Impl(type, DefaultAccessMode, type.FullName, null);
+					}
 				}
 
 				// search for the base object descriptors
