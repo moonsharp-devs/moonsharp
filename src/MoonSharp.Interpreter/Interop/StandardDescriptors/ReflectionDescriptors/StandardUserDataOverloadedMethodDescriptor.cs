@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MoonSharp.Interpreter.Interop.BasicDescriptors;
 using MoonSharp.Interpreter.Interop.Converters;
 
 namespace MoonSharp.Interpreter.Interop
@@ -11,20 +12,33 @@ namespace MoonSharp.Interpreter.Interop
 	/// <summary>
 	/// Class providing easier marshalling of overloaded CLR functions
 	/// </summary>
-	public class StandardUserDataOverloadedMethodDescriptor
+	public class StandardUserDataOverloadedMethodDescriptor : IOptimizableDescriptor, IMemberDescriptor
 	{
+		/// <summary>
+		/// Comparer class for IOverloadableMemberDescriptor
+		/// </summary>
+		private class OverloadableMemberDescriptorComparer : IComparer<IOverloadableMemberDescriptor>
+		{
+			public int Compare(IOverloadableMemberDescriptor x, IOverloadableMemberDescriptor y)
+			{
+				return x.SortDiscriminant.CompareTo(y.SortDiscriminant);
+			}
+		}
+
+
 		const int CACHE_SIZE = 5;
 
 		private class OverloadCacheItem
 		{
 			public bool HasObject;
-			public StandardUserDataMethodDescriptor Method;
+			public IOverloadableMemberDescriptor Method;
 			public List<DataType> ArgsDataType;
+			public List<Type> ArgsUserDataType;
 			public int HitIndexAtLastHit;
 		}
 
-		private List<StandardUserDataMethodDescriptor> m_Overloads = new List<StandardUserDataMethodDescriptor>();
-		private List<StandardUserDataMethodDescriptor> m_ExtOverloads = new List<StandardUserDataMethodDescriptor>();
+		private List<IOverloadableMemberDescriptor> m_Overloads = new List<IOverloadableMemberDescriptor>();
+		private List<IOverloadableMemberDescriptor> m_ExtOverloads = new List<IOverloadableMemberDescriptor>();
 		private bool m_Unsorted = true;
 		private OverloadCacheItem[] m_Cache = new OverloadCacheItem[CACHE_SIZE];
 		private int m_CacheHits = 0;
@@ -51,7 +65,7 @@ namespace MoonSharp.Interpreter.Interop
 		/// <param name="name">The name.</param>
 		/// <param name="declaringType">The declaring type.</param>
 		/// <param name="descriptor">The descriptor of the first overloaded method.</param>
-		public StandardUserDataOverloadedMethodDescriptor(string name, Type declaringType, StandardUserDataMethodDescriptor descriptor)
+		public StandardUserDataOverloadedMethodDescriptor(string name, Type declaringType, IOverloadableMemberDescriptor descriptor)
 			: this(name, declaringType)
 		{
 			m_Overloads.Add(descriptor);
@@ -63,7 +77,7 @@ namespace MoonSharp.Interpreter.Interop
 		/// <param name="name">The name.</param>
 		/// <param name="declaringType">The declaring type.</param>
 		/// <param name="descriptors">The descriptors of the overloaded methods.</param>
-		public StandardUserDataOverloadedMethodDescriptor(string name, Type declaringType, IEnumerable<StandardUserDataMethodDescriptor> descriptors)
+		public StandardUserDataOverloadedMethodDescriptor(string name, Type declaringType, IEnumerable<IOverloadableMemberDescriptor> descriptors)
 			: this(name, declaringType)
 		{
 			m_Overloads.AddRange(descriptors);
@@ -74,7 +88,7 @@ namespace MoonSharp.Interpreter.Interop
 		/// </summary>
 		/// <param name="version">The version.</param>
 		/// <param name="extMethods">The ext methods.</param>
-		internal void SetExtensionMethodsSnapshot(int version, List<StandardUserDataMethodDescriptor> extMethods)
+		internal void SetExtensionMethodsSnapshot(int version, List<IOverloadableMemberDescriptor> extMethods)
 		{
 			m_ExtOverloads = extMethods;
 			m_ExtensionMethodVersion = version;
@@ -104,7 +118,7 @@ namespace MoonSharp.Interpreter.Interop
 		/// Adds an overload.
 		/// </summary>
 		/// <param name="overload">The overload.</param>
-		public void AddOverload(StandardUserDataMethodDescriptor overload)
+		public void AddOverload(IOverloadableMemberDescriptor overload)
 		{
 			m_Overloads.Add(overload);
 			m_Unsorted = true;
@@ -136,11 +150,11 @@ namespace MoonSharp.Interpreter.Interop
 
 			// common case, let's optimize for it
 			if (m_Overloads.Count == 1 && m_ExtOverloads.Count == 0 && extMethodCacheNotExpired)
-				return m_Overloads[0].Callback(script, obj, context, args);
+				return m_Overloads[0].Execute(script, obj, context, args);
 
 			if (m_Unsorted)
 			{
-				m_Overloads.Sort();
+				m_Overloads.Sort(new OverloadableMemberDescriptorComparer());
 				m_Unsorted = false;
 			}
 
@@ -153,14 +167,14 @@ namespace MoonSharp.Interpreter.Interop
 #if DEBUG_OVERLOAD_RESOLVER
 						System.Diagnostics.Debug.WriteLine(string.Format("[OVERLOAD] : CACHED! slot {0}, hits: {1}", i, m_CacheHits));
 #endif
-						return m_Cache[i].Method.Callback(script, obj, context, args);
+						return m_Cache[i].Method.Execute(script, obj, context, args);
 					}
 				}
 			}
 
 			// resolve on overloads first
 			int maxScore = 0;
-			StandardUserDataMethodDescriptor bestOverload = null;
+			IOverloadableMemberDescriptor bestOverload = null;
 
 			for (int i = 0; i < m_Overloads.Count; i++)
 			{
@@ -183,6 +197,7 @@ namespace MoonSharp.Interpreter.Interop
 					m_ExtensionMethodVersion = UserData.GetExtensionMethodsChangeVersion();
 					m_ExtOverloads = UserData.GetExtensionMethodsByName(this.Name)
 						.Where(d => d.ExtensionMethodType != null && d.ExtensionMethodType.IsAssignableFrom(this.DeclaringType))
+						.Cast<IOverloadableMemberDescriptor>()
 						.ToList();
 				}
 
@@ -202,13 +217,13 @@ namespace MoonSharp.Interpreter.Interop
 			if (bestOverload != null)
 			{
 				Cache(obj != null, args, bestOverload);
-				return bestOverload.Callback(script, obj, context, args);
+				return bestOverload.Execute(script, obj, context, args);
 			}
 
 			throw new ScriptRuntimeException("function call doesn't match any overload");
 		}
 
-		private void Cache(bool hasObject, CallbackArguments args, StandardUserDataMethodDescriptor bestOverload)
+		private void Cache(bool hasObject, CallbackArguments args, IOverloadableMemberDescriptor bestOverload)
 		{
 			int lowestHits = int.MaxValue;
 			OverloadCacheItem found = null;
@@ -216,7 +231,7 @@ namespace MoonSharp.Interpreter.Interop
 			{
 				if (m_Cache[i] == null)
 				{
-					found = new OverloadCacheItem() { ArgsDataType = new List<DataType>() };
+					found = new OverloadCacheItem() { ArgsDataType = new List<DataType>(), ArgsUserDataType = new List<Type>() };
 					m_Cache[i] = found;
 					break;
 				}
@@ -231,7 +246,7 @@ namespace MoonSharp.Interpreter.Interop
 			{
 				// overflow..
 				m_Cache = new OverloadCacheItem[CACHE_SIZE];
-				found = new OverloadCacheItem() { ArgsDataType = new List<DataType>() };
+				found = new OverloadCacheItem() { ArgsDataType = new List<DataType>(), ArgsUserDataType = new List<Type>() };
 				m_Cache[0] = found;
 				m_CacheHits = 0;
 			}
@@ -244,6 +259,15 @@ namespace MoonSharp.Interpreter.Interop
 			for (int i = 0; i < args.Count; i++)
 			{
 				found.ArgsDataType.Add(args[i].Type);
+
+				if (args[i].Type == DataType.UserData)
+				{
+					found.ArgsUserDataType.Add(args[i].UserData.Descriptor.Type);
+				}
+				else
+				{
+					found.ArgsUserDataType.Add(null);
+				}
 			}
 		}
 
@@ -259,6 +283,12 @@ namespace MoonSharp.Interpreter.Interop
 			{
 				if (args[i].Type != overloadCacheItem.ArgsDataType[i])
 					return false;
+
+				if (args[i].Type == DataType.UserData)
+				{
+					if (args[i].UserData.Descriptor.Type != overloadCacheItem.ArgsUserDataType[i])
+						return false;
+				}
 			}
 
 			overloadCacheItem.HitIndexAtLastHit = ++m_CacheHits;
@@ -274,19 +304,20 @@ namespace MoonSharp.Interpreter.Interop
 		/// <param name="method">The method.</param>
 		/// <param name="isExtMethod">if set to <c>true</c>, is an extension method.</param>
 		/// <returns></returns>
-		private int CalcScoreForOverload(ScriptExecutionContext context, CallbackArguments args, StandardUserDataMethodDescriptor method, bool isExtMethod)
+		private int CalcScoreForOverload(ScriptExecutionContext context, CallbackArguments args, IOverloadableMemberDescriptor method, bool isExtMethod)
 		{
 			int totalScore = ScriptToClrConversions.WEIGHT_EXACT_MATCH;
 			int argsBase = args.IsMethodCall ? 1 : 0;
 			int argsCnt = argsBase;
 			bool varArgsUsed = false;
 
+
 			for (int i = 0; i < method.Parameters.Length; i++)
 			{
 				if (isExtMethod && i == 0)
 					continue;
 
-				Type parameterType = method.Parameters[i].ParameterType;
+				Type parameterType = method.Parameters[i].Type;
 
 				if ((parameterType == typeof(Script)) || (parameterType == typeof(ScriptExecutionContext)) || (parameterType == typeof(CallbackArguments)))
 					continue;
@@ -336,7 +367,7 @@ namespace MoonSharp.Interpreter.Interop
 				{
 					var arg = args.RawGet(argsCnt, false) ?? DynValue.Void;
 
-					int score = CalcScoreForSingleArgument(parameterType, arg, !(method.Parameters[i].DefaultValue.IsDbNull()));
+					int score = CalcScoreForSingleArgument(parameterType, arg, method.Parameters[i].HasDefaultValue);
 
 					totalScore = Math.Min(totalScore, score);
 
@@ -395,13 +426,11 @@ namespace MoonSharp.Interpreter.Interop
 		}
 
 
-		internal void Optimize()
+		void IOptimizableDescriptor.Optimize()
 		{
-			foreach (var d in m_Overloads)
+			foreach (var d in m_Overloads.OfType<IOptimizableDescriptor>())
 				d.Optimize();
 		}
-
-
 
 		/// <summary>
 		/// Gets the callback function.
@@ -415,15 +444,45 @@ namespace MoonSharp.Interpreter.Interop
 		}
 
 		/// <summary>
-		/// Gets the callback function as a DynValue.
+		/// Gets a value indicating whether the described property is static.
 		/// </summary>
-		/// <param name="script">The script for which the callback must be generated.</param>
-		/// <param name="obj">The object (null for static).</param>
-		/// <returns></returns>
-		public DynValue GetCallbackAsDynValue(Script script, object obj = null)
+		/// <exception cref="System.NotImplementedException"></exception>
+		public bool IsStatic
+		{
+			get { return m_ExtOverloads.Count == 0 && m_Overloads.All(o => o.IsStatic); }
+		}
+
+		/// <summary>
+		/// Gets the types of access supported by this member
+		/// </summary>
+		public MemberDescriptorAccess MemberAccess
+		{
+			get { return MemberDescriptorAccess.CanExecute | MemberDescriptorAccess.CanRead; }
+		}
+
+		/// <summary>
+		/// Gets the value of this member as a <see cref="DynValue" /> to be exposed to scripts.
+		/// </summary>
+		/// <param name="script">The script.</param>
+		/// <param name="obj">The object owning this member, or null if static.</param>
+		/// <returns>
+		/// The value of this member as a <see cref="DynValue" />.
+		/// </returns>
+		public DynValue GetValue(Script script, object obj)
 		{
 			return DynValue.NewCallback(this.GetCallbackFunction(script, obj));
 		}
 
+		/// <summary>
+		/// Sets the value of this member from a <see cref="DynValue" />.
+		/// </summary>
+		/// <param name="script">The script.</param>
+		/// <param name="obj">The object owning this member, or null if static.</param>
+		/// <param name="value">The value to be set.</param>
+		/// <exception cref="System.NotImplementedException"></exception>
+		public void SetValue(Script script, object obj, DynValue value)
+		{
+			this.CheckAccess(MemberDescriptorAccess.CanWrite);
+		}
 	}
 }

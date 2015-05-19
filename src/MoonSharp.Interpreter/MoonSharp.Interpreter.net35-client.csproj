@@ -138,6 +138,11 @@
     <Compile Include="DataStructs\MultiDictionary.cs" />
     <Compile Include="DataStructs\ReferenceEqualityComparer.cs" />
     <Compile Include="Interop\Attributes\MoonSharpUserDataMetamethodAttribute.cs" />
+    <Compile Include="Interop\BasicDescriptors\IMemberDescriptor.cs" />
+    <Compile Include="Interop\BasicDescriptors\IOptimizableDescriptor.cs" />
+    <Compile Include="Interop\BasicDescriptors\IOverloadableMemberDescriptor.cs" />
+    <Compile Include="Interop\BasicDescriptors\MemberDescriptorAccess.cs" />
+    <Compile Include="Interop\BasicDescriptors\OverloadableParameterDescriptor.cs" />
     <Compile Include="Interop\Converters\ClrToScriptConversions.cs" />
     <Compile Include="Interop\Converters\NumericConversions.cs" />
     <Compile Include="Interop\Converters\ScriptToClrConversions.cs" />
@@ -146,9 +151,13 @@
     <Compile Include="Interop\CustomConvertersCollection.cs" />
     <Compile Include="Interop\DescriptorHelpers.cs" />
     <Compile Include="Interop\BasicDescriptors\DispatchingUserDataDescriptor.cs" />
-    <Compile Include="Interop\StandardDescriptors\StandardUserDataEventDescriptor.cs" />
-    <Compile Include="Interop\StandardDescriptors\StandardUserDataOverloadedMethodDescriptor.cs" />
-    <Compile Include="Interop\StandardDescriptors\StandardUserDataFieldDescriptor.cs" />
+    <Compile Include="Interop\StandardDescriptors\EnumDescriptor.cs" />
+    <Compile Include="Interop\StandardDescriptors\StandardEnumUserDataDescriptor.cs" />
+    <Compile Include="Interop\StandardDescriptors\ReflectionDescriptors\StandardUserDataDynValueDescriptor.cs" />
+    <Compile Include="Interop\StandardDescriptors\ReflectionDescriptors\StandardUserDataEventDescriptor.cs" />
+    <Compile Include="Interop\StandardDescriptors\ReflectionDescriptors\StandardUserDataOverloadedMethodDescriptor.cs" />
+    <Compile Include="Interop\StandardDescriptors\ReflectionDescriptors\StandardUserDataFieldDescriptor.cs" />
+    <Compile Include="Interop\StandardDescriptors\ReflectionDescriptors\ValueTypeDefaultCtorDescriptor.cs" />
     <Compile Include="IO\BinDumpBinaryReader.cs" />
     <Compile Include="IO\BinDumpBinaryWriter.cs">
       <SubType>Code</SubType>
@@ -235,8 +244,8 @@
     </Compile>
     <Compile Include="Interop\StandardDescriptors\StandardUserDataDescriptor.cs" />
     <Compile Include="Interop\InteropAccessMode.cs" />
-    <Compile Include="Interop\StandardDescriptors\StandardUserDataMethodDescriptor.cs" />
-    <Compile Include="Interop\StandardDescriptors\StandardUserDataPropertyDescriptor.cs">
+    <Compile Include="Interop\StandardDescriptors\ReflectionDescriptors\StandardUserDataMethodDescriptor.cs" />
+    <Compile Include="Interop\StandardDescriptors\ReflectionDescriptors\StandardUserDataPropertyDescriptor.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Execution\Scopes\ClosureContext.cs" />
@@ -338,9 +347,7 @@
     <Compile Include="Tree\Statements\ScopeBlockStatement.cs" />
     <Compile Include="Tree\Statements\WhileStatement.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Interop\StandardDescriptors\ReflectionDescriptors\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

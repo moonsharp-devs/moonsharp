@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using MoonSharp.Interpreter.Diagnostics;
+using MoonSharp.Interpreter.Interop.BasicDescriptors;
 using MoonSharp.Interpreter.Interop.Converters;
 
 namespace MoonSharp.Interpreter.Interop
@@ -13,7 +14,7 @@ namespace MoonSharp.Interpreter.Interop
 	/// <summary>
 	/// Class providing easier marshalling of CLR fields
 	/// </summary>
-	public class StandardUserDataFieldDescriptor
+	public class StandardUserDataFieldDescriptor : IMemberDescriptor, IOptimizableDescriptor
 	{
 		/// <summary>
 		/// Gets the FieldInfo got by reflection
@@ -102,6 +103,8 @@ namespace MoonSharp.Interpreter.Interop
 		/// <returns></returns>
 		public DynValue GetValue(Script script, object obj)
 		{
+			this.CheckAccess(MemberDescriptorAccess.CanRead);
+
 			// optimization+workaround of Unity bug.. 
 			if (IsConst)
 				return ClrToScriptConversions.ObjectToDynValue(script, m_ConstValue);
@@ -154,6 +157,8 @@ namespace MoonSharp.Interpreter.Interop
 		/// <param name="v">The value to set.</param>
 		public void SetValue(Script script, object obj, DynValue v)
 		{
+			this.CheckAccess(MemberDescriptorAccess.CanWrite);
+
 			if (IsReadonly || IsConst)
 				throw new ScriptRuntimeException("userdata field '{0}.{1}' cannot be written to.", this.FieldInfo.DeclaringType.Name, this.Name);
 
@@ -184,16 +189,22 @@ namespace MoonSharp.Interpreter.Interop
 #endif
 		}
 
-		/// <summary>
-		/// Gets the getter of the property as a DynValue containing a callback
-		/// </summary>
-		/// <param name="script">The script.</param>
-		/// <param name="obj">The object.</param>
-		/// <returns></returns>
-		public DynValue GetGetterCallbackAsDynValue(Script script, object obj)
+
+		public MemberDescriptorAccess MemberAccess
 		{
-			return DynValue.NewCallback((p1, p2) => GetValue(script, obj));
+			get
+			{
+				if (IsReadonly || IsConst)
+					return MemberDescriptorAccess.CanRead;
+				else
+					return MemberDescriptorAccess.CanRead | MemberDescriptorAccess.CanWrite;
+			}
 		}
 
+		void IOptimizableDescriptor.Optimize()
+		{
+			if (m_OptimizedGetter == null)
+				this.OptimizeGetter();
+		}
 	}
 }

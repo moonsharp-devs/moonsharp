@@ -62,5 +62,14 @@ namespace MoonSharp.Interpreter.Interop
 		/// <param name="metaname">The name of the metamember.</param>
 		/// <returns></returns>
 		DynValue MetaIndex(Script script, object obj, string metaname);
+		/// <summary>
+		/// Determines whether the specified object is compatible with the specified type.
+		/// Unless a very specific behaviour is needed, the correct implementation is a 
+		/// simple " return type.IsInstanceOfType(obj); "
+		/// </summary>
+		/// <param name="type">The type.</param>
+		/// <param name="obj">The object.</param>
+		/// <returns></returns>
+		bool IsTypeCompatible(Type type, object obj);
 	}
 }

@@ -127,6 +127,7 @@
     <Compile Include="EndToEnd\StringLibTests.cs" />
     <Compile Include="EndToEnd\TailCallTests.cs" />
     <Compile Include="EndToEnd\UserDataEventsTests.cs" />
+    <Compile Include="EndToEnd\UserDataEnumsTest.cs" />
     <Compile Include="EndToEnd\VtUserDataPropertiesTests.cs" />
     <Compile Include="EndToEnd\VtUserDataOverloadsTests.cs" />
     <Compile Include="EndToEnd\VtUserDataMethodsTests.cs" />

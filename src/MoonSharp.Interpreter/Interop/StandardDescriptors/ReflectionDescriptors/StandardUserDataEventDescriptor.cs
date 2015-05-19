@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using MoonSharp.Interpreter.DataStructs;
+using MoonSharp.Interpreter.Interop.BasicDescriptors;
 
 namespace MoonSharp.Interpreter.Interop
 {
@@ -11,7 +12,7 @@ namespace MoonSharp.Interpreter.Interop
 	/// Class providing easier marshalling of CLR events. Handling is limited to a narrow range of handler signatures, which,
 	/// however, covers in practice most of all available events.
 	/// </summary>
-	public class StandardUserDataEventDescriptor
+	public class StandardUserDataEventDescriptor : IMemberDescriptor
 	{
 		/// <summary>
 		/// The maximum number of arguments supported in an event handler delegate
@@ -192,6 +193,8 @@ namespace MoonSharp.Interpreter.Interop
 		/// <returns></returns>
 		public DynValue GetValue(Script script, object obj)
 		{
+			this.CheckAccess(MemberDescriptorAccess.CanRead);
+
 			if (IsStatic) 
 				obj = this;
 
@@ -328,6 +331,23 @@ namespace MoonSharp.Interpreter.Interop
 		private delegate void EventWrapper14(object o1, object o2, object o3, object o4, object o5, object o6, object o7, object o8, object o9, object o10, object o11, object o12, object o13, object o14);
 		private delegate void EventWrapper15(object o1, object o2, object o3, object o4, object o5, object o6, object o7, object o8, object o9, object o10, object o11, object o12, object o13, object o14, object o15);
 		private delegate void EventWrapper16(object o1, object o2, object o3, object o4, object o5, object o6, object o7, object o8, object o9, object o10, object o11, object o12, object o13, object o14, object o15, object o16);
+
+
+		public string Name
+		{
+			get { return this.EventInfo.Name; }
+		}
+
+		public MemberDescriptorAccess MemberAccess
+		{
+			get { return MemberDescriptorAccess.CanRead; }
+		}
+
+		public void SetValue(Script script, object obj, DynValue v)
+		{
+			this.CheckAccess(MemberDescriptorAccess.CanWrite);
+		}
+	
 	}
 }
 

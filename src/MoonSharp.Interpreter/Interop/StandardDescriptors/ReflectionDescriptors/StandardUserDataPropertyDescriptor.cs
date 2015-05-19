@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using MoonSharp.Interpreter.Diagnostics;
+using MoonSharp.Interpreter.Interop.BasicDescriptors;
 using MoonSharp.Interpreter.Interop.Converters;
 
 namespace MoonSharp.Interpreter.Interop
@@ -13,7 +14,7 @@ namespace MoonSharp.Interpreter.Interop
 	/// <summary>
 	/// Class providing easier marshalling of CLR properties
 	/// </summary>
-	public class StandardUserDataPropertyDescriptor
+	public class StandardUserDataPropertyDescriptor : IMemberDescriptor, IOptimizableDescriptor
 	{
 		/// <summary>
 		/// Gets the PropertyInfo got by reflection
@@ -143,6 +144,8 @@ namespace MoonSharp.Interpreter.Interop
 		/// <returns></returns>
 		public DynValue GetValue(Script script, object obj)
 		{
+			this.CheckAccess(MemberDescriptorAccess.CanRead);
+
 			if (m_Getter == null)
 				throw new ScriptRuntimeException("userdata property '{0}.{1}' cannot be read from.", this.PropertyInfo.DeclaringType.Name, this.Name);
 
@@ -225,6 +228,8 @@ namespace MoonSharp.Interpreter.Interop
 		/// <param name="v">The value to set.</param>
 		public void SetValue(Script script, object obj, DynValue v)
 		{
+			this.CheckAccess(MemberDescriptorAccess.CanWrite);
+
 			if (m_Setter == null)
 				throw new ScriptRuntimeException("userdata property '{0}.{1}' cannot be written to.", this.PropertyInfo.DeclaringType.Name, this.Name);
 
@@ -259,15 +264,30 @@ namespace MoonSharp.Interpreter.Interop
 			}
 		}
 
+
 		/// <summary>
-		/// Gets the getter of the property as a DynValue containing a callback
+		/// Gets the types of access supported by this member
 		/// </summary>
-		/// <param name="script">The script.</param>
-		/// <param name="obj">The object.</param>
-		/// <returns></returns>
-		public DynValue GetGetterCallbackAsDynValue(Script script, object obj)
+		public MemberDescriptorAccess MemberAccess
 		{
-			return DynValue.NewCallback((p1, p2) => GetValue(script, obj));
+			get 
+			{ 
+				MemberDescriptorAccess access = 0;
+
+				if (m_Setter != null) access |= MemberDescriptorAccess.CanWrite;
+				if (m_Getter != null) access |= MemberDescriptorAccess.CanRead;
+
+				return access;
+			}
+		}
+
+		/// <summary>
+		/// Called by standard descriptors when background optimization or preoptimization needs to be performed.
+		/// </summary>
+		void IOptimizableDescriptor.Optimize()
+		{
+			this.OptimizeGetter();
+			this.OptimizeSetter();
 		}
 	}
 }

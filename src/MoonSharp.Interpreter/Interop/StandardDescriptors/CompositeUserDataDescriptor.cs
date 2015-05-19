@@ -65,5 +65,19 @@ namespace MoonSharp.Interpreter.Interop
 			}
 			return null;
 		}
+
+
+		/// <summary>
+		/// Determines whether the specified object is compatible with the specified type.
+		/// Unless a very specific behaviour is needed, the correct implementation is a 
+		/// simple " return type.IsInstanceOfType(obj); "
+		/// </summary>
+		/// <param name="type">The type.</param>
+		/// <param name="obj">The object.</param>
+		/// <returns></returns>
+		public bool IsTypeCompatible(Type type, object obj)
+		{
+			return type.IsInstanceOfType(obj);
+		}
 	}
 }

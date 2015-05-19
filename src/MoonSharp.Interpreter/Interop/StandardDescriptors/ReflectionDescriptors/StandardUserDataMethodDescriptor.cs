@@ -9,6 +9,7 @@ using System.Threading;
 using MoonSharp.Interpreter;
 using MoonSharp.Interpreter.Diagnostics;
 using MoonSharp.Interpreter.Execution;
+using MoonSharp.Interpreter.Interop.BasicDescriptors;
 using MoonSharp.Interpreter.Interop.Converters;
 
 namespace MoonSharp.Interpreter.Interop
@@ -16,7 +17,7 @@ namespace MoonSharp.Interpreter.Interop
 	/// <summary>
 	/// Class providing easier marshalling of CLR functions
 	/// </summary>
-	public class StandardUserDataMethodDescriptor : IComparable<StandardUserDataMethodDescriptor>
+	public class StandardUserDataMethodDescriptor : IOverloadableMemberDescriptor, IOptimizableDescriptor
 	{
 		/// <summary>
 		/// Gets the method information (can be a MethodInfo or ConstructorInfo)
@@ -39,17 +40,17 @@ namespace MoonSharp.Interpreter.Interop
 		/// </summary>
 		public bool IsConstructor { get; private set; }
 		/// <summary>
-		/// Gets the type which this extension method extends, null if this is not an extension method.
-		/// </summary>
-		public Type ExtensionMethodType { get; private set; }
-		/// <summary>
 		/// Gets a sort discriminant to give consistent overload resolution matching in case of perfectly equal scores
 		/// </summary>
 		public string SortDiscriminant { get; private set; }
 		/// <summary>
 		/// Gets the type of the arguments of the underlying CLR function
 		/// </summary>
-		public ParameterInfo[] Parameters { get; private set; }
+		public ParameterDescriptor[] Parameters { get; private set; }
+		/// <summary>
+		/// Gets the type which this extension method extends, null if this is not an extension method.
+		/// </summary>
+		public Type ExtensionMethodType { get; private set; }
 		/// <summary>
 		/// Gets a value indicating the type of the ParamArray parameter of a var-args function. If the function is not var-args,
 		/// null is returned.
@@ -60,14 +61,11 @@ namespace MoonSharp.Interpreter.Interop
 		/// null is returned.
 		/// </summary>
 		public Type VarArgsElementType { get; private set; }
-		/// <summary>
-		/// If this is a placeholder for a valuetype default ctor, this property is equal to the value type to be constructed.
-		/// </summary>
-		public Type ValueTypeDefaultCtor { get; private set; }
 
 		private Func<object, object[], object> m_OptimizedFunc = null;
 		private Action<object, object[]> m_OptimizedAction = null;
 		private bool m_IsAction = false;
+		private ParameterInfo[] m_Parameters;
 
 
 		/// <summary>
@@ -88,30 +86,6 @@ namespace MoonSharp.Interpreter.Interop
 			return null;
 		}
 
-		/// <summary>
-		/// Initializes a new instance of the
-		/// <see cref="StandardUserDataMethodDescriptor" /> class
-		/// representing the default empty ctor for a value type.
-		/// </summary>
-		/// <param name="valueType">Type of the value.</param>
-		/// <param name="accessMode">The interop access mode.</param>
-		/// <exception cref="System.ArgumentException">valueType is not a value type</exception>
-		public StandardUserDataMethodDescriptor(Type valueType, InteropAccessMode accessMode = InteropAccessMode.Default)
-		{
-			if (!valueType.IsValueType)
-				throw new ArgumentException("valueType is not a value type");
-
-			this.Name = "__new";
-			this.MethodInfo = null;
-			IsConstructor = true;
-			this.IsStatic = true;
-			Parameters = new ParameterInfo[0];
-
-			// adjust access mode
-			this.AccessMode = InteropAccessMode.Reflection;
-
-			ValueTypeDefaultCtor = valueType;
-		}
 
 
 
@@ -137,11 +111,11 @@ namespace MoonSharp.Interpreter.Interop
 			else
 				m_IsAction = ((MethodInfo)methodBase).ReturnType == typeof(void);
 
-			Parameters = methodBase.GetParameters();
+			m_Parameters = methodBase.GetParameters();
 
-			if (methodBase.IsStatic && Parameters.Length > 0 && methodBase.GetCustomAttributes(typeof(ExtensionAttribute), false).Any())
+			if (methodBase.IsStatic && m_Parameters.Length > 0 && methodBase.GetCustomAttributes(typeof(ExtensionAttribute), false).Any())
 			{
-				this.ExtensionMethodType = Parameters[0].ParameterType;
+				this.ExtensionMethodType = m_Parameters[0].ParameterType;
 			}
 
 
@@ -155,12 +129,12 @@ namespace MoonSharp.Interpreter.Interop
 			if (accessMode == InteropAccessMode.HideMembers)
 				throw new ArgumentException("Invalid accessMode");
 
-			if (Parameters.Any(p => p.ParameterType.IsByRef))
+			if (m_Parameters.Any(p => p.ParameterType.IsByRef))
 				accessMode = InteropAccessMode.Reflection;
 
-			if (Parameters.Length > 0)
+			if (m_Parameters.Length > 0)
 			{
-				ParameterInfo plast = Parameters[Parameters.Length - 1];
+				ParameterInfo plast = m_Parameters[m_Parameters.Length - 1];
 
 				if (plast.ParameterType.IsArray && plast.GetCustomAttributes(typeof(ParamArrayAttribute), true).Any())
 				{
@@ -170,12 +144,14 @@ namespace MoonSharp.Interpreter.Interop
 			}
 
 
-			SortDiscriminant = string.Join(":", Parameters.Select(pi => pi.ParameterType.FullName).ToArray());
+			SortDiscriminant = string.Join(":", m_Parameters.Select(pi => pi.ParameterType.FullName).ToArray());
+
+			Parameters = m_Parameters.Select(pi => new ParameterDescriptor(pi)).ToArray();
 
 			this.AccessMode = accessMode;
 
 			if (AccessMode == InteropAccessMode.Preoptimized)
-				Optimize();
+				((IOptimizableDescriptor)this).Optimize();
 		}
 
 		/// <summary>
@@ -234,7 +210,7 @@ namespace MoonSharp.Interpreter.Interop
 		/// <returns></returns>
 		public Func<ScriptExecutionContext, CallbackArguments, DynValue> GetCallback(Script script, object obj = null)
 		{
-			return (c, a) => Callback(script, obj, c, a);
+			return (c, a) => Execute(script, obj, c, a);
 		}
 
 		/// <summary>
@@ -280,19 +256,13 @@ namespace MoonSharp.Interpreter.Interop
 		/// <param name="context">The context.</param>
 		/// <param name="args">The arguments.</param>
 		/// <returns></returns>
-		internal DynValue Callback(Script script, object obj, ScriptExecutionContext context, CallbackArguments args)
+		public DynValue Execute(Script script, object obj, ScriptExecutionContext context, CallbackArguments args)
 		{
-			if (ValueTypeDefaultCtor != null)
-			{
-				object vto = Activator.CreateInstance(ValueTypeDefaultCtor);
-				return ClrToScriptConversions.ObjectToDynValue(script, vto);
-			}
-
 			if (AccessMode == InteropAccessMode.LazyOptimized &&
 				m_OptimizedFunc == null && m_OptimizedAction == null)
-				Optimize();
+				((IOptimizableDescriptor)this).Optimize();
 
-			object[] pars = new object[Parameters.Length];
+			object[] pars = new object[m_Parameters.Length];
 
 			int j = args.IsMethodCall ? 1 : 0;
 
@@ -301,7 +271,7 @@ namespace MoonSharp.Interpreter.Interop
 			for (int i = 0; i < pars.Length; i++)
 			{
 				// keep track of out and ref params
-				if (Parameters[i].ParameterType.IsByRef)
+				if (m_Parameters[i].ParameterType.IsByRef)
 				{
 					if (outParams == null) outParams = new List<int>();
 					outParams.Add(i);
@@ -314,24 +284,24 @@ namespace MoonSharp.Interpreter.Interop
 					continue;
 				}
 				// else, fill types with a supported type
-				else if (Parameters[i].ParameterType == typeof(Script))
+				else if (m_Parameters[i].ParameterType == typeof(Script))
 				{
 					pars[i] = script;
 				}
-				else if (Parameters[i].ParameterType == typeof(ScriptExecutionContext))
+				else if (m_Parameters[i].ParameterType == typeof(ScriptExecutionContext))
 				{
 					pars[i] = context;
 				}
-				else if (Parameters[i].ParameterType == typeof(CallbackArguments))
+				else if (m_Parameters[i].ParameterType == typeof(CallbackArguments))
 				{
 					pars[i] = args.SkipMethodCall();
 				}
 				// else, ignore out params
-				else if (Parameters[i].IsOut)
+				else if (m_Parameters[i].IsOut)
 				{
 					pars[i] = null;
 				}
-				else if (i == Parameters.Length - 1 && VarArgsArrayType != null)
+				else if (i == m_Parameters.Length - 1 && VarArgsArrayType != null)
 				{
 					List<DynValue> extraArgs = new List<DynValue>();
 
@@ -378,8 +348,8 @@ namespace MoonSharp.Interpreter.Interop
 				else
 				{
 					var arg = args.RawGet(j, false) ?? DynValue.Void;
-					pars[i] = ScriptToClrConversions.DynValueToObjectOfType(arg, Parameters[i].ParameterType,
-						Parameters[i].DefaultValue, !Parameters[i].DefaultValue.IsDbNull());
+					pars[i] = ScriptToClrConversions.DynValueToObjectOfType(arg, m_Parameters[i].ParameterType,
+						m_Parameters[i].DefaultValue, !m_Parameters[i].DefaultValue.IsDbNull());
 					j += 1;
 				}
 			}
@@ -431,7 +401,7 @@ namespace MoonSharp.Interpreter.Interop
 			return Array.CreateInstance(VarArgsElementType, len);
 		}
 
-		internal void Optimize()
+		void IOptimizableDescriptor.Optimize()
 		{
 			if (AccessMode == InteropAccessMode.Reflection)
 				return;
@@ -447,18 +417,18 @@ namespace MoonSharp.Interpreter.Interop
 				var objinst = Expression.Parameter(typeof(object), "instance");
 				var inst = Expression.Convert(objinst, MethodInfo.DeclaringType);
 
-				Expression[] args = new Expression[Parameters.Length];
+				Expression[] args = new Expression[m_Parameters.Length];
 
-				for (int i = 0; i < Parameters.Length; i++)
+				for (int i = 0; i < m_Parameters.Length; i++)
 				{
-					if (Parameters[i].ParameterType.IsByRef)
+					if (m_Parameters[i].ParameterType.IsByRef)
 					{
 						throw new InternalErrorException("Out/Ref params cannot be precompiled.");
 					}
 					else
 					{
 						var x = Expression.ArrayIndex(ep, Expression.Constant(i));
-						args[i] = Expression.Convert(x, Parameters[i].ParameterType);
+						args[i] = Expression.Convert(x, m_Parameters[i].ParameterType);
 					}
 				}
 
@@ -489,15 +459,36 @@ namespace MoonSharp.Interpreter.Interop
 		}
 
 		/// <summary>
-		/// Compares the current object with another object of the same type.
+		/// Gets the types of access supported by this member
 		/// </summary>
-		/// <param name="other">An object to compare with this object.</param>
-		/// <returns>
-		/// A value that indicates the relative order of the objects being compared. The return value has the following meanings: Value Meaning Less than zero This object is less than the <paramref name="other" /> parameter.Zero This object is equal to <paramref name="other" />. Greater than zero This object is greater than <paramref name="other" />.
-		/// </returns>
-		public int CompareTo(StandardUserDataMethodDescriptor other)
+		public MemberDescriptorAccess MemberAccess
 		{
-			return this.SortDiscriminant.CompareTo(other.SortDiscriminant);
+			get { return MemberDescriptorAccess.CanRead | MemberDescriptorAccess.CanExecute; }
+		}
+
+		/// <summary>
+		/// Gets the value of this member as a <see cref="DynValue" /> to be exposed to scripts.
+		/// </summary>
+		/// <param name="script">The script.</param>
+		/// <param name="obj">The object owning this member, or null if static.</param>
+		/// <returns>
+		/// The value of this member as a <see cref="DynValue" />.
+		/// </returns>
+		public DynValue GetValue(Script script, object obj)
+		{
+			return this.GetCallbackAsDynValue(script, obj);
+		}
+
+		/// <summary>
+		/// Sets the value.
+		/// </summary>
+		/// <param name="script">The script.</param>
+		/// <param name="obj">The object.</param>
+		/// <param name="v">The v.</param>
+		/// <exception cref="System.NotImplementedException"></exception>
+		public void SetValue(Script script, object obj, DynValue v)
+		{
+			this.CheckAccess(MemberDescriptorAccess.CanWrite);
 		}
 	}
 }

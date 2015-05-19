@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using MoonSharp.Interpreter.DataStructs;
 using MoonSharp.Interpreter.Interop;
+using MoonSharp.Interpreter.Interop.BasicDescriptors;
 
 namespace MoonSharp.Interpreter
 {
@@ -40,7 +41,7 @@ namespace MoonSharp.Interpreter
 		private static object s_Lock = new object();
 		private static Dictionary<Type, IUserDataDescriptor> s_Registry = new Dictionary<Type, IUserDataDescriptor>();
 		private static InteropAccessMode s_DefaultAccessMode;
-		private static MultiDictionary<string, StandardUserDataMethodDescriptor> s_ExtensionMethodRegistry = new MultiDictionary<string, StandardUserDataMethodDescriptor>();
+		private static MultiDictionary<string, IOverloadableMemberDescriptor> s_ExtensionMethodRegistry = new MultiDictionary<string, IOverloadableMemberDescriptor>();
 		private static int s_ExtensionMethodChangeVersion = 0;
 
 		static UserData()
@@ -48,6 +49,8 @@ namespace MoonSharp.Interpreter
 			RegisterType<StandardUserDataEventDescriptor.EventFacade>(InteropAccessMode.Reflection);
 			RegisterType<AnonWrapper>(InteropAccessMode.HideMembers);
 			RegisterType<EnumerableWrapper>(InteropAccessMode.HideMembers);
+			//RegisterType<EnumValueUserData>();
+
 			s_DefaultAccessMode = InteropAccessMode.LazyOptimized;
 		}
 
@@ -159,6 +162,21 @@ namespace MoonSharp.Interpreter
 		}
 
 		/// <summary>
+		/// Creates a userdata DynValue from the specified object, using a specific descriptor
+		/// </summary>
+		/// <param name="o">The object</param>
+		/// <param name="descr">The descriptor.</param>
+		/// <returns></returns>
+		public static DynValue Create(object o, IUserDataDescriptor descr)
+		{
+			return DynValue.NewUserData(new UserData()
+			{
+				Descriptor = descr,
+				Object = o
+			});
+		}
+
+		/// <summary>
 		/// Creates a userdata DynValue from the specified object
 		/// </summary>
 		/// <param name="o">The object</param>
@@ -166,23 +184,24 @@ namespace MoonSharp.Interpreter
 		public static DynValue Create(object o)
 		{
 			var descr = GetDescriptorForObject(o);
-			if (descr == null) return null;
+			if (descr == null)
+			{
+				if (o is Type)
+					return CreateStatic((Type)o);
 
-			return DynValue.NewUserData(new UserData()
-				{
-					Descriptor = descr,
-					Object = o
-				});
+				return null;
+			}
+
+			return Create(o, descr);
 		}
 
 		/// <summary>
-		/// Creates a static userdata DynValue from the specified Type
+		/// Creates a static userdata DynValue from the specified IUserDataDescriptor
 		/// </summary>
-		/// <param name="t">The type</param>
+		/// <param name="descr">The IUserDataDescriptor</param>
 		/// <returns></returns>
-		public static DynValue CreateStatic(Type t)
+		public static DynValue CreateStatic(IUserDataDescriptor descr)
 		{
-			var descr = GetDescriptorForType(t, false);
 			if (descr == null) return null;
 
 			return DynValue.NewUserData(new UserData()
@@ -195,11 +214,21 @@ namespace MoonSharp.Interpreter
 		/// <summary>
 		/// Creates a static userdata DynValue from the specified Type
 		/// </summary>
+		/// <param name="t">The type</param>
+		/// <returns></returns>
+		public static DynValue CreateStatic(Type t)
+		{
+			return CreateStatic(GetDescriptorForType(t, false));
+		}
+
+		/// <summary>
+		/// Creates a static userdata DynValue from the specified Type
+		/// </summary>
 		/// <typeparam name="T">The Type</typeparam>
 		/// <returns></returns>
 		public static DynValue CreateStatic<T>()
 		{
-			return CreateStatic(typeof(T));
+			return CreateStatic(GetDescriptorForType(typeof(T), false));
 		}
 
 		/// <summary>
@@ -258,7 +287,7 @@ namespace MoonSharp.Interpreter
 		/// </summary>
 		/// <param name="name">The name.</param>
 		/// <returns></returns>
-		public static IEnumerable<StandardUserDataMethodDescriptor> GetExtensionMethodsByName(string name)
+		public static IEnumerable<IOverloadableMemberDescriptor> GetExtensionMethodsByName(string name)
 		{
 			lock (s_Lock)
 				return s_ExtensionMethodRegistry.Find(name);
@@ -303,14 +332,20 @@ namespace MoonSharp.Interpreter
 							s_Registry.Add(type, audd);
 							return audd;
 						}
-						else
+						else if (type.IsEnum)
+						{
+							var enumDescr = new StandardEnumUserDataDescriptor(type, friendlyName);
+							s_Registry.Add(type, enumDescr);
+							return enumDescr;
+						}
+						else 
 						{
 							StandardUserDataDescriptor udd = new StandardUserDataDescriptor(type, accessMode, friendlyName);
 							s_Registry.Add(type, udd);
 
 							if (accessMode == InteropAccessMode.BackgroundOptimized)
 							{
-								ThreadPool.QueueUserWorkItem(o => udd.Optimize());
+								ThreadPool.QueueUserWorkItem(o => ((IOptimizableDescriptor)udd).Optimize());
 							}
 
 							return udd;
@@ -393,5 +428,9 @@ namespace MoonSharp.Interpreter
 		{
 			return GetDescriptorForType(o.GetType(), true);
 		}
+
+
+
+
 	}
 }

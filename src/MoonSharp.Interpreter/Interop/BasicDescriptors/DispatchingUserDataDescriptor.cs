@@ -3,17 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using MoonSharp.Interpreter.Interop.Converters;
+using MoonSharp.Interpreter.Interop.StandardDescriptors.ReflectionDescriptors;
 
-namespace MoonSharp.Interpreter.Interop.StandardDescriptors
+namespace MoonSharp.Interpreter.Interop.BasicDescriptors
 {
-	public abstract class DispatchingUserDataDescriptor : IUserDataDescriptor
+	public abstract class DispatchingUserDataDescriptor : IUserDataDescriptor, IOptimizableDescriptor
 	{
 		private int m_ExtMethodsVersion = 0;
-		private Dictionary<string, StandardUserDataOverloadedMethodDescriptor> m_MetaMethods = new Dictionary<string, StandardUserDataOverloadedMethodDescriptor>();
-		private Dictionary<string, StandardUserDataOverloadedMethodDescriptor> m_Methods = new Dictionary<string, StandardUserDataOverloadedMethodDescriptor>();
-		private Dictionary<string, StandardUserDataPropertyDescriptor> m_Properties = new Dictionary<string, StandardUserDataPropertyDescriptor>();
-		private Dictionary<string, StandardUserDataFieldDescriptor> m_Fields = new Dictionary<string, StandardUserDataFieldDescriptor>();
-		private Dictionary<string, StandardUserDataEventDescriptor> m_Events = new Dictionary<string, StandardUserDataEventDescriptor>();
+		private Dictionary<string, IMemberDescriptor> m_MetaMembers = new Dictionary<string, IMemberDescriptor>();
+		private Dictionary<string, IMemberDescriptor> m_Members = new Dictionary<string, IMemberDescriptor>();
 
 		/// <summary>
 		/// The special name used by CLR for indexer getters
@@ -33,7 +31,7 @@ namespace MoonSharp.Interpreter.Interop.StandardDescriptors
 		/// </summary>
 		protected const string SPECIALNAME_CAST_IMPLICIT = "op_Implicit";
 
-	
+
 		/// <summary>
 		/// Gets the name of the descriptor (usually, the name of the type described).
 		/// </summary>
@@ -60,53 +58,29 @@ namespace MoonSharp.Interpreter.Interop.StandardDescriptors
 		}
 
 		/// <summary>
-		/// Adds a constructor to the members list.
-		/// </summary>
-		/// <param name="desc">The descriptor.</param>
-		public void AddConstructor(StandardUserDataMethodDescriptor desc)
-		{
-			AddMethod("__new", desc);
-		}
-
-
-		/// <summary>
-		/// Adds a method to the members list.
-		/// </summary>
-		/// <param name="name">The name.</param>
-		/// <param name="desc">The descriptor.</param>
-		public void AddMethod(string name, StandardUserDataMethodDescriptor desc)
-		{
-			if (desc != null)
-			{
-				if (m_Methods.ContainsKey(name))
-				{
-					m_Methods[name].AddOverload(desc);
-				}
-				else
-				{
-					m_Methods.Add(name, new StandardUserDataOverloadedMethodDescriptor(name, this.Type, desc));
-				}
-			}
-		}
-
-		/// <summary>
-		/// Adds a method to the metamethods list.
+		/// Adds a member to the meta-members list.
 		/// </summary>
 		/// <param name="name">The name of the metamethod.</param>
 		/// <param name="desc">The desc.</param>
-		public void AddMetaMethod(string name, StandardUserDataMethodDescriptor desc)
+		/// <exception cref="System.ArgumentException">
+		/// Thrown if a name conflict is detected and one of the conflicting members does not support overloads.
+		/// </exception>
+		public void AddMetaMember(string name, IMemberDescriptor desc)
 		{
 			if (desc != null)
-			{
-				if (m_MetaMethods.ContainsKey(name))
-				{
-					m_MetaMethods[name].AddOverload(desc);
-				}
-				else
-				{
-					m_MetaMethods.Add(name, new StandardUserDataOverloadedMethodDescriptor(name, this.Type, desc));
-				}
-			}
+				AddMemberTo(m_MetaMembers, name, desc);
+		}
+
+
+		/// <summary>
+		/// Adds a DynValue as a member
+		/// </summary>
+		/// <param name="name">The name.</param>
+		/// <param name="value">The value.</param>
+		public void AddDynValue(string name, DynValue value)
+		{
+			var desc = new StandardUserDataDynValueDescriptor(name, value); 
+			AddMemberTo(m_Members, name, desc);
 		}
 
 		/// <summary>
@@ -114,32 +88,47 @@ namespace MoonSharp.Interpreter.Interop.StandardDescriptors
 		/// </summary>
 		/// <param name="name">The name.</param>
 		/// <param name="desc">The descriptor.</param>
-		public void AddProperty(string name, StandardUserDataPropertyDescriptor desc)
+		/// <exception cref="System.ArgumentException">
+		/// Thrown if a name conflict is detected and one of the conflicting members does not support overloads.
+		/// </exception>
+		public void AddMember(string name, IMemberDescriptor desc)
 		{
 			if (desc != null)
-				m_Properties.Add(name, desc);
+				AddMemberTo(m_Members, name, desc);
 		}
 
-		/// <summary>
-		/// Adds a field to the member list
-		/// </summary>
-		/// <param name="name">The name.</param>
-		/// <param name="desc">The descriptor.</param>
-		public void AddField(string name, StandardUserDataFieldDescriptor desc)
-		{
-			if (desc != null)
-				m_Fields.Add(name, desc);
-		}
 
-		/// <summary>
-		/// Adds an event to the member list
-		/// </summary>
-		/// <param name="name">The name.</param>
-		/// <param name="desc">The descriptor.</param>
-		public void AddEvent(string name, StandardUserDataEventDescriptor desc)
+		private void AddMemberTo(Dictionary<string, IMemberDescriptor> members, string name, IMemberDescriptor desc)
 		{
-			if (desc != null)
-				m_Events.Add(name, desc);
+			IOverloadableMemberDescriptor odesc = desc as IOverloadableMemberDescriptor;
+
+			if (odesc != null)
+			{
+				if (members.ContainsKey(name))
+				{
+					StandardUserDataOverloadedMethodDescriptor overloads = members[name] as StandardUserDataOverloadedMethodDescriptor;
+
+					if (overloads != null)
+						overloads.AddOverload(odesc);
+					else
+						throw new ArgumentException(string.Format("Multiple members named {0} are being added to type {1} and one or more of these members do not support overloads.", name, this.Type.FullName));
+				}
+				else
+				{
+					members.Add(name, new StandardUserDataOverloadedMethodDescriptor(name, this.Type, odesc));
+				}
+			}
+			else
+			{
+				if (members.ContainsKey(name))
+				{
+					throw new ArgumentException(string.Format("Multiple members named {0} are being added to type {1} and one or more of these members do not support overloads.", name, this.Type.FullName));
+				}
+				else
+				{
+					members.Add(name, desc);
+				}
+			}
 		}
 
 		/// <summary>
@@ -154,7 +143,9 @@ namespace MoonSharp.Interpreter.Interop.StandardDescriptors
 		{
 			if (!isDirectIndexing)
 			{
-				StandardUserDataOverloadedMethodDescriptor mdesc = m_Methods.GetOrDefault(SPECIALNAME_INDEXER_GET);
+				IMemberDescriptor mdesc = m_Members
+					.GetOrDefault(SPECIALNAME_INDEXER_GET)
+					.WithAccessOrNull(MemberDescriptorAccess.CanExecute);
 
 				if (mdesc != null)
 					return ExecuteIndexer(mdesc, script, obj, index, null);
@@ -194,7 +185,7 @@ namespace MoonSharp.Interpreter.Interop.StandardDescriptors
 		/// <exception cref="System.NotImplementedException"></exception>
 		private DynValue TryIndexOnExtMethod(Script script, object obj, string indexName)
 		{
-			List<StandardUserDataMethodDescriptor> methods = UserData.GetExtensionMethodsByName(indexName)
+			List<IOverloadableMemberDescriptor> methods = UserData.GetExtensionMethodsByName(indexName)
 						.Where(d => d.ExtensionMethodType != null && d.ExtensionMethodType.IsAssignableFrom(this.Type))
 						.ToList();
 
@@ -202,12 +193,33 @@ namespace MoonSharp.Interpreter.Interop.StandardDescriptors
 			{
 				var ext = new StandardUserDataOverloadedMethodDescriptor(indexName, this.Type);
 				ext.SetExtensionMethodsSnapshot(UserData.GetExtensionMethodsChangeVersion(), methods);
-				m_Methods.Add(indexName, ext);
+				m_Members.Add(indexName, ext);
 				return DynValue.NewCallback(ext.GetCallback(script, obj));
 			}
 
 			return null;
 		}
+
+		/// <summary>
+		/// Determines whether the descriptor contains the specified member (by exact name)
+		/// </summary>
+		/// <param name="exactName">Name of the member.</param>
+		/// <returns></returns>
+		public bool HasMember(string exactName)
+		{
+			return m_Members.ContainsKey(exactName);
+		}
+
+		/// <summary>
+		/// Determines whether the descriptor contains the specified member in the meta list (by exact name)
+		/// </summary>
+		/// <param name="exactName">Name of the meta-member.</param>
+		/// <returns></returns>
+		public bool HasMetaMember(string exactName)
+		{
+			return m_MetaMembers.ContainsKey(exactName);
+		}
+
 
 		/// <summary>
 		/// Tries to perform an indexing operation by checking methods and properties for the given indexName
@@ -218,25 +230,10 @@ namespace MoonSharp.Interpreter.Interop.StandardDescriptors
 		/// <returns></returns>
 		protected virtual DynValue TryIndex(Script script, object obj, string indexName)
 		{
-			StandardUserDataOverloadedMethodDescriptor mdesc;
+			IMemberDescriptor desc;
 
-			if (m_Methods.TryGetValue(indexName, out mdesc))
-				return DynValue.NewCallback(mdesc.GetCallback(script, obj));
-
-			StandardUserDataPropertyDescriptor pdesc;
-
-			if (m_Properties.TryGetValue(indexName, out pdesc))
-				return pdesc.GetValue(script, obj);
-
-			StandardUserDataFieldDescriptor fdesc;
-
-			if (m_Fields.TryGetValue(indexName, out fdesc))
-				return fdesc.GetValue(script, obj);
-
-			StandardUserDataEventDescriptor edesc;
-
-			if (m_Events.TryGetValue(indexName, out edesc))
-				return edesc.GetValue(script, obj);
+			if (m_Members.TryGetValue(indexName, out desc))
+				return desc.GetValue(script, obj);
 
 			return null;
 		}
@@ -254,7 +251,9 @@ namespace MoonSharp.Interpreter.Interop.StandardDescriptors
 		{
 			if (!isDirectIndexing)
 			{
-				StandardUserDataOverloadedMethodDescriptor mdesc = m_Methods.GetOrDefault(SPECIALNAME_INDEXER_SET);
+				IMemberDescriptor mdesc = m_Members
+					.GetOrDefault(SPECIALNAME_INDEXER_SET)
+					.WithAccessOrNull(MemberDescriptorAccess.CanExecute);
 
 				if (mdesc != null)
 				{
@@ -286,42 +285,26 @@ namespace MoonSharp.Interpreter.Interop.StandardDescriptors
 		/// <returns></returns>
 		protected virtual bool TrySetIndex(Script script, object obj, string indexName, DynValue value)
 		{
-			StandardUserDataPropertyDescriptor pdesc = m_Properties.GetOrDefault(indexName);
+			IMemberDescriptor descr = m_Members.GetOrDefault(indexName);
 
-			if (pdesc != null)
+			if (descr != null)
 			{
-				pdesc.SetValue(script, obj, value);
+				descr.SetValue(script, obj, value);
 				return true;
 			}
 			else
 			{
-				StandardUserDataFieldDescriptor fdesc = m_Fields.GetOrDefault(indexName);
-
-				if (fdesc != null)
-				{
-					fdesc.SetValue(script, obj, value);
-					return true;
-				}
-				else
-				{
-					return false;
-				}
+				return false;
 			}
 		}
 
-		internal void Optimize()
+		void IOptimizableDescriptor.Optimize()
 		{
-			foreach (var m in this.m_Methods.Values)
+			foreach (var m in this.m_MetaMembers.Values.OfType<IOptimizableDescriptor>())
 				m.Optimize();
 
-			foreach (var m in this.m_Properties.Values)
-			{
-				m.OptimizeGetter();
-				m.OptimizeSetter();
-			}
-
-			foreach (var m in this.m_Fields.Values)
-				m.OptimizeGetter();
+			foreach (var m in this.m_Members.Values.OfType<IOptimizableDescriptor>())
+				m.Optimize();
 		}
 
 		/// <summary>
@@ -389,10 +372,8 @@ namespace MoonSharp.Interpreter.Interop.StandardDescriptors
 		/// <param name="value">The dynvalue to set on a setter, or null.</param>
 		/// <returns></returns>
 		/// <exception cref="System.NotImplementedException"></exception>
-		protected virtual DynValue ExecuteIndexer(StandardUserDataOverloadedMethodDescriptor mdesc, Script script, object obj, DynValue index, DynValue value)
+		protected virtual DynValue ExecuteIndexer(IMemberDescriptor mdesc, Script script, object obj, DynValue index, DynValue value)
 		{
-			var callback = mdesc.GetCallback(script, obj);
-
 			IList<DynValue> values;
 
 			if (index.Type == DataType.Tuple)
@@ -422,7 +403,12 @@ namespace MoonSharp.Interpreter.Interop.StandardDescriptors
 			CallbackArguments args = new CallbackArguments(values, false);
 			ScriptExecutionContext execCtx = script.CreateDynamicExecutionContext();
 
-			return callback(execCtx, args);
+			DynValue v = mdesc.GetValue(script, obj);
+
+			if (v.Type != DataType.ClrFunction)
+				throw new ScriptRuntimeException("a clr callback was expected in member {0}, while a {1} was found", mdesc.Name, v.Type);
+
+			return v.Callback.ClrCallback(execCtx, args);
 		}
 
 
@@ -451,10 +437,10 @@ namespace MoonSharp.Interpreter.Interop.StandardDescriptors
 		/// <returns></returns>
 		public virtual DynValue MetaIndex(Script script, object obj, string metaname)
 		{
-			StandardUserDataOverloadedMethodDescriptor desc = m_MetaMethods.GetOrDefault(metaname);
+			IMemberDescriptor desc = m_MetaMembers.GetOrDefault(metaname);
 
 			if (desc != null)
-				return desc.GetCallbackAsDynValue(script, obj);
+				return desc.GetValue(script, obj);
 
 			switch (metaname)
 			{
@@ -538,11 +524,11 @@ namespace MoonSharp.Interpreter.Interop.StandardDescriptors
 		{
 			if (obj == null) return null;
 
-			var lenprop = m_Properties.GetOrDefault("Length");
-			if (lenprop != null) return lenprop.GetGetterCallbackAsDynValue(script, obj);
+			var lenprop = m_Members.GetOrDefault("Length");
+			if (lenprop != null && lenprop.CanRead() && !lenprop.CanExecute()) return lenprop.GetGetterCallbackAsDynValue(script, obj);
 
-			var countprop = m_Properties.GetOrDefault("Count");
-			if (countprop != null) return countprop.GetGetterCallbackAsDynValue(script, obj);
+			var countprop = m_Members.GetOrDefault("Count");
+			if (countprop != null && countprop.CanRead() && !countprop.CanExecute()) return countprop.GetGetterCallbackAsDynValue(script, obj);
 
 			return null;
 		}
@@ -572,10 +558,10 @@ namespace MoonSharp.Interpreter.Interop.StandardDescriptors
 
 		private DynValue DispatchMetaOnMethod(Script script, object obj, string methodName)
 		{
-			StandardUserDataOverloadedMethodDescriptor desc = m_Methods.GetOrDefault(methodName);
+			IMemberDescriptor desc = m_Members.GetOrDefault(methodName);
 
 			if (desc != null)
-				return desc.GetCallbackAsDynValue(script, obj);
+				return desc.GetValue(script, obj);
 			else
 				return null;
 		}
@@ -603,5 +589,19 @@ namespace MoonSharp.Interpreter.Interop.StandardDescriptors
 
 		#endregion
 
+
+
+		/// <summary>
+		/// Determines whether the specified object is compatible with the specified type.
+		/// Unless a very specific behaviour is needed, the correct implementation is a 
+		/// simple " return type.IsInstanceOfType(obj); "
+		/// </summary>
+		/// <param name="type">The type.</param>
+		/// <param name="obj">The object.</param>
+		/// <returns></returns>
+		public virtual bool IsTypeCompatible(Type type, object obj)
+		{
+			return type.IsInstanceOfType(obj);
+		}
 	}
 }

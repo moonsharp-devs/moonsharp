@@ -35,6 +35,7 @@ namespace MoonSharp.Interpreter
 			m_Owner = owner;
 		}
 
+
 		/// <summary>
 		/// Gets the script owning this resource.
 		/// </summary>
@@ -491,6 +492,7 @@ namespace MoonSharp.Interpreter
 				return m_Values.Select(n => n.Value);
 			}
 		}
+
 
 
 

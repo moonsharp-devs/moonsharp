@@ -17,6 +17,7 @@ namespace MoonSharp.Interpreter.Interop.Converters
 		internal const int WEIGHT_NIL_WITH_DEFAULT = 25;
 		internal const int WEIGHT_BOOL_TO_STRING = 5;
 		internal const int WEIGHT_NUMBER_TO_STRING = 50;
+		internal const int WEIGHT_NUMBER_TO_ENUM = 90;
 		internal const int WEIGHT_USERDATA_TO_STRING = 5;
 		internal const int WEIGHT_TABLE_CONVERSION = 90;
 		internal const int WEIGHT_NUMBER_DOWNCAST = 99;
@@ -134,6 +135,11 @@ namespace MoonSharp.Interpreter.Interop.Converters
 						str = value.Boolean.ToString();
 					break;
 				case DataType.Number:
+					if (desiredType.IsEnum)
+					{	// number to enum conv
+						Type underType = Enum.GetUnderlyingType(desiredType);
+						return NumericConversions.DoubleToType(underType, value.Number);
+					}
 					if (NumericConversions.NumericTypes.Contains(desiredType))
 						return NumericConversions.DoubleToType(desiredType, value.Number);
 					if (stringSubType != StringConversions.StringSubtype.None)
@@ -154,10 +160,14 @@ namespace MoonSharp.Interpreter.Interop.Converters
 				case DataType.UserData:
 					if (value.UserData.Object != null)
 					{
-						if (desiredType.IsInstanceOfType(value.UserData.Object))
-							return value.UserData.Object;
+						var udObj = value.UserData.Object;
+						var udDesc = value.UserData.Descriptor;
+
+						if (udDesc.IsTypeCompatible(desiredType, udObj))
+							return udObj;
+
 						if (stringSubType != StringConversions.StringSubtype.None)
-							str = value.UserData.Object.ToString();
+							str = udDesc.AsString(udObj);
 					}
 					break;
 				case DataType.Table:
@@ -240,6 +250,11 @@ namespace MoonSharp.Interpreter.Interop.Converters
 						return WEIGHT_BOOL_TO_STRING;
 					break;
 				case DataType.Number:
+					if (desiredType.IsEnum)
+					{	// number to enum conv
+						Type underType = Enum.GetUnderlyingType(desiredType);
+						return WEIGHT_NUMBER_TO_ENUM;
+					}
 					if (NumericConversions.NumericTypes.Contains(desiredType))
 						return GetNumericTypeWeight(desiredType);
 					if (stringSubType != StringConversions.StringSubtype.None)
@@ -260,8 +275,12 @@ namespace MoonSharp.Interpreter.Interop.Converters
 				case DataType.UserData:
 					if (value.UserData.Object != null)
 					{
-						if (desiredType.IsInstanceOfType(value.UserData.Object))
+						var udObj = value.UserData.Object;
+						var udDesc = value.UserData.Descriptor;
+
+						if (udDesc.IsTypeCompatible(desiredType, udObj))
 							return WEIGHT_EXACT_MATCH;
+
 						if (stringSubType != StringConversions.StringSubtype.None)
 							return WEIGHT_USERDATA_TO_STRING;
 					}

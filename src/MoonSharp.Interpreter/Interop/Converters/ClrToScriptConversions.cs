@@ -71,11 +71,14 @@ namespace MoonSharp.Interpreter.Interop.Converters
 			if (v != null) return v;
 
 			v = UserData.Create(obj);
-
 			if (v != null) return v;
 
 			if (obj is Type)
 				v = UserData.CreateStatic(obj as Type);
+
+			// unregistered enums go as integers
+			if (obj is Enum)
+				return DynValue.NewNumber(NumericConversions.TypeToDouble(Enum.GetUnderlyingType(obj.GetType()), obj));
 
 			if (v != null) return v;
 
