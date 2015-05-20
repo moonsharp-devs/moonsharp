@@ -150,7 +150,7 @@ namespace MoonSharp.Interpreter.Interop
 		private StandardUserDataMethodDescriptor RegisterImplicitMethod(string wantedName, string reflectionName)
 		{
 			MethodInfo mi = Type.GetMethod(reflectionName + "." + wantedName, 
-				BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Default);
+				BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 
 			if (mi != null)
 			{

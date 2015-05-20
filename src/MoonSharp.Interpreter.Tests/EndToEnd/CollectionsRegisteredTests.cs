@@ -10,15 +10,33 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 	[TestFixture]
 	public class CollectionsRegisteredTests
 	{
+		public class RegCollItem
+		{
+			public int Value;
+
+			public RegCollItem(int v)
+			{
+				Value = v;
+			}
+		}
+
 		public class RegCollMethods 
 		{
+			List<RegCollItem> m_Items = new List<RegCollItem>() { new RegCollItem(7), new RegCollItem(8), new RegCollItem(9) };
 			List<int> m_List = new List<int>() { 1, 2, 3 };
 			int[] m_Array = new int[3] { 2, 4, 6 };
+
 
 			public int[] GetArray()
 			{
 				return m_Array;
 			}
+
+			public List<RegCollItem> GetItems()
+			{
+				return m_Items;
+			}
+
 
 			public List<int> GetList()
 			{
@@ -39,10 +57,11 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 		void Do(string code, Action<DynValue, RegCollMethods> asserts)
 		{
-			UserData.RegisterType<RegCollMethods>();
-
 			try
 			{
+				UserData.RegisterType<RegCollMethods>();
+				UserData.RegisterType<RegCollItem>();
+				UserData.RegisterType<List<RegCollItem>>();
 				UserData.RegisterType<List<int>>();
 				UserData.RegisterType<int[]>();
 
@@ -50,6 +69,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 				var obj = new RegCollMethods();
 				s.Globals["o"] = obj;
+				s.Globals["ctor"] = UserData.CreateStatic<RegCollItem>();
 
 				DynValue res = s.DoString(code);
 
@@ -62,9 +82,11 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			}
 			finally
 			{
+				UserData.UnregisterType<RegCollMethods>();
+				UserData.UnregisterType<RegCollItem>();
+				UserData.UnregisterType<List<RegCollItem>>();
 				UserData.UnregisterType<List<int>>();
 				UserData.UnregisterType<int[]>();
-				UserData.UnregisterType<RegCollMethods>();
 			}
 		}
 
@@ -188,6 +210,85 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 				 Assert.AreEqual(6, o.GetArray()[2]);
 			 });
 		}
+
+
+
+
+
+
+		[Test]
+		public void RegColl_IteratorOnObjList_Auto()
+		{
+			Do(@"
+				local list = o:GetItems()
+
+				local x = 0;
+				for i in list do 
+					x = x + i.Value;
+				end
+				return x;
+			",
+			 (r) =>
+			 {
+				 Assert.AreEqual(DataType.Number, r.Type);
+				 Assert.AreEqual(24, r.Number);
+			 });
+		}
+
+
+		[Test]
+		public void RegColl_IteratorOnObjList_Manual()
+		{
+			Do(@"
+				function each(obj)
+					local e = obj:GetEnumerator()
+					return function()
+						if e:MoveNext() then
+							return e.Current
+						end
+					end
+				end
+
+				local list = o.get_items(); 
+
+				local x = 0;
+				for i in each(list) do 
+					x = x + i.Value;
+				end
+				return x;
+
+			",
+			 (r) =>
+			 {
+				 Assert.AreEqual(DataType.Number, r.Type);
+				 Assert.AreEqual(24, r.Number);
+			 });
+		}
+
+		[Test]
+		public void RegColl_IteratorOnObjList_ChangeElem()
+		{
+			Do(@"
+				local list = o:GetItems()
+
+				list[1] = ctor.__new(list[2].Value + list[1].Value);
+
+				local x = 0;
+				for i in list do 
+					x = x + i.Value;
+				end
+				return x;
+			",
+			 (r, o) =>
+			 {
+				 Assert.AreEqual(DataType.Number, r.Type);
+				 Assert.AreEqual(7+17+9, r.Number);
+				 Assert.AreEqual(7, o.GetItems()[0].Value);
+				 Assert.AreEqual(17, o.GetItems()[1].Value);
+				 Assert.AreEqual(9, o.GetItems()[2].Value);
+			 });
+		}
+
 
 
 	}
