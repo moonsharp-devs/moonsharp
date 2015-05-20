@@ -1,3 +1,6 @@
 language: csharp
 solution: src/moonsharp.sln
 
+script:
+  - xbuild /p:Configuration=CI src/moonsharp.sln
+
