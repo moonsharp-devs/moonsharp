@@ -46,7 +46,7 @@ namespace MoonSharp.Interpreter.Interop
 		/// <summary>
 		/// Gets the type of the arguments of the underlying CLR function
 		/// </summary>
-		public ParameterDescriptor[] Parameters { get; private set; }
+		public ParameterDescriptor[] Parameters { get { return m_Parameters; } }
 		/// <summary>
 		/// Gets the type which this extension method extends, null if this is not an extension method.
 		/// </summary>
@@ -65,22 +65,26 @@ namespace MoonSharp.Interpreter.Interop
 		private Func<object, object[], object> m_OptimizedFunc = null;
 		private Action<object, object[]> m_OptimizedAction = null;
 		private bool m_IsAction = false;
-		private ParameterInfo[] m_Parameters;
+		private ParameterDescriptor[] m_Parameters;
 
 
 		/// <summary>
-		/// Tries to create a new StandardUserDataMethodDescriptor, returning <c>null</c> in case the method is not 
+		/// Tries to create a new StandardUserDataMethodDescriptor, returning 
+		/// <c>null</c> in case the method is not
 		/// visible to script code.
 		/// </summary>
 		/// <param name="methodBase">The MethodBase.</param>
 		/// <param name="accessMode">The <see cref="InteropAccessMode" /></param>
-		/// <returns>A new StandardUserDataMethodDescriptor or null.</returns>
-		public static StandardUserDataMethodDescriptor TryCreateIfVisible(MethodBase methodBase, InteropAccessMode accessMode)
+		/// <param name="forceVisibility">if set to <c>true</c> forces visibility.</param>
+		/// <returns>
+		/// A new StandardUserDataMethodDescriptor or null.
+		/// </returns>
+		public static StandardUserDataMethodDescriptor TryCreateIfVisible(MethodBase methodBase, InteropAccessMode accessMode, bool forceVisibility = false)
 		{
 			if (!CheckMethodIsCompatible(methodBase, false))
 				return null;
 
-			if (methodBase.GetVisibilityFromAttributes() ?? methodBase.IsPublic)
+			if (forceVisibility || (methodBase.GetVisibilityFromAttributes() ?? methodBase.IsPublic))
 				return new StandardUserDataMethodDescriptor(methodBase, accessMode);
 
 			return null;
@@ -111,11 +115,13 @@ namespace MoonSharp.Interpreter.Interop
 			else
 				m_IsAction = ((MethodInfo)methodBase).ReturnType == typeof(void);
 
-			m_Parameters = methodBase.GetParameters();
+			ParameterInfo[] reflectionParams = methodBase.GetParameters();
+
+			m_Parameters = reflectionParams.Select(pi => new ParameterDescriptor(pi)).ToArray();
 
 			if (methodBase.IsStatic && m_Parameters.Length > 0 && methodBase.GetCustomAttributes(typeof(ExtensionAttribute), false).Any())
 			{
-				this.ExtensionMethodType = m_Parameters[0].ParameterType;
+				this.ExtensionMethodType = m_Parameters[0].Type;
 			}
 
 
@@ -129,12 +135,12 @@ namespace MoonSharp.Interpreter.Interop
 			if (accessMode == InteropAccessMode.HideMembers)
 				throw new ArgumentException("Invalid accessMode");
 
-			if (m_Parameters.Any(p => p.ParameterType.IsByRef))
+			if (m_Parameters.Any(p => p.Type.IsByRef))
 				accessMode = InteropAccessMode.Reflection;
 
 			if (m_Parameters.Length > 0)
 			{
-				ParameterInfo plast = m_Parameters[m_Parameters.Length - 1];
+				ParameterInfo plast = reflectionParams[m_Parameters.Length - 1];
 
 				if (plast.ParameterType.IsArray && plast.GetCustomAttributes(typeof(ParamArrayAttribute), true).Any())
 				{
@@ -144,9 +150,8 @@ namespace MoonSharp.Interpreter.Interop
 			}
 
 
-			SortDiscriminant = string.Join(":", m_Parameters.Select(pi => pi.ParameterType.FullName).ToArray());
+			SortDiscriminant = string.Join(":", reflectionParams.Select(pi => pi.ParameterType.FullName).ToArray());
 
-			Parameters = m_Parameters.Select(pi => new ParameterDescriptor(pi)).ToArray();
 
 			this.AccessMode = accessMode;
 
@@ -273,7 +278,7 @@ namespace MoonSharp.Interpreter.Interop
 			for (int i = 0; i < pars.Length; i++)
 			{
 				// keep track of out and ref params
-				if (m_Parameters[i].ParameterType.IsByRef)
+				if (m_Parameters[i].Type.IsByRef)
 				{
 					if (outParams == null) outParams = new List<int>();
 					outParams.Add(i);
@@ -286,15 +291,15 @@ namespace MoonSharp.Interpreter.Interop
 					continue;
 				}
 				// else, fill types with a supported type
-				else if (m_Parameters[i].ParameterType == typeof(Script))
+				else if (m_Parameters[i].Type == typeof(Script))
 				{
 					pars[i] = script;
 				}
-				else if (m_Parameters[i].ParameterType == typeof(ScriptExecutionContext))
+				else if (m_Parameters[i].Type == typeof(ScriptExecutionContext))
 				{
 					pars[i] = context;
 				}
-				else if (m_Parameters[i].ParameterType == typeof(CallbackArguments))
+				else if (m_Parameters[i].Type == typeof(CallbackArguments))
 				{
 					pars[i] = args.SkipMethodCall();
 				}
@@ -350,8 +355,8 @@ namespace MoonSharp.Interpreter.Interop
 				else
 				{
 					var arg = args.RawGet(j, false) ?? DynValue.Void;
-					pars[i] = ScriptToClrConversions.DynValueToObjectOfType(arg, m_Parameters[i].ParameterType,
-						m_Parameters[i].DefaultValue, !m_Parameters[i].DefaultValue.IsDbNull());
+					pars[i] = ScriptToClrConversions.DynValueToObjectOfType(arg, m_Parameters[i].Type,
+						m_Parameters[i].DefaultValue, m_Parameters[i].HasDefaultValue);
 					j += 1;
 				}
 			}
@@ -423,14 +428,14 @@ namespace MoonSharp.Interpreter.Interop
 
 				for (int i = 0; i < m_Parameters.Length; i++)
 				{
-					if (m_Parameters[i].ParameterType.IsByRef)
+					if (m_Parameters[i].OriginalType.IsByRef)
 					{
 						throw new InternalErrorException("Out/Ref params cannot be precompiled.");
 					}
 					else
 					{
 						var x = Expression.ArrayIndex(ep, Expression.Constant(i));
-						args[i] = Expression.Convert(x, m_Parameters[i].ParameterType);
+						args[i] = Expression.Convert(x, m_Parameters[i].OriginalType);
 					}
 				}
 

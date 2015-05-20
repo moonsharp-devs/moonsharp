@@ -39,6 +39,11 @@ namespace MoonSharp.Interpreter
 		/// </summary>
 		HideMembers,
 		/// <summary>
+		/// No reflection is allowed, nor code generation. This is used as a safeguard when registering types which should not
+		/// use a standard reflection based descriptor - for example for types implementing <see cref="IUserDataType" />
+		/// </summary>
+		NoReflectionAllowed,
+		/// <summary>
 		/// Use the default access mode
 		/// </summary>
 		Default

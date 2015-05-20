@@ -19,8 +19,7 @@
     </SccAuxPath>
     <SccProvider>
     </SccProvider>
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <NuGetPackageImportStamp>ee6b0a8a</NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -143,7 +142,7 @@
     <Compile Include="Interop\BasicDescriptors\IOptimizableDescriptor.cs" />
     <Compile Include="Interop\BasicDescriptors\IOverloadableMemberDescriptor.cs" />
     <Compile Include="Interop\BasicDescriptors\MemberDescriptorAccess.cs" />
-    <Compile Include="Interop\BasicDescriptors\OverloadableParameterDescriptor.cs" />
+    <Compile Include="Interop\BasicDescriptors\ParameterDescriptor.cs" />
     <Compile Include="Interop\Converters\ClrToScriptConversions.cs" />
     <Compile Include="Interop\Converters\NumericConversions.cs" />
     <Compile Include="Interop\Converters\ScriptToClrConversions.cs" />

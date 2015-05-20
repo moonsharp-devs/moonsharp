@@ -137,8 +137,8 @@
     <Compile Include="..\..\Interop\BasicDescriptors\MemberDescriptorAccess.cs">
       <Link>MemberDescriptorAccess.cs</Link>
     </Compile>
-    <Compile Include="..\..\Interop\BasicDescriptors\OverloadableParameterDescriptor.cs">
-      <Link>OverloadableParameterDescriptor.cs</Link>
+    <Compile Include="..\..\Interop\BasicDescriptors\ParameterDescriptor.cs">
+      <Link>ParameterDescriptor.cs</Link>
     </Compile>
     <Compile Include="..\..\Interop\Converters\ClrToScriptConversions.cs">
       <Link>ClrToScriptConversions.cs</Link>

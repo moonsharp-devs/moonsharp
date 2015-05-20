@@ -46,10 +46,9 @@ namespace MoonSharp.Interpreter
 
 		static UserData()
 		{
-			RegisterType<StandardUserDataEventDescriptor.EventFacade>(InteropAccessMode.Reflection);
+			RegisterType<StandardUserDataEventDescriptor.EventFacade>(InteropAccessMode.NoReflectionAllowed);
 			RegisterType<AnonWrapper>(InteropAccessMode.HideMembers);
-			RegisterType<EnumerableWrapper>(InteropAccessMode.HideMembers);
-			//RegisterType<EnumValueUserData>();
+			RegisterType<EnumerableWrapper>(InteropAccessMode.NoReflectionAllowed);
 
 			s_DefaultAccessMode = InteropAccessMode.LazyOptimized;
 		}

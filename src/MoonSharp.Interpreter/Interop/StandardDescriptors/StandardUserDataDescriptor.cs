@@ -30,6 +30,9 @@ namespace MoonSharp.Interpreter.Interop
 		public StandardUserDataDescriptor(Type type, InteropAccessMode accessMode, string friendlyName = null)
 			: base(type, friendlyName)
 		{
+			if (accessMode == InteropAccessMode.NoReflectionAllowed)
+				throw new ArgumentException("Can't create a StandardUserDataDescriptor under a NoReflectionAllowed access mode");
+
 			if (Script.GlobalOptions.Platform.IsRunningOnAOT())
 				accessMode = InteropAccessMode.Reflection;
 
@@ -125,7 +128,38 @@ namespace MoonSharp.Interpreter.Interop
 					AddDynValue(nestedType.Name, UserData.CreateStatic(nestedType));
 				}
 			}
+
+			if (Type.IsArray)
+			{
+				RegisterImplicitMethod(SPECIALNAME_INDEXER_GET, "System.Collections.IList.get_Item");
+				RegisterImplicitMethod(SPECIALNAME_INDEXER_SET, "System.Collections.IList.set_Item")
+					.Parameters.Last().RestrictType(this.Type.GetElementType());
+			}
+
+
 		}
+
+		private StandardUserDataMethodDescriptor RegisterImplicitMethod(string wantedName, string reflectionName)
+		{
+			MethodInfo mi = Type.GetMethod(reflectionName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+
+			if (mi != null)
+			{
+				StandardUserDataMethodDescriptor md = StandardUserDataMethodDescriptor.TryCreateIfVisible(mi, this.AccessMode, true);
+
+				if (md != null)
+				{
+					if (!StandardUserDataMethodDescriptor.CheckMethodIsCompatible(mi, false))
+						return null;
+
+					AddMember(wantedName, md);
+					return md;
+				}
+			}
+
+			return null;
+		}
+
 
 
 

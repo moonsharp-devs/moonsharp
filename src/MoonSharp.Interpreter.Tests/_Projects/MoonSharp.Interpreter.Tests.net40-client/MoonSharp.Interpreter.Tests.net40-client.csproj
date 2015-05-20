@@ -83,6 +83,9 @@
     <Compile Include="..\..\EndToEnd\ClosureTests.cs">
       <Link>ClosureTests.cs</Link>
     </Compile>
+    <Compile Include="..\..\EndToEnd\CollectionsRegisteredTests.cs">
+      <Link>CollectionsRegisteredTests.cs</Link>
+    </Compile>
     <Compile Include="..\..\EndToEnd\CoroutineTests.cs">
       <Link>CoroutineTests.cs</Link>
     </Compile>
