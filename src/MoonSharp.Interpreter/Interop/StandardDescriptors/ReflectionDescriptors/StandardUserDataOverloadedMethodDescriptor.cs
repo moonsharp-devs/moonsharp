@@ -146,7 +146,7 @@ namespace MoonSharp.Interpreter.Interop
 		/// <exception cref="ScriptRuntimeException">function call doesn't match any overload</exception>
 		private DynValue PerformOverloadedCall(Script script, object obj, ScriptExecutionContext context, CallbackArguments args)
 		{
-			bool extMethodCacheNotExpired = IgnoreExtensionMethods || m_ExtensionMethodVersion == UserData.GetExtensionMethodsChangeVersion();
+			bool extMethodCacheNotExpired = IgnoreExtensionMethods || (obj == null) || m_ExtensionMethodVersion == UserData.GetExtensionMethodsChangeVersion();
 
 			// common case, let's optimize for it
 			if (m_Overloads.Count == 1 && m_ExtOverloads.Count == 0 && extMethodCacheNotExpired)

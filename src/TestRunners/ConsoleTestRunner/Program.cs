@@ -17,11 +17,11 @@ namespace MoonSharpTests
 {
 	class Program
 	{
-		public const string RESTRICT_TEST = null; //"ClosureNoTable";
+		public const string RESTRICT_TEST = null; //"Interop_StaticInstanceAccessRaisesError";
 		public const string LOG_ON_FILE = "moonsharp_tests.log";
 
 
-		static void Main(string[] args)
+		static int Main(string[] args)
 		{
 			try
 			{
@@ -39,10 +39,13 @@ namespace MoonSharpTests
 					Console.WriteLine("Press any key...");
 					Console.ReadKey();
 				}
+
+				return T.Fail;
 			}
 			catch (Exception ex)
 			{
 				Console.WriteLine(ex.ToString());
+				return 999;
 			}
 		}
 

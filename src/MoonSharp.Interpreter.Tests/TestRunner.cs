@@ -28,6 +28,10 @@ namespace MoonSharp.Interpreter.Tests
 	public class TestRunner
 	{
 		Action<TestResult> loggerAction;
+		public int Ok = 0;
+		public int Fail = 0;
+		public int Total = 0;
+		public int Skipped = 0;
 
 		public static bool IsRunning { get; private set; }
 
@@ -51,11 +55,6 @@ namespace MoonSharp.Interpreter.Tests
 
 		public IEnumerable<TestResult> IterateOnTests(string whichTest = null)
 		{
-			int ok = 0;
-			int fail = 0;
-			int total = 0;
-			int skipped = 0;
-
 			Assembly asm = Assembly.GetExecutingAssembly();
 
 			foreach (Type t in asm.GetTypes().Where(t => t.GetCustomAttributes(typeof(TestFixtureAttribute), true).Any()))
@@ -70,13 +69,13 @@ namespace MoonSharp.Interpreter.Tests
 					if (tr.Type != TestResultType.Message)
 					{
 						if (tr.Type == TestResultType.Fail)
-							++fail;
+							++Fail;
 						else if (tr.Type == TestResultType.Ok)
-							++ok;
+							++Ok;
 						else
-							++skipped;
+							++Skipped;
 
-						++total;
+						++Total;
 					}
 
 					yield return tr;
@@ -84,7 +83,7 @@ namespace MoonSharp.Interpreter.Tests
 			}
 
 			Console_WriteLine("");
-			Console_WriteLine("OK : {0}/{2}, Failed {1}/{2}, Skipped {3}/{2}", ok, fail, total, skipped);
+			Console_WriteLine("OK : {0}/{2}, Failed {1}/{2}, Skipped {3}/{2}", Ok, Fail, Total, Skipped);
 		}
 
 		private void Console_WriteLine(string message, params object[] args)

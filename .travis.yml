@@ -1,10 +1,7 @@
 language: csharp
 solution: src/moonsharp.sln
 
-install:
-  - nuget restore solution-name.sln
-  - nuget install NUnit.Runners -Version 2.6.4 -OutputDirectory travistestrunner
 script:
   - xbuild /p:TargetFrameworkProfile='' /p:Configuration=Release src/moonsharp_ci_net35.sln
-  - mono ./travistestrunner/NUnit.Runners.2.6.4/tools/nunit-console.exe src/MoonSharp.Interpreter.Tests/bin/Release/MoonSharp.Interpreter.Tests.dll
+  - mono src/TestRunners/ConsoleTestRunner/bin/Release/ConsoleTestRunner.exe
 
