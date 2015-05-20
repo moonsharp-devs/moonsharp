@@ -2,6 +2,6 @@ language: csharp
 solution: src/moonsharp.sln
 
 script:
-  - xbuild /p:Configuration=Release src/MoonSharp.Interpreter/MoonSharp.Interpreter.net35-client.csproj
+  - xbuild /p:TargetFrameworkProfile='' /p:Configuration=Release src/moonsharp_ci_net35.sln
 
 

@@ -9,6 +9,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoonSharp.RemoteDebugger.ne
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoonSharp.Interpreter.Tests.net35-client", "MoonSharp.Interpreter.Tests\MoonSharp.Interpreter.Tests.net35-client.csproj", "{4AD350E6-E296-43EF-9FEA-CB70358467E4}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "root", "root", "{CE0C6D33-ABF0-4CFB-B3FB-0F10A6095F25}"
+	ProjectSection(SolutionItems) = preProject
+		..\.travis.yml = ..\.travis.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
