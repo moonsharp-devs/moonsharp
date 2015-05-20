@@ -493,7 +493,9 @@ namespace MoonSharp.Interpreter
 		/// Creates a ScriptRuntimeException with a predefined error message specifying that
 		/// an attempt to access a non-static member from a static userdata was made
 		/// </summary>
+		/// <param name="typeDescr">The type descriptor.</param>
 		/// <param name="desc">The member descriptor.</param>
+		/// <returns></returns>
 		public static ScriptRuntimeException AccessInstanceMemberOnStatics(IUserDataDescriptor typeDescr, IMemberDescriptor desc)
 		{
 			return new ScriptRuntimeException("attempt to access instance member {0}.{1} from a static userdata", typeDescr.Name, desc.Name);

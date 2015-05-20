@@ -7,6 +7,9 @@ using MoonSharp.Interpreter.Interop.Converters;
 
 namespace MoonSharp.Interpreter.Interop
 {
+	/// <summary>
+	/// Member descriptor for the default constructor of value types.
+	/// </summary>
 	public class ValueTypeDefaultCtorDescriptor : IOverloadableMemberDescriptor
 	{
 		/// <summary>
@@ -61,7 +64,6 @@ namespace MoonSharp.Interpreter.Interop
 		/// representing the default empty ctor for a value type.
 		/// </summary>
 		/// <param name="valueType">Type of the value.</param>
-		/// <param name="accessMode">The interop access mode.</param>
 		/// <exception cref="System.ArgumentException">valueType is not a value type</exception>
 		public ValueTypeDefaultCtorDescriptor(Type valueType)
 		{
@@ -75,6 +77,16 @@ namespace MoonSharp.Interpreter.Interop
 		}
 
 
+		/// <summary>
+		/// Invokes the member from script.
+		/// Implementors should raise exceptions if the value cannot be executed or if access to an
+		/// instance member through a static userdata is attempted.
+		/// </summary>
+		/// <param name="script">The script.</param>
+		/// <param name="obj">The object.</param>
+		/// <param name="context">The context.</param>
+		/// <param name="args">The arguments.</param>
+		/// <returns></returns>
 		public DynValue Execute(Script script, object obj, ScriptExecutionContext context, CallbackArguments args)
 		{
 			this.CheckAccess(MemberDescriptorAccess.CanRead, obj);
@@ -84,17 +96,34 @@ namespace MoonSharp.Interpreter.Interop
 		}
 
 
+		/// <summary>
+		/// Gets a sort discriminant to give consistent overload resolution matching in case of perfectly equal scores
+		/// </summary>
 		public string SortDiscriminant
 		{
 			get { return "@.ctor"; }
 		}
 
 
+		/// <summary>
+		/// Gets the types of access supported by this member
+		/// </summary>
 		public MemberDescriptorAccess MemberAccess
 		{
 			get { return MemberDescriptorAccess.CanRead | MemberDescriptorAccess.CanExecute; }
 		}
 
+		/// <summary>
+		/// Gets the value of this member as a 
+		/// <see cref="DynValue" /> to be exposed to scripts.
+		/// Implementors should raise exceptions if the value cannot be read or if access to an
+		/// instance member through a static userdata is attempted.
+		/// </summary>
+		/// <param name="script">The script.</param>
+		/// <param name="obj">The object owning this member, or null if static.</param>
+		/// <returns>
+		/// The value of this member as a <see cref="DynValue" />.
+		/// </returns>
 		public DynValue GetValue(Script script, object obj)
 		{
 			this.CheckAccess(MemberDescriptorAccess.CanRead, obj);
@@ -103,6 +132,15 @@ namespace MoonSharp.Interpreter.Interop
 			return ClrToScriptConversions.ObjectToDynValue(script, vto);
 		}
 
+		/// <summary>
+		/// Sets the value of this member from a 
+		/// <see cref="DynValue" />.
+		/// Implementors should raise exceptions if the value cannot be read or if access to an
+		/// instance member through a static userdata is attempted.
+		/// </summary>
+		/// <param name="script">The script.</param>
+		/// <param name="obj">The object owning this member, or null if static.</param>
+		/// <param name="value">The value to be set.</param>
 		public void SetValue(Script script, object obj, DynValue value)
 		{
 			this.CheckAccess(MemberDescriptorAccess.CanWrite, obj);

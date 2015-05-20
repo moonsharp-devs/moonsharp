@@ -49,6 +49,12 @@ namespace MoonSharp.Interpreter.Interop
 			return (getter != null && getter.IsPublic) || (setter != null && setter.IsPublic);
 		}
 
+		/// <summary>
+		/// Gets the list of metamethod names from attributes - in practice the list of metamethods declared through
+		/// <see cref="MoonSharpUserDataMetamethodAttribute" /> .
+		/// </summary>
+		/// <param name="mi">The mi.</param>
+		/// <returns></returns>
 		public static List<string> GetMetaNamesFromAttributes(this MethodInfo mi)
 		{
 			return mi.GetCustomAttributes(typeof(MoonSharpUserDataMetamethodAttribute), true)
@@ -57,6 +63,11 @@ namespace MoonSharp.Interpreter.Interop
 				.ToList();
 		}
 
+		/// <summary>
+		/// Gets the name of a conversion method to be exposed to Lua scripts
+		/// </summary>
+		/// <param name="type">The type.</param>
+		/// <returns></returns>
 		public static string GetConversionMethodName(this Type type)
 		{
 			StringBuilder sb = new StringBuilder(type.Name);

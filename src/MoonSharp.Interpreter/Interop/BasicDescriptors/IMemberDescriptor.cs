@@ -122,9 +122,12 @@ namespace MoonSharp.Interpreter.Interop.BasicDescriptors
 
 		/// <summary>
 		/// Raises an appropriate ScriptRuntimeException if the specified access is not supported.
+		/// Checks are made for the MemberDescriptorAccess permissions AND for the access of instance
+		/// members through static userdatas.
 		/// </summary>
 		/// <param name="desc">The desc.</param>
 		/// <param name="access">The access.</param>
+		/// <param name="obj">The object to be checked for access.</param>
 		public static void CheckAccess(this IMemberDescriptor desc, MemberDescriptorAccess access, object obj)
 		{
 			if (!desc.IsStatic && obj == null)

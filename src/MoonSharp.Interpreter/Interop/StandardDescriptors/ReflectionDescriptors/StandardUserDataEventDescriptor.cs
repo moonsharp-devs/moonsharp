@@ -333,16 +333,28 @@ namespace MoonSharp.Interpreter.Interop
 		private delegate void EventWrapper16(object o1, object o2, object o3, object o4, object o5, object o6, object o7, object o8, object o9, object o10, object o11, object o12, object o13, object o14, object o15, object o16);
 
 
+		/// <summary>
+		/// Gets the name of the member
+		/// </summary>
 		public string Name
 		{
 			get { return this.EventInfo.Name; }
 		}
 
+		/// <summary>
+		/// Gets the types of access supported by this member
+		/// </summary>
 		public MemberDescriptorAccess MemberAccess
 		{
 			get { return MemberDescriptorAccess.CanRead; }
 		}
 
+		/// <summary>
+		/// Sets the value.
+		/// </summary>
+		/// <param name="script">The script.</param>
+		/// <param name="obj">The object.</param>
+		/// <param name="v">The v.</param>
 		public void SetValue(Script script, object obj, DynValue v)
 		{
 			this.CheckAccess(MemberDescriptorAccess.CanWrite, obj);

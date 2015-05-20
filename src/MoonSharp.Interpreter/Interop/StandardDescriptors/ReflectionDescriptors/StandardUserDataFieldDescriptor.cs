@@ -190,6 +190,9 @@ namespace MoonSharp.Interpreter.Interop
 		}
 
 
+		/// <summary>
+		/// Gets the types of access supported by this member
+		/// </summary>
 		public MemberDescriptorAccess MemberAccess
 		{
 			get

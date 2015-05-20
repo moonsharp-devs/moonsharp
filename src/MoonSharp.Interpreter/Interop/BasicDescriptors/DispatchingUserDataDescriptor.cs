@@ -7,6 +7,12 @@ using MoonSharp.Interpreter.Interop.StandardDescriptors.ReflectionDescriptors;
 
 namespace MoonSharp.Interpreter.Interop.BasicDescriptors
 {
+	/// <summary>
+	/// An abstract user data descriptor which accepts members described by <see cref="IMemberDescriptor"/> objects and
+	/// correctly dispatches to them.
+	/// Metamethods are also by default dispatched to operator overloads and other similar methods - see
+	/// <see cref="MetaIndex"/> .
+	/// </summary>
 	public abstract class DispatchingUserDataDescriptor : IUserDataDescriptor, IOptimizableDescriptor
 	{
 		private int m_ExtMethodsVersion = 0;
@@ -46,10 +52,10 @@ namespace MoonSharp.Interpreter.Interop.BasicDescriptors
 		public string FriendlyName { get; private set; }
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="StandardUserDataDescriptor"/> class.
+		/// Initializes a new instance of the <see cref="StandardUserDataDescriptor" /> class.
 		/// </summary>
 		/// <param name="type">The type this descriptor refers to.</param>
-		/// <param name="accessMode">The interop access mode this descriptor uses for members access</param>
+		/// <param name="friendlyName">A friendly name for the type, or null.</param>
 		protected DispatchingUserDataDescriptor(Type type, string friendlyName = null)
 		{
 			Type = type;
