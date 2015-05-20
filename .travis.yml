@@ -2,5 +2,6 @@ language: csharp
 solution: src/moonsharp.sln
 
 script:
-  - xbuild /p:Configuration=CI src/moonsharp.sln
+  - xbuild /p:Configuration=Release src/MoonSharp.Interpreter/MoonSharp.Interpreter.net35-client.csproj
+
 
