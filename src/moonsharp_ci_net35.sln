@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoonSharp.Interpreter.net35-client", "..\MoonSharp.Interpreter\MoonSharp.Interpreter.net35-client.csproj", "{91EA9B9D-FE03-4273-BDAF-8AD42EDE1E59}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoonSharp.Interpreter.net35-client", "MoonSharp.Interpreter\MoonSharp.Interpreter.net35-client.csproj", "{91EA9B9D-FE03-4273-BDAF-8AD42EDE1E59}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoonSharp.RemoteDebugger.net35-client", "..\MoonSharp.RemoteDebugger\MoonSharp.RemoteDebugger.net35-client.csproj", "{43D3AD52-FED5-4305-B0F4-6B991220CD0A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoonSharp.RemoteDebugger.net35-client", "MoonSharp.RemoteDebugger\MoonSharp.RemoteDebugger.net35-client.csproj", "{43D3AD52-FED5-4305-B0F4-6B991220CD0A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoonSharp.Interpreter.Tests.net35-client", "..\MoonSharp.Interpreter.Tests\MoonSharp.Interpreter.Tests.net35-client.csproj", "{4AD350E6-E296-43EF-9FEA-CB70358467E4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoonSharp.Interpreter.Tests.net35-client", "MoonSharp.Interpreter.Tests\MoonSharp.Interpreter.Tests.net35-client.csproj", "{4AD350E6-E296-43EF-9FEA-CB70358467E4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
