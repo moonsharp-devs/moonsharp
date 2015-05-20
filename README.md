@@ -1,6 +1,8 @@
 MoonSharp
 =========
-http://www.moonsharp.org
+http://www.moonsharp.org   [![Build Status](https://travis-ci.org/xanathar/moonsharp.svg?branch=master)](https://travis-ci.org/xanathar/moonsharp)
+
+
 
 A complete Lua solution written entirely in C# for the .NET, Mono, Xamarin and Unity3D platforms.
 
