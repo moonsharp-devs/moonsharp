@@ -1,7 +1,10 @@
 language: csharp
 solution: src/moonsharp.sln
+sudo: required
 
 script:
   - xbuild /p:TargetFrameworkProfile='' /p:Configuration=Release src/moonsharp_ci_net35.sln
   - mono src/TestRunners/ConsoleTestRunner/bin/Release/ConsoleTestRunner.exe
+  - ./src/TestRunners/ConsoleTestRunner/bin/Release/aotregen.sh
+  - ./src/TestRunners/ConsoleTestRunner/bin/Release/aottest.sh
 

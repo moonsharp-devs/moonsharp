@@ -46,15 +46,20 @@ namespace MoonSharp.Interpreter.Tests
 			Console_WriteLine("");
 		}
 
-		public void Test(string whichTest = null)
+		public void Test(string whichTest = null, string[] testsToSkip = null)
 		{
-			foreach (TestResult tr in IterateOnTests(whichTest))
+			foreach (TestResult tr in IterateOnTests(whichTest, testsToSkip))
 				loggerAction(tr);
 		}
 
 
-		public IEnumerable<TestResult> IterateOnTests(string whichTest = null)
+		public IEnumerable<TestResult> IterateOnTests(string whichTest = null, string[] testsToSkip = null)
 		{
+			HashSet<string> skipList = new HashSet<string>();
+
+			if (testsToSkip != null)
+				skipList.UnionWith(testsToSkip);
+
 			Assembly asm = Assembly.GetExecutingAssembly();
 
 			foreach (Type t in asm.GetTypes().Where(t => t.GetCustomAttributes(typeof(TestFixtureAttribute), true).Any()))
@@ -63,6 +68,19 @@ namespace MoonSharp.Interpreter.Tests
 				{
 					if (whichTest != null && mi.Name != whichTest)
 						continue;
+
+					if (skipList.Contains(mi.Name))
+					{
+						++Skipped;
+						TestResult trs = new TestResult()
+						{
+							TestName = mi.Name,
+							Message = "skipped (skip-list)",
+							Type = TestResultType.Skipped
+						};
+						yield return trs;
+						continue;
+					}
 
 					TestResult tr = RunTest(t, mi);
 

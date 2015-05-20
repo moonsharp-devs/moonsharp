@@ -131,9 +131,17 @@ namespace MoonSharp.Interpreter.Interop
 
 			if (Type.IsArray)
 			{
-				RegisterImplicitMethod(SPECIALNAME_INDEXER_GET, "System.Collections.IList.get_Item");
-				RegisterImplicitMethod(SPECIALNAME_INDEXER_SET, "System.Collections.IList.set_Item")
-					.Parameters.Last().RestrictType(this.Type.GetElementType());
+				var getter = RegisterImplicitMethod(SPECIALNAME_INDEXER_GET, "System.Collections.IList");
+				var setter = RegisterImplicitMethod(SPECIALNAME_INDEXER_SET, "System.Collections.IList");
+
+				if (getter == null)
+					getter = RegisterImplicitMethod(SPECIALNAME_INDEXER_GET, "System.Collections.Generic.IList`1");
+
+				if (setter == null)
+					setter = RegisterImplicitMethod(SPECIALNAME_INDEXER_SET, "System.Collections.Generic.IList`1");
+
+				if (setter != null)
+					setter.Parameters.Last().RestrictType(this.Type.GetElementType());
 			}
 
 
@@ -141,7 +149,8 @@ namespace MoonSharp.Interpreter.Interop
 
 		private StandardUserDataMethodDescriptor RegisterImplicitMethod(string wantedName, string reflectionName)
 		{
-			MethodInfo mi = Type.GetMethod(reflectionName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+			MethodInfo mi = Type.GetMethod(reflectionName + "." + wantedName, 
+				BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Default);
 
 			if (mi != null)
 			{

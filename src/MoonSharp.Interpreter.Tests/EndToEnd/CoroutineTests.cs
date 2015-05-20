@@ -124,6 +124,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		[Test]
 		public void Coroutine_VariousErrorHandling()
 		{
+			string last = "";
 			string code = @"
 
 function checkresume(step, ex, ey)
@@ -160,7 +161,11 @@ checkresume(6, false, 'cannot resume dead coroutine');
 			// Load the code and get the returned function
 			Script script = new Script();
 
+			script.Options.DebugPrint = (s) => last = s;
+
 			script.DoString(code);
+
+			Assert.AreEqual(last, "2");
 		}
 
 		[Test]

@@ -33,7 +33,7 @@ require 'Test.More'
 
 plan(54)
 
-local lua = "lua.exe"
+local lua = "lua"
 
 clk = os.clock()
 type_ok(clk, 'number', "function clock")
@@ -83,13 +83,13 @@ cmd = lua .. [[ -e "print '# hello from external Lua'; os.exit(2)"]]
 r, s, n = os.execute(cmd)
 is(r, nil)
 is(s, 'exit', "function execute & exit")
-is(n, 2, "exit value")
+is(n, 2, "exit value 1")
 
 cmd = lua .. [[ -e "print '# hello from external Lua'; os.exit(false)"]]
 r, s, n = os.execute(cmd)
 is(r, nil)
 is(s, 'exit', "function execute & exit")
-is(n, 1, "exit value")
+is(n, 1, "exit value 2")
 
 -- cmd = lua .. [[ -e "print '# hello from external Lua'; os.exit(true, true)"]]
 -- is(os.execute(cmd), true, "function execute & exit")
@@ -113,7 +113,7 @@ if r then
     r, s, n = f:close()
     is(r, nil)
     is(s, 'exit', "exit code")
-    is(n, 3, "exit value")
+    is(n, 3, "exit value 3")
 else
     skip("io.popen not supported", 5)
 end
