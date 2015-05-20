@@ -32,13 +32,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MoonSharp.Interpreter, Version=0.9.2.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="MoonSharp.Interpreter, Version=0.9.4.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\MoonSharp.0.9.2.0\lib\net40-client\MoonSharp.Interpreter.dll</HintPath>
+      <HintPath>..\packages\MoonSharp.0.9.4.0\lib\net40-client\MoonSharp.Interpreter.dll</HintPath>
     </Reference>
-    <Reference Include="MoonSharp.RemoteDebugger, Version=0.9.2.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="MoonSharp.RemoteDebugger, Version=0.9.4.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\MoonSharp.Debugger.0.9.2.0\lib\net40-client\MoonSharp.RemoteDebugger.dll</HintPath>
+      <HintPath>..\packages\MoonSharp.Debugger.0.9.4.0\lib\net40-client\MoonSharp.RemoteDebugger.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

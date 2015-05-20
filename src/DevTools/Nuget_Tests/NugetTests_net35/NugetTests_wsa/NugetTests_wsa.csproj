@@ -137,9 +137,9 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="MoonSharp.Interpreter, Version=0.9.2.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="MoonSharp.Interpreter, Version=0.9.4.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\MoonSharp.0.9.2.0\lib\portable-net4+sl5+wp8+win8\MoonSharp.Interpreter.dll</HintPath>
+      <HintPath>..\packages\MoonSharp.0.9.4.0\lib\portable-net4+sl5+wp8+win8\MoonSharp.Interpreter.dll</HintPath>
     </Reference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '12.0' ">
