@@ -1,7 +1,7 @@
 MoonSharp 
+[![Build Status](https://travis-ci.org/xanathar/moonsharp.svg?branch=master)](https://travis-ci.org/xanathar/moonsharp)
 =========
 http://www.moonsharp.org   
-[![Build Status](https://travis-ci.org/xanathar/moonsharp.svg?branch=master)](https://travis-ci.org/xanathar/moonsharp)
 
 
 

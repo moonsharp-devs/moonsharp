@@ -164,6 +164,9 @@
     <Compile Include="..\..\Interop\BasicDescriptors\DispatchingUserDataDescriptor.cs">
       <Link>DispatchingUserDataDescriptor.cs</Link>
     </Compile>
+    <Compile Include="..\..\Interop\IGeneratorUserDataDescriptor.cs">
+      <Link>IGeneratorUserDataDescriptor.cs</Link>
+    </Compile>
     <Compile Include="..\..\Interop\StandardDescriptors\EnumDescriptor.cs">
       <Link>EnumDescriptor.cs</Link>
     </Compile>
@@ -190,6 +193,15 @@
     </Compile>
     <Compile Include="..\..\Interop\StandardDescriptors\ReflectionMemberDescriptors\ValueTypeDefaultCtorMemberDescriptor.cs">
       <Link>ValueTypeDefaultCtorMemberDescriptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\StandardDescriptors\StandardGenericsUserDataDescriptor.cs">
+      <Link>StandardGenericsUserDataDescriptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\UserDataRegistries\ExtensionMethodsRegistry.cs">
+      <Link>ExtensionMethodsRegistry.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\UserDataRegistries\TypeDescriptorRegistry.cs">
+      <Link>TypeDescriptorRegistry.cs</Link>
     </Compile>
     <Compile Include="..\..\IO\BinDumpBinaryReader.cs">
       <Link>BinDumpBinaryReader.cs</Link>
