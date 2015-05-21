@@ -2,6 +2,9 @@ language: csharp
 solution: src/moonsharp.sln
 sudo: required
 
+mono: 
+  - 2.10.8
+
 script:
   - xbuild /p:TargetFrameworkProfile='' /p:Configuration=Release src/moonsharp_ci_net35.sln
   - cd src/TestRunners/ConsoleTestRunner/bin/Release
