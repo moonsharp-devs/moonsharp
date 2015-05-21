@@ -8,6 +8,6 @@ script:
   - mono ConsoleTestRunner.exe
   - chmod 777 aotregen.sh
   - chmod 777 aottest.sh
-  - ./aotregen.sh
-  - ./aottest.sh
+  - sudo ./aotregen.sh
+  - sudo ./aottest.sh
 
