@@ -14,7 +14,7 @@ namespace MoonSharp.Interpreter.Interop
 	/// <summary>
 	/// Class providing easier marshalling of CLR fields
 	/// </summary>
-	public class StandardUserDataFieldDescriptor : IMemberDescriptor, IOptimizableDescriptor
+	public class FieldMemberDescriptor : IMemberDescriptor, IOptimizableDescriptor
 	{
 		/// <summary>
 		/// Gets the FieldInfo got by reflection
@@ -54,21 +54,21 @@ namespace MoonSharp.Interpreter.Interop
 		/// <param name="fi">The FieldInfo.</param>
 		/// <param name="accessMode">The <see cref="InteropAccessMode" /></param>
 		/// <returns>A new StandardUserDataFieldDescriptor or null.</returns>
-		public static StandardUserDataFieldDescriptor TryCreateIfVisible(FieldInfo fi, InteropAccessMode accessMode)
+		public static FieldMemberDescriptor TryCreateIfVisible(FieldInfo fi, InteropAccessMode accessMode)
 		{
 			if (fi.GetVisibilityFromAttributes() ?? fi.IsPublic)
-				return new StandardUserDataFieldDescriptor(fi, accessMode);
+				return new FieldMemberDescriptor(fi, accessMode);
 
 			return null;
 		}
 
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="StandardUserDataPropertyDescriptor"/> class.
+		/// Initializes a new instance of the <see cref="PropertyMemberDescriptor"/> class.
 		/// </summary>
 		/// <param name="fi">The FieldInfo.</param>
 		/// <param name="accessMode">The <see cref="InteropAccessMode" /> </param>
-		public StandardUserDataFieldDescriptor(FieldInfo fi, InteropAccessMode accessMode)
+		public FieldMemberDescriptor(FieldInfo fi, InteropAccessMode accessMode)
 		{
 			if (Script.GlobalOptions.Platform.IsRunningOnAOT())
 				accessMode = InteropAccessMode.Reflection;

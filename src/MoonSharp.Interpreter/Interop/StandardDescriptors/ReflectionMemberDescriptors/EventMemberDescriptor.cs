@@ -12,7 +12,7 @@ namespace MoonSharp.Interpreter.Interop
 	/// Class providing easier marshalling of CLR events. Handling is limited to a narrow range of handler signatures, which,
 	/// however, covers in practice most of all available events.
 	/// </summary>
-	public class StandardUserDataEventDescriptor : IMemberDescriptor
+	public class EventMemberDescriptor : IMemberDescriptor
 	{
 		/// <summary>
 		/// The maximum number of arguments supported in an event handler delegate
@@ -22,10 +22,10 @@ namespace MoonSharp.Interpreter.Interop
 		#region Wrapper as DynValue
 		internal class EventFacade : IUserDataType
 		{
-			StandardUserDataEventDescriptor m_Parent;
+			EventMemberDescriptor m_Parent;
 			object m_Object;
 
-			public EventFacade(StandardUserDataEventDescriptor parent, object obj)
+			public EventFacade(EventMemberDescriptor parent, object obj)
 			{
 				m_Parent = parent;
 				m_Object = obj;
@@ -68,13 +68,13 @@ namespace MoonSharp.Interpreter.Interop
 		/// <param name="ei">The EventInfo.</param>
 		/// <param name="accessMode">The <see cref="InteropAccessMode" /></param>
 		/// <returns>A new StandardUserDataEventDescriptor or null.</returns>
-		public static StandardUserDataEventDescriptor TryCreateIfVisible(EventInfo ei, InteropAccessMode accessMode)
+		public static EventMemberDescriptor TryCreateIfVisible(EventInfo ei, InteropAccessMode accessMode)
 		{
 			if (!CheckEventIsCompatible(ei, false))
 				return null;
 
 			if (ei.GetVisibilityFromAttributes() ?? (ei.GetAddMethod().IsPublic && ei.GetRemoveMethod().IsPublic))
-				return new StandardUserDataEventDescriptor(ei, accessMode);
+				return new EventMemberDescriptor(ei, accessMode);
 
 			return null;
 		}
@@ -100,7 +100,7 @@ namespace MoonSharp.Interpreter.Interop
 		/// or
 		/// The event handler has a value type parameter or a by ref parameter
 		/// or
-		/// The event handler signature is not a valid method according to <see cref="StandardUserDataMethodDescriptor.CheckMethodIsCompatible"/>
+		/// The event handler signature is not a valid method according to <see cref="MethodMemberDescriptor.CheckMethodIsCompatible"/>
 		/// </exception>
 		public static bool CheckEventIsCompatible(EventInfo ei, bool throwException)
 		{
@@ -124,7 +124,7 @@ namespace MoonSharp.Interpreter.Interop
 				return false;
 			}
 
-			if (!StandardUserDataMethodDescriptor.CheckMethodIsCompatible(invoke, throwException))
+			if (!MethodMemberDescriptor.CheckMethodIsCompatible(invoke, throwException))
 				return false;
 
 			if (invoke.ReturnType != typeof(void))
@@ -160,11 +160,11 @@ namespace MoonSharp.Interpreter.Interop
 
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="StandardUserDataEventDescriptor"/> class.
+		/// Initializes a new instance of the <see cref="EventMemberDescriptor"/> class.
 		/// </summary>
 		/// <param name="ei">The ei.</param>
 		/// <param name="accessMode">The access mode.</param>
-		public StandardUserDataEventDescriptor(EventInfo ei, InteropAccessMode accessMode = InteropAccessMode.Default)
+		public EventMemberDescriptor(EventInfo ei, InteropAccessMode accessMode = InteropAccessMode.Default)
 		{
 			CheckEventIsCompatible(ei, true);
 			EventInfo = ei;

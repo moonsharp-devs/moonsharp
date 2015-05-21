@@ -170,6 +170,19 @@ namespace MoonSharp.Interpreter
 			return (int)d;
 		}
 
+		/// <summary>
+		/// Gets the specified argument as a long integer
+		/// </summary>
+		/// <param name="argNum">The argument number.</param>
+		/// <param name="funcName">Name of the function.</param>
+		/// <returns></returns>
+		public long AsLong(int argNum, string funcName)
+		{
+			DynValue v = AsType(argNum, funcName, DataType.Number, false);
+			double d = v.Number;
+			return (long)d;
+		}
+
 
 		/// <summary>
 		/// Gets the specified argument as a string, calling the __tostring metamethod if needed, in a NON

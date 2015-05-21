@@ -25,7 +25,12 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			List<RegCollItem> m_Items = new List<RegCollItem>() { new RegCollItem(7), new RegCollItem(8), new RegCollItem(9) };
 			List<int> m_List = new List<int>() { 1, 2, 3 };
 			int[] m_Array = new int[3] { 2, 4, 6 };
+			int[,] m_MultiArray = new int[2, 3] { { 2, 4, 6 }, { 7, 8, 9 } };
 
+			public int[,] GetMultiArray()
+			{
+				return m_MultiArray;
+			}
 
 			public int[] GetArray()
 			{
@@ -36,7 +41,6 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			{
 				return m_Items;
 			}
-
 
 			public List<int> GetList()
 			{
@@ -64,6 +68,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 				UserData.RegisterType<List<RegCollItem>>();
 				UserData.RegisterType<List<int>>();
 				UserData.RegisterType<int[]>();
+				UserData.RegisterType<int[,]>();
 
 				Script s = new Script();
 
@@ -87,6 +92,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 				UserData.UnregisterType<List<RegCollItem>>();
 				UserData.UnregisterType<List<int>>();
 				UserData.UnregisterType<int[]>();
+				UserData.UnregisterType<int[,]>();
 			}
 		}
 
@@ -211,6 +217,32 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			 });
 		}
 
+		[Test]
+		public void RegColl_IteratorOnMultiDimArray_ChangeElem()
+		{
+			Do(@"
+				local array = o:GetMultiArray()
+
+				array[0, 1] = array[1, 2];
+
+				local x = 0;
+				for i in array do 
+					x = x + i;
+				end
+				return x;
+			",
+			 (r, o) =>
+			 {
+				 Assert.AreEqual(DataType.Number, r.Type);
+				 Assert.AreEqual(41, r.Number);
+				 Assert.AreEqual(2, o.GetMultiArray()[0, 0]);
+				 Assert.AreEqual(9, o.GetMultiArray()[0, 1]);
+				 Assert.AreEqual(6, o.GetMultiArray()[0, 2]);
+				 Assert.AreEqual(7, o.GetMultiArray()[1, 0]);
+				 Assert.AreEqual(8, o.GetMultiArray()[1, 1]);
+				 Assert.AreEqual(9, o.GetMultiArray()[1, 2]);
+			 });
+		}
 
 
 

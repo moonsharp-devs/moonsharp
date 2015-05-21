@@ -81,7 +81,7 @@ namespace MoonSharp.Interpreter
 			if (accessMode == InteropAccessMode.Default)
 				accessMode = m_DefaultAccessMode;
 
-			StandardUserDataMethodDescriptor descr = new StandardUserDataMethodDescriptor(del.Method, accessMode);
+			MethodMemberDescriptor descr = new MethodMemberDescriptor(del.Method, accessMode);
 			return descr.GetCallbackFunction(script, del.Target);
 		}
 
@@ -100,7 +100,7 @@ namespace MoonSharp.Interpreter
 			if (accessMode == InteropAccessMode.Default)
 				accessMode = m_DefaultAccessMode;
 
-			StandardUserDataMethodDescriptor descr = new StandardUserDataMethodDescriptor(mi, accessMode);
+			MethodMemberDescriptor descr = new MethodMemberDescriptor(mi, accessMode);
 			return descr.GetCallbackFunction(script, obj);
 		}
 

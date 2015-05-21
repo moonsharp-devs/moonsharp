@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using MoonSharp.Interpreter.Interop.BasicDescriptors;
-using MoonSharp.Interpreter.Interop.StandardDescriptors.ReflectionDescriptors;
 
 namespace MoonSharp.Interpreter.Interop
 {

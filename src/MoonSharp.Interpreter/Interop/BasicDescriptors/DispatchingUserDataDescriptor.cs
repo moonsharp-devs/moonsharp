@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using MoonSharp.Interpreter.Interop.Converters;
-using MoonSharp.Interpreter.Interop.StandardDescriptors.ReflectionDescriptors;
 
 namespace MoonSharp.Interpreter.Interop.BasicDescriptors
 {
@@ -85,7 +84,7 @@ namespace MoonSharp.Interpreter.Interop.BasicDescriptors
 		/// <param name="value">The value.</param>
 		public void AddDynValue(string name, DynValue value)
 		{
-			var desc = new StandardUserDataDynValueDescriptor(name, value); 
+			var desc = new DynValueMemberDescriptor(name, value); 
 			AddMemberTo(m_Members, name, desc);
 		}
 
@@ -112,7 +111,7 @@ namespace MoonSharp.Interpreter.Interop.BasicDescriptors
 			{
 				if (members.ContainsKey(name))
 				{
-					StandardUserDataOverloadedMethodDescriptor overloads = members[name] as StandardUserDataOverloadedMethodDescriptor;
+					OverloadedMethodMemberDescriptor overloads = members[name] as OverloadedMethodMemberDescriptor;
 
 					if (overloads != null)
 						overloads.AddOverload(odesc);
@@ -121,7 +120,7 @@ namespace MoonSharp.Interpreter.Interop.BasicDescriptors
 				}
 				else
 				{
-					members.Add(name, new StandardUserDataOverloadedMethodDescriptor(name, this.Type, odesc));
+					members.Add(name, new OverloadedMethodMemberDescriptor(name, this.Type, odesc));
 				}
 			}
 			else
@@ -197,7 +196,7 @@ namespace MoonSharp.Interpreter.Interop.BasicDescriptors
 
 			if (methods != null && methods.Count > 0)
 			{
-				var ext = new StandardUserDataOverloadedMethodDescriptor(indexName, this.Type);
+				var ext = new OverloadedMethodMemberDescriptor(indexName, this.Type);
 				ext.SetExtensionMethodsSnapshot(UserData.GetExtensionMethodsChangeVersion(), methods);
 				m_Members.Add(indexName, ext);
 				return DynValue.NewCallback(ext.GetCallback(script, obj));

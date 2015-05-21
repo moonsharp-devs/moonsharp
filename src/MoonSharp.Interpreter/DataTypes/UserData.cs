@@ -46,7 +46,7 @@ namespace MoonSharp.Interpreter
 
 		static UserData()
 		{
-			RegisterType<StandardUserDataEventDescriptor.EventFacade>(InteropAccessMode.NoReflectionAllowed);
+			RegisterType<EventMemberDescriptor.EventFacade>(InteropAccessMode.NoReflectionAllowed);
 			RegisterType<AnonWrapper>(InteropAccessMode.HideMembers);
 			RegisterType<EnumerableWrapper>(InteropAccessMode.NoReflectionAllowed);
 
@@ -265,13 +265,13 @@ namespace MoonSharp.Interpreter
 			{
 				foreach (MethodInfo mi in type.GetMethods().Where(_mi => _mi.IsStatic))
 				{
-					if (!StandardUserDataMethodDescriptor.CheckMethodIsCompatible(mi, false))
+					if (!MethodMemberDescriptor.CheckMethodIsCompatible(mi, false))
 						continue;
 
 					if (mi.GetCustomAttributes(typeof(ExtensionAttribute), false).Length == 0)
 						continue;
 
-					var desc = new StandardUserDataMethodDescriptor(mi, mode);
+					var desc = new MethodMemberDescriptor(mi, mode);
 
 					s_ExtensionMethodRegistry.Add(mi.Name, desc);
 

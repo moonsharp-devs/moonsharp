@@ -14,7 +14,7 @@ namespace MoonSharp.Interpreter.Interop
 	/// <summary>
 	/// Class providing easier marshalling of CLR properties
 	/// </summary>
-	public class StandardUserDataPropertyDescriptor : IMemberDescriptor, IOptimizableDescriptor
+	public class PropertyMemberDescriptor : IMemberDescriptor, IOptimizableDescriptor
 	{
 		/// <summary>
 		/// Gets the PropertyInfo got by reflection
@@ -60,7 +60,7 @@ namespace MoonSharp.Interpreter.Interop
 		/// <param name="pi">The PropertyInfo.</param>
 		/// <param name="accessMode">The <see cref="InteropAccessMode" /></param>
 		/// <returns>A new StandardUserDataPropertyDescriptor or null.</returns>
-		public static StandardUserDataPropertyDescriptor TryCreateIfVisible(PropertyInfo pi, InteropAccessMode accessMode)
+		public static PropertyMemberDescriptor TryCreateIfVisible(PropertyInfo pi, InteropAccessMode accessMode)
 		{
 			MethodInfo getter = pi.GetGetMethod(true);
 			MethodInfo setter = pi.GetSetMethod(true);
@@ -71,47 +71,47 @@ namespace MoonSharp.Interpreter.Interop
 
 			if (pvisible.HasValue)
 			{
-				return StandardUserDataPropertyDescriptor.TryCreate(pi, accessMode,
+				return PropertyMemberDescriptor.TryCreate(pi, accessMode,
 					(gvisible ?? pvisible.Value) ? getter : null,
 					(svisible ?? pvisible.Value) ? setter : null);
 			}
 			else 
 			{
-				return StandardUserDataPropertyDescriptor.TryCreate(pi, accessMode,
+				return PropertyMemberDescriptor.TryCreate(pi, accessMode,
 					(gvisible ?? getter.IsPublic) ? getter : null,
 					(svisible ?? setter.IsPublic) ? setter : null);
 			}
 		}
 
-		private static StandardUserDataPropertyDescriptor TryCreate(PropertyInfo pi, InteropAccessMode accessMode, MethodInfo getter, MethodInfo setter)
+		private static PropertyMemberDescriptor TryCreate(PropertyInfo pi, InteropAccessMode accessMode, MethodInfo getter, MethodInfo setter)
 		{
 			if (getter == null && setter == null)
 				return null;
 			else
-				return new StandardUserDataPropertyDescriptor(pi, accessMode, getter, setter);
+				return new PropertyMemberDescriptor(pi, accessMode, getter, setter);
 		}
 
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="StandardUserDataPropertyDescriptor"/> class.
+		/// Initializes a new instance of the <see cref="PropertyMemberDescriptor"/> class.
 		/// NOTE: This constructor gives get/set visibility based exclusively on the CLR visibility of the 
 		/// getter and setter methods.
 		/// </summary>
 		/// <param name="pi">The pi.</param>
 		/// <param name="accessMode">The access mode.</param>
-		public StandardUserDataPropertyDescriptor(PropertyInfo pi, InteropAccessMode accessMode)
+		public PropertyMemberDescriptor(PropertyInfo pi, InteropAccessMode accessMode)
 			: this(pi, accessMode, pi.GetGetMethod(), pi.GetSetMethod())
 		{
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="StandardUserDataPropertyDescriptor" /> class.
+		/// Initializes a new instance of the <see cref="PropertyMemberDescriptor" /> class.
 		/// </summary>
 		/// <param name="pi">The PropertyInfo.</param>
 		/// <param name="accessMode">The <see cref="InteropAccessMode" /></param>
 		/// <param name="getter">The getter method. Use null to make the property writeonly.</param>
 		/// <param name="setter">The setter method. Use null to make the property readonly.</param>
-		public StandardUserDataPropertyDescriptor(PropertyInfo pi, InteropAccessMode accessMode, MethodInfo getter, MethodInfo setter)
+		public PropertyMemberDescriptor(PropertyInfo pi, InteropAccessMode accessMode, MethodInfo getter, MethodInfo setter)
 		{
 			if (getter == null && setter == null)
 				throw new ArgumentNullException("getter and setter cannot both be null");

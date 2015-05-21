@@ -4,19 +4,19 @@ using System.Linq;
 using System.Text;
 using MoonSharp.Interpreter.Interop.BasicDescriptors;
 
-namespace MoonSharp.Interpreter.Interop.StandardDescriptors.ReflectionDescriptors
+namespace MoonSharp.Interpreter.Interop
 {
 	/// <summary>
 	/// Class providing a simple descriptor for constant DynValues in userdata
 	/// </summary>
-	public class StandardUserDataDynValueDescriptor : IMemberDescriptor
+	public class DynValueMemberDescriptor : IMemberDescriptor
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="StandardUserDataDynValueDescriptor"/> class.
+		/// Initializes a new instance of the <see cref="DynValueMemberDescriptor"/> class.
 		/// </summary>
 		/// <param name="name">The name.</param>
 		/// <param name="value">The value.</param>
-		public StandardUserDataDynValueDescriptor(string name, DynValue value)
+		public DynValueMemberDescriptor(string name, DynValue value)
 		{
 			Value = value;
 			Name = name;

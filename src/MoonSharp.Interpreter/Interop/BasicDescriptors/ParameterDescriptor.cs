@@ -32,6 +32,14 @@ namespace MoonSharp.Interpreter.Interop.BasicDescriptors
 		/// </summary>
 		public bool IsOut { get; private set; }
 		/// <summary>
+		/// Gets a value indicating whether this instance is a "ref" parameter
+		/// </summary>
+		public bool IsRef { get; private set; }
+		/// <summary>
+		/// Gets a value indicating whether this instance is a variable arguments param
+		/// </summary>
+		public bool IsVarArgs { get; private set; }
+		/// <summary>
 		/// Gets a value indicating whether this instance has been restricted.
 		/// </summary>
 		public bool HasBeenRestricted { get { return m_OriginalType != null; } }
@@ -47,20 +55,25 @@ namespace MoonSharp.Interpreter.Interop.BasicDescriptors
 		private Type m_OriginalType = null;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="ParameterDescriptor"/> class.
+		/// Initializes a new instance of the <see cref="ParameterDescriptor" /> class.
 		/// </summary>
 		/// <param name="name">The name.</param>
 		/// <param name="type">The type.</param>
 		/// <param name="hasDefaultValue">if set to <c>true</c> the parameter has default value.</param>
 		/// <param name="defaultValue">The default value.</param>
 		/// <param name="isOut">if set to <c>true</c>, is an out param.</param>
-		public ParameterDescriptor(string name, Type type, bool hasDefaultValue, object defaultValue, bool isOut)
+		/// <param name="isRef">if set to <c>true</c> is a ref param.</param>
+		/// <param name="isVarArgs">if set to <c>true</c> is variable arguments param.</param>
+		public ParameterDescriptor(string name, Type type, bool hasDefaultValue = false, object defaultValue = null, bool isOut = false,
+			bool isRef = false, bool isVarArgs = false)
 		{
 			Name = name;
 			Type = type;
 			HasDefaultValue = hasDefaultValue;
 			DefaultValue = defaultValue;
 			IsOut = isOut;
+			IsRef = isRef;
+			IsVarArgs = isVarArgs;
 		}
 
 		/// <summary>
@@ -74,6 +87,8 @@ namespace MoonSharp.Interpreter.Interop.BasicDescriptors
 			HasDefaultValue = !(pi.DefaultValue.IsDbNull());
 			DefaultValue = pi.DefaultValue;
 			IsOut = pi.IsOut;
+			IsRef = pi.ParameterType.IsByRef;
+			IsVarArgs = (pi.ParameterType.IsArray && pi.GetCustomAttributes(typeof(ParamArrayAttribute), true).Any());
 		}
 
 
@@ -95,14 +110,14 @@ namespace MoonSharp.Interpreter.Interop.BasicDescriptors
 		/// </summary>
 		/// <param name="type">The new type.</param>
 		/// <exception cref="System.InvalidOperationException">
-		/// Cannot restrict a ref/out param
+		/// Cannot restrict a ref/out or varargs param
 		/// or
 		/// Specified operation is not a restriction
 		/// </exception>
 		public void RestrictType(Type type)
 		{
-			if (IsOut || Type.IsByRef)
-				throw new InvalidOperationException("Cannot restrict a ref/out param");
+			if (IsOut || IsRef || IsVarArgs)
+				throw new InvalidOperationException("Cannot restrict a ref/out or varargs param");
 
 			if (!Type.IsAssignableFrom(type))
 				throw new InvalidOperationException("Specified operation is not a restriction");

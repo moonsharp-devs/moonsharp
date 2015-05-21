@@ -12,7 +12,7 @@ namespace MoonSharp.Interpreter.Interop
 	/// <summary>
 	/// Class providing easier marshalling of overloaded CLR functions
 	/// </summary>
-	public class StandardUserDataOverloadedMethodDescriptor : IOptimizableDescriptor, IMemberDescriptor
+	public class OverloadedMethodMemberDescriptor : IOptimizableDescriptor, IMemberDescriptor
 	{
 		/// <summary>
 		/// Comparer class for IOverloadableMemberDescriptor
@@ -51,33 +51,33 @@ namespace MoonSharp.Interpreter.Interop
 
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="StandardUserDataOverloadedMethodDescriptor"/> class.
+		/// Initializes a new instance of the <see cref="OverloadedMethodMemberDescriptor"/> class.
 		/// </summary>
-		public StandardUserDataOverloadedMethodDescriptor(string name, Type declaringType)
+		public OverloadedMethodMemberDescriptor(string name, Type declaringType)
 		{
 			Name = name;
 			DeclaringType = declaringType;
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="StandardUserDataOverloadedMethodDescriptor" /> class.
+		/// Initializes a new instance of the <see cref="OverloadedMethodMemberDescriptor" /> class.
 		/// </summary>
 		/// <param name="name">The name.</param>
 		/// <param name="declaringType">The declaring type.</param>
 		/// <param name="descriptor">The descriptor of the first overloaded method.</param>
-		public StandardUserDataOverloadedMethodDescriptor(string name, Type declaringType, IOverloadableMemberDescriptor descriptor)
+		public OverloadedMethodMemberDescriptor(string name, Type declaringType, IOverloadableMemberDescriptor descriptor)
 			: this(name, declaringType)
 		{
 			m_Overloads.Add(descriptor);
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="StandardUserDataOverloadedMethodDescriptor" /> class.
+		/// Initializes a new instance of the <see cref="OverloadedMethodMemberDescriptor" /> class.
 		/// </summary>
 		/// <param name="name">The name.</param>
 		/// <param name="declaringType">The declaring type.</param>
 		/// <param name="descriptors">The descriptors of the overloaded methods.</param>
-		public StandardUserDataOverloadedMethodDescriptor(string name, Type declaringType, IEnumerable<IOverloadableMemberDescriptor> descriptors)
+		public OverloadedMethodMemberDescriptor(string name, Type declaringType, IEnumerable<IOverloadableMemberDescriptor> descriptors)
 			: this(name, declaringType)
 		{
 			m_Overloads.AddRange(descriptors);

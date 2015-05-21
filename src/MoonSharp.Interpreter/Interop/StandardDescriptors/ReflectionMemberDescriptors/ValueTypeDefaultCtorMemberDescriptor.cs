@@ -10,7 +10,7 @@ namespace MoonSharp.Interpreter.Interop
 	/// <summary>
 	/// Member descriptor for the default constructor of value types.
 	/// </summary>
-	public class ValueTypeDefaultCtorDescriptor : IOverloadableMemberDescriptor
+	public class ValueTypeDefaultCtorMemberDescriptor : IOverloadableMemberDescriptor
 	{
 		/// <summary>
 		/// Gets a value indicating whether the described method is static.
@@ -60,12 +60,12 @@ namespace MoonSharp.Interpreter.Interop
 
 		/// <summary>
 		/// Initializes a new instance of the
-		/// <see cref="StandardUserDataMethodDescriptor" /> class
+		/// <see cref="MethodMemberDescriptor" /> class
 		/// representing the default empty ctor for a value type.
 		/// </summary>
 		/// <param name="valueType">Type of the value.</param>
 		/// <exception cref="System.ArgumentException">valueType is not a value type</exception>
-		public ValueTypeDefaultCtorDescriptor(Type valueType)
+		public ValueTypeDefaultCtorMemberDescriptor(Type valueType)
 		{
 			if (!valueType.IsValueType)
 				throw new ArgumentException("valueType is not a value type");

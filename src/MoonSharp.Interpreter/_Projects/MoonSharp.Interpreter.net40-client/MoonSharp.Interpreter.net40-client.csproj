@@ -170,23 +170,29 @@
     <Compile Include="..\..\Interop\StandardDescriptors\EnumDescriptor.cs">
       <Link>EnumDescriptor.cs</Link>
     </Compile>
+    <Compile Include="..\..\Interop\StandardDescriptors\MemberDescriptors\ObjectCallbackMemberDescriptor.cs">
+      <Link>ObjectCallbackMemberDescriptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\StandardDescriptors\MemberDescriptors\FunctionMemberDescriptorBase.cs">
+      <Link>FunctionMemberDescriptorBase.cs</Link>
+    </Compile>
     <Compile Include="..\..\Interop\StandardDescriptors\StandardEnumUserDataDescriptor.cs">
       <Link>StandardEnumUserDataDescriptor.cs</Link>
     </Compile>
-    <Compile Include="..\..\Interop\StandardDescriptors\ReflectionDescriptors\StandardUserDataDynValueDescriptor.cs">
-      <Link>StandardUserDataDynValueDescriptor.cs</Link>
+    <Compile Include="..\..\Interop\StandardDescriptors\MemberDescriptors\DynValueMemberDescriptor.cs">
+      <Link>DynValueMemberDescriptor.cs</Link>
     </Compile>
-    <Compile Include="..\..\Interop\StandardDescriptors\ReflectionDescriptors\StandardUserDataEventDescriptor.cs">
-      <Link>StandardUserDataEventDescriptor.cs</Link>
+    <Compile Include="..\..\Interop\StandardDescriptors\ReflectionMemberDescriptors\EventMemberDescriptor.cs">
+      <Link>EventMemberDescriptor.cs</Link>
     </Compile>
-    <Compile Include="..\..\Interop\StandardDescriptors\ReflectionDescriptors\StandardUserDataOverloadedMethodDescriptor.cs">
-      <Link>StandardUserDataOverloadedMethodDescriptor.cs</Link>
+    <Compile Include="..\..\Interop\StandardDescriptors\ReflectionMemberDescriptors\OverloadedMethodMemberDescriptor.cs">
+      <Link>OverloadedMethodMemberDescriptor.cs</Link>
     </Compile>
-    <Compile Include="..\..\Interop\StandardDescriptors\ReflectionDescriptors\StandardUserDataFieldDescriptor.cs">
-      <Link>StandardUserDataFieldDescriptor.cs</Link>
+    <Compile Include="..\..\Interop\StandardDescriptors\ReflectionMemberDescriptors\FieldMemberDescriptor.cs">
+      <Link>FieldMemberDescriptor.cs</Link>
     </Compile>
-    <Compile Include="..\..\Interop\StandardDescriptors\ReflectionDescriptors\ValueTypeDefaultCtorDescriptor.cs">
-      <Link>ValueTypeDefaultCtorDescriptor.cs</Link>
+    <Compile Include="..\..\Interop\StandardDescriptors\ReflectionMemberDescriptors\ValueTypeDefaultCtorMemberDescriptor.cs">
+      <Link>ValueTypeDefaultCtorMemberDescriptor.cs</Link>
     </Compile>
     <Compile Include="..\..\IO\BinDumpBinaryReader.cs">
       <Link>BinDumpBinaryReader.cs</Link>
@@ -411,12 +417,12 @@
     <Compile Include="..\..\Interop\InteropAccessMode.cs">
       <Link>InteropAccessMode.cs</Link>
     </Compile>
-    <Compile Include="..\..\Interop\StandardDescriptors\ReflectionDescriptors\StandardUserDataMethodDescriptor.cs">
-      <Link>StandardUserDataMethodDescriptor.cs</Link>
+    <Compile Include="..\..\Interop\StandardDescriptors\ReflectionMemberDescriptors\MethodMemberDescriptor.cs">
+      <Link>MethodMemberDescriptor.cs</Link>
     </Compile>
-    <Compile Include="..\..\Interop\StandardDescriptors\ReflectionDescriptors\StandardUserDataPropertyDescriptor.cs">
+    <Compile Include="..\..\Interop\StandardDescriptors\ReflectionMemberDescriptors\PropertyMemberDescriptor.cs">
       <SubType>Code</SubType>
-      <Link>StandardUserDataPropertyDescriptor.cs</Link>
+      <Link>PropertyMemberDescriptor.cs</Link>
     </Compile>
     <Compile Include="..\..\Execution\Scopes\ClosureContext.cs">
       <Link>ClosureContext.cs</Link>
