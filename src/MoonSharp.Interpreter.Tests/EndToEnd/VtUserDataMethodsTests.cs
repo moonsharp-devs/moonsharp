@@ -810,7 +810,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		}
 
 		[Test]
-		public void VInterop_TestAutoregisterPolicyWithDualInterfaces()
+		public void VInterop_DualInterfaces()
 		{
 			string script = @"return myobj:Test1() .. myobj:Test2()";
 

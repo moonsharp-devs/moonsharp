@@ -116,6 +116,8 @@
     <Compile Include="EmbeddableNUnitWrapper.cs" />
     <Compile Include="EndToEnd\BinaryDumpTests.cs" />
     <Compile Include="EndToEnd\ClosureTests.cs" />
+    <Compile Include="EndToEnd\CollectionsBaseInterfGenRegisteredTests.cs" />
+    <Compile Include="EndToEnd\CollectionsBaseGenRegisteredTests.cs" />
     <Compile Include="EndToEnd\CollectionsRegisteredTests.cs" />
     <Compile Include="EndToEnd\CoroutineTests.cs" />
     <Compile Include="EndToEnd\DynamicTests.cs" />

@@ -1195,7 +1195,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 					if (!ud.Descriptor.SetIndex(this.GetScript(), ud.Object, originalIdx, value, isNameIndex))
 					{
-						System.Diagnostics.Debug.WriteLine(string.Format("SETINDEX !!! Missing UD : {0} - {1} ", ud.Descriptor.Name, idx.String));
 						throw ScriptRuntimeException.UserDataMissingField(ud.Descriptor.Name, idx.String);
 					}
 
@@ -1279,7 +1278,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 					if (v == null)
 					{
-						System.Diagnostics.Debug.WriteLine(string.Format("INDEX !!! Missing UD : {0} - {1} ", ud.Descriptor.Name, idx.String));
 						throw ScriptRuntimeException.UserDataMissingField(ud.Descriptor.Name, idx.String);
 					}
 

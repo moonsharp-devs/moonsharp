@@ -79,5 +79,20 @@ namespace MoonSharp.Interpreter.Interop
 		}
 
 
+		/// <summary>
+		/// Gets all implemented types by a given type
+		/// </summary>
+		/// <param name="t">The t.</param>
+		/// <returns></returns>
+		public static IEnumerable<Type> GetAllImplementedTypes(this Type t)
+		{
+			for (Type ot = t; ot != null; ot = ot.BaseType)
+				yield return ot;
+
+			foreach (Type it in t.GetInterfaces())
+				yield return it;
+		}
+
+
 	}
 }

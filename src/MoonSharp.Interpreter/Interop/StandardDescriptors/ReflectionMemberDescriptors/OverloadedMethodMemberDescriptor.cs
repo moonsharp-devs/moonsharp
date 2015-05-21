@@ -1,4 +1,4 @@
-﻿#define DEBUG_OVERLOAD_RESOLVER
+﻿// #define DEBUG_OVERLOAD_RESOLVER
 
 using System;
 using System.Collections.Generic;
@@ -195,10 +195,7 @@ namespace MoonSharp.Interpreter.Interop
 				if (!extMethodCacheNotExpired)
 				{
 					m_ExtensionMethodVersion = UserData.GetExtensionMethodsChangeVersion();
-					m_ExtOverloads = UserData.GetExtensionMethodsByName(this.Name)
-						.Where(d => d.ExtensionMethodType != null && d.ExtensionMethodType.IsAssignableFrom(this.DeclaringType))
-						.Cast<IOverloadableMemberDescriptor>()
-						.ToList();
+					m_ExtOverloads = UserData.GetExtensionMethodsByNameAndType(this.Name, this.DeclaringType);
 				}
 
 				for (int i = 0; i < m_ExtOverloads.Count; i++)

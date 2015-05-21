@@ -122,10 +122,15 @@ namespace MoonSharp.Interpreter.Interop
 			// get nested types and create statics
 			foreach (Type nestedType in type.GetNestedTypes(BindingFlags.NonPublic | BindingFlags.Public))
 			{
-				if (nestedType.IsNestedPublic || nestedType.GetCustomAttributes(typeof(MoonSharpUserDataAttribute), true).Length > 0)
+				if (!nestedType.IsGenericTypeDefinition)
 				{
-					UserData.RegisterType(nestedType, this.AccessMode);
-					AddDynValue(nestedType.Name, UserData.CreateStatic(nestedType));
+					if (nestedType.IsNestedPublic || nestedType.GetCustomAttributes(typeof(MoonSharpUserDataAttribute), true).Length > 0)
+					{
+						var descr = UserData.RegisterType(nestedType, this.AccessMode);
+
+						if (descr != null)
+							AddDynValue(nestedType.Name, UserData.CreateStatic(nestedType));
+					}
 				}
 			}
 
@@ -143,6 +148,11 @@ namespace MoonSharp.Interpreter.Interop
 
 				AddMember(SPECIALNAME_INDEXER_SET, new ObjectCallbackMemberDescriptor(SPECIALNAME_INDEXER_SET, ArrayIndexerSet, set_pars));
 				AddMember(SPECIALNAME_INDEXER_GET, new ObjectCallbackMemberDescriptor(SPECIALNAME_INDEXER_GET, ArrayIndexerGet, get_pars));
+			}
+			else if (Type == typeof(Array))
+			{
+				AddMember(SPECIALNAME_INDEXER_SET, new ObjectCallbackMemberDescriptor(SPECIALNAME_INDEXER_SET, ArrayIndexerSet));
+				AddMember(SPECIALNAME_INDEXER_GET, new ObjectCallbackMemberDescriptor(SPECIALNAME_INDEXER_GET, ArrayIndexerGet));
 			}
 		}
 
@@ -163,7 +173,9 @@ namespace MoonSharp.Interpreter.Interop
 			int[] indices = BuildArrayIndices(args, args.Count - 1);
 			DynValue value = args[args.Count - 1];
 
-			object objValue = ScriptToClrConversions.DynValueToObjectOfType(value, Type.GetElementType(), null, false);
+			Type elemType = array.GetType().GetElementType();
+
+			object objValue = ScriptToClrConversions.DynValueToObjectOfType(value, elemType, null, false);
 
 			array.SetValue(objValue, indices);
 
@@ -178,17 +190,5 @@ namespace MoonSharp.Interpreter.Interop
 
 			return array.GetValue(indices);
 		}
-
-
-
-
-
-
-
-
-
-
-
-
 	}
 }

@@ -151,6 +151,7 @@
     <Compile Include="Interop\CustomConvertersCollection.cs" />
     <Compile Include="Interop\DescriptorHelpers.cs" />
     <Compile Include="Interop\BasicDescriptors\DispatchingUserDataDescriptor.cs" />
+    <Compile Include="Interop\IGeneratorUserDataDescriptor.cs" />
     <Compile Include="Interop\StandardDescriptors\EnumDescriptor.cs" />
     <Compile Include="Interop\StandardDescriptors\MemberDescriptors\ObjectCallbackMemberDescriptor.cs" />
     <Compile Include="Interop\StandardDescriptors\MemberDescriptors\FunctionMemberDescriptorBase.cs" />
@@ -160,6 +161,9 @@
     <Compile Include="Interop\StandardDescriptors\ReflectionMemberDescriptors\OverloadedMethodMemberDescriptor.cs" />
     <Compile Include="Interop\StandardDescriptors\ReflectionMemberDescriptors\FieldMemberDescriptor.cs" />
     <Compile Include="Interop\StandardDescriptors\ReflectionMemberDescriptors\ValueTypeDefaultCtorMemberDescriptor.cs" />
+    <Compile Include="Interop\StandardDescriptors\StandardGenericsUserDataDescriptor.cs" />
+    <Compile Include="Interop\UserDataRegistries\ExtensionMethodsRegistry.cs" />
+    <Compile Include="Interop\UserDataRegistries\TypeDescriptorRegistry.cs" />
     <Compile Include="IO\BinDumpBinaryReader.cs" />
     <Compile Include="IO\BinDumpBinaryWriter.cs">
       <SubType>Code</SubType>

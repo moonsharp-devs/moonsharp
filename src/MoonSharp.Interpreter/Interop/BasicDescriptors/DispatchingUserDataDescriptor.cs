@@ -159,7 +159,7 @@ namespace MoonSharp.Interpreter.Interop.BasicDescriptors
 			index = index.ToScalar();
 
 			if (index.Type != DataType.String)
-				throw ScriptRuntimeException.BadArgument(1, string.Format("userdata<{0}>.__index", this.Name), "string", index.Type.ToLuaTypeString(), false);
+				return null;
 
 			DynValue v = TryIndex(script, obj, index.String);
 			if (v == null) v = TryIndex(script, obj, UpperFirstLetter(index.String));
@@ -190,9 +190,7 @@ namespace MoonSharp.Interpreter.Interop.BasicDescriptors
 		/// <exception cref="System.NotImplementedException"></exception>
 		private DynValue TryIndexOnExtMethod(Script script, object obj, string indexName)
 		{
-			List<IOverloadableMemberDescriptor> methods = UserData.GetExtensionMethodsByName(indexName)
-						.Where(d => d.ExtensionMethodType != null && d.ExtensionMethodType.IsAssignableFrom(this.Type))
-						.ToList();
+			List<IOverloadableMemberDescriptor> methods = UserData.GetExtensionMethodsByNameAndType(indexName, this.Type);
 
 			if (methods != null && methods.Count > 0)
 			{
@@ -272,7 +270,7 @@ namespace MoonSharp.Interpreter.Interop.BasicDescriptors
 			index = index.ToScalar();
 
 			if (index.Type != DataType.String)
-				throw ScriptRuntimeException.BadArgument(1, string.Format("userdata<{0}>.__setindex", this.Name), "string", index.Type.ToLuaTypeString(), false);
+				return false;
 
 			bool v = TrySetIndex(script, obj, index.String, value);
 			if (!v) v = TrySetIndex(script, obj, UpperFirstLetter(index.String), value);
