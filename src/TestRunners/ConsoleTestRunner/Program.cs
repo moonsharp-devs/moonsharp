@@ -30,6 +30,7 @@ namespace MoonSharpTests
 		// Tests skipped on AOT platforms - known not workings :(
 		static List<string> AOT_SKIPLIST = new List<string>()
 		{
+			"RegCollGen_List_ExtMeth_Last", 
 			"VInterop_NIntPropertySetter_None",	
 			"VInterop_NIntPropertySetter_Lazy",	
 			"VInterop_NIntPropertySetter_Precomputed",	
