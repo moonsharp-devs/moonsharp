@@ -76,7 +76,9 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			UserData.RegisterType<MyFlags>();
 
 			S.Globals.Set("MyEnum", UserData.CreateStatic<MyEnum>());
-			S.Globals.Set("MyFlags", UserData.CreateStatic<MyFlags>());
+//			S.Globals.Set("MyFlags", UserData.CreateStatic<MyFlags>());
+			S.Globals["MyFlags"] = typeof(MyFlags);
+
 			S.Globals.Set("o", UserData.Create(obj));
 
 			DynValue v = S.DoString("return " + code);

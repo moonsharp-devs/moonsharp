@@ -431,11 +431,29 @@ namespace MoonSharp.Interpreter
 		/// <exception cref="System.ArgumentException">Thrown if function is not of DataType.Function</exception>
 		public DynValue Call(DynValue function, params DynValue[] args)
 		{
-			if (function.Type == DataType.ClrFunction)
-				return function.Callback.ClrCallback(this.CreateDynamicExecutionContext(function.Callback), new CallbackArguments(args, false));
+			if (function.Type != DataType.Function && function.Type != DataType.ClrFunction)
+			{
+				DynValue metafunction = m_MainProcessor.GetMetamethod(function, "__call");
 
-			if (function.Type != DataType.Function)
-				throw new ArgumentException("function is not of DataType.Function");
+				if (metafunction != null)
+				{
+					DynValue[] metaargs = new DynValue[args.Length + 1];
+					metaargs[0] = function;
+					for (int i = 0; i < args.Length; i++)
+						metaargs[i + 1] = args[i];
+
+					function = metafunction;
+					args = metaargs;
+				}
+				else
+				{
+					throw new ArgumentException("function is not a function and has no __call metamethod.");
+				}
+			}
+			else if (function.Type == DataType.ClrFunction)
+			{
+				return function.Callback.ClrCallback(this.CreateDynamicExecutionContext(function.Callback), new CallbackArguments(args, false));
+			}
 
 			return m_MainProcessor.Call(function, args);
 		}

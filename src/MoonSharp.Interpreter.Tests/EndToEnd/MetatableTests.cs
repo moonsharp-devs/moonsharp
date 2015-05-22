@@ -105,6 +105,35 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 		}
 
+		[Test]
+		public void MetatableCall2()
+		{
+			string script = @"    
+					t = { }
+					meta = { }
+
+					x = 0;
+
+					function meta.__call(f, y)
+						x = 156 * y;
+						return x;
+					end
+
+					setmetatable(t, meta);
+
+					return t;
+				";
+
+			Script S = new Script();
+
+			DynValue tbl = S.DoString(script);
+			DynValue res = S.Call(tbl, 3);
+
+
+			Assert.AreEqual(DataType.Number, res.Type);
+			Assert.AreEqual(468, res.Number);
+
+		}
 
 		[Test]
 		public void MetatableCall()
