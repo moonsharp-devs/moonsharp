@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MoonSharp.Interpreter.Interop;
 using NUnit.Framework;
 
 namespace MoonSharp.Interpreter.Tests.EndToEnd
@@ -224,7 +225,47 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			RunTestOverload("s:method1(true)", "s");
 		}
 
-	
+		private int Method1()
+		{
+			return 1;
+		}
+
+		private int Method1(int a)
+		{
+			return 5 + a;
+		}
+
+
+		[Test]
+		public void OverloadTest_WithoutObjects()
+		{
+			Script s = new Script();
+
+			// Create an instance of the overload resolver
+			var ov = new OverloadedMethodMemberDescriptor("Method1", this.GetType());
+
+			// Iterate over the two methods through reflection
+			foreach(var method in this.GetType().GetMethods(System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+				.Where(mi => mi.Name == "Method1"))
+			{
+				ov.AddOverload(new MethodMemberDescriptor(method));
+			}
+
+			// Creates the callback over the 'this' object
+			DynValue callback = DynValue.NewCallback(ov.GetCallbackFunction(s, this)); 
+			s.Globals.Set("func", callback);
+
+			// Execute and check the results.
+			DynValue result = s.DoString("return func(), func(17)");
+
+			Assert.AreEqual(DataType.Tuple, result.Type);
+			Assert.AreEqual(DataType.Number, result.Tuple[0].Type);
+			Assert.AreEqual(DataType.Number, result.Tuple[1].Type);
+			Assert.AreEqual(1, result.Tuple[0].Number);
+			Assert.AreEqual(22, result.Tuple[1].Number);
+		}
+
+
 
 
 

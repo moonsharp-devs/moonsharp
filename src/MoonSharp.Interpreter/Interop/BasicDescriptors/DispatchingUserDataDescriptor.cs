@@ -102,6 +102,77 @@ namespace MoonSharp.Interpreter.Interop.BasicDescriptors
 				AddMemberTo(m_Members, name, desc);
 		}
 
+		/// <summary>
+		/// Gets the member names.
+		/// </summary>
+		public IEnumerable<string> MemberNames
+		{
+			get { return m_Members.Keys; }
+		}
+
+		/// <summary>
+		/// Gets the members.
+		/// </summary>
+		public IEnumerable<KeyValuePair<string, IMemberDescriptor>> Members
+		{
+			get { return m_Members; }
+		}
+
+		/// <summary>
+		/// Finds the member with a given name. If not found, null is returned.
+		/// </summary>
+		/// <param name="memberName">Name of the member.</param>
+		/// <returns></returns>
+		public IMemberDescriptor FindMember(string memberName)
+		{
+			return m_Members.GetOrDefault(memberName);
+		}
+
+		/// <summary>
+		/// Removes the member with a given name. In case of overloaded functions, all overloads are removed.
+		/// </summary>
+		/// <param name="memberName">Name of the member.</param>
+		public void RemoveMember(string memberName)
+		{
+			m_Members.Remove(memberName);
+		}
+
+		/// <summary>
+		/// Gets the meta member names.
+		/// </summary>
+		public IEnumerable<string> MetaMemberNames
+		{
+			get { return m_MetaMembers.Keys; }
+		}
+
+		/// <summary>
+		/// Gets the meta members.
+		/// </summary>
+		public IEnumerable<KeyValuePair<string, IMemberDescriptor>> MetaMembers
+		{
+			get { return m_MetaMembers; }
+		}
+
+		/// <summary>
+		/// Finds the meta member with a given name. If not found, null is returned.
+		/// </summary>
+		/// <param name="memberName">Name of the member.</param>
+		public IMemberDescriptor FindMetaMember(string memberName)
+		{
+			return m_MetaMembers.GetOrDefault(memberName);
+		}
+
+		/// <summary>
+		/// Removes the meta member with a given name. In case of overloaded functions, all overloads are removed.
+		/// </summary>
+		/// <param name="memberName">Name of the member.</param>
+		public void RemoveMetaMember(string memberName)
+		{
+			m_MetaMembers.Remove(memberName);
+		}
+
+
+
 
 		private void AddMemberTo(Dictionary<string, IMemberDescriptor> members, string name, IMemberDescriptor desc)
 		{
