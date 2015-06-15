@@ -136,6 +136,8 @@ namespace MoonSharp.Interpreter
 		/// <exception cref="System.InvalidOperationException">Only non-CLR coroutines can be resumed with this overload of the Resume method. Use the overload accepting a ScriptExecutionContext instead</exception>
 		public DynValue Resume(params DynValue[] args)
 		{
+			this.CheckScriptOwnership(args);
+
 			if (Type == CoroutineType.Coroutine)
 				return m_Processor.Coroutine_Resume(args);
 			else 
@@ -151,6 +153,9 @@ namespace MoonSharp.Interpreter
 		/// <returns></returns>
 		public DynValue Resume(ScriptExecutionContext context, params DynValue[] args)
 		{
+			this.CheckScriptOwnership(context);
+			this.CheckScriptOwnership(args);
+
 			if (Type == CoroutineType.Coroutine)
 				return m_Processor.Coroutine_Resume(args);
 			else if (Type == CoroutineType.ClrCallback)

@@ -43,6 +43,8 @@ namespace MoonSharp.Interpreter
 		{
 			context = context ?? OwnerScript.CreateDynamicExecutionContext();
 
+			this.CheckScriptOwnership(context.GetScript());
+
 			if (m_Constant != null)
 				return m_Constant;
 
@@ -56,6 +58,8 @@ namespace MoonSharp.Interpreter
 		/// <returns></returns>
 		public SymbolRef FindSymbol(ScriptExecutionContext context)
 		{
+			this.CheckScriptOwnership(context.GetScript());
+
 			if (m_Exp != null)
 				return m_Exp.FindDynamic(context);
 			else

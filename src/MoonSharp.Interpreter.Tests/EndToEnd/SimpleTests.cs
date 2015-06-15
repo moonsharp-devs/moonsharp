@@ -1461,6 +1461,18 @@ namespace MoonSharp.Interpreter.Tests
 			}
 		}
 
+		[Test]
+		public void MissingArgsDefaultToNil()
+		{
+			Script S = new Script(CoreModules.None);
+			DynValue res = S.DoString(@"
+				function test(a)
+					return a;
+				end
+
+				test();
+				");
+		}
 
 	}
 }

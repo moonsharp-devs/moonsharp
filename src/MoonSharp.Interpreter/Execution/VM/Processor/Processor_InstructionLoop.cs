@@ -181,7 +181,9 @@ namespace MoonSharp.Interpreter.Execution.VM
 							ExecExpTuple(i);
 							break;
 						case OpCode.Local:
-							m_ValueStack.Push(m_ExecutionStack.Peek().LocalScope[i.Symbol.i_Index].AsReadOnly());
+							var scope = m_ExecutionStack.Peek().LocalScope;
+							var index = i.Symbol.i_Index;
+							m_ValueStack.Push(scope[index].AsReadOnly());
 							break;
 						case OpCode.Upvalue:
 							m_ValueStack.Push(m_ExecutionStack.Peek().ClosureScope[i.Symbol.i_Index].AsReadOnly());
@@ -581,31 +583,59 @@ namespace MoonSharp.Interpreter.Execution.VM
 			return xs.ReturnAddress;
 		}
 
+		private IList<DynValue> CreateArgsListForFunctionCall(int numargs, int offsFromTop)
+		{
+			if (numargs == 0) return new DynValue[0];
+
+			DynValue lastParam = m_ValueStack.Peek(offsFromTop);
+
+			if (lastParam.Type == DataType.Tuple && lastParam.Tuple.Length > 1)
+			{
+				List<DynValue> values = new List<DynValue>();
+
+				for (int idx = 0; idx < numargs - 1; idx++)
+					values.Add(m_ValueStack.Peek(numargs - idx - 1 + offsFromTop));
+
+				for (int idx = 0; idx < lastParam.Tuple.Length; idx++)
+					values.Add(lastParam.Tuple[idx]);
+
+				return values;
+			}
+			else
+			{
+				return new Slice<DynValue>(m_ValueStack, m_ValueStack.Count - numargs - offsFromTop, numargs, false);
+			}
+		}
+
+
 		private void ExecArgs(Instruction I)
 		{
 			int numargs = (int)m_ValueStack.Peek(0).Number;
 
+			// unpacks last tuple arguments to simplify a lot of code down under
+			var argsList = CreateArgsListForFunctionCall(numargs, 1);
+
 			for (int i = 0; i < I.SymbolList.Length; i++)
 			{
-				if (i >= numargs)
+				if (i >= argsList.Count)
 				{
 					this.AssignLocal(I.SymbolList[i], DynValue.NewNil());
 				}
 				else if ((i == I.SymbolList.Length - 1) && (I.SymbolList[i].i_Name == WellKnownSymbols.VARARGS))
 				{
-					int len = numargs - i;
+					int len = argsList.Count - i;
 					DynValue[] varargs = new DynValue[len];
 
-					for (int ii = 0; ii < len; ii++)
+					for (int ii = 0; ii < len; ii++, i++)
 					{
-						varargs[ii] = m_ValueStack.Peek(numargs - i - ii).CloneAsWritable();
+						varargs[ii] = argsList[i].ToScalar().CloneAsWritable();
 					}
 
-					this.AssignLocal(I.SymbolList[i], DynValue.NewTuple(Internal_AdjustTuple(varargs)));
+					this.AssignLocal(I.SymbolList[I.SymbolList.Length - 1], DynValue.NewTuple(Internal_AdjustTuple(varargs)));
 				}
 				else
 				{
-					this.AssignLocal(I.SymbolList[i], m_ValueStack.Peek(numargs - i).CloneAsWritable());
+					this.AssignLocal(I.SymbolList[i], argsList[i].ToScalar().CloneAsWritable());
 				}
 			}
 		}
@@ -613,7 +643,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 
 
-		private int Internal_ExecCall(int argsCount, int instructionPtr, CallbackFunction handler = null, 
+		private int Internal_ExecCall(int argsCount, int instructionPtr, CallbackFunction handler = null,
 			CallbackFunction continuation = null, bool thisCall = false, string debugText = null, DynValue unwindHandler = null)
 		{
 			DynValue fn = m_ValueStack.Peek(argsCount);
@@ -627,14 +657,14 @@ namespace MoonSharp.Interpreter.Execution.VM
 				if (instructionPtr >= 0 && instructionPtr < this.m_RootChunk.Code.Count)
 				{
 					Instruction I = this.m_RootChunk.Code[instructionPtr];
-										
+
 					// and we are followed *exactly* by a RET 1
 					if (I.OpCode == OpCode.Ret && I.NumVal == 1)
 					{
 						CallStackItem csi = m_ExecutionStack.Peek();
 
 						// if the current stack item has no "odd" things pending and neither has the new coming one..
-						if (csi.ClrFunction == null && csi.Continuation == null && csi.ErrorHandler == null 
+						if (csi.ClrFunction == null && csi.Continuation == null && csi.ErrorHandler == null
 							&& csi.ErrorHandlerBeforeUnwind == null && continuation == null && unwindHandler == null && handler == null)
 						{
 							instructionPtr = PerformTCO(instructionPtr, argsCount);
@@ -643,13 +673,13 @@ namespace MoonSharp.Interpreter.Execution.VM
 					}
 				}
 			}
-				
+
 
 
 			if (fn.Type == DataType.ClrFunction)
 			{
-				IList<DynValue> args = new Slice<DynValue>(m_ValueStack, m_ValueStack.Count - argsCount, argsCount, false);
-
+				//IList<DynValue> args = new Slice<DynValue>(m_ValueStack, m_ValueStack.Count - argsCount, argsCount, false);
+				IList<DynValue> args = CreateArgsListForFunctionCall(argsCount, 0);
 				// we expand tuples before callbacks
 				// args = DynValue.ExpandArgumentsToList(args);
 				SourceRef sref = GetCurrentSourceRef(instructionPtr);
@@ -1014,7 +1044,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				int ip = Internal_InvokeBinaryMetaMethod(l, r, "__eq", instructionPtr);
 				if (ip >= 0) return ip;
 			}
-			
+
 			// else perform standard comparison
 			m_ValueStack.Push(DynValue.NewBoolean(r.Equals(l)));
 			return instructionPtr;

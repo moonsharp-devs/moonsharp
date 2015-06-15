@@ -93,7 +93,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 				return tostring(9)";
 
 
-			Script S = new Script();
+			Script S = new Script(CoreModules.Basic);
 			var res = S.DoString(script);
 
 			Assert.AreEqual(DataType.String, res.Type);

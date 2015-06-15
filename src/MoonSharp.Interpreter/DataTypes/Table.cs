@@ -223,8 +223,8 @@ namespace MoonSharp.Interpreter
 				}
 			}
 
-			CheckValueOwner(key);
-			CheckValueOwner(value);
+			this.CheckScriptOwnership(key);
+			this.CheckScriptOwnership(value);
 
 			PerformTableSet(m_ValueMap, key, key, value, false);
 		}
@@ -283,7 +283,7 @@ namespace MoonSharp.Interpreter
 		/// <param name="value">The value.</param>
 		public void Set(string key, DynValue value)
 		{
-			CheckValueOwner(value);
+			this.CheckScriptOwnership(value);
 			PerformTableSet(m_StringMap, key, DynValue.NewString(key), value, false);
 		}
 
@@ -320,7 +320,7 @@ namespace MoonSharp.Interpreter
 		/// <param name="value">The value.</param>
 		public void Set(int key, DynValue value)
 		{
-			CheckValueOwner(value);
+			this.CheckScriptOwnership(value);
 			PerformTableSet(m_ArrayMap, key, DynValue.NewNumber(key), value, true);
 		}
 
@@ -332,11 +332,6 @@ namespace MoonSharp.Interpreter
 		public DynValue Get(int key)
 		{
 			return GetValueOrNil(m_ArrayMap.Find(key));
-		}
-
-		private void CheckValueOwner(DynValue value)
-		{
-			// +++ value.AssertOwner(m_Owner);
 		}
 
 		/// <summary>
@@ -464,7 +459,12 @@ namespace MoonSharp.Interpreter
 		/// <summary>
 		/// Gets the meta-table associated with this instance.
 		/// </summary>
-		public Table MetaTable { get; set; }
+		public Table MetaTable 
+		{ 
+			get { return m_MetaTable; }
+			set { this.CheckScriptOwnership(m_MetaTable); m_MetaTable = value; } 
+		}
+		private Table m_MetaTable;
 
 
 

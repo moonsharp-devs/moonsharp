@@ -11,7 +11,7 @@ namespace MoonSharp.Interpreter
 	/// <summary>
 	/// Class giving access to details of the environment where the script is executing
 	/// </summary>
-	public class ScriptExecutionContext
+	public class ScriptExecutionContext : IScriptPrivateResource
 	{
 		Processor m_Processor;
 		CallbackFunction m_Callback;
@@ -257,5 +257,15 @@ namespace MoonSharp.Interpreter
 		}
 
 
+		/// <summary>
+		/// Gets the script owning this resource.
+		/// </summary>
+		/// <value>
+		/// The script owning this resource.
+		/// </value>
+		public Script OwnerScript
+		{
+			get { return this.GetScript(); }
+		}
 	}
 }

@@ -114,6 +114,9 @@
     <Compile Include="..\..\EndToEnd\StringLibTests.cs">
       <Link>StringLibTests.cs</Link>
     </Compile>
+    <Compile Include="..\..\EndToEnd\StructAssignmentTechnique.cs">
+      <Link>StructAssignmentTechnique.cs</Link>
+    </Compile>
     <Compile Include="..\..\EndToEnd\TailCallTests.cs">
       <Link>TailCallTests.cs</Link>
     </Compile>
@@ -125,6 +128,9 @@
     </Compile>
     <Compile Include="..\..\EndToEnd\UserDataNestedTypesTests.cs">
       <Link>UserDataNestedTypesTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\EndToEnd\VarargsTupleTests.cs">
+      <Link>VarargsTupleTests.cs</Link>
     </Compile>
     <Compile Include="..\..\EndToEnd\VtUserDataPropertiesTests.cs">
       <Link>VtUserDataPropertiesTests.cs</Link>

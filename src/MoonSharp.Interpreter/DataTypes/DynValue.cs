@@ -88,7 +88,6 @@ namespace MoonSharp.Interpreter
 
 
 
-
 		/// <summary>
 		/// Creates a new writable value initialized to Nil.
 		/// </summary>
@@ -665,6 +664,17 @@ namespace MoonSharp.Interpreter
 				return rv.Boolean;
 			else return (rv.Type != DataType.Nil && rv.Type != DataType.Void);
 		}
+
+		/// <summary>
+		/// Returns this DynValue as an instance of <see cref="IScriptPrivateResource"/>, if possible,
+		/// null otherwise
+		/// </summary>
+		/// <returns>False if value is false or nil, true otherwise.</returns>
+		public IScriptPrivateResource GetAsPrivateResource()
+		{
+			return m_Object as IScriptPrivateResource;
+		}
+
 
 		/// <summary>
 		/// Converts a tuple to a scalar value. If it's already a scalar value, this function returns "this".
