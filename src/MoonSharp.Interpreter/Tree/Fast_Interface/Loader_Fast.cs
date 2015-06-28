@@ -30,7 +30,7 @@ namespace MoonSharp.Interpreter.Tree.Fast_Interface
 			catch (SyntaxErrorException ex)
 			{
 				ex.DecorateMessage(script);
-				throw;
+                throw new Exception(null, ex);
 			}
 		}
 
@@ -74,7 +74,7 @@ namespace MoonSharp.Interpreter.Tree.Fast_Interface
 			catch (SyntaxErrorException ex)
 			{
 				ex.DecorateMessage(script);
-				throw;
+                throw new Exception(null, ex);
 			}
 		}
 
@@ -108,7 +108,7 @@ namespace MoonSharp.Interpreter.Tree.Fast_Interface
 			catch (SyntaxErrorException ex)
 			{
 				ex.DecorateMessage(script);
-				throw;
+                throw new Exception(null, ex);
 			}
 
 		}
