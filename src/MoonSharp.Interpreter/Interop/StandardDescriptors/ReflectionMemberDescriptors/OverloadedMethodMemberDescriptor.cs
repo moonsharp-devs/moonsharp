@@ -1,4 +1,4 @@
-﻿// #define DEBUG_OVERLOAD_RESOLVER
+﻿#define DEBUG_OVERLOAD_RESOLVER
 
 using System;
 using System.Collections.Generic;
@@ -312,6 +312,9 @@ namespace MoonSharp.Interpreter.Interop
 			for (int i = 0; i < method.Parameters.Length; i++)
 			{
 				if (isExtMethod && i == 0)
+					continue;
+
+				if (method.Parameters[i].IsOut)
 					continue;
 
 				Type parameterType = method.Parameters[i].Type;

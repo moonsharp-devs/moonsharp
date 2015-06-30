@@ -64,6 +64,26 @@ namespace MoonSharp.Interpreter.Interop
 		}
 
 		/// <summary>
+		/// Gets the Types implemented in the assembly, catching the ReflectionTypeLoadException just in case..
+		/// </summary>
+		/// <param name="asm">The assebly</param>
+		/// <returns></returns>
+		public static Type[] SafeGetTypes(this Assembly asm)
+		{
+			try
+			{
+				return asm.GetTypes();
+			}
+			catch (ReflectionTypeLoadException)
+			{
+				return new Type[0];
+			}
+		}
+
+
+
+
+		/// <summary>
 		/// Gets the name of a conversion method to be exposed to Lua scripts
 		/// </summary>
 		/// <param name="type">The type.</param>

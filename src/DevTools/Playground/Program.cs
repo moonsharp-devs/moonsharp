@@ -8,69 +8,50 @@ using MoonSharp.Interpreter.Interop;
 
 namespace Playground
 {
-	class MyDictionaryDescriptor : StandardUserDataDescriptor
+	public class Foo
 	{
-		public MyDictionaryDescriptor(Type type)
-			: base(type, InteropAccessMode.Default)
-		{ }
+		public static void Log1(string msg) { }
 
-		public override DynValue Index(Script script, object obj, DynValue index, bool isDirectIndexing)
+		public static void Test1(string msg, out string obj, string val)
 		{
-			if (isDirectIndexing)
-			{
-				string key = index.String;
-
-				if (key.StartsWith("_"))
-					index = DynValue.NewString(key.Substring(1));
-				else
-					isDirectIndexing = false;
-			}
-
-			return base.Index(script, obj, index, isDirectIndexing);
-		}
-
-		public override bool SetIndex(Script script, object obj, DynValue index, DynValue value, bool isDirectIndexing)
-		{
-			if (isDirectIndexing)
-			{
-				string key = index.String;
-
-				if (key.StartsWith("_"))
-					index = DynValue.NewString(key.Substring(1));
-				else
-					isDirectIndexing = false;
-			}
-
-			return base.SetIndex(script, obj, index, value, isDirectIndexing);
+			Console.WriteLine("{0} - {1}", msg ?? "(NULL)", val ?? "(NULL)");
+			obj = msg;
 		}
 
 	}
 
+	public static class FooExtension
+	{
+		public static void Log2(this Foo self, string msg) { }
+	}
 
 	class Program
 	{
 		static void Main(string[] args)
 		{
-			Dictionary<string, int> dic = new Dictionary<string, int>();
+			UserData.RegisterType<Foo>();
+			UserData.RegisterType<Dictionary<int, int>>();
+			UserData.RegisterExtensionType(typeof(FooExtension));
 
-			dic["hp"] = 33;
+			var lua = new Script();
+			lua.Globals["DictionaryIntInt"] = typeof(Dictionary<int, int>);
 
-			UserData.RegisterType<Dictionary<string, int>>(new MyDictionaryDescriptor(typeof(Dictionary<string, int>)));
+			var script = @"local dict = DictionaryIntInt.__new(); local res, v = dict.TryGetValue(0)";
+			lua.DoString(script);
+			lua.DoString(script);
 
-			Script s = new Script();
 
-			s.Globals["dic"] = dic;
-			try
-			{
-				s.DoString("print(dic['hp'])");
-				s.DoString("print(dic.hp)");
-				s.DoString("print(dic._count)");
-			}
-			catch (ScriptRuntimeException ex)
-			{
-				Console.ForegroundColor = ConsoleColor.Red;
-				Console.WriteLine(ex.DecoratedMessage);
-			}
+			//var lua = new Script();
+			//lua.Globals["Foo"] = typeof(Foo);
+
+			//var script = @"local _, obj = Foo.Test1('ciao', 'hello'); print(obj);";
+			//lua.DoString(script);
+
+
+
+
+
+			Console.WriteLine("Done");
 			Console.ReadKey();
 
 

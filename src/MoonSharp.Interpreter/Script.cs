@@ -28,7 +28,7 @@ namespace MoonSharp.Interpreter
 		/// <summary>
 		/// The version of the MoonSharp engine
 		/// </summary>
-		public const string VERSION = "0.9.6.2"; 
+		public const string VERSION = "0.9.7.1"; 
 
 		/// <summary>
 		/// The Lua version being supported

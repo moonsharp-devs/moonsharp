@@ -30,7 +30,7 @@ namespace MoonSharp.Interpreter.Interop.UserDataRegistries
 
 			if (includeExtensionTypes)
 			{
-				var extensionTypes = from t in asm.GetTypes()
+				var extensionTypes = from t in asm.SafeGetTypes()
 									 let attributes = t.GetCustomAttributes(typeof(ExtensionAttribute), true)
 									 where attributes != null && attributes.Length > 0
 									 select new { Attributes = attributes, DataType = t };
@@ -42,7 +42,7 @@ namespace MoonSharp.Interpreter.Interop.UserDataRegistries
 			}
 
 
-			var userDataTypes = from t in asm.GetTypes()
+			var userDataTypes = from t in asm.SafeGetTypes()
 								let attributes = t.GetCustomAttributes(typeof(MoonSharpUserDataAttribute), true)
 								where attributes != null && attributes.Length > 0
 								select new { Attributes = attributes, DataType = t };

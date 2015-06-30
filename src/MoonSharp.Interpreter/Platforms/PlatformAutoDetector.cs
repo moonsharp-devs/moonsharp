@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using MoonSharp.Interpreter.Loaders;
+using MoonSharp.Interpreter.Interop;
 
 namespace MoonSharp.Interpreter.Platforms
 {
@@ -70,7 +71,7 @@ namespace MoonSharp.Interpreter.Platforms
 #else
 			IsRunningOnUnity = AppDomain.CurrentDomain
 				.GetAssemblies()
-				.SelectMany(a => a.GetTypes())
+				.SelectMany(a => a.SafeGetTypes())
 				.Any(t => t.FullName.StartsWith("UnityEngine."));
 #endif
 
