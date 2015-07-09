@@ -166,7 +166,7 @@ namespace MoonSharp.Interpreter.CoreLib
 				{ 'A', "dddd" },
 				{ 'b', "MMM" },
 				{ 'B', "MMMM" },
-				{ 'c', "%f" },
+				{ 'c', "f" },
 				{ 'd', "dd" },
 				{ 'D', "MM/dd/yy" },
 				{ 'F', "yyyy-MM-dd" },

@@ -107,6 +107,27 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 
 		[Test]
+		public void Interop_OutParamInOverloadResolution()
+		{
+			UserData.RegisterType<Dictionary<int, int>>();
+			UserData.RegisterExtensionType(typeof(OverloadsExtMethods));
+
+			try
+			{
+				var lua = new Script();
+				lua.Globals["DictionaryIntInt"] = typeof(Dictionary<int, int>);
+
+				var script = @"local dict = DictionaryIntInt.__new(); local res, v = dict.TryGetValue(0)";
+				lua.DoString(script);
+				lua.DoString(script);
+			}
+			finally
+			{
+				UserData.UnregisterType<Dictionary<int, int>>();
+			}
+		}
+
+		[Test]
 		public void Interop_Overloads_Varargs1()
 		{
 			RunTestOverload("o:methodV('{0}-{1}', 15, true)", "exact:15-True");

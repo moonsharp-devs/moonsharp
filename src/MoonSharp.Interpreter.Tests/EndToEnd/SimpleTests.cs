@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using MoonSharp.Interpreter.Execution;
 using NUnit.Framework;
+using MoonSharp.Interpreter.Loaders;
 
 namespace MoonSharp.Interpreter.Tests
 {
@@ -1473,6 +1474,23 @@ namespace MoonSharp.Interpreter.Tests
 				test();
 				");
 		}
+
+//		[Test]
+//		public void TestModulesLoadingWithoutCrash()
+//		{
+//#if !PCL
+//			var basePath = AppDomain.CurrentDomain.BaseDirectory;
+//			var scriptPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "scripts\\test");
+//			Script script = new Script();
+
+//			((ScriptLoaderBase)script.Options.ScriptLoader).ModulePaths = new[]
+//			{
+//				System.IO.Path.Combine(basePath, "scripts\\test\\test.lua"),
+//			};
+//			var obj = script.LoadFile(System.IO.Path.Combine(scriptPath, "test.lua"));
+//			obj.Function.Call();
+//#endif
+//		}
 
 	}
 }
