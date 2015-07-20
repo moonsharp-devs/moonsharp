@@ -97,12 +97,6 @@ namespace MoonSharp.Interpreter.IO
 			get { return m_Stream.CanTimeout; }
 		}
 
-#if !PCL
-		public override System.Runtime.Remoting.ObjRef CreateObjRef(Type requestedType)
-		{
-			return m_Stream.CreateObjRef(requestedType);
-		}
-#endif
 
 		public override bool Equals(object obj)
 		{
@@ -114,12 +108,6 @@ namespace MoonSharp.Interpreter.IO
 			return m_Stream.GetHashCode();
 		}
 
-#if !PCL
-		public override object InitializeLifetimeService()
-		{
-			return m_Stream.InitializeLifetimeService();
-		}
-#endif
 
 		public override int ReadByte()
 		{
