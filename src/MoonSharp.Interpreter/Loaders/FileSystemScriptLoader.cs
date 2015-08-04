@@ -35,7 +35,7 @@ namespace MoonSharp.Interpreter.Loaders
 		/// </returns>
 		public override object LoadFile(string file, Table globalContext)
 		{
-			return new FileStream(file, FileMode.Open, FileAccess.Read);
+			return new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
 		}
 	}
 }
