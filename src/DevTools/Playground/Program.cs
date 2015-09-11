@@ -2,59 +2,129 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using MoonSharp.Interpreter;
 using MoonSharp.Interpreter.Interop;
 
 namespace Playground
 {
-	public class Foo
+	public class ScriptSharedVars : IUserDataType
 	{
-		public static void Log1(string msg) { }
+		Dictionary<string, DynValue> m_Values = new Dictionary<string, DynValue>();
+		object m_Lock = new object();
 
-		public static void Test1(string msg, out string obj, string val)
+		public object this[string property]
 		{
-			Console.WriteLine("{0} - {1}", msg ?? "(NULL)", val ?? "(NULL)");
-			obj = msg;
+			get { return m_Values[property].ToObject(); }
+			set { m_Values[property] = DynValue.FromObject(null, value); }
 		}
 
+		public DynValue Index(Script script, DynValue index, bool isDirectIndexing)
+		{
+			if (index.Type != DataType.String)
+				throw new ScriptRuntimeException("string property was expected");
+
+			lock (m_Lock)
+			{
+				if (m_Values.ContainsKey(index.String))
+					return m_Values[index.String].Clone();
+				else
+					return DynValue.Nil;
+			}
+		}
+
+		public bool SetIndex(Script script, DynValue index, DynValue value, bool isDirectIndexing)
+		{
+			if (index.Type != DataType.String)
+				throw new ScriptRuntimeException("string property was expected");
+
+			lock (m_Lock)
+			{
+				switch (value.Type)
+				{
+					case DataType.Void:
+					case DataType.Nil:
+						m_Values.Remove(index.String);
+						return true;
+					case DataType.UserData:
+						// HERE YOU CAN CHOOSE A DIFFERENT POLICY.. AND TRY TO SHARE IF NEEDED. DANGEROUS, THOUGH.
+						throw new ScriptRuntimeException("Cannot share a value of type {0}", value.Type.ToErrorTypeString());
+					case DataType.ClrFunction:
+						// HERE YOU CAN CHOOSE A DIFFERENT POLICY.. AND TRY TO SHARE IF NEEDED. DANGEROUS, THOUGH.
+						throw new ScriptRuntimeException("Cannot share a value of type {0}", value.Type.ToErrorTypeString());
+					case DataType.Boolean:
+					case DataType.Number:
+					case DataType.String:
+						m_Values[index.String] = value.Clone();
+						return true;
+					case DataType.Function:
+					case DataType.Table:
+					case DataType.Tuple:
+					case DataType.Thread:
+					case DataType.TailCallRequest:
+					case DataType.YieldRequest:
+					default:
+						throw new ScriptRuntimeException("Cannot share a value of type {0}", value.Type.ToErrorTypeString());
+				}
+			}
+		}
+
+		public DynValue MetaIndex(Script script, string metaname)
+		{
+			return null;
+		}
 	}
 
-	public static class FooExtension
-	{
-		public static void Log2(this Foo self, string msg) { }
-	}
-
+	
 	class Program
 	{
 		static void Main(string[] args)
 		{
-			UserData.RegisterType<Foo>();
-			UserData.RegisterType<Dictionary<int, int>>();
-			UserData.RegisterExtensionType(typeof(FooExtension));
+			UserData.RegisterType<ScriptSharedVars>();
 
-			var lua = new Script();
-			lua.Globals["DictionaryIntInt"] = typeof(Dictionary<int, int>);
+			ScriptSharedVars sharedVars = new ScriptSharedVars();
 
-			var script = @"local dict = DictionaryIntInt.__new(); local res, v = dict.TryGetValue(0)";
-			lua.DoString(script);
-			lua.DoString(script);
+			sharedVars["mystring"] = "let's go:";
 
+			ManualResetEvent ev = new ManualResetEvent(false);
 
-			//var lua = new Script();
-			//lua.Globals["Foo"] = typeof(Foo);
+			StartScriptThread(sharedVars, "bum ", ev);
+			StartScriptThread(sharedVars, "chack ", ev);
 
-			//var script = @"local _, obj = Foo.Test1('ciao', 'hello'); print(obj);";
-			//lua.DoString(script);
+			ev.Set();
 
+			Thread.Sleep(2000); // too bored to do proper synchronization at this time of the evening...
 
+			Console.WriteLine("{0}", sharedVars["mystring"]);
 
-
-
-			Console.WriteLine("Done");
 			Console.ReadKey();
-
-
 		}
+
+		private static void StartScriptThread(ScriptSharedVars sharedVars, string somestr, ManualResetEvent ev)
+		{
+			Thread T = new Thread((ThreadStart)delegate
+			{
+				string script = @"
+				for i = 1, 1000 do
+					shared.mystring = shared.mystring .. somestring;
+				end
+			";
+
+				Script S = new Script();
+
+				S.Globals["shared"] = sharedVars;
+				S.Globals["somestring"] = somestr;
+
+				ev.WaitOne();
+
+				S.DoString(script);
+			});
+
+			T.IsBackground = true;
+			T.Name = "Lua script for " + somestr;
+			T.Start();
+		}
+
 	}
 }

@@ -18,7 +18,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 			if (T.Type == TokenType.VarArgs)
 			{
-				m_Ref = lcontext.Scope.TryDefineLocal(WellKnownSymbols.VARARGS);
+				m_Ref = lcontext.Scope.Find(WellKnownSymbols.VARARGS);
 
 				if (!lcontext.Scope.CurrentFunctionHasVarArgs())
 					throw new SyntaxErrorException(T, "cannot use '...' outside a vararg function");

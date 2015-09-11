@@ -10,7 +10,6 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 	public class VarargsTupleTests
 	{
 
-
 		private void DoTest(string code, string expectedResult)
 		{
 			Script S = new Script();
@@ -88,7 +87,23 @@ end
 			DoTest("i(5,r())  	", "a: extra b: 5 arg: {1, 2, 3, }");
 		}
 
+		[Test]
+		public void VarArgsTuple_DontCrash()
+		{
+			string script = @"
+				function Obj(...)
+					do
+						local args = { ... }
+					end
+				end
+				Obj(1)
+			";
 
+			Script S = new Script(CoreModules.None);
+				
+			S.DoString(script);
+
+		}
 
 	}
 }

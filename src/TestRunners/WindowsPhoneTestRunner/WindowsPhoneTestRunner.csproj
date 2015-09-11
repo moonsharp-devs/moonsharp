@@ -80,11 +80,11 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .Net Framework and Windows SDK are automatically included -->
-    <ProjectReference Include="C:\git\moonsharp\src\MoonSharp.Interpreter.Tests\_Projects\MoonSharp.Interpreter.Tests.Embeddable.portable40\MoonSharp.Interpreter.Tests.Embeddable.portable40.csproj">
+    <ProjectReference Include="..\..\MoonSharp.Interpreter.Tests\_Projects\MoonSharp.Interpreter.Tests.Embeddable.portable40\MoonSharp.Interpreter.Tests.Embeddable.portable40.csproj">
       <Project>{28b8b747-5683-46c0-b308-62e6d3c2f4cb}</Project>
       <Name>MoonSharp.Interpreter.Tests.Embeddable.portable40</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\git\moonsharp\src\MoonSharp.Interpreter\_Projects\MoonSharp.Interpreter.portable40\MoonSharp.Interpreter.portable40.csproj">
+    <ProjectReference Include="..\..\MoonSharp.Interpreter\_Projects\MoonSharp.Interpreter.portable40\MoonSharp.Interpreter.portable40.csproj">
       <Project>{49f32476-fca0-45fd-8f89-0c7c0d15e409}</Project>
       <Name>MoonSharp.Interpreter.portable40</Name>
     </ProjectReference>
