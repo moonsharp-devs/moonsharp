@@ -119,6 +119,7 @@
     <Compile Include="EndToEnd\CollectionsBaseInterfGenRegisteredTests.cs" />
     <Compile Include="EndToEnd\CollectionsBaseGenRegisteredTests.cs" />
     <Compile Include="EndToEnd\CollectionsRegisteredTests.cs" />
+    <Compile Include="EndToEnd\ConfigPropertyAssignerTests.cs" />
     <Compile Include="EndToEnd\CoroutineTests.cs" />
     <Compile Include="EndToEnd\DynamicTests.cs" />
     <Compile Include="EndToEnd\ErrorHandlingTests.cs" />

@@ -76,6 +76,9 @@
     <Compile Include="..\..\EndToEnd\CollectionsRegisteredTests.cs">
       <Link>CollectionsRegisteredTests.cs</Link>
     </Compile>
+    <Compile Include="..\..\EndToEnd\ConfigPropertyAssignerTests.cs">
+      <Link>ConfigPropertyAssignerTests.cs</Link>
+    </Compile>
     <Compile Include="..\..\EndToEnd\CoroutineTests.cs">
       <Link>CoroutineTests.cs</Link>
     </Compile>

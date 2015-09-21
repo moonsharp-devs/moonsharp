@@ -125,6 +125,9 @@
     <Compile Include="..\..\DataStructs\ReferenceEqualityComparer.cs">
       <Link>ReferenceEqualityComparer.cs</Link>
     </Compile>
+    <Compile Include="..\..\Interop\Attributes\MoonSharpPropertyAttribute.cs">
+      <Link>MoonSharpPropertyAttribute.cs</Link>
+    </Compile>
     <Compile Include="..\..\Interop\Attributes\MoonSharpUserDataMetamethodAttribute.cs">
       <Link>MoonSharpUserDataMetamethodAttribute.cs</Link>
     </Compile>
@@ -169,6 +172,9 @@
     </Compile>
     <Compile Include="..\..\Interop\IGeneratorUserDataDescriptor.cs">
       <Link>IGeneratorUserDataDescriptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\PropertyTableAssigner.cs">
+      <Link>PropertyTableAssigner.cs</Link>
     </Compile>
     <Compile Include="..\..\Interop\StandardDescriptors\EnumDescriptor.cs">
       <Link>EnumDescriptor.cs</Link>

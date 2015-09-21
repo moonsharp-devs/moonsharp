@@ -114,5 +114,51 @@ namespace MoonSharp.Interpreter.Interop
 		}
 
 
+		/// <summary>
+		/// Converts the specified name from underscore_case to camelCase.
+		/// </summary>
+		/// <param name="name">The name.</param>
+		/// <returns></returns>
+		public static string Camelify(string name)
+		{
+			StringBuilder sb = new StringBuilder(name.Length);
+
+			bool lastWasUnderscore = false;
+			for (int i = 0; i < name.Length; i++)
+			{
+				if (name[i] == '_' && i != 0)
+				{
+					lastWasUnderscore = true;
+				}
+				else
+				{
+					if (lastWasUnderscore)
+						sb.Append(char.ToUpperInvariant(name[i]));
+					else
+						sb.Append(name[i]);
+
+					lastWasUnderscore = false;
+				}
+			}
+
+			return sb.ToString();
+		}
+
+		/// <summary>
+		/// Converts the specified name to one with an uppercase first letter (something to Something).
+		/// </summary>
+		/// <param name="name">The name.</param>
+		/// <returns></returns>
+		public static string UpperFirstLetter(string name)
+		{
+			if (!string.IsNullOrEmpty(name))
+				return char.ToUpperInvariant(name[0]) + name.Substring(1);
+
+			return name;
+		}
+
+
+
+
 	}
 }

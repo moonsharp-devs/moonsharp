@@ -137,6 +137,7 @@
     <Compile Include="CoreLib\StringLib\KopiLua_StrLib.cs" />
     <Compile Include="DataStructs\MultiDictionary.cs" />
     <Compile Include="DataStructs\ReferenceEqualityComparer.cs" />
+    <Compile Include="Interop\Attributes\MoonSharpPropertyAttribute.cs" />
     <Compile Include="Interop\Attributes\MoonSharpUserDataMetamethodAttribute.cs" />
     <Compile Include="Interop\BasicDescriptors\IMemberDescriptor.cs" />
     <Compile Include="Interop\BasicDescriptors\IOptimizableDescriptor.cs" />
@@ -152,6 +153,7 @@
     <Compile Include="Interop\DescriptorHelpers.cs" />
     <Compile Include="Interop\BasicDescriptors\DispatchingUserDataDescriptor.cs" />
     <Compile Include="Interop\IGeneratorUserDataDescriptor.cs" />
+    <Compile Include="Interop\PropertyTableAssigner.cs" />
     <Compile Include="Interop\StandardDescriptors\EnumDescriptor.cs" />
     <Compile Include="Interop\StandardDescriptors\MemberDescriptors\ObjectCallbackMemberDescriptor.cs" />
     <Compile Include="Interop\StandardDescriptors\MemberDescriptors\FunctionMemberDescriptorBase.cs" />
