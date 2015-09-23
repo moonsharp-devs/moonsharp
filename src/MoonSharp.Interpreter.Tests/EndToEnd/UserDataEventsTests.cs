@@ -209,6 +209,34 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			Assert.AreEqual(3, invocationCount);
 		}
 
+		[Test]
+		public void Interop_SEvent_DetachAndReregister()
+		{
+			int invocationCount = 0;
+			UserData.RegisterType<SomeClass>();
+			UserData.RegisterType<EventArgs>();
+
+			Script s = new Script(CoreModules.None);
+
+			s.Globals["myobj"] = typeof(SomeClass);
+			s.Globals["ext"] = DynValue.NewCallback((c, a) => { invocationCount += 1; return DynValue.Void; });
+
+			s.DoString(@"
+				function handler(o, a)
+					ext();
+				end
+
+				myobj.MySEvent.add(handler);
+				myobj.Trigger_MySEvent();
+				myobj.MySEvent.remove(handler);
+				myobj.Trigger_MySEvent();
+				myobj.MySEvent.add(handler);
+				myobj.Trigger_MySEvent();
+			");
+
+			Assert.AreEqual(2, invocationCount);
+			Assert.IsTrue(SomeClass.Trigger_MySEvent(), "deregistration");
+		}
 
 
 

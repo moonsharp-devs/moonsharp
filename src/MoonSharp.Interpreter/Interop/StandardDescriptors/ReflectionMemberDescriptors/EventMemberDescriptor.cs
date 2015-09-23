@@ -248,7 +248,7 @@ namespace MoonSharp.Interpreter.Interop
 			if (handler == null)
 				throw new InternalErrorException("can't unregister null delegate");
 
-			m_Delegates.Remove(handler);
+			m_Delegates.Remove(o);
 			m_Remove.Invoke(o, new object[] { handler });
 		}
 
