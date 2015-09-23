@@ -151,7 +151,7 @@ namespace MoonSharp.Interpreter.CoreLib
 			}
 			catch (SyntaxErrorException ex)
 			{
-				return DynValue.NewTuple(DynValue.Nil, DynValue.NewString(ex.Message));
+				return DynValue.NewTuple(DynValue.Nil, DynValue.NewString(ex.DecoratedMessage ?? ex.Message));
 			}
 		}
 
