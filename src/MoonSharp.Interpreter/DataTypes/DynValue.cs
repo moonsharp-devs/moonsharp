@@ -827,9 +827,18 @@ namespace MoonSharp.Interpreter
 		/// <summary>
 		/// Converts this MoonSharp DynValue to a CLR object of the specified type.
 		/// </summary>
+		public object ToObject(Type desiredType)
+		{
+			//Contract.Requires(desiredType != null);
+			return MoonSharp.Interpreter.Interop.Converters.ScriptToClrConversions.DynValueToObjectOfType(this, desiredType, null, false);
+		}
+
+		/// <summary>
+		/// Converts this MoonSharp DynValue to a CLR object of the specified type.
+		/// </summary>
 		public T ToObject<T>()
 		{
-			return (T)MoonSharp.Interpreter.Interop.Converters.ScriptToClrConversions.DynValueToObjectOfType(this, typeof(T), null, false);
+			return (T)ToObject(typeof(T));
 		}
 
 #if HASDYNAMIC

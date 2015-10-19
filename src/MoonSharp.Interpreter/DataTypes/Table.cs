@@ -86,21 +86,16 @@ namespace MoonSharp.Interpreter
 		/// <value>
 		/// The <see cref="System.Object" />.
 		/// </value>
-		/// <param name="key">The key.</param>
-		/// <param name="subkeys">Optional subkeys to access subtables</param>
-		/// <returns></returns>
-		public object this[object key, params object[] subkeys]
+		/// <param name="keys">The keys to access the table and subtables</param>
+		public object this[params object[] keys]
 		{
 			get
 			{
-				Table t = ResolveMultipleKeys(ref key, subkeys);
-				return t.GetAsObject(key);
+				return Get(keys).ToObject();
 			}
-
 			set
-			{ 
-				Table t = ResolveMultipleKeys(ref key, subkeys);
-				t.SetAsObject(key, value);
+			{
+				Set(keys, DynValue.FromObject(OwnerScript, value));
 			}
 		}
 
@@ -117,88 +112,90 @@ namespace MoonSharp.Interpreter
 		{
 			get
 			{
-				return this.GetAsObject(key);
+				return Get(key).ToObject();
 			}
-
 			set
 			{
-				this.SetAsObject(key, value);
+				Set(key, DynValue.FromObject(OwnerScript, value));
 			}
 		}
 
-		private Table ResolveMultipleKeys(ref object key, object[] subkeys)
+		private Table ResolveMultipleKeys(object[] keys, out object key)
 		{
-			if (subkeys.Length == 0)
-				return this;
+			//Contract.Ensures(Contract.Result<Table>() != null);
+			//Contract.Requires(keys != null);
 
 			Table t = this;
-			int i = -1;
+			key = (keys.Length > 0) ? keys[0] : null;
 
-			do
+			for (int i = 1; i < keys.Length; ++i)
 			{
-				DynValue vt = t.GetWithObjectKey(key);
+				DynValue vt = t.RawGet(key);
+
+				if (vt == null)
+					throw new ScriptRuntimeException("Key '{0}' did not point to anything");
 
 				if (vt.Type != DataType.Table)
 					throw new ScriptRuntimeException("Key '{0}' did not point to a table");
 
 				t = vt.Table;
-				key = subkeys[++i];
+				key = keys[i];
 			}
-			while (i < subkeys.Length - 1);
 
 			return t;
 		}
 
 		/// <summary>
-		/// Gets the dynvalue associated with the specified key (expressed as a System.Object)
+		/// Append the value to the table using the next available integer index.
 		/// </summary>
-		/// <param name="key">The key.</param>
-		/// <returns></returns>
-		public DynValue GetWithObjectKey(object key)
+		/// <param name="value">The value.</param>
+		public void Append(DynValue value)
 		{
-			if (key is string)
-				return Get((string)key);
-			else if (key is int)
-				return Get((int)key);
-
-			DynValue dynkey = DynValue.FromObject(this.OwnerScript, key);
-			return Get(dynkey);
+			Set(Length + 1, value);
 		}
 
+		#region Set
 
-		/// <summary>
-		/// Gets the dynvalue associated with the specified key (expressed as a System.Object) as a System.Object.
-		/// </summary>
-		/// <param name="key">The key.</param>
-		/// <returns></returns>
-		public object GetAsObject(object key)
+		private void PerformTableSet<T>(LinkedListIndex<T, TablePair> listIndex, T key, DynValue keyDynValue, DynValue value, bool isNumber)
 		{
-			if (key is string)
-				return Get((string)key).ToObject();
-			else if (key is int)
-				return Get((int)key).ToObject();
+			TablePair prev = listIndex.Set(key, new TablePair(keyDynValue, value));
 
-			DynValue dynkey = DynValue.FromObject(this.OwnerScript, key);
-			return Get(dynkey).ToObject();
+			if (prev.Value == null || prev.Value.IsNil())
+			{
+				CollectDeadKeys();
+
+				if (isNumber)
+					m_CachedLength = -1;
+			}
+
+			if (isNumber && value.IsNil())
+				m_CachedLength = -1;
 		}
 
 		/// <summary>
-		/// Sets the dynvalue associated with the specified key. Both expressed as System.Object.
+		/// Sets the value associated to the specified key.
 		/// </summary>
 		/// <param name="key">The key.</param>
 		/// <param name="value">The value.</param>
-		public void SetAsObject(object key, object value)
+		public void Set(string key, DynValue value)
 		{
-			DynValue dynval = DynValue.FromObject(this.OwnerScript, value);
+			if (key == null)
+				throw ScriptRuntimeException.TableIndexIsNil();
 
-			if (key is string)
-				Set((string)key, dynval);
-			else if (key is int)
-				Set((int)key, dynval);
-			else
-				Set(DynValue.FromObject(this.OwnerScript, key), dynval);
+			this.CheckScriptOwnership(value);
+			PerformTableSet(m_StringMap, key, DynValue.NewString(key), value, false);
 		}
 
+		/// <summary>
+		/// Sets the value associated to the specified key.
+		/// </summary>
+		/// <param name="key">The key.</param>
+		/// <param name="value">The value.</param>
+		public void Set(int key, DynValue value)
+		{
+			this.CheckScriptOwnership(value);
+			PerformTableSet(m_ArrayMap, key, DynValue.NewNumber(key), value, true);
+		}
 
 		/// <summary>
 		/// Sets the value associated to the specified key.
@@ -238,110 +235,269 @@ namespace MoonSharp.Interpreter
 			PerformTableSet(m_ValueMap, key, key, value, false);
 		}
 
-		private void PerformTableSet<T>(LinkedListIndex<T, TablePair> listIndex, T key, DynValue keyDynValue, DynValue value, bool isNumber)
+		/// <summary>
+		/// Sets the value associated with the specified key.
+		/// </summary>
+		/// <param name="key">The key.</param>
+		/// <param name="value">The value.</param>
+		public void Set(object key, DynValue value)
 		{
-			TablePair prev = listIndex.Set(key, new TablePair(keyDynValue, value));
+			if (key == null)
+				throw ScriptRuntimeException.TableIndexIsNil();
 
-			if (prev.Value == null || prev.Value.IsNil())
-			{
-				CollectDeadKeys();
+			if (key is string)
+				Set((string)key, value);
+			else if (key is int)
+				Set((int)key, value);
+			else
+				Set(DynValue.FromObject(OwnerScript, key), value);
+		}
 
-				if (isNumber)
-					m_CachedLength = -1;
-			}
+		/// <summary>
+		/// Sets the value associated with the specified keys.
+		/// Multiple keys can be used to access subtables.
+		/// </summary>
+		/// <param name="key">The keys.</param>
+		/// <param name="value">The value.</param>
+		public void Set(object[] keys, DynValue value)
+		{
+			if (keys == null || keys.Length <= 0)
+				throw ScriptRuntimeException.TableIndexIsNil();
 
-			if (isNumber && value.IsNil())
-				m_CachedLength = -1;
+			object key;
+			ResolveMultipleKeys(keys, out key).Set(key, value);
+		}
+
+		#endregion
+
+		#region Get
+
+		/// <summary>
+		/// Gets the value associated with the specified key.
+		/// </summary>
+		/// <param name="key">The key.</param>
+		public DynValue Get(string key)
+		{
+			//Contract.Ensures(Contract.Result<DynValue>() != null);
+			return RawGet(key) ?? DynValue.Nil;
 		}
 
 		/// <summary>
 		/// Gets the value associated with the specified key.
 		/// </summary>
 		/// <param name="key">The key.</param>
-		/// <returns></returns>
+		public DynValue Get(int key)
+		{
+			//Contract.Ensures(Contract.Result<DynValue>() != null);
+			return RawGet(key) ?? DynValue.Nil;
+		}
+
+		/// <summary>
+		/// Gets the value associated with the specified key.
+		/// </summary>
+		/// <param name="key">The key.</param>
 		public DynValue Get(DynValue key)
 		{
+			//Contract.Ensures(Contract.Result<DynValue>() != null);
+			return RawGet(key) ?? DynValue.Nil;
+		}
+
+		/// <summary>
+		/// Gets the value associated with the specified key.
+		/// (expressed as a <see cref="System.Object"/>).
+		/// </summary>
+		/// <param name="key">The key.</param>
+		public DynValue Get(object key)
+		{
+			//Contract.Ensures(Contract.Result<DynValue>() != null);
+			return RawGet(key) ?? DynValue.Nil;
+		}
+
+		/// <summary>
+		/// Gets the value associated with the specified keys (expressed as an 
+		/// array of <see cref="System.Object"/>).
+		/// This will marshall CLR and MoonSharp objects in the best possible way.
+		/// Multiple keys can be used to access subtables.
+		/// </summary>
+		/// <param name="keys">The keys to access the table and subtables</param>
+		public DynValue Get(params object[] keys)
+		{
+			//Contract.Ensures(Contract.Result<DynValue>() != null);
+			return RawGet(keys) ?? DynValue.Nil;
+		}
+
+		#endregion
+
+		#region RawGet
+
+		private static DynValue RawGetValue(LinkedListNode<TablePair> linkedListNode)
+		{
+			return (linkedListNode != null) ? linkedListNode.Value.Value : null;
+		}
+
+		/// <summary>
+		/// Gets the value associated with the specified key,
+		/// without bringing to Nil the non-existant values.
+		/// </summary>
+		/// <param name="key">The key.</param>
+		public DynValue RawGet(string key)
+		{
+			return RawGetValue(m_StringMap.Find(key));
+		}
+
+		/// <summary>
+		/// Gets the value associated with the specified key,
+		/// without bringing to Nil the non-existant values.
+		/// </summary>
+		/// <param name="key">The key.</param>
+		public DynValue RawGet(int key)
+		{
+			return RawGetValue(m_ArrayMap.Find(key));
+		}
+
+		/// <summary>
+		/// Gets the value associated with the specified key,
+		/// without bringing to Nil the non-existant values.
+		/// </summary>
+		/// <param name="key">The key.</param>
+		public DynValue RawGet(DynValue key)
+		{
+			if (key.Type == DataType.String)
+				return RawGet(key.String);
+
 			if (key.Type == DataType.Number)
 			{
 				int idx = GetIntegralKey(key.Number);
 				if (idx > 0)
-				{
-					return GetValueOrNil(m_ArrayMap.Find(idx));
-				}
+					return RawGet(idx);
 			}
-			else if (key.Type == DataType.String)
+
+			return RawGetValue(m_ValueMap.Find(key));
+		}
+
+		/// <summary>
+		/// Gets the value associated with the specified key,
+		/// without bringing to Nil the non-existant values.
+		/// </summary>
+		/// <param name="key">The key.</param>
+		public DynValue RawGet(object key)
+		{
+			if (key == null)
+				return null;
+
+			if (key is string)
+				return RawGet((string)key);
+
+			if (key is int)
+				return RawGet((int)key);
+
+			return RawGet(DynValue.FromObject(OwnerScript, key));
+		}
+
+		/// <summary>
+		/// Gets the value associated with the specified keys (expressed as an
+		/// array of <see cref="System.Object"/>).
+		/// This will marshall CLR and MoonSharp objects in the best possible way.
+		/// Multiple keys can be used to access subtables.
+		/// </summary>
+		/// <param name="keys">The keys to access the table and subtables</param>
+		public DynValue RawGet(params object[] keys)
+		{
+			if (keys == null || keys.Length <= 0)
+				return null;
+
+			object key;
+			return ResolveMultipleKeys(keys, out key).RawGet(key);
+		}
+
+		#endregion
+
+		#region Remove
+
+		private bool PerformTableRemove<T>(LinkedListIndex<T, TablePair> listIndex, T key, bool isNumber)
+		{
+			var removed = listIndex.Remove(key);
+
+			if (removed && isNumber)
 			{
-				return GetValueOrNil(m_StringMap.Find(key.String));
+				m_CachedLength = -1;
 			}
 
-			return GetValueOrNil(m_ValueMap.Find(key));
-		}
-
-		private DynValue GetValueOrNil(LinkedListNode<TablePair> linkedListNode)
-		{
-			if (linkedListNode != null)
-				return linkedListNode.Value.Value;
-
-			return DynValue.Nil;
+			return removed;
 		}
 
 		/// <summary>
-		///  Sets the value associated to the specified key.
+		/// Remove the value associated with the specified key from the table.
 		/// </summary>
 		/// <param name="key">The key.</param>
-		/// <param name="value">The value.</param>
-		public void Set(string key, DynValue value)
+		/// <returns><c>true</c> if values was successfully removed; otherwise, <c>false</c>.</returns>
+		public bool Remove(string key)
 		{
-			this.CheckScriptOwnership(value);
-			PerformTableSet(m_StringMap, key, DynValue.NewString(key), value, false);
+			return PerformTableRemove(m_StringMap, key, false);
 		}
 
 		/// <summary>
-		/// Gets the value associated with the specified key.
+		/// Remove the value associated with the specified key from the table.
 		/// </summary>
 		/// <param name="key">The key.</param>
-		/// <returns></returns>
-		public DynValue Get(string key)
+		/// <returns><c>true</c> if values was successfully removed; otherwise, <c>false</c>.</returns>
+		public bool Remove(int key)
 		{
-			return GetValueOrNil(m_StringMap.Find(key));
-		}
-
-
-		/// <summary>
-		/// Gets the value associated with the specified key, without bringing to Nil the non-existant values.
-		/// </summary>
-		/// <param name="key">The key.</param>
-		/// <returns></returns>
-		public DynValue RawGet(string key)
-		{
-			var linkedListNode = m_StringMap.Find(key);
-
-			if (linkedListNode != null)
-				return linkedListNode.Value.Value;
-
-			return null;
+			return PerformTableRemove(m_ArrayMap, key, true);
 		}
 
 		/// <summary>
-		/// Sets the value associated to the specified key.
+		/// Remove the value associated with the specified key from the table.
 		/// </summary>
 		/// <param name="key">The key.</param>
-		/// <param name="value">The value.</param>
-		public void Set(int key, DynValue value)
+		/// <returns><c>true</c> if values was successfully removed; otherwise, <c>false</c>.</returns>
+		public bool Remove(DynValue key)
 		{
-			this.CheckScriptOwnership(value);
-			PerformTableSet(m_ArrayMap, key, DynValue.NewNumber(key), value, true);
+			if (key.Type == DataType.String)
+				return Remove(key.String);
+
+			if (key.Type == DataType.Number)
+			{
+				int idx = GetIntegralKey(key.Number);
+				if (idx > 0)
+					return Remove(idx);
+			}
+
+			return PerformTableRemove(m_ValueMap, key, false);
 		}
 
 		/// <summary>
-		/// Gets the value associated with the specified key.
+		/// Remove the value associated with the specified key from the table.
 		/// </summary>
 		/// <param name="key">The key.</param>
-		/// <returns></returns>
-		public DynValue Get(int key)
+		/// <returns><c>true</c> if values was successfully removed; otherwise, <c>false</c>.</returns>
+		public bool Remove(object key)
 		{
-			return GetValueOrNil(m_ArrayMap.Find(key));
+			if (key is string)
+				return Remove((string)key);
+
+			if (key is int)
+				return Remove((int)key);
+
+			return Remove(DynValue.FromObject(OwnerScript, key));
 		}
+
+		/// <summary>
+		/// Remove the value associated with the specified keys from the table.
+		/// Multiple keys can be used to access subtables.
+		/// </summary>
+		/// <param name="key">The key.</param>
+		/// <returns><c>true</c> if values was successfully removed; otherwise, <c>false</c>.</returns>
+		public bool Remove(params object[] keys)
+		{
+			if (keys == null || keys.Length <= 0)
+				return false;
+
+			object key;
+			return ResolveMultipleKeys(keys, out key).Remove(key);
+		}
+
+		#endregion
 
 		/// <summary>
 		/// Collects the dead keys. This frees up memory but invalidates pending iterators.
@@ -354,24 +510,7 @@ namespace MoonSharp.Interpreter
 			{
 				if (node.Value.Value.IsNil())
 				{
-					if (node.Value.Key.Type == DataType.Number)
-					{
-						int idx = GetIntegralKey(node.Value.Key.Number);
-						if (idx > 0)
-						{
-							m_ArrayMap.Remove(idx);
-							continue;
-						}
-					}
-
-					if (node.Value.Key.Type == DataType.String)
-					{
-						m_StringMap.Remove(node.Value.Key.String);
-					}
-					else
-					{
-						m_ValueMap.Remove(node.Value.Key);
-					}
+					Remove(node.Value.Key);
 				}
 			}
 		}
@@ -468,10 +607,10 @@ namespace MoonSharp.Interpreter
 		/// <summary>
 		/// Gets the meta-table associated with this instance.
 		/// </summary>
-		public Table MetaTable 
-		{ 
+		public Table MetaTable
+		{
 			get { return m_MetaTable; }
-			set { this.CheckScriptOwnership(m_MetaTable); m_MetaTable = value; } 
+			set { this.CheckScriptOwnership(m_MetaTable); m_MetaTable = value; }
 		}
 		private Table m_MetaTable;
 
