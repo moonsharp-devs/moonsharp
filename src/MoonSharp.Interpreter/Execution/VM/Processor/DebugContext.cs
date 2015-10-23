@@ -10,6 +10,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 	{
 		private class DebugContext
 		{
+			public bool DebuggerEnabled = true;
 			public IDebugger DebuggerAttached = null;
 			public DebuggerAction.ActionType DebuggerCurrentAction = DebuggerAction.ActionType.None;
 			public int DebuggerCurrentActionTarget = -1;

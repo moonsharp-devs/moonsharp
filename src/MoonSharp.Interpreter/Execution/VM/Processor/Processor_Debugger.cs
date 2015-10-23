@@ -17,6 +17,11 @@ namespace MoonSharp.Interpreter.Execution.VM
 			m_Debug.DebuggerAttached = debugger;
 		}
 
+		internal bool DebuggerEnabled
+		{
+			get { return m_Debug.DebuggerEnabled; }
+			set { m_Debug.DebuggerEnabled = value; }
+		}
 
 
 		private void ListenDebugger(Instruction instr, int instructionPtr)

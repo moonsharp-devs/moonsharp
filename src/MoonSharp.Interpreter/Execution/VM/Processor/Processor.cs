@@ -126,7 +126,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 				m_Parent.m_CoroutinesStack.RemoveAt(m_Parent.m_CoroutinesStack.Count - 1);
 			}
 
-			if (m_ExecutionNesting == 0 && m_Debug != null && m_Debug.DebuggerAttached != null)
+			if (m_ExecutionNesting == 0 && m_Debug != null && m_Debug.DebuggerEnabled 
+				&& m_Debug.DebuggerAttached != null)
 			{
 				m_Debug.DebuggerAttached.SignalExecutionEnded();
 			}

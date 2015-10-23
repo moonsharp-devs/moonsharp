@@ -43,6 +43,10 @@ namespace MoonSharp.Interpreter.Platforms
 			// We do a lazy eval here, so we can wire out this code by not calling it, if necessary..
 			get
 			{
+#if UNITY_WEBGL
+				return false;
+#else
+
 				if (!m_IsRunningOnAOT.HasValue)
 				{
 					try
@@ -59,6 +63,7 @@ namespace MoonSharp.Interpreter.Platforms
 				}
 
 				return m_IsRunningOnAOT.Value;
+#endif
 			}
 		}
 

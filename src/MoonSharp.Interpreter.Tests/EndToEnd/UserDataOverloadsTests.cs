@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using MoonSharp.Interpreter.Interop;
+using MoonSharp.Interpreter.Loaders;
 using NUnit.Framework;
 
 namespace MoonSharp.Interpreter.Tests.EndToEnd
@@ -17,6 +19,13 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		public static string Method3(this UserDataOverloadsTests.OverloadsTestClass obj)
 		{
 			return "X" + obj.Method1(0.17);
+		}
+	}
+	public static class OverloadsExtMethods2
+	{
+		public static string MethodXXX(this UserDataOverloadsTests.OverloadsTestClass obj, string x, bool b)
+		{
+			return "X!";
 		}
 	}
 
@@ -192,6 +201,28 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		}
 
 		[Test]
+		public void Interop_Overloads_Twice_ExtMethods1()
+		{
+			UserData.RegisterExtensionType(typeof(OverloadsExtMethods));
+
+			RunTestOverload("o:method1('xx', true)", "X1");
+
+			UserData.RegisterExtensionType(typeof(OverloadsExtMethods2));
+
+			RunTestOverload("o:methodXXX('xx', true)", "X!");
+		}
+
+		[Test]
+		public void Interop_Overloads_Twice_ExtMethods2()
+		{
+			UserData.RegisterExtensionType(typeof(OverloadsExtMethods));
+			UserData.RegisterExtensionType(typeof(OverloadsExtMethods2));
+
+			RunTestOverload("o:method1('xx', true)", "X1");
+			RunTestOverload("o:methodXXX('xx', true)", "X!");
+		}
+
+		[Test]
 		[ExpectedException(typeof(ScriptRuntimeException))]
 		public void Interop_Overloads_ExtMethods2()
 		{
@@ -285,7 +316,6 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			Assert.AreEqual(1, result.Tuple[0].Number);
 			Assert.AreEqual(22, result.Tuple[1].Number);
 		}
-
 
 
 

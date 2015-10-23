@@ -20,6 +20,7 @@ namespace MoonSharp.Interpreter.Interop.Converters
 			if (obj is DynValue)
 				return (DynValue)obj;
 
+
 			var converter = Script.GlobalOptions.CustomConverters.GetClrToScriptCustomConversion(obj.GetType());
 			if (converter != null)
 			{

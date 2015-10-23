@@ -28,7 +28,7 @@ namespace MoonSharp.Interpreter
 		/// <summary>
 		/// The version of the MoonSharp engine
 		/// </summary>
-		public const string VERSION = "0.9.9.0"; 
+		public const string VERSION = "1.0.0.0"; 
 
 		/// <summary>
 		/// The Lua version being supported
@@ -558,11 +558,26 @@ namespace MoonSharp.Interpreter
 		}
 
 		/// <summary>
+		/// Gets or sets a value indicating whether the debugger is enabled.
+		/// Note that unless a debugger attached, this property returns a 
+		/// value which might not reflect the real status of the debugger.
+		/// Use this property if you want to disable the debugger for some 
+		/// executions.
+		/// </summary>
+		public bool DebuggerEnabled
+		{
+			get { return m_MainProcessor.DebuggerEnabled; }
+			set { m_MainProcessor.DebuggerEnabled = value; }
+		}
+
+
+		/// <summary>
 		/// Attaches a debugger. This usually should be called by the debugger itself and not by user code.
 		/// </summary>
 		/// <param name="debugger">The debugger object.</param>
 		public void AttachDebugger(IDebugger debugger)
 		{
+			DebuggerEnabled = true;
 			m_Debugger = debugger;
 			m_MainProcessor.AttachDebugger(debugger);
 
