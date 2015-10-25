@@ -108,6 +108,31 @@ namespace MoonSharp.Interpreter.Interop.Converters
 				return DynValue.NewTable(t);
 			}
 
+#if HASDYNAMIC
+			var objType = obj.GetType();
+
+#if PCL
+			var isTuple = objType.IsGenericType && objType.GetInterfaces().Where(f => f.Name == "ITuple").Count() > 0;
+#else
+			var isTuple = objType.IsGenericType && objType.GetInterface("ITuple") != null;
+#endif
+
+			if (isTuple)
+			{
+				var args = objType.GetGenericArguments().Length;
+				var vals = new DynValue[args];
+
+				for (int i = 0; i < args; i++)
+				{
+					var prop = objType.GetProperty("Item" + (i + 1));
+					var val = prop.GetValue(obj, null);
+					vals[i] = DynValue.FromObject(script, val);
+				}
+
+				return DynValue.NewTupleNested(vals);
+			}
+#endif
+
 			var enumerator = EnumerationToDynValue(script, obj);
 			if (enumerator != null) return enumerator;
 

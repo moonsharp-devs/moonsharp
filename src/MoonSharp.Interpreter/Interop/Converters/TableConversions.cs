@@ -118,6 +118,16 @@ namespace MoonSharp.Interpreter.Interop.Converters
 				{
 					return ConvertTableToDictionaryOfGenericType(t, t.GetGenericArguments()[0], t.GetGenericArguments()[1], table);
 				}
+#if HASDYNAMIC
+#if PCL
+				else if (generic.GetInterfaces().Where(f => f.Name == "ITuple").Count() > 0)
+#else
+				else if (generic.GetInterface("ITuple") != null)
+#endif
+				{
+					return TableToTuple(t, table);
+				}
+#endif
 			}
 
 			if (t.IsArray && t.GetArrayRank() == 1)
@@ -232,9 +242,42 @@ namespace MoonSharp.Interpreter.Interop.Converters
 			return dict;
 		}
 
+#if HASDYNAMIC
+		internal static object TableToTuple(Type tupleType, Table table)
+		{
+			var vals = new object[table.Length];
+			var dyns = table.Values.ToArray();
+			var args = tupleType.GetGenericArguments();
 
+			for (int i = 0; i < vals.Length; i++)
+			{
+				var dyn = dyns[i];
+				var arg = args[i];
 
+				if (arg == typeof(bool))
+					vals[i] = dyn.Boolean;
+				else if (arg == typeof(Func<ScriptExecutionContext, CallbackArguments, DynValue>))
+					vals[i] = dyn.Callback.ClrCallback;
+				else if (arg == typeof(Closure))
+					vals[i] = dyn.Function;
+				else if (arg.IsPrimitive && arg != typeof(char))
+					vals[i] = Convert.ChangeType(dyn.Number, arg, null);
+				else if (arg == typeof(string))
+					vals[i] = dyn.String;
+				else if (arg == typeof(Table))
+					vals[i] = dyn.Table;
+#if PCL
+				else if (arg.IsGenericType && arg.GetInterfaces().Where(f => f.Name == "ITuple").Count() > 0)
+#else
+				else if (arg.IsGenericType && arg.GetInterface("ITuple") != null)
+#endif
+					vals[i] = MoonSharp.Interpreter.Interop.Converters.ScriptToClrConversions.DynValueToObjectOfType(dyn, arg, null, false);
+				else
+					vals[i] = dyn.ToObject();
+			}
 
-
+			return Activator.CreateInstance(tupleType, vals);
+		}
+#endif
 	}
 }

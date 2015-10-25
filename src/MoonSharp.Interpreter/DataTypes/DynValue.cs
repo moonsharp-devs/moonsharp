@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Execution.VM;
+using System.Collections;
 
 namespace MoonSharp.Interpreter
 {
@@ -48,6 +49,121 @@ namespace MoonSharp.Interpreter
 		/// This field is currently also used to hold arguments in values whose <see cref="Type"/> is <see cref="DataType.TailCallRequest"/>.
 		/// </summary>
 		public DynValue[] Tuple { get { return m_Object as DynValue[]; } }
+#if HASDYNAMIC
+		/// <summary>
+		/// Gets the values in the tuple as a System.Tuple (valid only if the <see cref="Type"/> is Tuple).
+		/// </summary>
+		/// <typeparam name="T1">The type of the Tuple's first item.</typeparam>
+		/// <returns>The System.Tuple representation of this DynValue.</returns>
+		public Tuple<T1> TupleOf<T1>() { return GetTuple<Tuple<T1>>(); }
+		/// <summary>
+		/// Gets the values in the tuple as a System.Tuple (valid only if the <see cref="Type"/> is Tuple).
+		/// </summary>
+		/// <typeparam name="T1">The type of the Tuple's first item.</typeparam>
+		/// <typeparam name="T2">The type of the Tuple's second item.</typeparam>
+		/// <returns>The System.Tuple representation of this DynValue.</returns>
+		public Tuple<T1, T2> TupleOf<T1, T2>() { return GetTuple<Tuple<T1, T2>>(); }
+		/// <summary>
+		/// Gets the values in the tuple as a System.Tuple (valid only if the <see cref="Type"/> is Tuple).
+		/// </summary>
+		/// <typeparam name="T1">The type of the Tuple's first item.</typeparam>
+		/// <typeparam name="T2">The type of the Tuple's second item.</typeparam>
+		/// <typeparam name="T3">The type of the Tuple's third item.</typeparam>
+		/// <returns>The System.Tuple representation of this DynValue.</returns>
+		public Tuple<T1, T2, T3> TupleOf<T1, T2, T3>() { return GetTuple<Tuple<T1, T2, T3>>(); }
+		/// <summary>
+		/// Gets the values in the tuple as a System.Tuple (valid only if the <see cref="Type"/> is Tuple).
+		/// </summary>
+		/// <typeparam name="T1">The type of the Tuple's first item.</typeparam>
+		/// <typeparam name="T2">The type of the Tuple's second item.</typeparam>
+		/// <typeparam name="T3">The type of the Tuple's third item.</typeparam>
+		/// <typeparam name="T4">The type of the Tuple's fourth item.</typeparam>
+		/// <returns>The System.Tuple representation of this DynValue.</returns>
+		public Tuple<T1, T2, T3, T4> TupleOf<T1, T2, T3, T4>() { return GetTuple<Tuple<T1, T2, T3, T4>>(); }
+		/// <summary>
+		/// Gets the values in the tuple as a System.Tuple (valid only if the <see cref="Type"/> is Tuple).
+		/// </summary>
+		/// <typeparam name="T1">The type of the Tuple's first item.</typeparam>
+		/// <typeparam name="T2">The type of the Tuple's second item.</typeparam>
+		/// <typeparam name="T3">The type of the Tuple's third item.</typeparam>
+		/// <typeparam name="T4">The type of the Tuple's fourth item.</typeparam>
+		/// <typeparam name="T5">The type of the Tuple's fifth item.</typeparam>
+		/// <returns>The System.Tuple representation of this DynValue.</returns>
+		public Tuple<T1, T2, T3, T4, T5> TupleOf<T1, T2, T3, T4, T5>() { return GetTuple<Tuple<T1, T2, T3, T4, T5>>(); }
+		/// <summary>
+		/// Gets the values in the tuple as a System.Tuple (valid only if the <see cref="Type"/> is Tuple).
+		/// </summary>
+		/// <typeparam name="T1">The type of the Tuple's first item.</typeparam>
+		/// <typeparam name="T2">The type of the Tuple's second item.</typeparam>
+		/// <typeparam name="T3">The type of the Tuple's third item.</typeparam>
+		/// <typeparam name="T4">The type of the Tuple's fourth item.</typeparam>
+		/// <typeparam name="T5">The type of the Tuple's fifth item.</typeparam>
+		/// <typeparam name="T6">The type of the Tuple's sixth item.</typeparam>
+		/// <returns>The System.Tuple representation of this DynValue.</returns>
+		public Tuple<T1, T2, T3, T4, T5, T6> TupleOf<T1, T2, T3, T4, T5, T6>() { return GetTuple<Tuple<T1, T2, T3, T4, T5, T6>>(); }
+		/// <summary>
+		/// Gets the values in the tuple as a System.Tuple (valid only if the <see cref="Type"/> is Tuple).
+		/// </summary>
+		/// <typeparam name="T1">The type of the Tuple's first item.</typeparam>
+		/// <typeparam name="T2">The type of the Tuple's second item.</typeparam>
+		/// <typeparam name="T3">The type of the Tuple's third item.</typeparam>
+		/// <typeparam name="T4">The type of the Tuple's fourth item.</typeparam>
+		/// <typeparam name="T5">The type of the Tuple's fifth item.</typeparam>
+		/// <typeparam name="T6">The type of the Tuple's sixth item.</typeparam>
+		/// <typeparam name="T7">The type of the Tuple's seventh item.</typeparam>
+		/// <returns>The System.Tuple representation of this DynValue.</returns>
+		public Tuple<T1, T2, T3, T4, T5, T6, T7> TupleOf<T1, T2, T3, T4, T5, T6, T7>() { return GetTuple<Tuple<T1, T2, T3, T4, T5, T6, T7>>(); }
+		/// <summary>
+		/// Gets the values in the tuple as a System.Tuple (valid only if the <see cref="Type"/> is Tuple).
+		/// </summary>
+		/// <typeparam name="T1">The type of the Tuple's first item.</typeparam>
+		/// <typeparam name="T2">The type of the Tuple's second item.</typeparam>
+		/// <typeparam name="T3">The type of the Tuple's third item.</typeparam>
+		/// <typeparam name="T4">The type of the Tuple's fourth item.</typeparam>
+		/// <typeparam name="T5">The type of the Tuple's fifth item.</typeparam>
+		/// <typeparam name="T6">The type of the Tuple's sixth item.</typeparam>
+		/// <typeparam name="T7">The type of the Tuple's seventh item.</typeparam>
+		/// <typeparam name="TRest">The type of the Tuple's eighth item.</typeparam>
+		/// <returns>The System.Tuple representation of this DynValue.</returns>
+		public Tuple<T1, T2, T3, T4, T5, T6, T7, TRest> TupleOf<T1, T2, T3, T4, T5, T6, T7, TRest>() { return GetTuple<Tuple<T1, T2, T3, T4, T5, T6, T7, TRest>>(); }
+
+		internal T GetTuple<T>()
+			where T : IStructuralEquatable, IStructuralComparable, IComparable
+		{
+			var dyns = this.Tuple;
+			var args = typeof(T).GetGenericArguments();
+			var vals = new object[dyns.Length];
+
+			for (int i = 0; i < vals.Length; i++)
+			{
+				var dyn = dyns[i];
+				var arg = args[i];
+
+				if (arg == typeof(bool))
+					vals[i] = dyn.Boolean;
+				else if (arg == typeof(Func<ScriptExecutionContext, CallbackArguments, DynValue>))
+					vals[i] = dyn.Callback.ClrCallback;
+				else if (arg == typeof(Closure))
+					vals[i] = dyn.Function;
+				else if (arg.IsPrimitive && arg != typeof(char))
+					vals[i] = Convert.ChangeType(dyn.Number, arg, null);
+				else if (arg == typeof(string))
+					vals[i] = dyn.String;
+				else if (arg == typeof(Table))
+					vals[i] = dyn.Table;
+#if PCL
+				else if (arg.IsGenericType && arg.GetInterfaces().Where(f => f.Name == "ITuple").Count() > 0)
+#else
+				else if (arg.IsGenericType && arg.GetInterface("ITuple") != null)
+#endif
+					vals[i] = MoonSharp.Interpreter.Interop.Converters.ScriptToClrConversions.DynValueToObjectOfType(dyn, arg, null, false);
+				else
+					vals[i] = dyn.ToObject();
+			}
+
+			return (T)Activator.CreateInstance(typeof(T), vals);
+		}
+#endif
 		/// <summary>
 		/// Gets the coroutine handle. (valid only if the <see cref="Type"/> is Thread).
 		/// </summary>
