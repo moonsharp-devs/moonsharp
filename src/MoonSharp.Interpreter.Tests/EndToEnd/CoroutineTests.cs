@@ -281,7 +281,7 @@ checkresume(6, false, 'cannot resume dead coroutine');
 			Assert.AreEqual(34, result.Number);
 
 			// Check the autoyield actually triggered
-			Assert.Greater(cycles, 10);
+			Assert.IsTrue(cycles > 10);
 		}
 
 

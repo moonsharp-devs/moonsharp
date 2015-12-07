@@ -24,7 +24,7 @@ namespace MoonSharp.Interpreter.Interop.Converters
 			var converter = Script.GlobalOptions.CustomConverters.GetClrToScriptCustomConversion(obj.GetType());
 			if (converter != null)
 			{
-				var v = converter(obj);
+				var v = converter(script, obj);
 				if (v != null)
 					return v;
 			}

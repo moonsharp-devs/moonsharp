@@ -287,7 +287,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 					v => new int[] { 43, 78, 126, 14 });
 
 				Script.GlobalOptions.CustomConverters.SetClrToScriptCustomConversion<StringBuilder>(
-					v => DynValue.NewString(v.ToString().ToUpper()));
+					(_s, v) => DynValue.NewString(v.ToString().ToUpper()));
 
 
 				S.Globals.Set("static", UserData.CreateStatic<SomeClass>());
