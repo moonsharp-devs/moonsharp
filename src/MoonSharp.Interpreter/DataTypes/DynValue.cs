@@ -221,12 +221,21 @@ namespace MoonSharp.Interpreter
 			};
 		}
 
+
 		/// <summary>
 		/// Creates a new writable value initialized to an empty table.
 		/// </summary>
 		public static DynValue NewTable(Script script)
 		{
 			return NewTable(new Table(script));
+		}
+
+		/// <summary>
+		/// Creates a new writable value initialized to with array contents.
+		/// </summary>
+		public static DynValue NewTable(Script script, params DynValue[] arrayValues)
+		{
+			return NewTable(new Table(script, arrayValues));
 		}
 
 		/// <summary>
@@ -282,6 +291,20 @@ namespace MoonSharp.Interpreter
 			return new DynValue()
 			{
 				m_Object = new YieldRequest() { ReturnValues = args },
+				m_Type = DataType.YieldRequest,
+			};
+		}
+
+		/// <summary>
+		/// Creates a new request for a yield of the current coroutine.
+		/// </summary>
+		/// <param name="args">The yield argumenst.</param>
+		/// <returns></returns>
+		internal static DynValue NewForcedYieldReq()
+		{
+			return new DynValue()
+			{
+				m_Object = new YieldRequest() { Forced = true },
 				m_Type = DataType.YieldRequest,
 			};
 		}

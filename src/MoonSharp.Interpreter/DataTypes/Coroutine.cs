@@ -76,7 +76,7 @@ namespace MoonSharp.Interpreter
 			if (Type != CoroutineType.Coroutine)
 				throw new InvalidOperationException("Only non-CLR coroutines can be resumed with this overload of the Resume method. Use the overload accepting a ScriptExecutionContext instead");
 
-			while (this.State == CoroutineState.NotStarted || this.State == CoroutineState.Suspended)
+			while (this.State == CoroutineState.NotStarted || this.State == CoroutineState.Suspended || this.State == CoroutineState.ForceSuspended)
 				yield return Resume();
 		}
 
@@ -241,7 +241,7 @@ namespace MoonSharp.Interpreter
 					return CoroutineState.NotStarted;
 				else if (Type == CoroutineType.ClrCallbackDead)
 					return CoroutineState.Dead;
-				else
+				else 
 					return m_Processor.State;
 			}
 		}
@@ -274,6 +274,18 @@ namespace MoonSharp.Interpreter
 		{
 			get;
 			private set;
+		}
+
+		/// <summary>
+		/// Gets or sets the automatic yield counter.
+		/// </summary>
+		/// <value>
+		/// The automatic yield counter.
+		/// </value>
+		public long AutoYieldCounter
+		{
+			get { return m_Processor.AutoYieldCounter; }
+			set { m_Processor.AutoYieldCounter = value; }
 		}
 	}
 }

@@ -96,6 +96,5 @@ namespace MoonSharp.Interpreter
 		/// </summary>
 		public bool CheckThreadAccess { get; set; }
 
-
 	}
 }

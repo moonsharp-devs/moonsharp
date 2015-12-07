@@ -238,6 +238,52 @@ checkresume(6, false, 'cannot resume dead coroutine');
 		}
 
 
+		[Test]
+		public void Coroutine_AutoYield()
+		{
+			string code = @"
+				function fib(n)
+					if (n == 0 or n == 1) then
+						return 1;
+					else
+						return fib(n - 1) + fib(n - 2);
+					end
+				end
+				";
+
+			// Load the code and get the returned function
+			Script script = new Script(CoreModules.None);
+			script.DoString(code);
+
+			// get the function
+			DynValue function = script.Globals.Get("fib");
+
+			// Create the coroutine in C#
+			DynValue coroutine = script.CreateCoroutine(function);
+
+			// Set the automatic yield counter every 10 instructions. 
+			// 10 is a too small! Use a much bigger value in your code to avoid interrupting too often!
+			coroutine.Coroutine.AutoYieldCounter = 10;
+
+			int cycles = 0;
+			DynValue result = null;
+
+			// Cycle until we get that the coroutine has returned something useful and not an automatic yield..
+			for (result = coroutine.Coroutine.Resume(8); 
+				result.Type == DataType.YieldRequest;
+				result = coroutine.Coroutine.Resume()) 
+			{
+				cycles += 1;
+			}
+
+			// Check the values of the operation
+			Assert.AreEqual(DataType.Number, result.Type);
+			Assert.AreEqual(34, result.Number);
+
+			// Check the autoyield actually triggered
+			Assert.Greater(cycles, 10);
+		}
+
 
 
 

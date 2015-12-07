@@ -24,6 +24,10 @@ namespace MoonSharp.Interpreter
 		/// </summary>
 		Suspended,
 		/// <summary>
+		/// Coroutine has been forcefully suspended (i.e. auto-yielded)
+		/// </summary>
+		ForceSuspended,
+		/// <summary>
 		/// Coroutine is running
 		/// </summary>
 		Running,

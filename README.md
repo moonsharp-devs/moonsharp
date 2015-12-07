@@ -1,4 +1,4 @@
-MoonSharp       [![Build Status](https://travis-ci.org/xanathar/moonsharp.svg?branch=master)](https://travis-ci.org/xanathar/moonsharp) [![Build Status](https://img.shields.io/nuget/v/MoonSharp.svg)](https://www.nuget.org/packages/MoonSharp/)   [![Join the chat at https://gitter.im/xanathar/moonsharp](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/xanathar/moonsharp?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+MoonSharp       [![Build Status](https://travis-ci.org/xanathar/moonsharp.svg?branch=master)](https://travis-ci.org/xanathar/moonsharp) [![Build Status](https://img.shields.io/nuget/v/MoonSharp.svg)](https://www.nuget.org/packages/MoonSharp/)
 =========
 http://www.moonsharp.org   
 

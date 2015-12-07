@@ -12,10 +12,15 @@ namespace MoonSharp.Interpreter.Execution.VM
 	{
 		const int YIELD_SPECIAL_TRAP = -99;
 
+		internal long AutoYieldCounter = 0;
+
 		private DynValue Processing_Loop(int instructionPtr)
 		{
-		// This is the main loop of the processor, has a weird control flow and needs to be as fast as possible.
-		// This sentence is just a convoluted way to say "don't complain about gotos".
+			// This is the main loop of the processor, has a weird control flow and needs to be as fast as possible.
+			// This sentence is just a convoluted way to say "don't complain about gotos".
+
+			long executedInstructions = 0;
+			bool canAutoYield = (AutoYieldCounter > 0) && m_CanYield && (this.State != CoroutineState.Main);
 
 			repeat_execution:
 
@@ -28,6 +33,14 @@ namespace MoonSharp.Interpreter.Execution.VM
 					if (m_Debug.DebuggerAttached != null)
 					{
 						ListenDebugger(i, instructionPtr);
+					}
+
+					++executedInstructions;
+
+					if (canAutoYield && executedInstructions > AutoYieldCounter)
+					{
+						m_SavedInstructionPtr = instructionPtr;
+						return DynValue.NewForcedYieldReq();
 					}
 
 					++instructionPtr;

@@ -118,6 +118,7 @@ namespace MoonSharp.Interpreter.CoreLib
 						DynValue.NewString("normal");
 				case CoroutineState.NotStarted:
 				case CoroutineState.Suspended:
+				case CoroutineState.ForceSuspended:
 					return DynValue.NewString("suspended");
 				case CoroutineState.Dead:
 					return DynValue.NewString("dead");
