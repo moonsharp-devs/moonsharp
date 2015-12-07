@@ -11,6 +11,14 @@ namespace MoonSharp.Interpreter.Tests
 	public class SimpleTests
 	{
 		[Test]
+		public void EmptyLongComment()
+		{
+			Script S = new Script(CoreModules.None);
+			DynValue res = S.DoString("--[[]]");
+		}
+
+
+		[Test]
 		public void EmptyChunk()
 		{
 			Script S = new Script(CoreModules.None);

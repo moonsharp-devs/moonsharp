@@ -436,7 +436,7 @@ namespace MoonSharp.Interpreter.Tree
 				if (c == '[' && !extraneousFound && text.Length > 0)
 				{
 					text.Append('[');
-					CursorCharNext();
+					//CursorCharNext();
 					string comment = ReadLongString(fromLine, fromCol, text.ToString(), "comment");
 					return CreateToken(TokenType.Comment, fromLine, fromCol, comment);
 				}
