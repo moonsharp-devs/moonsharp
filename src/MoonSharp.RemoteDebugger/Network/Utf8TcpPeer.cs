@@ -40,6 +40,13 @@ namespace MoonSharp.RemoteDebugger.Network
 			{
 				bool dataReceived = false;
 				int size = m_Socket.EndReceive(ar);
+
+				if (size == 0)
+				{
+					CloseConnection("zero byte received");
+					return;
+				}
+
 				int ptr0 = m_PrevSize;
 				m_PrevSize += size;
 
@@ -75,7 +82,8 @@ namespace MoonSharp.RemoteDebugger.Network
 					}
 				} while (dataReceived);
 
-				m_Socket.BeginReceive(m_RecvBuffer, m_PrevSize, m_RecvBuffer.Length - m_PrevSize, SocketFlags.None, OnDataReceived, null);
+				if (m_Socket.Connected)
+					m_Socket.BeginReceive(m_RecvBuffer, m_PrevSize, m_RecvBuffer.Length - m_PrevSize, SocketFlags.None, OnDataReceived, null);
 			}
 			catch (SocketException ex)
 			{

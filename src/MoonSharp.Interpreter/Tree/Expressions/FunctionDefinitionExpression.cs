@@ -54,7 +54,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			if (globalContext != null)
 			{
 				m_GlobalEnv = globalContext;
-				m_Env = lcontext.Scope.TryDefineLocal(WellKnownSymbols.ENV);
+				m_Env = lcontext.Scope.DefineLocal(WellKnownSymbols.ENV);
 			}
 			else
 			{

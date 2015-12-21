@@ -17,6 +17,14 @@ namespace MoonSharp.Interpreter.Execution.Scopes
 		Dictionary<string, SymbolRef> m_DefinedNames = new Dictionary<string, SymbolRef>();
 
 
+
+		internal void Rename(string name)
+		{
+			SymbolRef sref = m_DefinedNames[name];
+			m_DefinedNames.Remove(name);
+			m_DefinedNames.Add(string.Format("@{0}_{1}", name, Guid.NewGuid().ToString("N")), sref);
+		}
+
 		internal BuildTimeScopeBlock(BuildTimeScopeBlock parent)
 		{
 			Parent = parent;
@@ -139,14 +147,5 @@ namespace MoonSharp.Interpreter.Execution.Scopes
 
 			m_PendingGotos.Clear();
 		}
-
-
-
-
-
-
-
-
-
 	}
 }

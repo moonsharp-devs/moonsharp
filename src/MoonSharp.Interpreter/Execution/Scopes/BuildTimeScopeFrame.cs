@@ -69,7 +69,12 @@ namespace MoonSharp.Interpreter.Execution.Scopes
 
 		internal SymbolRef TryDefineLocal(string name)
 		{
-			return m_ScopeTreeHead.Find(name) ?? m_ScopeTreeHead.Define(name);
+			if (m_ScopeTreeHead.Find(name) != null)
+			{
+				m_ScopeTreeHead.Rename(name);
+			}
+
+			return m_ScopeTreeHead.Define(name);
 		}
 
 		internal void ResolveLRefs()
