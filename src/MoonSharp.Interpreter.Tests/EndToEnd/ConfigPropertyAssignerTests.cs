@@ -10,6 +10,15 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 	[TestFixture]
 	public class ConfigPropertyAssignerTests
 	{
+		private class MySubclass
+		{
+			[MoonSharpProperty]
+			public string MyString { get; set; }
+
+			[MoonSharpProperty("number")]
+			public int MyNumber { get; private set; }
+		}
+
 		private class MyClass
 		{
 			[MoonSharpProperty]
@@ -23,6 +32,9 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 			[MoonSharpProperty]
 			public DynValue NativeValue { get; private set; }
+
+			[MoonSharpProperty]
+			public MySubclass SubObj { get; private set; }
 		}
 
 		private MyClass Test(string tableDef)
@@ -34,6 +46,9 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			Assert.AreEqual(DataType.Table, table.Type);
 
 			PropertyTableAssigner<MyClass> pta = new PropertyTableAssigner<MyClass>("class");
+			PropertyTableAssigner<MySubclass> pta2 = new PropertyTableAssigner<MySubclass>();
+
+			pta.SetSubassigner(pta2);
 
 			MyClass o = new MyClass();
 
@@ -52,11 +67,14 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 				number = 3,
 				some_table = {},
 				nativeValue = function() end,
+				subObj = { number = 15, myString = 'hi' },
 				}");
 
 			Assert.AreEqual(x.MyNumber, 3);
 			Assert.AreEqual(x.MyString, "ciao");
 			Assert.AreEqual(x.NativeValue.Type, DataType.Function);
+			Assert.AreEqual(x.SubObj.MyNumber, 15);
+			Assert.AreEqual(x.SubObj.MyString, "hi");
 			Assert.IsNotNull(x.SomeTable);
 
 		}

@@ -4,6 +4,8 @@ using System.Threading;
 using MoonSharp.Interpreter.Tests;
 using MoonSharp.Interpreter;
 using MoonSharp.Interpreter.Loaders;
+using System.Collections.Generic;
+using System.Linq;
 
 public class TestRunner : MonoBehaviour
 {
@@ -11,9 +13,25 @@ public class TestRunner : MonoBehaviour
 	object m_Lock = new object();
 	bool m_LastWasLine = true;
 
+    Dictionary<string, string> ReadAllScripts()
+    {
+        Dictionary<string, string> scripts = new  Dictionary<string, string>();
+
+        object[] result = Resources.LoadAll("MoonSharp/Scripts", typeof(TextAsset));
+
+        foreach(TextAsset ta in result.OfType<TextAsset>())
+        {
+            scripts.Add(ta.name, ta.text);
+        }
+
+        return scripts;
+    }
+
 	// Use this for initialization
 	void Start()
 	{
+        Script.DefaultOptions.ScriptLoader = new MoonSharp.Interpreter.Loaders.UnityAssetsScriptLoader(ReadAllScripts());
+
 		Debug.Log("STARTED!");
 		StartCoroutine(DoTests());
 	}

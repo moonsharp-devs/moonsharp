@@ -62,9 +62,16 @@ namespace MoonSharp.Interpreter.Tests
 
 			Assembly asm = Assembly.GetExecutingAssembly();
 
-			foreach (Type t in asm.GetTypes().Where(t => t.GetCustomAttributes(typeof(TestFixtureAttribute), true).Any()))
+			Type[] types = asm.GetTypes().Where(t => t.GetCustomAttributes(typeof(TestFixtureAttribute), true).Any()).ToArray();
+
+			Console_WriteLine("Found {0} test types.", types.Length);
+
+			foreach (Type t in types)
 			{
-				foreach (MethodInfo mi in t.GetMethods().Where(m => m.GetCustomAttributes(typeof(TestAttribute), true).Any()))
+				MethodInfo[] tests = t.GetMethods().Where(m => m.GetCustomAttributes(typeof(TestAttribute), true).Any()).ToArray();
+				Console_WriteLine("Testing {0} - {1} tests found.", t.Name, tests.Length);
+
+				foreach (MethodInfo mi in tests)
 				{
 					if (whichTest != null && mi.Name != whichTest)
 						continue;

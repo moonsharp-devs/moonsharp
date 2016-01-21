@@ -12,7 +12,7 @@ namespace MoonSharp.Interpreter.Interop
 	/// This is a generic version of <see cref="PropertyTableAssigner"/>.
 	/// </summary>
 	/// <typeparam name="T">The type of the object.</typeparam>
-	public class PropertyTableAssigner<T>
+	public class PropertyTableAssigner<T> : IPropertyTableAssigner
 	{
 		PropertyTableAssigner m_InternalAssigner;
 
@@ -54,6 +54,37 @@ namespace MoonSharp.Interpreter.Interop
 		{
 			return m_InternalAssigner;
 		}
+
+		/// <summary>
+		/// Sets the subassigner for the given type. Pass null to remove usage of subassigner for the given type.
+		/// </summary>
+		/// <param name="propertyType">Type of the property for which the subassigner will be used.</param>
+		/// <param name="assigner">The property assigner.</param>
+		public void SetSubassignerForType(Type propertyType, IPropertyTableAssigner assigner)
+		{
+			m_InternalAssigner.SetSubassignerForType(propertyType, assigner);
+		}
+
+		/// <summary>
+		/// Sets the subassigner for the given type
+		/// </summary>
+		/// <typeparam name="SubassignerType">Type of the property for which the subassigner will be used.</typeparam>
+		/// <param name="assigner">The property assigner.</param>
+		public void SetSubassigner<SubassignerType>(PropertyTableAssigner<SubassignerType> assigner)
+		{
+			m_InternalAssigner.SetSubassignerForType(typeof(SubassignerType), assigner);
+		}
+
+
+		/// <summary>
+		/// Assigns the properties of the specified object without checking the type.
+		/// </summary>
+		/// <param name="o">The object.</param>
+		/// <param name="data">The data.</param>
+		void IPropertyTableAssigner.AssignObjectUnchecked(object o, Table data)
+		{
+			AssignObject((T)o, data);
+		}
 	}
 
 
@@ -62,10 +93,11 @@ namespace MoonSharp.Interpreter.Interop
 	/// Properties must be decorated with the <see cref="MoonSharpPropertyAttribute"/>.
 	/// See <see cref="PropertyTableAssigner{T}"/> for a generic compile time type-safe version.
 	/// </summary>
-	public class PropertyTableAssigner 
+	public class PropertyTableAssigner : IPropertyTableAssigner
 	{
 		Type m_Type;
 		Dictionary<string, PropertyInfo> m_PropertyMap = new Dictionary<string, PropertyInfo>();
+		Dictionary<Type, IPropertyTableAssigner> m_SubAssigners = new Dictionary<Type, IPropertyTableAssigner>();
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="PropertyTableAssigner"/> class.
@@ -124,8 +156,19 @@ namespace MoonSharp.Interpreter.Interop
 
 				if (pi != null)
 				{
-					object o = Interop.Converters.ScriptToClrConversions.DynValueToObjectOfType(value,
-						pi.PropertyType, null, false);
+					object o;
+
+					if (value.Type == DataType.Table && m_SubAssigners.ContainsKey(pi.PropertyType))
+					{
+						var subassigner = m_SubAssigners[pi.PropertyType];
+						o = Activator.CreateInstance(pi.PropertyType);
+						subassigner.AssignObjectUnchecked(o, value.Table);
+					}
+					else
+					{
+						o = Interop.Converters.ScriptToClrConversions.DynValueToObjectOfType(value,
+							pi.PropertyType, null, false);
+					}
 
 					pi.GetSetMethod(true).Invoke(obj, new object[] { o });
 				}
@@ -172,5 +215,43 @@ namespace MoonSharp.Interpreter.Interop
 				AssignProperty(obj, pair.Key.String, pair.Value);
 			}
 		}
+
+		/// <summary>
+		/// Sets the subassigner for the given type. Pass null to remove usage of subassigner for the given type.
+		/// </summary>
+		/// <param name="propertyType">Type of the property for which the subassigner will be used.</param>
+		/// <param name="assigner">The property assigner.</param>
+		public void SetSubassignerForType(Type propertyType, IPropertyTableAssigner assigner)
+		{
+			if (propertyType.IsAbstract || propertyType.IsGenericType || propertyType.IsInterface || propertyType.IsValueType)
+			{
+				throw new ArgumentException("propertyType must be a concrete, reference type");
+			}
+
+			m_SubAssigners[propertyType] = assigner;
+		}
+
+		/// <summary>
+		/// Assigns the properties of the specified object without checking the type.
+		/// </summary>
+		/// <param name="o">The object.</param>
+		/// <param name="data">The data.</param>
+		void IPropertyTableAssigner.AssignObjectUnchecked(object obj, Table data)
+		{
+			this.AssignObject(obj, data);
+		}
+	}
+
+	/// <summary>
+	/// Common interface for property assigners - basically used for sub-assigners
+	/// </summary>
+	public interface IPropertyTableAssigner
+	{
+		/// <summary>
+		/// Assigns the properties of the specified object without checking the type.
+		/// </summary>
+		/// <param name="o">The object.</param>
+		/// <param name="data">The data.</param>
+		void AssignObjectUnchecked(object o, Table data);
 	}
 }

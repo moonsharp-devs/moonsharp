@@ -8,7 +8,8 @@ namespace MoonSharp.Interpreter.Interop
 	/// <summary>
 	/// Forces a class member visibility to scripts. Can be used to hide public members or to expose non-public ones.
 	/// </summary>
-	[AttributeUsage(AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Event, Inherited = false, AllowMultiple = false)]
+	[AttributeUsage(AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Field
+		| AttributeTargets.Constructor | AttributeTargets.Event, Inherited = true, AllowMultiple = false)]
 	public sealed class MoonSharpVisibleAttribute : Attribute
 	{
 		/// <summary>

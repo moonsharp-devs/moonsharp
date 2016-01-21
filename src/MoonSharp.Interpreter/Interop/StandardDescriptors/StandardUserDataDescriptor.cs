@@ -20,7 +20,6 @@ namespace MoonSharp.Interpreter.Interop
 		/// </summary>
 		public InteropAccessMode AccessMode { get; private set; }
 
-
 		/// <summary>
 		/// Initializes a new instance of the <see cref="StandardUserDataDescriptor"/> class.
 		/// </summary>
@@ -49,6 +48,13 @@ namespace MoonSharp.Interpreter.Interop
 		/// </summary>
 		private void FillMemberList()
 		{
+			HashSet<string> membersToIgnore = new HashSet<string>(
+				this.Type
+					.GetCustomAttributes(typeof(MoonSharpHideMemberAttribute), true)
+					.OfType<MoonSharpHideMemberAttribute>()
+					.Select(a => a.MemberName)
+				);
+
 			Type type = this.Type;
 			var accessMode = this.AccessMode;
 
@@ -58,17 +64,22 @@ namespace MoonSharp.Interpreter.Interop
 			// add declared constructors
 			foreach (ConstructorInfo ci in type.GetConstructors(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
 			{
+				if (membersToIgnore.Contains("__new"))
+					continue;
+
 				AddMember("__new", MethodMemberDescriptor.TryCreateIfVisible(ci, this.AccessMode));
 			}
 
 			// valuetypes don't reflect their empty ctor.. actually empty ctors are a perversion, we don't care and implement ours
-			if (type.IsValueType)
+			if (type.IsValueType && !membersToIgnore.Contains("__new"))
 				AddMember("__new", new ValueTypeDefaultCtorMemberDescriptor(type));
 
 
 			// add methods to method list and metamethods
 			foreach (MethodInfo mi in type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
 			{
+				if (membersToIgnore.Contains(mi.Name)) continue;
+
 				MethodMemberDescriptor md = MethodMemberDescriptor.TryCreateIfVisible(mi, this.AccessMode);
 
 				if (md != null)
@@ -95,7 +106,7 @@ namespace MoonSharp.Interpreter.Interop
 			// get properties
 			foreach (PropertyInfo pi in type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
 			{
-				if (pi.IsSpecialName || pi.GetIndexParameters().Any())
+				if (pi.IsSpecialName || pi.GetIndexParameters().Any() || membersToIgnore.Contains(pi.Name))
 					continue;
 
 				AddMember(pi.Name, PropertyMemberDescriptor.TryCreateIfVisible(pi, this.AccessMode));
@@ -104,7 +115,7 @@ namespace MoonSharp.Interpreter.Interop
 			// get fields
 			foreach (FieldInfo fi in type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
 			{
-				if (fi.IsSpecialName)
+				if (fi.IsSpecialName || membersToIgnore.Contains(fi.Name))
 					continue;
 
 				AddMember(fi.Name, FieldMemberDescriptor.TryCreateIfVisible(fi, this.AccessMode));
@@ -113,7 +124,7 @@ namespace MoonSharp.Interpreter.Interop
 			// get events
 			foreach (EventInfo ei in type.GetEvents(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
 			{
-				if (ei.IsSpecialName)
+				if (ei.IsSpecialName || membersToIgnore.Contains(ei.Name))
 					continue;
 
 				AddMember(ei.Name, EventMemberDescriptor.TryCreateIfVisible(ei, this.AccessMode));
@@ -122,6 +133,9 @@ namespace MoonSharp.Interpreter.Interop
 			// get nested types and create statics
 			foreach (Type nestedType in type.GetNestedTypes(BindingFlags.NonPublic | BindingFlags.Public))
 			{
+				if (membersToIgnore.Contains(nestedType.Name))
+					continue;
+
 				if (!nestedType.IsGenericTypeDefinition)
 				{
 					if (nestedType.IsNestedPublic || nestedType.GetCustomAttributes(typeof(MoonSharpUserDataAttribute), true).Length > 0)
@@ -134,25 +148,28 @@ namespace MoonSharp.Interpreter.Interop
 				}
 			}
 
-			if (Type.IsArray)
+			if (!membersToIgnore.Contains("[this]"))
 			{
-				int rank = Type.GetArrayRank();
+				if (Type.IsArray)
+				{
+					int rank = Type.GetArrayRank();
 
-				ParameterDescriptor[] get_pars = new ParameterDescriptor[rank];
-				ParameterDescriptor[] set_pars = new ParameterDescriptor[rank + 1];
+					ParameterDescriptor[] get_pars = new ParameterDescriptor[rank];
+					ParameterDescriptor[] set_pars = new ParameterDescriptor[rank + 1];
 
-				for (int i = 0; i < rank; i++)
-					get_pars[i] = set_pars[i] = new ParameterDescriptor("idx" + i.ToString(), typeof(int));
+					for (int i = 0; i < rank; i++)
+						get_pars[i] = set_pars[i] = new ParameterDescriptor("idx" + i.ToString(), typeof(int));
 
-				set_pars[rank] = new ParameterDescriptor("value", Type.GetElementType());
+					set_pars[rank] = new ParameterDescriptor("value", Type.GetElementType());
 
-				AddMember(SPECIALNAME_INDEXER_SET, new ObjectCallbackMemberDescriptor(SPECIALNAME_INDEXER_SET, ArrayIndexerSet, set_pars));
-				AddMember(SPECIALNAME_INDEXER_GET, new ObjectCallbackMemberDescriptor(SPECIALNAME_INDEXER_GET, ArrayIndexerGet, get_pars));
-			}
-			else if (Type == typeof(Array))
-			{
-				AddMember(SPECIALNAME_INDEXER_SET, new ObjectCallbackMemberDescriptor(SPECIALNAME_INDEXER_SET, ArrayIndexerSet));
-				AddMember(SPECIALNAME_INDEXER_GET, new ObjectCallbackMemberDescriptor(SPECIALNAME_INDEXER_GET, ArrayIndexerGet));
+					AddMember(SPECIALNAME_INDEXER_SET, new ObjectCallbackMemberDescriptor(SPECIALNAME_INDEXER_SET, ArrayIndexerSet, set_pars));
+					AddMember(SPECIALNAME_INDEXER_GET, new ObjectCallbackMemberDescriptor(SPECIALNAME_INDEXER_GET, ArrayIndexerGet, get_pars));
+				}
+				else if (Type == typeof(Array))
+				{
+					AddMember(SPECIALNAME_INDEXER_SET, new ObjectCallbackMemberDescriptor(SPECIALNAME_INDEXER_SET, ArrayIndexerSet));
+					AddMember(SPECIALNAME_INDEXER_GET, new ObjectCallbackMemberDescriptor(SPECIALNAME_INDEXER_GET, ArrayIndexerGet));
+				}
 			}
 		}
 

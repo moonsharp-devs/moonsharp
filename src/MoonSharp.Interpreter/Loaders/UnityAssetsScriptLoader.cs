@@ -34,6 +34,17 @@ namespace MoonSharp.Interpreter.Loaders
 			LoadResourcesWithReflection(assetsPath);
 		}
 
+		 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="UnityAssetsScriptLoader"/> class.
+		/// </summary>
+		/// <param name="scriptToCodeMap">A dictionary mapping filenames to the proper Lua script code.</param>
+		public UnityAssetsScriptLoader(Dictionary<string, string> scriptToCodeMap)
+		{
+			m_Resources = scriptToCodeMap;
+		}
+
+
 		void LoadResourcesWithReflection(string assetsPath)
 		{
 			try
@@ -44,8 +55,7 @@ namespace MoonSharp.Interpreter.Loaders
 				MethodInfo textAssetNameGet = textAssetType.GetProperty("name").GetGetMethod();
 				MethodInfo textAssetTextGet = textAssetType.GetProperty("text").GetGetMethod();
 
-
-				MethodInfo loadAll = resourcesType.GetMethod("LoadAll", 
+				MethodInfo loadAll = resourcesType.GetMethod("LoadAll",
 					new Type[] { typeof(string), typeof(Type) });
 
 				Array array = (Array)loadAll.Invoke(null, new object[] { assetsPath, textAssetType });
@@ -62,7 +72,7 @@ namespace MoonSharp.Interpreter.Loaders
 			}
 			catch (Exception ex)
 			{
-				System.Diagnostics.Debug.WriteLine("UnityAssetsScriptLoader error : " + ex.Message);
+				Console.WriteLine("Error initializing UnityScriptLoader : {0}", ex);
 			}
 		}
 
