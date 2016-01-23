@@ -10,14 +10,14 @@ namespace MoonSharp.Interpreter.Interop
 	/// </summary>
 	public sealed class ProxyUserDataDescriptor : IUserDataDescriptor
 	{
-		StandardUserDataDescriptor m_ProxyDescriptor;
+		IUserDataDescriptor m_ProxyDescriptor;
 		IProxyFactory m_ProxyFactory;
 
-		internal ProxyUserDataDescriptor(IProxyFactory proxyFactory, InteropAccessMode accessMode = InteropAccessMode.Default, string friendlyName = null)
+		internal ProxyUserDataDescriptor(IProxyFactory proxyFactory, IUserDataDescriptor proxyDescriptor, string friendlyName = null)
 		{
 			m_ProxyFactory = proxyFactory;
 			Name = friendlyName ?? (proxyFactory.TargetType.Name + "::proxy");
-			m_ProxyDescriptor = new StandardUserDataDescriptor(proxyFactory.ProxyType, accessMode, friendlyName + "::proxied");
+			m_ProxyDescriptor = proxyDescriptor;
 		}
 
 		/// <summary>

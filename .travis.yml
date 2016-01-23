@@ -9,8 +9,8 @@ script:
   - xbuild /p:TargetFrameworkProfile='' /p:Configuration=Release src/moonsharp_ci_net35.sln
   - cd src/TestRunners/ConsoleTestRunner/bin/Release
   - mono ConsoleTestRunner.exe
-  - chmod 777 aotregen.sh
-  - chmod 777 aottest.sh
-  - sudo ./aotregen.sh
-  - sudo ./aottest.sh
+#  - chmod 777 aotregen.sh
+#  - chmod 777 aottest.sh
+#  - sudo ./aotregen.sh
+#  - sudo ./aottest.sh
 
