@@ -72,7 +72,9 @@ namespace MoonSharp.Interpreter.Loaders
 			}
 			catch (Exception ex)
 			{
+#if !PCL
 				Console.WriteLine("Error initializing UnityScriptLoader : {0}", ex);
+#endif
 			}
 		}
 

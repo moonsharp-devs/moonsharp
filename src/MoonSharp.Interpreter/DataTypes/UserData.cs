@@ -72,6 +72,37 @@ namespace MoonSharp.Interpreter
 			return TypeDescriptorRegistry.RegisterType_Impl(type, accessMode, friendlyName, null);
 		}
 
+
+		/// <summary>
+		/// Registers a proxy type.
+		/// </summary>
+		/// <param name="proxyFactory">The proxy factory.</param>
+		/// <param name="accessMode">The access mode.</param>
+		/// <param name="friendlyName">A friendly name for the descriptor.</param>
+		/// <returns></returns>
+		public static IUserDataDescriptor RegisterProxyType(IProxyFactory proxyFactory, InteropAccessMode accessMode = InteropAccessMode.Default, string friendlyName = null)
+		{
+			return TypeDescriptorRegistry.RegisterProxyType_Impl(proxyFactory, accessMode, friendlyName);
+		}
+
+		/// <summary>
+		/// Registers a proxy type using a delegate.
+		/// </summary>
+		/// <typeparam name="TProxy">The type of the proxy.</typeparam>
+		/// <typeparam name="TTarget">The type of the target.</typeparam>
+		/// <param name="wrapDelegate">A delegate creating a proxy object from a target object.</param>
+		/// <param name="accessMode">The access mode.</param>
+		/// <param name="friendlyName">A friendly name for the descriptor.</param>
+		/// <returns></returns>
+		public static IUserDataDescriptor RegisterProxyType<TProxy, TTarget>(Func<TTarget, TProxy> wrapDelegate, InteropAccessMode accessMode = InteropAccessMode.Default, string friendlyName = null)
+			where TProxy : class
+			where TTarget : class
+		{
+			return RegisterProxyType(new DelegateProxyFactory<TProxy, TTarget>(wrapDelegate), accessMode, friendlyName);
+		}
+
+
+
 		/// <summary>
 		/// Registers a type with a custom userdata descriptor
 		/// </summary>
@@ -262,16 +293,6 @@ namespace MoonSharp.Interpreter
 		{
 			return ExtensionMethodsRegistry.GetExtensionMethodsByNameAndType(name, extendedType);
 		}
-
-		/// <summary>
-		/// Gets all the extension methods which can match a given name
-		/// </summary>
-		/// <param name="name">The name.</param>
-		/// <returns></returns>
-		//public static IEnumerable<IOverloadableMemberDescriptor> GetExtensionMethodsByName(string name)
-		//{
-		//	return ExtensionMethodsRegistry.GetExtensionMethodsByName(name);
-		//}
 
 		/// <summary>
 		/// Gets a number which gets incremented everytime the extension methods registry changes.

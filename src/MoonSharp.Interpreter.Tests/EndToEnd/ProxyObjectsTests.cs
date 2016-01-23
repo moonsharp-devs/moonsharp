@@ -27,15 +27,12 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		[Test]
 		public void ProxyTest()
 		{
-			Script.GlobalOptions.CustomConverters.RegisterProxy<Proxy, Random>(
-				r => new Proxy(r), p => p.random);
-
-			UserData.RegisterType<Proxy>();
+			UserData.RegisterProxyType<Proxy, Random>(r => new Proxy(r));
 
 			Script S = new Script();
 
 			S.Globals["R"] = new Random();
-			S.Globals["func"] = (Action<Random>)(r => { Assert.IsNotNull(r); Assert.IsInstanceOf(typeof(Random), r); });
+			S.Globals["func"] = (Action<Random>)(r => { Assert.IsNotNull(r); Assert.IsTrue(r is Random); });
 
 			S.DoString(@"
 				x = R.GetValue();

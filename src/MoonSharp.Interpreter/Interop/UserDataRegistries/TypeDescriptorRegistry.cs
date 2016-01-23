@@ -111,6 +111,19 @@ namespace MoonSharp.Interpreter.Interop.UserDataRegistries
 		/// </summary>
 		internal static InteropRegistrationPolicy RegistrationPolicy { get; set; }
 
+		/// <summary>
+		/// Registers a proxy type.
+		/// </summary>
+		/// <param name="proxyFactory">The proxy factory.</param>
+		/// <param name="accessMode">The access mode.</param>
+		/// <param name="friendlyName">Name of the friendly.</param>
+		/// <returns></returns>
+		internal static IUserDataDescriptor RegisterProxyType_Impl(IProxyFactory proxyFactory, InteropAccessMode accessMode, string friendlyName)
+		{
+			accessMode = ResolveDefaultAccessModeForType(accessMode, proxyFactory.ProxyType);
+			return RegisterType_Impl(proxyFactory.TargetType, accessMode, friendlyName, new ProxyUserDataDescriptor(proxyFactory, accessMode, friendlyName));
+		}
+
 
 		/// <summary>
 		/// Registers a type
@@ -122,18 +135,7 @@ namespace MoonSharp.Interpreter.Interop.UserDataRegistries
 		/// <returns></returns>
 		internal static IUserDataDescriptor RegisterType_Impl(Type type, InteropAccessMode accessMode, string friendlyName, IUserDataDescriptor descriptor)
 		{
-			if (accessMode == InteropAccessMode.Default)
-			{
-				MoonSharpUserDataAttribute attr = type.GetCustomAttributes(true).OfType<MoonSharpUserDataAttribute>()
-					.SingleOrDefault();
-
-				if (attr != null)
-					accessMode = attr.AccessMode;
-			}
-
-
-			if (accessMode == InteropAccessMode.Default)
-				accessMode = s_DefaultAccessMode;
+			accessMode = ResolveDefaultAccessModeForType(accessMode, type);
 
 			lock (s_Lock)
 			{
@@ -183,6 +185,30 @@ namespace MoonSharp.Interpreter.Interop.UserDataRegistries
 				}
 				else return s_Registry[type];
 			}
+		}
+
+		/// <summary>
+		/// Resolves the default type of the access mode for the given type
+		/// </summary>
+		/// <param name="accessMode">The access mode.</param>
+		/// <param name="type">The type.</param>
+		/// <returns></returns>
+		internal static InteropAccessMode ResolveDefaultAccessModeForType(InteropAccessMode accessMode, Type type)
+		{
+			if (accessMode == InteropAccessMode.Default)
+			{
+				MoonSharpUserDataAttribute attr = type.GetCustomAttributes(true).OfType<MoonSharpUserDataAttribute>()
+					.SingleOrDefault();
+
+				if (attr != null)
+					accessMode = attr.AccessMode;
+			}
+
+
+			if (accessMode == InteropAccessMode.Default)
+				accessMode = s_DefaultAccessMode;
+
+			return accessMode;
 		}
 
 

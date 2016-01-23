@@ -131,6 +131,12 @@
     <Compile Include="..\..\Interop\Attributes\MoonSharpUserDataMetamethodAttribute.cs">
       <Link>MoonSharpUserDataMetamethodAttribute.cs</Link>
     </Compile>
+    <Compile Include="..\..\Interop\Attributes\MoonSharpHideMemberAttribute.cs">
+      <Link>MoonSharpHideMemberAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\Attributes\MoonSharpHiddenAttribute.cs">
+      <Link>MoonSharpHiddenAttribute.cs</Link>
+    </Compile>
     <Compile Include="..\..\Interop\BasicDescriptors\IMemberDescriptor.cs">
       <Link>IMemberDescriptor.cs</Link>
     </Compile>
@@ -176,8 +182,14 @@
     <Compile Include="..\..\Interop\PropertyTableAssigner.cs">
       <Link>PropertyTableAssigner.cs</Link>
     </Compile>
-    <Compile Include="..\..\Interop\StandardDescriptors\EnumDescriptor.cs">
-      <Link>EnumDescriptor.cs</Link>
+    <Compile Include="..\..\Interop\ProxyObjects\DelegateProxyFactory.cs">
+      <Link>DelegateProxyFactory.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\ProxyObjects\IProxyFactory.cs">
+      <Link>IProxyFactory.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\StandardDescriptors\ProxyUserDataDescriptor.cs">
+      <Link>ProxyUserDataDescriptor.cs</Link>
     </Compile>
     <Compile Include="..\..\Interop\StandardDescriptors\MemberDescriptors\ObjectCallbackMemberDescriptor.cs">
       <Link>ObjectCallbackMemberDescriptor.cs</Link>

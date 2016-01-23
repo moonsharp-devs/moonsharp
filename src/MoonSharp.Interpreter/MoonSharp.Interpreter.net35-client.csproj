@@ -156,9 +156,9 @@
     <Compile Include="Interop\BasicDescriptors\DispatchingUserDataDescriptor.cs" />
     <Compile Include="Interop\IGeneratorUserDataDescriptor.cs" />
     <Compile Include="Interop\PropertyTableAssigner.cs" />
-    <Compile Include="Interop\ProxyObjects\DelegateProxyObjectFactory.cs" />
-    <Compile Include="Interop\ProxyObjects\IScriptProxyObjectFactory.cs" />
-    <Compile Include="Interop\StandardDescriptors\EnumDescriptor.cs" />
+    <Compile Include="Interop\ProxyObjects\DelegateProxyFactory.cs" />
+    <Compile Include="Interop\ProxyObjects\IProxyFactory.cs" />
+    <Compile Include="Interop\StandardDescriptors\ProxyUserDataDescriptor.cs" />
     <Compile Include="Interop\StandardDescriptors\MemberDescriptors\ObjectCallbackMemberDescriptor.cs" />
     <Compile Include="Interop\StandardDescriptors\MemberDescriptors\FunctionMemberDescriptorBase.cs" />
     <Compile Include="Interop\StandardDescriptors\StandardEnumUserDataDescriptor.cs" />

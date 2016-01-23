@@ -114,6 +114,9 @@
       <SubType>Code</SubType>
       <Link>MetatableTests.cs</Link>
     </Compile>
+    <Compile Include="..\..\EndToEnd\ProxyObjectsTests.cs">
+      <Link>ProxyObjectsTests.cs</Link>
+    </Compile>
     <Compile Include="..\..\EndToEnd\StringLibTests.cs">
       <Link>StringLibTests.cs</Link>
     </Compile>
