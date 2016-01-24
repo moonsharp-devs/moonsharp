@@ -8,52 +8,54 @@ using NUnit.Framework;
 
 namespace MoonSharp.Interpreter.Tests.EndToEnd
 {
+	public class RegCollItem
+	{
+		public int Value;
+
+		public RegCollItem(int v)
+		{
+			Value = v;
+		}
+	}
+
+	public class RegCollMethods
+	{
+		List<RegCollItem> m_Items = new List<RegCollItem>() { new RegCollItem(7), new RegCollItem(8), new RegCollItem(9) };
+		List<int> m_List = new List<int>() { 1, 2, 3 };
+		int[] m_Array = new int[3] { 2, 4, 6 };
+		int[,] m_MultiArray = new int[2, 3] { { 2, 4, 6 }, { 7, 8, 9 } };
+
+		public int[,] GetMultiArray()
+		{
+			return m_MultiArray;
+		}
+
+		public int[] GetArray()
+		{
+			return m_Array;
+		}
+
+		public List<RegCollItem> GetItems()
+		{
+			return m_Items;
+		}
+
+		public List<int> GetList()
+		{
+			return m_List;
+		}
+
+		public IEnumerator<int> GetEnumerator()
+		{
+			return GetList().GetEnumerator();
+		}
+	}
+
+
+
 	[TestFixture]
 	public class CollectionsBaseInterfGenRegisteredTests
 	{
-		public class RegCollItem
-		{
-			public int Value;
-
-			public RegCollItem(int v)
-			{
-				Value = v;
-			}
-		}
-
-		public class RegCollMethods
-		{
-			List<RegCollItem> m_Items = new List<RegCollItem>() { new RegCollItem(7), new RegCollItem(8), new RegCollItem(9) };
-			List<int> m_List = new List<int>() { 1, 2, 3 };
-			int[] m_Array = new int[3] { 2, 4, 6 };
-			int[,] m_MultiArray = new int[2, 3] { { 2, 4, 6 }, { 7, 8, 9 } };
-
-			public int[,] GetMultiArray()
-			{
-				return m_MultiArray;
-			}
-
-			public int[] GetArray()
-			{
-				return m_Array;
-			}
-
-			public List<RegCollItem> GetItems()
-			{
-				return m_Items;
-			}
-
-			public List<int> GetList()
-			{
-				return m_List;
-			}
-
-			public IEnumerator<int> GetEnumerator()
-			{
-				return GetList().GetEnumerator();
-			}
-		}
-
 		void Do(string code, Action<DynValue> asserts)
 		{
 			Do(code, (d, o) => asserts(d));

@@ -1,7 +1,8 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/link.xml">
     <Files>
+      <File FileName="Assets/link.xml" Line="9" Column="14" />
       <File FileName="Assets/NewImageEffectShader.shader" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
