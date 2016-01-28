@@ -489,5 +489,39 @@ namespace MoonSharp.Interpreter.Tests
 			Assert.AreEqual(3, res.Tuple[0].Number);
 			Assert.AreEqual(4, res.Tuple[1].Number);
 		}
+
+		[Test]
+		public void PrimeTable_1()
+		{
+			string script = @"    
+			t = ${
+				ciao = 'hello'
+			}
+		";
+
+			Script s = new Script();
+			s.DoString(script);
+
+			Assert.AreEqual("hello", s.Globals["t", "ciao"]);
+			Assert.IsTrue(s.Globals.Get("t").Table.OwnerScript == null);
+		}
+
+
+		[Test]
+		[ExpectedException(typeof(ScriptRuntimeException))]
+		public void PrimeTable_2()
+		{
+			string script = @"    
+			t = ${
+				ciao = function() end
+			}
+		";
+
+			Script s = new Script();
+			s.DoString(script);
+
+			Assert.Fail();
+		}
+
 	}
 }

@@ -182,7 +182,10 @@ namespace MoonSharp.Interpreter.Execution.VM
 							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
 							break;
 						case OpCode.NewTable:
-							m_ValueStack.Push(DynValue.NewTable(this.m_Script));
+							if (i.NumVal == 0)
+								m_ValueStack.Push(DynValue.NewTable(this.m_Script));
+							else
+								m_ValueStack.Push(DynValue.NewPrimeTable());
 							break;
 						case OpCode.IterPrep:
 							ExecIterPrep(i);

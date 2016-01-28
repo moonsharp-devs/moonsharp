@@ -338,5 +338,26 @@ namespace MoonSharp.Interpreter
 		}
 
 
+		public static Table GetDescriptionOfRegisteredTypes()
+		{
+			DynValue output = DynValue.NewPrimeTable();
+
+			foreach (var descpair in TypeDescriptorRegistry.RegisteredTypes)
+			{
+				ISerializableReflectionDescriptor sd = descpair.Value as ISerializableReflectionDescriptor;
+
+				if (sd != null)
+				{
+					DynValue t = DynValue.NewPrimeTable();
+					output.Table.Set(descpair.Key.FullName, t);
+					sd.Serialize(t.Table);
+				}
+			}
+
+			return output.Table;
+		}
+
+
+
 	}
 }

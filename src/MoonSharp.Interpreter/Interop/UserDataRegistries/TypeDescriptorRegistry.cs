@@ -326,6 +326,15 @@ namespace MoonSharp.Interpreter.Interop.UserDataRegistries
 			return false;
 		}
 
-
+		/// <summary>
+		/// Gets the list of registered types.
+		/// </summary>
+		/// <value>
+		/// The registered types.
+		/// </value>
+		public static IEnumerable<KeyValuePair<Type, IUserDataDescriptor>> RegisteredTypes
+		{
+			get { lock (s_Lock) return s_Registry.ToArray(); }
+		}
 	}
 }

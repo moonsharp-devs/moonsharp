@@ -9,7 +9,7 @@ namespace MoonSharp.Interpreter.Interop.BasicDescriptors
 	/// <summary>
 	/// Descriptor of parameters used in <see cref="IOverloadableMemberDescriptor"/> implementations.
 	/// </summary>
-	public sealed class ParameterDescriptor
+	public sealed class ParameterDescriptor : ISerializableReflectionDescriptor
 	{
 		/// <summary>
 		/// Gets the name of the parameter
@@ -77,6 +77,35 @@ namespace MoonSharp.Interpreter.Interop.BasicDescriptors
 		}
 
 		/// <summary>
+		/// Initializes a new instance of the <see cref="ParameterDescriptor" /> class. 
+		/// </summary>
+		/// <param name="name">The name.</param>
+		/// <param name="type">The type.</param>
+		/// <param name="hasDefaultValue">if set to <c>true</c> the parameter has default value.</param>
+		/// <param name="defaultValue">The default value.</param>
+		/// <param name="isOut">if set to <c>true</c>, is an out param.</param>
+		/// <param name="isRef">if set to <c>true</c> is a ref param.</param>
+		/// <param name="isVarArgs">if set to <c>true</c> is variable arguments param.</param>
+		/// <param name="typeRestriction">The type restriction, or nll.</param>
+		public ParameterDescriptor(string name, Type type, bool hasDefaultValue, object defaultValue, bool isOut,
+			bool isRef, bool isVarArgs, Type typeRestriction)
+		{
+			Name = name;
+			Type = type;
+			HasDefaultValue = hasDefaultValue;
+			DefaultValue = defaultValue;
+			IsOut = isOut;
+			IsRef = isRef;
+			IsVarArgs = isVarArgs;
+
+			if (typeRestriction != null)
+			{
+				RestrictType(typeRestriction);
+			}
+		}
+		
+
+		/// <summary>
 		/// Initializes a new instance of the <see cref="ParameterDescriptor"/> class.
 		/// </summary>
 		/// <param name="pi">A ParameterInfo taken from reflection.</param>
@@ -126,5 +155,17 @@ namespace MoonSharp.Interpreter.Interop.BasicDescriptors
 			Type = type;
 		}
 
+
+		public void Serialize(Table table)
+		{
+			table.Set("name", DynValue.NewString(Name));
+			table.Set("type", DynValue.NewString(Type.FullName));
+			table.Set("origtype", DynValue.NewString(OriginalType.FullName));
+			table.Set("default", DynValue.NewBoolean(HasDefaultValue));
+			table.Set("out", DynValue.NewBoolean(IsOut));
+			table.Set("ref", DynValue.NewBoolean(IsRef));
+			table.Set("varargs", DynValue.NewBoolean(IsVarArgs));
+			table.Set("restricted", DynValue.NewBoolean(HasBeenRestricted));
+		}
 	}
 }

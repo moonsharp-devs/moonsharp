@@ -204,9 +204,9 @@ namespace MoonSharp.Interpreter.Execution.VM
 			return AppendInstruction(new Instruction(m_CurrentSourceRef) { OpCode = OpCode.Incr, NumVal = i });
 		}
 
-		public Instruction Emit_NewTable()
+		public Instruction Emit_NewTable(bool shared)
 		{
-			return AppendInstruction(new Instruction(m_CurrentSourceRef) { OpCode = OpCode.NewTable });
+			return AppendInstruction(new Instruction(m_CurrentSourceRef) { OpCode = OpCode.NewTable, NumVal = shared ? 1 : 0 });
 		}
 
 		public Instruction Emit_IterPrep()

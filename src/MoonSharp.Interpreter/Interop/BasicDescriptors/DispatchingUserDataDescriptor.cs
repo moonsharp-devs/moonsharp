@@ -649,7 +649,6 @@ namespace MoonSharp.Interpreter.Interop.BasicDescriptors
 		#endregion
 
 
-
 		/// <summary>
 		/// Determines whether the specified object is compatible with the specified type.
 		/// Unless a very specific behaviour is needed, the correct implementation is a 

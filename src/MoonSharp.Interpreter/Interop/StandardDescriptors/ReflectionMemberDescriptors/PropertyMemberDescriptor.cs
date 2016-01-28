@@ -14,7 +14,8 @@ namespace MoonSharp.Interpreter.Interop
 	/// <summary>
 	/// Class providing easier marshalling of CLR properties
 	/// </summary>
-	public class PropertyMemberDescriptor : IMemberDescriptor, IOptimizableDescriptor
+	public class PropertyMemberDescriptor : IMemberDescriptor, IOptimizableDescriptor,
+		ISerializableReflectionDescriptor
 	{
 		/// <summary>
 		/// Gets the PropertyInfo got by reflection
@@ -288,6 +289,17 @@ namespace MoonSharp.Interpreter.Interop
 		{
 			this.OptimizeGetter();
 			this.OptimizeSetter();
+		}
+
+		public void Serialize(Table t)
+		{
+			t.Set("class", DynValue.NewString(this.GetType().FullName));
+			t.Set("name", DynValue.NewString(this.Name));
+			t.Set("static", DynValue.NewBoolean(this.IsStatic));
+			t.Set("read", DynValue.NewBoolean(this.CanRead));
+			t.Set("write", DynValue.NewBoolean(this.CanWrite));
+
+			t.Set("propertytype", DynValue.NewString(this.PropertyInfo.PropertyType.FullName));
 		}
 	}
 }

@@ -6,8 +6,11 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MoonSharp.Interpreter;
+using MoonSharp.Interpreter.Serialization;
 using MoonSharp.Interpreter.Interop;
 using MoonSharp.RemoteDebugger;
+using System.IO;
+using System.CodeDom.Compiler;
 
 namespace Playground
 {
@@ -16,42 +19,32 @@ namespace Playground
 	{
 		static void Main(string[] args)
 		{
-			Script S = new Script(CoreModules.Basic);
+			UserData.RegisterType<Script>();
 
-			RemoteDebuggerService remoteDebugger;
+			Table t = UserData.GetDescriptionOfRegisteredTypes();
 
-			remoteDebugger = new RemoteDebuggerService();
-		
-			remoteDebugger.Attach(S, "MyScript", false);
+			string str = t.Serialize();
 
-			Process.Start(remoteDebugger.HttpUrlStringLocalHost);
-	
-			S.DoString(@"
+			Script s = new Script();
 
-local hi = 'hello'
+			var exp = s.CreateDynamicExpression(str);
 
-local function test()
-    print(hi)
-end
+			DynValue D = exp.Evaluate(null);
 
-test();
+			//File.WriteAllText(@"c:\temp\luadump.lua", str);
+			//File.WriteAllText(@"c:\temp\luadump2.lua", D.Table.Serialize());
 
-hi = 'X'
+			HardwireGeneratorRegistry.AutoRegister();
 
-test();
+			HardwireCodeGenerator hcg = new HardwireCodeGenerator(t);
 
-local hi = '!';
+			hcg.GenerateCode();
 
-test();
+			//Console.WriteLine(str);
+			Console.WriteLine("--done");
 
+			//Console.ReadKey();
 
-
-
-");
-
-			Console.WriteLine("DONE");
-
-			Console.ReadKey();
 		}
 
 

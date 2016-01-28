@@ -35,6 +35,10 @@ namespace MoonSharp.Interpreter
 		/// </summary>
 		BackgroundOptimized,
 		/// <summary>
+		/// Use the hardwired descriptor(s)
+		/// </summary>
+		Hardwired,
+		/// <summary>
 		/// No optimization is done, and members are not accessible at all.
 		/// </summary>
 		HideMembers,

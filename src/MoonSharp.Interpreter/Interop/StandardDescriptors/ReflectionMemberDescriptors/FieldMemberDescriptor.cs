@@ -14,7 +14,7 @@ namespace MoonSharp.Interpreter.Interop
 	/// <summary>
 	/// Class providing easier marshalling of CLR fields
 	/// </summary>
-	public class FieldMemberDescriptor : IMemberDescriptor, IOptimizableDescriptor
+	public class FieldMemberDescriptor : IMemberDescriptor, IOptimizableDescriptor, ISerializableReflectionDescriptor
 	{
 		/// <summary>
 		/// Gets the FieldInfo got by reflection
@@ -208,6 +208,16 @@ namespace MoonSharp.Interpreter.Interop
 		{
 			if (m_OptimizedGetter == null)
 				this.OptimizeGetter();
+		}
+
+		public void Serialize(Table t)
+		{
+			t.Set("class", DynValue.NewString(this.GetType().FullName));
+			t.Set("name", DynValue.NewString(this.Name));
+			t.Set("static", DynValue.NewBoolean(this.IsStatic));
+			t.Set("const", DynValue.NewBoolean(this.IsConst));
+			t.Set("readonly", DynValue.NewBoolean(this.IsReadonly));
+			t.Set("type", DynValue.NewString(this.FieldInfo.FieldType.FullName));
 		}
 	}
 }

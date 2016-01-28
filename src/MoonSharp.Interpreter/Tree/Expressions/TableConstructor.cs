@@ -8,14 +8,17 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 {
 	class TableConstructor : Expression 
 	{
+		bool m_Shared = false;
 		List<Expression> m_PositionalValues = new List<Expression>();
 		List<KeyValuePair<Expression, Expression>> m_CtorArgs = new List<KeyValuePair<Expression, Expression>>();
 
-		public TableConstructor(ScriptLoadingContext lcontext)
+		public TableConstructor(ScriptLoadingContext lcontext, bool shared)
 			: base(lcontext)
 		{
+			m_Shared = shared;
+
 			// here lexer is at the '{', go on
-			CheckTokenType(lcontext, TokenType.Brk_Open_Curly);
+			CheckTokenType(lcontext, TokenType.Brk_Open_Curly, TokenType.Brk_Open_Curly_Shared);
 
 			while (lcontext.Lexer.Current.Type != TokenType.Brk_Close_Curly)
 			{
@@ -91,7 +94,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 		public override void Compile(Execution.VM.ByteCode bc)
 		{
-			bc.Emit_NewTable();
+			bc.Emit_NewTable(m_Shared);
 
 			foreach (var kvp in m_CtorArgs)
 			{
@@ -110,7 +113,26 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 		public override DynValue Eval(ScriptExecutionContext context)
 		{
-			throw new DynamicExpressionException("Dynamic Expressions cannot define new tables.");
+			if (!this.m_Shared)
+			{
+				throw new DynamicExpressionException("Dynamic Expressions cannot define new non-prime tables.");
+			}
+
+			DynValue tval = DynValue.NewPrimeTable();
+			Table t = tval.Table;
+
+			int idx = 0;
+			foreach (Expression e in m_PositionalValues)
+			{
+				t.Set(++idx, e.Eval(context));
+			}
+
+			foreach (KeyValuePair<Expression, Expression> kvp in this.m_CtorArgs)
+			{
+				t.Set(kvp.Key.Eval(context), kvp.Value.Eval(context));
+			}
+
+			return tval;
 		}
 	}
 }

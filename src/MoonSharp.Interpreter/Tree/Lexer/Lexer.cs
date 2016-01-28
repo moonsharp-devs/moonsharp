@@ -201,6 +201,8 @@ namespace MoonSharp.Interpreter.Tree
 					return CreateSingleCharToken(TokenType.Op_Mod, fromLine, fromCol);
 				case '^':
 					return CreateSingleCharToken(TokenType.Op_Pwr, fromLine, fromCol);
+				case '$':
+					return PotentiallyDoubleCharOperator('{', TokenType.Op_Dollar, TokenType.Brk_Open_Curly_Shared, fromLine, fromCol);
 				case '#':
 					if (m_Cursor == 0 && m_Code.Length > 1 && m_Code[1] == '!')
 						return ReadHashBang(fromLine, fromCol);

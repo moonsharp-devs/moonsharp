@@ -54,9 +54,10 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 					}
 					break;
 				case TokenType.Brk_Open_Curly:
+				case TokenType.Brk_Open_Curly_Shared:
 					{
 						m_Arguments = new List<Expression>();
-						m_Arguments.Add(new TableConstructor(lcontext));
+						m_Arguments.Add(new TableConstructor(lcontext, lcontext.Lexer.Current.Type == TokenType.Brk_Open_Curly_Shared));
 						SourceRef = callToken.GetSourceRefUpTo(lcontext.Lexer.Current);
 					}
 					break;

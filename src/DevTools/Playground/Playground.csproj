@@ -41,8 +41,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Generators\MethodMemberDescriptorGenerator.cs" />
+    <Compile Include="Generators\OverloadedMethodMemberDescriptorGenerator.cs" />
+    <Compile Include="Generators\StandardUserDataDescriptorGenerator.cs" />
+    <Compile Include="Infrastructure\HardwireCodeGenerator.cs" />
+    <Compile Include="Infrastructure\NullGenerator.cs" />
+    <Compile Include="Infrastructure\HardwireParserRegistry.cs" />
+    <Compile Include="Infrastructure\IHardwireGenerator.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Test.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -57,6 +65,7 @@
       <Name>MoonSharp.RemoteDebugger.net35-client</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

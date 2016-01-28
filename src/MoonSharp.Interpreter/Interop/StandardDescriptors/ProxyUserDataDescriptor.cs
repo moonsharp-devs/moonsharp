@@ -2,13 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MoonSharp.Interpreter.Interop.BasicDescriptors;
 
 namespace MoonSharp.Interpreter.Interop
 {
 	/// <summary>
 	/// Data descriptor used for proxy objects
 	/// </summary>
-	public sealed class ProxyUserDataDescriptor : IUserDataDescriptor
+	public sealed class ProxyUserDataDescriptor : IUserDataDescriptor,
+		ISerializableReflectionDescriptor
 	{
 		IUserDataDescriptor m_ProxyDescriptor;
 		IProxyFactory m_ProxyFactory;
@@ -122,6 +124,24 @@ namespace MoonSharp.Interpreter.Interop
 		public bool IsTypeCompatible(Type type, object obj)
 		{
 			return type.IsInstanceOfType(obj);
+		}
+
+		public void Serialize(Table t)
+		{
+			t.Set("class", DynValue.NewString(this.GetType().FullName));
+
+			ISerializableReflectionDescriptor sd = m_ProxyDescriptor as ISerializableReflectionDescriptor;
+
+			if (sd != null)
+			{
+				DynValue tm = DynValue.NewPrimeTable();
+				t.Set("proxy", tm);
+				sd.Serialize(tm.Table);
+			}
+			else
+			{
+				t.Set("proxy", DynValue.NewString("unsupported"));
+			}
 		}
 	}
 }

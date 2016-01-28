@@ -17,7 +17,7 @@ namespace MoonSharp.Interpreter.Interop
 	/// <summary>
 	/// Class providing easier marshalling of CLR functions
 	/// </summary>
-	public class MethodMemberDescriptor : FunctionMemberDescriptorBase, IOptimizableDescriptor
+	public class MethodMemberDescriptor : FunctionMemberDescriptorBase, IOptimizableDescriptor, ISerializableReflectionDescriptor
 	{
 		/// <summary>
 		/// Gets the method information (can be a MethodInfo or ConstructorInfo)
@@ -259,5 +259,35 @@ namespace MoonSharp.Interpreter.Interop
 			}
 		}
 
+
+		public void Serialize(Table t)
+		{
+			t.Set("class", DynValue.NewString(this.GetType().FullName));
+			t.Set("name", DynValue.NewString(this.Name));
+			t.Set("ctor", DynValue.NewBoolean(this.IsConstructor));
+
+			if (this.IsConstructor)
+				t.Set("ret", DynValue.NewString(((ConstructorInfo)this.MethodInfo).DeclaringType.FullName));
+			else
+				t.Set("ret", DynValue.NewString(((MethodInfo)this.MethodInfo).ReturnType.FullName));
+
+
+			t.Set("decltype", DynValue.NewString(this.MethodInfo.DeclaringType.FullName));
+			t.Set("static", DynValue.NewBoolean(this.IsStatic));
+			t.Set("extension", DynValue.NewBoolean(this.ExtensionMethodType != null));
+
+			var pars = DynValue.NewPrimeTable();
+
+			t.Set("params", pars);
+
+			int i = 0; 
+
+			foreach (var p in Parameters)
+			{
+				DynValue pt = DynValue.NewPrimeTable();
+				pars.Table.Set(++i, pt);
+				p.Serialize(pt.Table);
+			}
+		}
 	}
 }

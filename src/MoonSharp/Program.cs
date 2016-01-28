@@ -9,6 +9,7 @@ using MoonSharp.Interpreter;
 using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Loaders;
 using MoonSharp.Interpreter.REPL;
+using MoonSharp.Interpreter.Serialization;
 using MoonSharp.RemoteDebugger;
 using MoonSharp.RemoteDebugger.Network;
 
@@ -23,10 +24,11 @@ namespace MoonSharp
 		{
 			Script.DefaultOptions.ScriptLoader = new ReplInterpreterScriptLoader();
 
-			Console.WriteLine("MoonSharp REPL {0} [{1}]", Script.VERSION, Script.GlobalOptions.Platform.GetPlatformName());
-			Console.WriteLine("Copyright (C) 2014-2015 Marco Mastropaolo");
+			Console.WriteLine("MoonSharp Console {0} [{1}]", Script.VERSION, Script.GlobalOptions.Platform.GetPlatformName());
+			Console.WriteLine("Copyright (C) 2014-2016 Marco Mastropaolo");
 			Console.WriteLine("http://www.moonsharp.org");
 			Console.WriteLine();
+
 
 			if (args.Length == 1)
 			{

@@ -221,6 +221,15 @@ namespace MoonSharp.Interpreter
 			};
 		}
 
+		/// <summary>
+		/// Creates a new writable value initialized to an empty prime table (a 
+		/// prime table is a table made only of numbers, strings, booleans and other
+		/// prime tables).
+		/// </summary>
+		public static DynValue NewPrimeTable()
+		{
+			return NewTable(new Table(null));
+		}
 
 		/// <summary>
 		/// Creates a new writable value initialized to an empty table.

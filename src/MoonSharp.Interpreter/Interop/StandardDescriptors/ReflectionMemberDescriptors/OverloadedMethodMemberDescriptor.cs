@@ -12,7 +12,7 @@ namespace MoonSharp.Interpreter.Interop
 	/// <summary>
 	/// Class providing easier marshalling of overloaded CLR functions
 	/// </summary>
-	public class OverloadedMethodMemberDescriptor : IOptimizableDescriptor, IMemberDescriptor
+	public class OverloadedMethodMemberDescriptor : IOptimizableDescriptor, IMemberDescriptor, ISerializableReflectionDescriptor
 	{
 		/// <summary>
 		/// Comparer class for IOverloadableMemberDescriptor
@@ -483,6 +483,33 @@ namespace MoonSharp.Interpreter.Interop
 		public void SetValue(Script script, object obj, DynValue value)
 		{
 			this.CheckAccess(MemberDescriptorAccess.CanWrite, obj);
+		}
+
+		public void Serialize(Table t)
+		{
+			t.Set("class", DynValue.NewString(this.GetType().FullName));
+			t.Set("name", DynValue.NewString(this.Name));
+			t.Set("decltype", DynValue.NewString(this.DeclaringType.FullName));
+			DynValue mst = DynValue.NewPrimeTable();
+			t.Set("overloads", mst);
+
+			int i = 0;
+
+			foreach (var m in this.m_Overloads)
+			{
+				ISerializableReflectionDescriptor sd = m as ISerializableReflectionDescriptor;
+
+				if (sd != null)
+				{
+					DynValue mt = DynValue.NewPrimeTable();
+					mst.Table.Set(++i, mt);
+					sd.Serialize(mt.Table);
+				}
+				else
+				{
+					mst.Table.Set(++i, DynValue.NewString("unsupported"));
+				}
+			}
 		}
 	}
 }
