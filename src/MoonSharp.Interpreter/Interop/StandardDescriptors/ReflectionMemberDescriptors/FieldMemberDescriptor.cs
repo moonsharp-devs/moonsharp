@@ -217,7 +217,10 @@ namespace MoonSharp.Interpreter.Interop
 			t.Set("static", DynValue.NewBoolean(this.IsStatic));
 			t.Set("const", DynValue.NewBoolean(this.IsConst));
 			t.Set("readonly", DynValue.NewBoolean(this.IsReadonly));
+			t.Set("decltype", DynValue.NewString(this.FieldInfo.DeclaringType.FullName));
 			t.Set("type", DynValue.NewString(this.FieldInfo.FieldType.FullName));
+			t.Set("read", DynValue.NewBoolean(true));
+			t.Set("write", DynValue.NewBoolean(!(this.IsConst || this.IsReadonly)));
 		}
 	}
 }

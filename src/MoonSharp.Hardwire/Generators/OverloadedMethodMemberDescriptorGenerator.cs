@@ -3,12 +3,11 @@ using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using MoonSharp.Interpreter;
 using MoonSharp.Interpreter.Interop;
 using MoonSharp.Interpreter.Interop.BasicDescriptors;
 
-namespace Playground.Generators
+namespace MoonSharp.Hardwire.Generators
 {
 	class OverloadedMethodMemberDescriptorGenerator : IHardwireGenerator
 	{
@@ -17,7 +16,7 @@ namespace Playground.Generators
 			get { return "MoonSharp.Interpreter.Interop.OverloadedMethodMemberDescriptor"; }
 		}
 
-		public CodeExpression[] Generate(Table table, HardwireCodeGenerator generator,
+		public CodeExpression[] Generate(Table table, HardwireCodeGenerationContext generator,
 			CodeTypeMemberCollection members)
 		{
 			List<CodeExpression> initializers = new List<CodeExpression>();

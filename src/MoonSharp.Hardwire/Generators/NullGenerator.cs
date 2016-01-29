@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using MoonSharp.Interpreter;
 
-namespace Playground
+namespace MoonSharp.Hardwire.Generators
 {
-	public class NullGenerator : IHardwireGenerator
+	internal class NullGenerator : IHardwireGenerator
 	{
 		public NullGenerator()
 		{
@@ -25,7 +25,7 @@ namespace Playground
 			private set;
 		}
 
-		public CodeExpression[] Generate(Table table, HardwireCodeGenerator generator, CodeTypeMemberCollection members)
+		public CodeExpression[] Generate(Table table, HardwireCodeGenerationContext generator, CodeTypeMemberCollection members)
 		{
 			generator.Error("WARNING: Generation of '{0}' not supported.", ManagedType);
 

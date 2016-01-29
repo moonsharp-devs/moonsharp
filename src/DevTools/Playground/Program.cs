@@ -11,10 +11,24 @@ using MoonSharp.Interpreter.Interop;
 using MoonSharp.RemoteDebugger;
 using System.IO;
 using System.CodeDom.Compiler;
+using MoonSharp.Hardwire;
 
-namespace Playground
+namespace MoonSharp.Playground
 {
-	
+	class ConsoleLogger : ICodeGenerationLogger
+	{
+		public void LogError(string message)
+		{
+			Console.WriteLine("[EE] - " + message);
+		}
+
+		public void LogWarning(string message)
+		{
+			Console.WriteLine("[ww] - " + message);
+		}
+	}
+
+
 	class Program
 	{
 		static void Main(string[] args)
@@ -24,21 +38,17 @@ namespace Playground
 			Table t = UserData.GetDescriptionOfRegisteredTypes();
 
 			string str = t.Serialize();
+			File.WriteAllText(@"c:\temp\luadump.lua", str);
 
-			Script s = new Script();
+			HardwireGeneratorRegistry.RegisterPredefined();
 
-			var exp = s.CreateDynamicExpression(str);
+			HardwireGenerator hcg = new HardwireGenerator("MyNamespace", "MyClass", new ConsoleLogger());
 
-			DynValue D = exp.Evaluate(null);
+			hcg.BuildCodeModel(t);
 
-			//File.WriteAllText(@"c:\temp\luadump.lua", str);
-			//File.WriteAllText(@"c:\temp\luadump2.lua", D.Table.Serialize());
+			string code = hcg.GenerateSourceCode();
 
-			HardwireGeneratorRegistry.AutoRegister();
-
-			HardwireCodeGenerator hcg = new HardwireCodeGenerator(t);
-
-			hcg.GenerateCode();
+			File.WriteAllText(@"c:\temp\gen.cs", code);
 
 			//Console.WriteLine(str);
 			Console.WriteLine("--done");

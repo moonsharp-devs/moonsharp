@@ -121,6 +121,46 @@ namespace MoonSharp.Interpreter.Interop
 
 
 		/// <summary>
+		/// Determines whether the string is a valid simple identifier (starts with letter or underscore
+		/// and contains only letters, digits and underscores).
+		/// </summary>
+		public static bool IsValidSimpleIdentifier(string str)
+		{
+			if (string.IsNullOrEmpty(str))
+				return false;
+
+			if (str[0] != '_' && !char.IsLetter(str[0]))
+				return false;
+
+			for (int i = 1; i < str.Length; i++)
+				if (str[i] != '_' && !char.IsLetterOrDigit(str[i]))
+					return false;
+
+			return true;
+		}
+
+		/// <summary>
+		/// Converts the string to a valid simple identifier (starts with letter or underscore
+		/// and contains only letters, digits and underscores).
+		/// </summary>
+		public static string ToValidSimpleIdentifier(string str)
+		{
+			if (string.IsNullOrEmpty(str))
+				return "_";
+
+			if (str[0] != '_' && !char.IsLetter(str[0]))
+				str = "_" + str;
+
+			StringBuilder sb = new StringBuilder(str);
+
+			for (int i = 0; i < sb.Length; i++)
+				if (sb[i] != '_' && !char.IsLetterOrDigit(sb[i]))
+					sb[i] = '_';
+
+			return sb.ToString();
+		}
+
+		/// <summary>
 		/// Converts the specified name from underscore_case to camelCase.
 		/// </summary>
 		/// <param name="name">The name.</param>

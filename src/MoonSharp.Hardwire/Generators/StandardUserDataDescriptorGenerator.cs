@@ -3,11 +3,10 @@ using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using MoonSharp.Interpreter;
 using MoonSharp.Interpreter.Interop.StandardDescriptors.HardwiredDescriptors;
 
-namespace Playground.Generators
+namespace MoonSharp.Hardwire.Generators
 {
 	public class StandardUserDataDescriptorGenerator : IHardwireGenerator
 	{
@@ -16,7 +15,7 @@ namespace Playground.Generators
 			get { return "MoonSharp.Interpreter.Interop.StandardUserDataDescriptor"; }
 		}
 
-		public CodeExpression[] Generate(Table table, HardwireCodeGenerator generator,
+		public CodeExpression[] Generate(Table table, HardwireCodeGenerationContext generator,
 			CodeTypeMemberCollection members)
 		{
 			string type = (string)table["$key"];
@@ -25,7 +24,7 @@ namespace Playground.Generators
 			CodeTypeDeclaration classCode = new CodeTypeDeclaration(className);
 
 			classCode.TypeAttributes = System.Reflection.TypeAttributes.NestedPrivate | System.Reflection.TypeAttributes.Sealed;
-
+			
 			classCode.BaseTypes.Add(typeof(HardwiredUserDataDescriptor));
 
 			CodeConstructor ctor = new CodeConstructor();
@@ -35,17 +34,21 @@ namespace Playground.Generators
 			classCode.Members.Add(ctor);
 
 			generator.DispatchTablePairs(table.Get("members").Table,
-				classCode.Members, exp =>
+				classCode.Members, (key, exp) =>
 				{
+					var mname = new CodePrimitiveExpression(key);
+
 					ctor.Statements.Add(new CodeMethodInvokeExpression(
-						new CodeThisReferenceExpression(), "AddMember", exp));
+						new CodeThisReferenceExpression(), "AddMember", mname, exp));
 				});
 
 			generator.DispatchTablePairs(table.Get("metamembers").Table,
-				classCode.Members, exp =>
+				classCode.Members, (key, exp) =>
 				{
+					var mname = new CodePrimitiveExpression(key);
+					
 					ctor.Statements.Add(new CodeMethodInvokeExpression(
-						new CodeThisReferenceExpression(), "AddMetaMember", exp));
+						new CodeThisReferenceExpression(), "AddMetaMember", mname, exp));
 				});
 
 			members.Add(classCode);

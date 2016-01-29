@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
+using MoonSharp.Hardwire.Generators;
 using MoonSharp.Interpreter;
 
-namespace Playground
+namespace MoonSharp.Hardwire
 {
 	public static class HardwireGeneratorRegistry
 	{
@@ -14,7 +14,7 @@ namespace Playground
 
 		public static void Register(IHardwireGenerator g)
 		{
-			m_Generators.Add(g.ManagedType, g);
+			m_Generators[g.ManagedType] = g;
 		}
 
 		public static IHardwireGenerator GetGenerator(string type)
@@ -25,15 +25,20 @@ namespace Playground
 				return new NullGenerator(type);
 		}
 
-		public static void AutoRegister(Assembly asm = null)
+		public static void RegisterPredefined()
+		{
+			DiscoverFromAssembly(Assembly.GetExecutingAssembly());
+		}
+
+
+		public static void DiscoverFromAssembly(Assembly asm = null)
 		{
 			if (asm == null)
-				asm = Assembly.GetExecutingAssembly();
+				asm = Assembly.GetCallingAssembly();
 
-			foreach (Type type in asm.DefinedTypes
+			foreach (Type type in asm.GetTypes()
 				.Where(t => !(t.IsAbstract || t.IsGenericTypeDefinition || t.IsGenericType))
 				.Where(t => (typeof(IHardwireGenerator)).IsAssignableFrom(t)))
-
 			{
 				IHardwireGenerator g = (IHardwireGenerator)Activator.CreateInstance(type);
 				Register(g);

@@ -14,10 +14,5 @@ namespace MoonSharp.Interpreter.Interop.StandardDescriptors.HardwiredDescriptors
 
 		}
 
-		
-
-
-
-
 	}
 }

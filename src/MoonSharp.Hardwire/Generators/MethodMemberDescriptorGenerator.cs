@@ -3,12 +3,11 @@ using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using MoonSharp.Interpreter;
 using MoonSharp.Interpreter.Interop.BasicDescriptors;
 using MoonSharp.Interpreter.Interop.StandardDescriptors.HardwiredDescriptors;
 
-namespace Playground.Generators
+namespace MoonSharp.Hardwire.Generators
 {
 	class MethodMemberDescriptorGenerator : IHardwireGenerator
 	{
@@ -17,9 +16,9 @@ namespace Playground.Generators
 			get { return "MoonSharp.Interpreter.Interop.MethodMemberDescriptor"; }
 		}
 
-		public CodeExpression[] Generate(Table table, HardwireCodeGenerator generator, CodeTypeMemberCollection members)
+		public CodeExpression[] Generate(Table table, HardwireCodeGenerationContext generator, CodeTypeMemberCollection members)
 		{
-			string className = "HardwiredDescriptor_Method_" + Guid.NewGuid().ToString("N");
+			string className = "M_" + Guid.NewGuid().ToString("N");
 
 			CodeTypeDeclaration classCode = new CodeTypeDeclaration(className);
 
@@ -40,7 +39,7 @@ namespace Playground.Generators
 			int paramNum = 0;
 			int optionalNum = 0;
 
-			for (int i = 1; i < tpars.Length; i++)
+			for (int i = 1; i <= tpars.Length; i++)
 			{
 				Table tpar = tpars.Get(i).Table;
 
@@ -101,10 +100,13 @@ namespace Playground.Generators
 
 			List<CodeExpression[]> calls = new List<CodeExpression[]>();
 
+			string declType = table.Get("decltype").String;
 			var paramArray = new CodeVariableReferenceExpression("pars");
 			var paramThis =
-				new CodeCastExpression(table.Get("decltype").String, new CodeVariableReferenceExpression("obj"));
+				new CodeCastExpression(declType, new CodeVariableReferenceExpression("obj"));
 			var paramArgsCount = new CodeVariableReferenceExpression("argscount");
+
+			bool specialName = table.Get("special").Boolean;
 
 			for(int callidx = paramNum - optionalNum; callidx <= paramNum; callidx++)
 			{
@@ -129,12 +131,12 @@ namespace Playground.Generators
 				CodeExpression condition = new CodeBinaryOperatorExpression(paramArgsCount,
 						CodeBinaryOperatorType.LessThanOrEqual, new CodePrimitiveExpression(argcnt));
 
-				var ifs = new CodeConditionStatement(condition, GenerateCall(table, isVoid, isCtor, isStatic, isExtension, calls[i], paramArray, paramThis).OfType < CodeStatement>().ToArray());
+				var ifs = new CodeConditionStatement(condition, GenerateCall(table, isVoid, isCtor, isStatic, isExtension, calls[i], paramArray, paramThis, declType, specialName).OfType<CodeStatement>().ToArray());
 
 				m.Statements.Add(ifs);
 			}
 
-			m.Statements.AddRange(GenerateCall(table, isVoid, isCtor, isStatic, isExtension, calls[calls.Count - 1], paramArray, paramThis));
+			m.Statements.AddRange(GenerateCall(table, isVoid, isCtor, isStatic, isExtension, calls[calls.Count - 1], paramArray, paramThis, declType, specialName));
 
 
 
@@ -143,7 +145,7 @@ namespace Playground.Generators
 			return new CodeExpression[] { new CodeObjectCreateExpression(className) };
 		}
 
-		private CodeStatementCollection GenerateCall(Table table, bool isVoid, bool isCtor, bool isStatic, bool isExtension, CodeExpression[] codeExpression, CodeExpression paramArray, CodeExpression paramThis)
+		private CodeStatementCollection GenerateCall(Table table, bool isVoid, bool isCtor, bool isStatic, bool isExtension, CodeExpression[] codeExpression, CodeExpression paramArray, CodeExpression paramThis, string declaringType, bool specialName)
 		{
 			CodeStatementCollection coll = new CodeStatementCollection();
 
@@ -151,9 +153,14 @@ namespace Playground.Generators
 			{
 				coll.Add(new CodeMethodReturnStatement(new CodeObjectCreateExpression(table.Get("ret").String, codeExpression)));
 			}
+			else if (specialName)
+			{
+
+
+			}
 			else if (isStatic)
 			{
-				var expr = new CodeMethodInvokeExpression(new CodeTypeReferenceExpression(typeof(UserData)), table.Get("name").String, codeExpression);
+				var expr = new CodeMethodInvokeExpression(new CodeTypeReferenceExpression(declaringType), table.Get("name").String, codeExpression);
 
 				GenerateReturnStatement(isVoid, coll, expr);
 			}

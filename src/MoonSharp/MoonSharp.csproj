@@ -111,6 +111,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\MoonSharp.Hardwire\MoonSharp.Hardwire.net35-client.csproj">
+      <Project>{b25a2316-6897-4caa-be0e-e784071d8199}</Project>
+      <Name>MoonSharp.Hardwire.net35-client</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MoonSharp.Interpreter\MoonSharp.Interpreter.net35-client.csproj">
       <Project>{91ea9b9d-fe03-4273-bdaf-8ad42ede1e59}</Project>
       <Name>MoonSharp.Interpreter.net35-client</Name>

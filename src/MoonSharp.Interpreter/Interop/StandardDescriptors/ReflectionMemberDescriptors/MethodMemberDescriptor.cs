@@ -265,6 +265,7 @@ namespace MoonSharp.Interpreter.Interop
 			t.Set("class", DynValue.NewString(this.GetType().FullName));
 			t.Set("name", DynValue.NewString(this.Name));
 			t.Set("ctor", DynValue.NewBoolean(this.IsConstructor));
+			t.Set("special", DynValue.NewBoolean(this.MethodInfo.IsSpecialName));
 
 			if (this.IsConstructor)
 				t.Set("ret", DynValue.NewString(((ConstructorInfo)this.MethodInfo).DeclaringType.FullName));

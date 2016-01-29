@@ -298,8 +298,8 @@ namespace MoonSharp.Interpreter.Interop
 			t.Set("static", DynValue.NewBoolean(this.IsStatic));
 			t.Set("read", DynValue.NewBoolean(this.CanRead));
 			t.Set("write", DynValue.NewBoolean(this.CanWrite));
-
-			t.Set("propertytype", DynValue.NewString(this.PropertyInfo.PropertyType.FullName));
+			t.Set("decltype", DynValue.NewString(this.PropertyInfo.DeclaringType.FullName));
+			t.Set("type", DynValue.NewString(this.PropertyInfo.PropertyType.FullName));
 		}
 	}
 }
