@@ -5,7 +5,7 @@ using MoonSharp.Interpreter.Execution;
 using NUnit.Framework;
 using MoonSharp.Interpreter.Loaders;
 
-namespace MoonSharp.Interpreter.Tests
+namespace MoonSharp.Interpreter.Tests.EndToEnd
 {
 	[TestFixture]
 	public class SimpleTests

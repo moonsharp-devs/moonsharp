@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using MoonSharp.Interpreter;
+using MoonSharp.Interpreter.Interop;
 using MoonSharp.Interpreter.Interop.BasicDescriptors;
 using MoonSharp.Interpreter.Interop.StandardDescriptors.HardwiredDescriptors;
 
@@ -102,8 +103,10 @@ namespace MoonSharp.Hardwire.Generators
 
 			string declType = table.Get("decltype").String;
 			var paramArray = new CodeVariableReferenceExpression("pars");
-			var paramThis =
-				new CodeCastExpression(declType, new CodeVariableReferenceExpression("obj"));
+			var paramThis = isStatic
+				? (CodeExpression)(new CodeTypeReferenceExpression(declType))
+				: (CodeExpression)(new CodeCastExpression(declType, new CodeVariableReferenceExpression("obj")));
+
 			var paramArgsCount = new CodeVariableReferenceExpression("argscount");
 
 			bool specialName = table.Get("special").Boolean;
@@ -131,12 +134,12 @@ namespace MoonSharp.Hardwire.Generators
 				CodeExpression condition = new CodeBinaryOperatorExpression(paramArgsCount,
 						CodeBinaryOperatorType.LessThanOrEqual, new CodePrimitiveExpression(argcnt));
 
-				var ifs = new CodeConditionStatement(condition, GenerateCall(table, isVoid, isCtor, isStatic, isExtension, calls[i], paramArray, paramThis, declType, specialName).OfType<CodeStatement>().ToArray());
+				var ifs = new CodeConditionStatement(condition, GenerateCall(table, generator, isVoid, isCtor, isStatic, isExtension, calls[i], paramThis, declType, specialName).OfType<CodeStatement>().ToArray());
 
 				m.Statements.Add(ifs);
 			}
 
-			m.Statements.AddRange(GenerateCall(table, isVoid, isCtor, isStatic, isExtension, calls[calls.Count - 1], paramArray, paramThis, declType, specialName));
+			m.Statements.AddRange(GenerateCall(table, generator, isVoid, isCtor, isStatic, isExtension, calls[calls.Count - 1],  paramThis, declType, specialName));
 
 
 
@@ -145,34 +148,6 @@ namespace MoonSharp.Hardwire.Generators
 			return new CodeExpression[] { new CodeObjectCreateExpression(className) };
 		}
 
-		private CodeStatementCollection GenerateCall(Table table, bool isVoid, bool isCtor, bool isStatic, bool isExtension, CodeExpression[] codeExpression, CodeExpression paramArray, CodeExpression paramThis, string declaringType, bool specialName)
-		{
-			CodeStatementCollection coll = new CodeStatementCollection();
-
-			if (isCtor)
-			{
-				coll.Add(new CodeMethodReturnStatement(new CodeObjectCreateExpression(table.Get("ret").String, codeExpression)));
-			}
-			else if (specialName)
-			{
-
-
-			}
-			else if (isStatic)
-			{
-				var expr = new CodeMethodInvokeExpression(new CodeTypeReferenceExpression(declaringType), table.Get("name").String, codeExpression);
-
-				GenerateReturnStatement(isVoid, coll, expr);
-			}
-			else
-			{
-				var expr = new CodeMethodInvokeExpression(paramThis, table.Get("name").String, codeExpression);
-
-				GenerateReturnStatement(isVoid, coll, expr);
-			}
-
-			return coll;
-		}
 
 		private static void GenerateReturnStatement(bool isVoid, CodeStatementCollection coll, CodeMethodInvokeExpression expr)
 		{
@@ -184,5 +159,179 @@ namespace MoonSharp.Hardwire.Generators
 			else
 				coll.Add(new CodeMethodReturnStatement(expr));
 		}
+
+
+
+		private CodeStatementCollection GenerateCall(Table table, HardwireCodeGenerationContext generator, bool isVoid, bool isCtor, bool isStatic, bool isExtension, CodeExpression[] arguments, CodeExpression paramThis, string declaringType, bool specialName)
+		{
+			CodeStatementCollection coll = new CodeStatementCollection();
+
+			if (isCtor)
+			{
+				coll.Add(new CodeMethodReturnStatement(new CodeObjectCreateExpression(table.Get("ret").String, arguments)));
+			}
+			else if (specialName)
+			{
+				GenerateSpecialNameCall(table, generator, isVoid, isCtor, isStatic, isExtension,
+					arguments, paramThis, declaringType, table.Get("name").String, coll);
+			}
+			else
+			{
+				var expr = new CodeMethodInvokeExpression(paramThis, table.Get("name").String, arguments);
+
+				GenerateReturnStatement(isVoid, coll, expr);
+			}
+
+			return coll;
+		}
+
+
+
+		private void GenerateSpecialNameCall(Table table, HardwireCodeGenerationContext generator, bool isVoid, bool isCtor, bool isStatic, bool isExtension, CodeExpression[] arguments, CodeExpression paramThis, string declaringType, string specialName, CodeStatementCollection coll)
+		{
+			ReflectionSpecialName special = new ReflectionSpecialName(specialName);
+			CodeExpression exp = null;
+			CodeStatement stat = null;
+
+			switch (special.Type)
+			{
+				case ReflectionSpecialNameType.IndexGetter:
+					if (isStatic)
+						EmitInvalid(generator, coll, "Static indexers are not supported by hardwired descriptors.");
+					else
+						exp = new CodeIndexerExpression(paramThis, arguments);
+					break;
+				case ReflectionSpecialNameType.IndexSetter:
+					if (isStatic)
+						EmitInvalid(generator, coll, "Static indexers are not supported by hardwired descriptors.");
+					else
+						stat = new CodeAssignStatement(new CodeIndexerExpression(paramThis,
+							arguments.Take(arguments.Length - 1).ToArray()), arguments.Last());
+					break;
+				case ReflectionSpecialNameType.ImplicitCast:
+				case ReflectionSpecialNameType.ExplicitCast:
+					exp = paramThis;
+					break;
+				case ReflectionSpecialNameType.OperatorTrue:
+					GenerateBooleanOperator(paramThis, coll, true);
+					break;
+				case ReflectionSpecialNameType.OperatorFalse:
+					generator.Minor("'false' operator is implemented in terms of 'true' operator.");
+					GenerateBooleanOperator(paramThis, coll, false);
+					break;
+				case ReflectionSpecialNameType.PropertyGetter:
+					exp = new CodePropertyReferenceExpression(paramThis, special.Argument);
+					break;
+				case ReflectionSpecialNameType.PropertySetter:
+					stat = new CodeAssignStatement(new CodePropertyReferenceExpression(paramThis, special.Argument), arguments[0]);
+					break;
+				case ReflectionSpecialNameType.OperatorAdd:
+					exp = BinaryOperator(CodeBinaryOperatorType.Add, paramThis, arguments);
+					break;
+				case ReflectionSpecialNameType.OperatorAnd:
+					exp = BinaryOperator(CodeBinaryOperatorType.BitwiseAnd, paramThis, arguments);
+					break;
+				case ReflectionSpecialNameType.OperatorOr:
+					exp = BinaryOperator(CodeBinaryOperatorType.BitwiseOr, paramThis, arguments);
+					break;
+				case ReflectionSpecialNameType.OperatorDec:
+					exp = generator.TargetLanguage.UnaryDecrement(arguments[0]);
+					if (exp == null) EmitInvalid(generator, coll, string.Format("Language {0} does not support decrement operators.", generator.TargetLanguage.Name));
+					break;
+				case ReflectionSpecialNameType.OperatorDiv:
+					exp = BinaryOperator(CodeBinaryOperatorType.Divide, paramThis, arguments);
+					break;
+				case ReflectionSpecialNameType.OperatorEq:
+					exp = BinaryOperator(CodeBinaryOperatorType.ValueEquality, paramThis, arguments);
+					break;
+				case ReflectionSpecialNameType.OperatorXor:
+					exp = generator.TargetLanguage.BinaryXor(arguments[0], arguments[1]);
+					if (exp == null) EmitInvalid(generator, coll, string.Format("Language {0} does not support XOR operators.", generator.TargetLanguage.Name));
+					break;
+				case ReflectionSpecialNameType.OperatorGt:
+					exp = BinaryOperator(CodeBinaryOperatorType.GreaterThan, paramThis, arguments);
+					break;
+				case ReflectionSpecialNameType.OperatorGte:
+					exp = BinaryOperator(CodeBinaryOperatorType.GreaterThanOrEqual, paramThis, arguments);
+					break;
+				case ReflectionSpecialNameType.OperatorInc:
+					exp = generator.TargetLanguage.UnaryIncrement(arguments[0]);
+					if (exp == null) EmitInvalid(generator, coll, string.Format("Language {0} does not support increment operators.", generator.TargetLanguage.Name));
+					break;
+				case ReflectionSpecialNameType.OperatorNeq:
+					exp = BinaryOperator(CodeBinaryOperatorType.IdentityInequality, paramThis, arguments);
+					break;
+				case ReflectionSpecialNameType.OperatorLt:
+					exp = BinaryOperator(CodeBinaryOperatorType.LessThan, paramThis, arguments);
+					break;
+				case ReflectionSpecialNameType.OperatorLte:
+					exp = BinaryOperator(CodeBinaryOperatorType.LessThanOrEqual, paramThis, arguments);
+					break;
+				case ReflectionSpecialNameType.OperatorNot:
+					exp = generator.TargetLanguage.UnaryLogicalNot(arguments[0]);
+					if (exp == null) EmitInvalid(generator, coll, string.Format("Language {0} does not support logical NOT operators.", generator.TargetLanguage.Name));
+					break;
+				case ReflectionSpecialNameType.OperatorMod:
+					exp = BinaryOperator(CodeBinaryOperatorType.Modulus, paramThis, arguments);
+					break;
+				case ReflectionSpecialNameType.OperatorMul:
+					exp = BinaryOperator(CodeBinaryOperatorType.Multiply, paramThis, arguments);
+					break;
+				case ReflectionSpecialNameType.OperatorCompl:
+					exp = generator.TargetLanguage.UnaryOneComplement(arguments[0]);
+					if (exp == null) EmitInvalid(generator, coll, string.Format("Language {0} does not support bitwise NOT operators.", generator.TargetLanguage.Name));
+					break;
+				case ReflectionSpecialNameType.OperatorSub:
+					exp = BinaryOperator(CodeBinaryOperatorType.Subtract, paramThis, arguments);
+					break;
+				case ReflectionSpecialNameType.OperatorNeg:
+					exp = generator.TargetLanguage.UnaryNegation(arguments[0]);
+					if (exp == null) EmitInvalid(generator, coll, string.Format("Language {0} does not support negation operators.", generator.TargetLanguage.Name));
+					break;
+				case ReflectionSpecialNameType.OperatorUnaryPlus:
+					exp = generator.TargetLanguage.UnaryPlus(arguments[0]);
+					if (exp == null) EmitInvalid(generator, coll, string.Format("Language {0} does not support unary + operators.", generator.TargetLanguage.Name));
+					break;
+				case ReflectionSpecialNameType.AddEvent:
+					break;
+				case ReflectionSpecialNameType.RemoveEvent:
+					break;
+				default:
+					break;
+			}
+
+			if (stat != null)
+			{
+				coll.Add(stat);
+				exp = exp ?? new CodePrimitiveExpression(null);
+			}
+
+			if (exp != null)
+				coll.Add(new CodeMethodReturnStatement(exp));
+		}
+
+		private CodeExpression BinaryOperator(CodeBinaryOperatorType codeBinaryOperatorType, CodeExpression paramThis, CodeExpression[] arguments)
+		{
+			return new CodeBinaryOperatorExpression(arguments[0], codeBinaryOperatorType, arguments[1]);
+		}
+
+		private void GenerateBooleanOperator(CodeExpression paramThis, CodeStatementCollection coll, bool boolOp)
+		{
+			coll.Add(new CodeConditionStatement(paramThis,
+				new CodeStatement[] { new CodeMethodReturnStatement(new CodePrimitiveExpression(boolOp)) },
+				new CodeStatement[] { new CodeMethodReturnStatement(new CodePrimitiveExpression(!boolOp)) }));
+		}
+
+		private void EmitInvalid(HardwireCodeGenerationContext generator, CodeStatementCollection coll, string message)
+		{
+			generator.Warning(message);
+			coll.Add(new CodeThrowExceptionStatement(new CodeObjectCreateExpression(typeof(InvalidOperationException), 
+				new CodePrimitiveExpression(message))));
+		}
+
+
+
+
+
 	}
 }

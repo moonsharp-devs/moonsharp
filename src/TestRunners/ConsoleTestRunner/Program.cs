@@ -12,6 +12,7 @@ using NUnit.Framework;
 using System.Diagnostics;
 using System.IO;
 using MoonSharp.Interpreter;
+using MoonSharp.Interpreter.Serialization;
 
 namespace MoonSharpTests
 {
@@ -90,6 +91,8 @@ namespace MoonSharpTests
 					Console.ReadKey();
 				}
 
+				OnTestEnded();
+
 				return T.Fail;
 			}
 			catch (Exception ex)
@@ -97,6 +100,15 @@ namespace MoonSharpTests
 				Console.WriteLine(ex.ToString());
 				return 999;
 			}
+		}
+
+		private static void OnTestEnded()
+		{
+			Table dump = UserData.GetDescriptionOfRegisteredTypes(true);
+
+			string str = dump.Serialize();
+
+			File.WriteAllText(@"c:\temp\testdump.lua", str);
 		}
 
 		private static void Log(TestResult r)

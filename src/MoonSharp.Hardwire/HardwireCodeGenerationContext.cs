@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using MoonSharp.Hardwire.Languages;
 using MoonSharp.Interpreter;
 
 namespace MoonSharp.Hardwire
@@ -25,8 +26,16 @@ namespace MoonSharp.Hardwire
 		CodeNamespace m_Namespace;
 		ICodeGenerationLogger m_Logger;
 
-		internal HardwireCodeGenerationContext(string namespaceName, string entryClassName, ICodeGenerationLogger logger)
+		Stack<string> m_NestStack = new Stack<string>();
+
+		public HardwireCodeGenerationLanguage TargetLanguage { get; private set; }
+
+
+		internal HardwireCodeGenerationContext(string namespaceName, string entryClassName, ICodeGenerationLogger logger,
+			HardwireCodeGenerationLanguage language)
 		{
+			TargetLanguage = language;
+
 			m_Logger = logger;
 
 			CompileUnit = new CodeCompileUnit();
@@ -83,9 +92,21 @@ namespace MoonSharp.Hardwire
 				}
 				else
 				{
-					Error("Type/Member '{0}' cannot be hardwired.", pair.Key.String);
+					if (pair.Value.Type == DataType.String)
+					{
+						Error("Type/Member '{0}' cannot be hardwired, error = '{1}' (stack = {2}).", pair.Key.String ?? "(null)", pair.Value.String ?? "(null)", GetStackTrace());
+					}
+					else
+					{
+						Error("Type/Member '{0}' cannot be hardwired (stack = {1}).", pair.Key.String ?? "(null)", GetStackTrace());
+					}
 				}
 			}
+		}
+
+		public string GetStackTrace()
+		{
+			return string.Join(" - ", m_NestStack.ToArray());
 		}
 
 		/// <summary>
@@ -114,10 +135,18 @@ namespace MoonSharp.Hardwire
 			if (d.Type != DataType.String)
 				throw new ArgumentException("table cannot be dispatched as it has no class or class of invalid type.");
 
+			//m_NestStack.Push(string.Format("{0}[{1}]", key, d.String));
+
+			m_NestStack.Push((key ?? d.String) ?? "(null)");
+
 			table.Set("$key", DynValue.NewString(key));
 
 			var gen = HardwireGeneratorRegistry.GetGenerator(d.String);
-			return gen.Generate(table, this, members);
+			var result = gen.Generate(table, this, members);
+
+			m_NestStack.Pop();
+
+			return result;
 		}
 
 		/// <summary>
@@ -155,6 +184,17 @@ namespace MoonSharp.Hardwire
 			m_Logger.LogWarning(str);
 		}
 
+		/// <summary>
+		/// Reports a code generation warning message
+		/// </summary>
+		/// <param name="format">The format.</param>
+		/// <param name="args">The arguments.</param>
+		public void Minor(string format, params object[] args)
+		{
+			string str = string.Format(format, args);
+			m_Namespace.Comments.Add(new CodeCommentStatement("Minor : " + str));
+			m_Logger.LogMinor(str);
+		}
 
 
 

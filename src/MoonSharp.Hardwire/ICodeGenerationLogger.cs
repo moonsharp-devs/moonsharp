@@ -9,5 +9,6 @@ namespace MoonSharp.Hardwire
 	{
 		void LogError(string message);
 		void LogWarning(string message);
+		void LogMinor(string message);
 	}
 }

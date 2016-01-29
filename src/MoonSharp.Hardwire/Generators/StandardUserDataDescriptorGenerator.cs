@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using MoonSharp.Interpreter;
+using MoonSharp.Interpreter.Interop;
 using MoonSharp.Interpreter.Interop.StandardDescriptors.HardwiredDescriptors;
 
 namespace MoonSharp.Hardwire.Generators
@@ -19,9 +20,17 @@ namespace MoonSharp.Hardwire.Generators
 			CodeTypeMemberCollection members)
 		{
 			string type = (string)table["$key"];
-			string className = "HardwiredDescriptor_" + type.Replace('.', '_');
+			string className = "T_" + Guid.NewGuid().ToString("N");
 
 			CodeTypeDeclaration classCode = new CodeTypeDeclaration(className);
+
+			classCode.Comments.Add(new CodeCommentStatement("Descriptor of " + type));
+
+
+			classCode.StartDirectives.Add(new CodeRegionDirective(CodeRegionMode.Start, "Descriptor of " + type));
+			
+			classCode.EndDirectives.Add(new CodeRegionDirective(CodeRegionMode.End, string.Empty));
+
 
 			classCode.TypeAttributes = System.Reflection.TypeAttributes.NestedPrivate | System.Reflection.TypeAttributes.Sealed;
 			

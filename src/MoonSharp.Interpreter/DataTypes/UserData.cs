@@ -338,11 +338,17 @@ namespace MoonSharp.Interpreter
 		}
 
 
-		public static Table GetDescriptionOfRegisteredTypes()
+		/// <summary>
+		/// Gets a table with the description of registered types.
+		/// </summary>
+		/// <param name="useHistoricalData">if set to true, it will also include the last found descriptor of all unregistered types.</param>
+		/// <returns></returns>
+		public static Table GetDescriptionOfRegisteredTypes(bool useHistoricalData = false)
 		{
 			DynValue output = DynValue.NewPrimeTable();
+			var registeredTypesPairs = useHistoricalData ? TypeDescriptorRegistry.RegisteredTypesHistory : TypeDescriptorRegistry.RegisteredTypes;
 
-			foreach (var descpair in TypeDescriptorRegistry.RegisteredTypes)
+			foreach (var descpair in registeredTypesPairs)
 			{
 				ISerializableReflectionDescriptor sd = descpair.Value as ISerializableReflectionDescriptor;
 
@@ -357,7 +363,7 @@ namespace MoonSharp.Interpreter
 			return output.Table;
 		}
 
-
+		
 
 	}
 }

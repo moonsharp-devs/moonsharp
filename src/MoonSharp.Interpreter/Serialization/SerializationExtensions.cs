@@ -92,7 +92,7 @@ namespace MoonSharp.Interpreter.Serialization
 			else if (dynValue.Type == DataType.Boolean)
 				return dynValue.Boolean ? "true" : "false";
 			else if (dynValue.Type == DataType.String)
-				return EscapeString(dynValue.String);
+				return EscapeString(dynValue.String ?? "");
 			else if (dynValue.Type == DataType.Table && dynValue.Table.OwnerScript == null)
 				return Serialize(dynValue.Table, false, tabs);
 			else

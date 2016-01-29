@@ -6,7 +6,7 @@ using System.Text;
 using MoonSharp.Interpreter.Execution;
 using NUnit.Framework;
 
-namespace MoonSharp.Interpreter.Tests
+namespace MoonSharp.Interpreter.Tests.EndToEnd
 {
 	/// <summary>
 	/// Selected tests extracted from Lua test suite

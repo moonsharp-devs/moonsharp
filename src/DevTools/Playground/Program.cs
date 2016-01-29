@@ -12,6 +12,7 @@ using MoonSharp.RemoteDebugger;
 using System.IO;
 using System.CodeDom.Compiler;
 using MoonSharp.Hardwire;
+using MoonSharp.Hardwire.Languages;
 
 namespace MoonSharp.Playground
 {
@@ -26,6 +27,11 @@ namespace MoonSharp.Playground
 		{
 			Console.WriteLine("[ww] - " + message);
 		}
+
+		public void LogMinor(string message)
+		{
+			Console.WriteLine("[ii] - " + message);
+		}
 	}
 
 
@@ -33,16 +39,21 @@ namespace MoonSharp.Playground
 	{
 		static void Main(string[] args)
 		{
-			UserData.RegisterType<Script>();
+			UserData.RegisterType<int[]>();
 
-			Table t = UserData.GetDescriptionOfRegisteredTypes();
+			//Table t = UserData.GetDescriptionOfRegisteredTypes();
+
+			Script s = new Script();
+			var eee = s.CreateDynamicExpression(File.ReadAllText(@"c:\temp\testdump.lua"));
+
+			Table t = eee.Evaluate(null).Table;
 
 			string str = t.Serialize();
 			File.WriteAllText(@"c:\temp\luadump.lua", str);
 
 			HardwireGeneratorRegistry.RegisterPredefined();
 
-			HardwireGenerator hcg = new HardwireGenerator("MyNamespace", "MyClass", new ConsoleLogger());
+			HardwireGenerator hcg = new HardwireGenerator("MyNamespace", "MyClass", new ConsoleLogger(), HardwireCodeGenerationLanguage.CSharp);
 
 			hcg.BuildCodeModel(t);
 

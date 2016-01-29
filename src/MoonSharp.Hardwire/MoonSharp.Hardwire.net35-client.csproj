@@ -34,6 +34,9 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Languages\VbHardwireCodeGenerationLanguage.cs" />
+    <Compile Include="Languages\CSharpHardwireCodeGenerationLanguage.cs" />
+    <Compile Include="Languages\HardwireCodeGenerationLanguage.cs" />
     <Compile Include="ICodeGenerationLogger.cs" />
     <Compile Include="Generators\AssignableMemberDescriptorGeneratorBase.cs" />
     <Compile Include="Generators\FieldMemberDescriptorGenerator.cs" />

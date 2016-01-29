@@ -17,6 +17,7 @@ namespace MoonSharp.Interpreter.Interop.UserDataRegistries
 	{
 		private static object s_Lock = new object();
 		private static Dictionary<Type, IUserDataDescriptor> s_Registry = new Dictionary<Type, IUserDataDescriptor>();
+		private static Dictionary<Type, IUserDataDescriptor> s_RegistryHistory = new Dictionary<Type, IUserDataDescriptor>();
 		private static InteropAccessMode s_DefaultAccessMode;
 
 		/// <summary>
@@ -150,24 +151,28 @@ namespace MoonSharp.Interpreter.Interop.UserDataRegistries
 						{
 							AutoDescribingUserDataDescriptor audd = new AutoDescribingUserDataDescriptor(type, friendlyName);
 							s_Registry.Add(type, audd);
+							s_RegistryHistory[type] = audd;
 							return audd;
 						}
 						else if (type.IsGenericTypeDefinition)
 						{
 							StandardGenericsUserDataDescriptor typeGen = new StandardGenericsUserDataDescriptor(type, accessMode);
 							s_Registry.Add(type, typeGen);
+							s_RegistryHistory[type] = typeGen;
 							return typeGen;
 						}
 						else if (type.IsEnum)
 						{
 							var enumDescr = new StandardEnumUserDataDescriptor(type, friendlyName);
 							s_Registry.Add(type, enumDescr);
+							s_RegistryHistory[type] = enumDescr;
 							return enumDescr;
 						}
 						else
 						{
 							StandardUserDataDescriptor udd = new StandardUserDataDescriptor(type, accessMode, friendlyName);
 							s_Registry.Add(type, udd);
+							s_RegistryHistory[type] = udd;
 
 							if (accessMode == InteropAccessMode.BackgroundOptimized)
 							{
@@ -180,6 +185,7 @@ namespace MoonSharp.Interpreter.Interop.UserDataRegistries
 					else
 					{
 						s_Registry.Add(type, descriptor);
+						s_RegistryHistory[type] = descriptor;
 						return descriptor;
 					}
 				}
@@ -336,5 +342,19 @@ namespace MoonSharp.Interpreter.Interop.UserDataRegistries
 		{
 			get { lock (s_Lock) return s_Registry.ToArray(); }
 		}
+		/// <summary>
+		/// Gets the list of registered types.
+		/// </summary>
+		/// <value>
+		/// The registered types.
+		/// </value>
+		public static IEnumerable<KeyValuePair<Type, IUserDataDescriptor>> RegisteredTypesHistory
+		{
+			get { lock (s_Lock) return s_RegistryHistory.ToArray(); }
+		}
+
+
+
+
 	}
 }

@@ -2,7 +2,7 @@
 using MoonSharp.Interpreter.Execution;
 using NUnit.Framework;
 
-namespace MoonSharp.Interpreter.Tests
+namespace MoonSharp.Interpreter.Tests.EndToEnd
 {
 	[TestFixture]
 	public class ClosureTests

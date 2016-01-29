@@ -10,7 +10,7 @@ namespace MoonSharp.Interpreter.Interop
 	/// <summary>
 	/// Member descriptor which allows to define new members which behave similarly to class instance members
 	/// </summary>
-	public sealed class ObjectCallbackMemberDescriptor : FunctionMemberDescriptorBase
+	public class ObjectCallbackMemberDescriptor : FunctionMemberDescriptorBase
 	{
 		Func<object, ScriptExecutionContext, CallbackArguments, object> m_CallbackFunc;
 

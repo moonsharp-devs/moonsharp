@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using MoonSharp.Hardwire.Languages;
 using MoonSharp.Interpreter;
 
 namespace MoonSharp.Hardwire
@@ -12,10 +13,13 @@ namespace MoonSharp.Hardwire
 	public class HardwireGenerator
 	{
 		HardwireCodeGenerationContext m_Context;
+		HardwireCodeGenerationLanguage m_Language;
 
-		public HardwireGenerator(string namespaceName, string entryClassName, ICodeGenerationLogger logger)
+		public HardwireGenerator(string namespaceName, string entryClassName, ICodeGenerationLogger logger,
+			HardwireCodeGenerationLanguage language)
 		{
-			m_Context = new HardwireCodeGenerationContext(namespaceName, entryClassName, logger);
+			m_Language = language;
+			m_Context = new HardwireCodeGenerationContext(namespaceName, entryClassName, logger, language);
 		}
 
 		public void BuildCodeModel(Table table)
@@ -23,13 +27,11 @@ namespace MoonSharp.Hardwire
 			m_Context.GenerateCode(table);
 		}
 
-		public string GenerateSourceCode(string language = "CSharp")
+		public string GenerateSourceCode()
 		{
-			return GenerateSourceCode(CodeDomProvider.CreateProvider("CSharp"), new CodeGeneratorOptions());
-		}
+			var codeDomProvider = m_Language.CodeDomProvider;
+			var codeGeneratorOptions = new CodeGeneratorOptions();
 
-		public string GenerateSourceCode(CodeDomProvider codeDomProvider, CodeGeneratorOptions codeGeneratorOptions)
-		{
 			using (StringWriter sourceWriter = new StringWriter())
 			{
 				codeDomProvider.GenerateCodeFromCompileUnit(m_Context.CompileUnit, sourceWriter, codeGeneratorOptions);
@@ -37,9 +39,5 @@ namespace MoonSharp.Hardwire
 			}
 		}
 
-		public CodeCompileUnit GetCodeDomCompileUnit()
-		{
-			return m_Context.CompileUnit;
-		}
 	}
 }

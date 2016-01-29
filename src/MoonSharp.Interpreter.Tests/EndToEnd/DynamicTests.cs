@@ -6,7 +6,7 @@ using MoonSharp.Interpreter.Execution;
 using NUnit.Framework;
 using MoonSharp.Interpreter.CoreLib;
 
-namespace MoonSharp.Interpreter.Tests
+namespace MoonSharp.Interpreter.Tests.EndToEnd
 {
 	[TestFixture]
 	public class DynamicTests
