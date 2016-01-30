@@ -88,7 +88,7 @@ namespace MoonSharp.Interpreter.Serialization
 			else if (dynValue.Type == DataType.Tuple)
 				return (dynValue.Tuple.Any() ? SerializeValue(dynValue.Tuple[0], tabs) : "nil");
 			else if (dynValue.Type == DataType.Number)
-				return dynValue.Number.ToString();
+				return dynValue.Number.ToString("r");
 			else if (dynValue.Type == DataType.Boolean)
 				return dynValue.Boolean ? "true" : "false";
 			else if (dynValue.Type == DataType.String)
