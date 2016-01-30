@@ -9,7 +9,7 @@ namespace MoonSharp.Interpreter.Interop.BasicDescriptors
 	/// <summary>
 	/// Descriptor of parameters used in <see cref="IOverloadableMemberDescriptor"/> implementations.
 	/// </summary>
-	public sealed class ParameterDescriptor : ISerializableReflectionDescriptor
+	public sealed class ParameterDescriptor : IWireableDescriptor
 	{
 		/// <summary>
 		/// Gets the name of the parameter
@@ -156,7 +156,7 @@ namespace MoonSharp.Interpreter.Interop.BasicDescriptors
 		}
 
 
-		public void Serialize(Table table)
+		public void PrepareForWiring(Table table)
 		{
 			table.Set("name", DynValue.NewString(Name));
 			table.Set("type", DynValue.NewString(Type.FullName));

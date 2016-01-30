@@ -35,25 +35,27 @@ namespace MoonSharp.Interpreter.Interop
 		/// <param name="enumType">Type of the enum.</param>
 		/// <param name="friendlyName">Name of the friendly.</param>
 		/// <exception cref="System.ArgumentException">enumType must be an enum!</exception>
-		public StandardEnumUserDataDescriptor(Type enumType, string friendlyName = null)
+		public StandardEnumUserDataDescriptor(Type enumType, string friendlyName = null,
+			string[] names = null, object[] values = null, Type underlyingType = null)
 			: base(enumType, friendlyName)
 		{
 			if (!enumType.IsEnum)
 				throw new ArgumentException("enumType must be an enum!");
 
-			UnderlyingType = Enum.GetUnderlyingType(enumType);
+			UnderlyingType = underlyingType ?? Enum.GetUnderlyingType(enumType);
 			IsUnsigned = ((UnderlyingType == typeof(byte)) || (UnderlyingType == typeof(ushort)) || (UnderlyingType == typeof(uint)) || (UnderlyingType == typeof(ulong)));
 
-			FillMemberList();
+			names = names ?? Enum.GetNames(this.Type);
+			values = values ?? Enum.GetValues(this.Type).OfType<object>().ToArray();
+
+			FillMemberList(names, values);
 		}
 
 		/// <summary>
 		/// Fills the member list.
 		/// </summary>
-		private void FillMemberList()
+		private void FillMemberList(string[] names, object[] values)
 		{
-			string[] names = Enum.GetNames(this.Type);
-			Array values = Enum.GetValues(this.Type);
 
 			for (int i = 0; i < names.Length; i++)
 			{

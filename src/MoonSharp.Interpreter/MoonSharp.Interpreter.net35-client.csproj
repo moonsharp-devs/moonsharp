@@ -144,7 +144,7 @@
     <Compile Include="Interop\BasicDescriptors\IMemberDescriptor.cs" />
     <Compile Include="Interop\BasicDescriptors\IOptimizableDescriptor.cs" />
     <Compile Include="Interop\BasicDescriptors\IOverloadableMemberDescriptor.cs" />
-    <Compile Include="Interop\BasicDescriptors\ISerializableReflectionDescriptor.cs" />
+    <Compile Include="Interop\IWireableDescriptor.cs" />
     <Compile Include="Interop\BasicDescriptors\MemberDescriptorAccess.cs" />
     <Compile Include="Interop\BasicDescriptors\ParameterDescriptor.cs" />
     <Compile Include="Interop\Converters\ClrToScriptConversions.cs" />

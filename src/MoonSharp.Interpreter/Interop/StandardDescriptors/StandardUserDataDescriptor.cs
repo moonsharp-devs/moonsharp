@@ -13,7 +13,7 @@ namespace MoonSharp.Interpreter.Interop
 	/// <summary>
 	/// Standard descriptor for userdata types.
 	/// </summary>
-	public class StandardUserDataDescriptor : DispatchingUserDataDescriptor, ISerializableReflectionDescriptor
+	public class StandardUserDataDescriptor : DispatchingUserDataDescriptor, IWireableDescriptor
 	{
 		/// <summary>
 		/// Gets the interop access mode this descriptor uses for members access
@@ -208,7 +208,7 @@ namespace MoonSharp.Interpreter.Interop
 			return array.GetValue(indices);
 		}
 
-		public void Serialize(Table t)
+		public void PrepareForWiring(Table t)
 		{
 			t.Set("class", DynValue.NewString(this.GetType().FullName));
 			DynValue tm = DynValue.NewPrimeTable();
@@ -224,17 +224,17 @@ namespace MoonSharp.Interpreter.Interop
 		{
 			foreach (var pair in members)
 			{
-				ISerializableReflectionDescriptor sd = pair.Value as ISerializableReflectionDescriptor;
+				IWireableDescriptor sd = pair.Value as IWireableDescriptor;
 
 				if (sd != null)
 				{
 					DynValue mt = DynValue.NewPrimeTable();
 					t.Set(pair.Key, mt);
-					sd.Serialize(mt.Table);
+					sd.PrepareForWiring(mt.Table);
 				}
 				else
 				{
-					t.Set(pair.Key, DynValue.NewString("unsupported"));
+					t.Set(pair.Key, DynValue.NewString("unsupported member type : " + pair.Value.GetType().FullName));
 				}
 			}
 		}

@@ -17,7 +17,7 @@ namespace MoonSharp.Interpreter.Interop
 	/// <summary>
 	/// Class providing easier marshalling of CLR functions
 	/// </summary>
-	public class MethodMemberDescriptor : FunctionMemberDescriptorBase, IOptimizableDescriptor, ISerializableReflectionDescriptor
+	public class MethodMemberDescriptor : FunctionMemberDescriptorBase, IOptimizableDescriptor, IWireableDescriptor
 	{
 		/// <summary>
 		/// Gets the method information (can be a MethodInfo or ConstructorInfo)
@@ -260,7 +260,7 @@ namespace MoonSharp.Interpreter.Interop
 		}
 
 
-		public void Serialize(Table t)
+		public void PrepareForWiring(Table t)
 		{
 			t.Set("class", DynValue.NewString(this.GetType().FullName));
 			t.Set("name", DynValue.NewString(this.Name));
@@ -287,7 +287,7 @@ namespace MoonSharp.Interpreter.Interop
 			{
 				DynValue pt = DynValue.NewPrimeTable();
 				pars.Table.Set(++i, pt);
-				p.Serialize(pt.Table);
+				p.PrepareForWiring(pt.Table);
 			}
 		}
 	}

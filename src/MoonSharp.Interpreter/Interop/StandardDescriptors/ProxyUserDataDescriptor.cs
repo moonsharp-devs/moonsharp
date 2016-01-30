@@ -10,7 +10,7 @@ namespace MoonSharp.Interpreter.Interop
 	/// Data descriptor used for proxy objects
 	/// </summary>
 	public sealed class ProxyUserDataDescriptor : IUserDataDescriptor,
-		ISerializableReflectionDescriptor
+		IWireableDescriptor
 	{
 		IUserDataDescriptor m_ProxyDescriptor;
 		IProxyFactory m_ProxyFactory;
@@ -126,21 +126,21 @@ namespace MoonSharp.Interpreter.Interop
 			return type.IsInstanceOfType(obj);
 		}
 
-		public void Serialize(Table t)
+		public void PrepareForWiring(Table t)
 		{
 			t.Set("class", DynValue.NewString(this.GetType().FullName));
 
-			ISerializableReflectionDescriptor sd = m_ProxyDescriptor as ISerializableReflectionDescriptor;
+			IWireableDescriptor sd = m_ProxyDescriptor as IWireableDescriptor;
 
 			if (sd != null)
 			{
 				DynValue tm = DynValue.NewPrimeTable();
 				t.Set("proxy", tm);
-				sd.Serialize(tm.Table);
+				sd.PrepareForWiring(tm.Table);
 			}
 			else
 			{
-				t.Set("proxy", DynValue.NewString("unsupported"));
+				t.Set("proxy", DynValue.NewString("unsupported proxy desc : " + m_ProxyDescriptor.GetType().FullName));
 			}
 		}
 	}

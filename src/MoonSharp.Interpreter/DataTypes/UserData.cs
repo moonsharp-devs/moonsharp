@@ -350,13 +350,13 @@ namespace MoonSharp.Interpreter
 
 			foreach (var descpair in registeredTypesPairs)
 			{
-				ISerializableReflectionDescriptor sd = descpair.Value as ISerializableReflectionDescriptor;
+				IWireableDescriptor sd = descpair.Value as IWireableDescriptor;
 
 				if (sd != null)
 				{
 					DynValue t = DynValue.NewPrimeTable();
 					output.Table.Set(descpair.Key.FullName, t);
-					sd.Serialize(t.Table);
+					sd.PrepareForWiring(t.Table);
 				}
 			}
 
