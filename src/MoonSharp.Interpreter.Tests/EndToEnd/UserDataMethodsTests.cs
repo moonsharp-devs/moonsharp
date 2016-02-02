@@ -808,7 +808,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			}
 			finally
 			{
-				UserData.RegistrationPolicy = InteropRegistrationPolicy.Explicit;
+				UserData.RegistrationPolicy = InteropRegistrationPolicy.Default;
 			}
 		}
 

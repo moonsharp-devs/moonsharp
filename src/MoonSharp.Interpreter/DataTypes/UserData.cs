@@ -8,6 +8,7 @@ using System.Threading;
 using MoonSharp.Interpreter.DataStructs;
 using MoonSharp.Interpreter.Interop;
 using MoonSharp.Interpreter.Interop.BasicDescriptors;
+using MoonSharp.Interpreter.Interop.RegistrationPolicies;
 using MoonSharp.Interpreter.Interop.UserDataRegistries;
 
 namespace MoonSharp.Interpreter
@@ -43,6 +44,8 @@ namespace MoonSharp.Interpreter
 
 		static UserData()
 		{
+			RegistrationPolicy = InteropRegistrationPolicy.Default;
+
 			RegisterType<EventMemberDescriptor.EventFacade>(InteropAccessMode.NoReflectionAllowed);
 			RegisterType<AnonWrapper>(InteropAccessMode.HideMembers);
 			RegisterType<EnumerableWrapper>(InteropAccessMode.NoReflectionAllowed);
@@ -122,6 +125,16 @@ namespace MoonSharp.Interpreter
 		{
 			return TypeDescriptorRegistry.RegisterType_Impl(type, InteropAccessMode.Default, null, customDescriptor);
 		}
+
+		/// <summary>
+		/// Registers a type with a custom userdata descriptor
+		/// </summary>
+		/// <param name="customDescriptor">The custom descriptor.</param>
+		public static IUserDataDescriptor RegisterType(IUserDataDescriptor customDescriptor)
+		{
+			return TypeDescriptorRegistry.RegisterType_Impl(customDescriptor.Type, InteropAccessMode.Default, null, customDescriptor);
+		}
+
 
 		/// <summary>
 		/// Registers all types marked with a MoonSharpUserDataAttribute that ar contained in an assembly.
@@ -254,7 +267,7 @@ namespace MoonSharp.Interpreter
 		/// <summary>
 		/// Gets or sets the registration policy to be used in the whole application
 		/// </summary>
-		public static InteropRegistrationPolicy RegistrationPolicy
+		public static IRegistrationPolicy RegistrationPolicy
 		{
 			get { return TypeDescriptorRegistry.RegistrationPolicy; }
 			set { TypeDescriptorRegistry.RegistrationPolicy = value; }

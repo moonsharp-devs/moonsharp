@@ -1466,7 +1466,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			}
 			finally
 			{
-				UserData.RegistrationPolicy = Interop.InteropRegistrationPolicy.Explicit;
+				UserData.RegistrationPolicy = Interop.InteropRegistrationPolicy.Default;
 			}
 		}
 

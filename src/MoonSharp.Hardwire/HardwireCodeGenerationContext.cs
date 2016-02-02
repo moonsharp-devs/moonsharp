@@ -81,7 +81,7 @@ namespace MoonSharp.Hardwire
 			try
 			{
 				DispatchTablePairs(table, m_KickstarterClass.Members,
-					exp => m_InitStatements.Add(new CodeMethodInvokeExpression(new CodeTypeReferenceExpression(typeof(UserData)), "Register", exp)));
+					exp => m_InitStatements.Add(new CodeMethodInvokeExpression(new CodeTypeReferenceExpression(typeof(UserData)), "RegisterType", exp)));
 			}
 			catch (Exception ex)
 			{
