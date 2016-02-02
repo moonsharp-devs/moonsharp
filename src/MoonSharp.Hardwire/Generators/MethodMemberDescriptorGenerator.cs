@@ -20,7 +20,17 @@ namespace MoonSharp.Hardwire.Generators
 
 		public CodeExpression[] Generate(Table table, HardwireCodeGenerationContext generator, CodeTypeMemberCollection members)
 		{
-			string className = "M_" + Guid.NewGuid().ToString("N");
+			bool isArray = table.Get("arraytype").IsNotNil();
+			string memberName = table.Get("name").String;
+
+			if (isArray)
+			{
+				// ignore special members not marked special..
+				if ((memberName == "Get") || (memberName == "Set") || (memberName == "Address"))
+					return null;
+			}
+
+			string className = "MTHD_" + Guid.NewGuid().ToString("N");
 
 			CodeTypeDeclaration classCode = new CodeTypeDeclaration(className);
 
@@ -42,7 +52,7 @@ namespace MoonSharp.Hardwire.Generators
 
 			List<CodeExpression> initParams = new List<CodeExpression>();
 
-			initParams.Add(new CodePrimitiveExpression(table.Get("name").String));
+			initParams.Add(new CodePrimitiveExpression(memberName));
 			initParams.Add(new CodePrimitiveExpression(table.Get("static").Boolean));
 
 			initParams.Add(new CodeArrayCreateExpression(typeof(ParameterDescriptor), paramDescs.Select(e => e.Expression).ToArray())); 
@@ -135,11 +145,23 @@ namespace MoonSharp.Hardwire.Generators
 
 		private CodeStatementCollection GenerateCall(Table table, HardwireCodeGenerationContext generator, bool isVoid, bool isCtor, bool isStatic, bool isExtension, CodeExpression[] arguments, CodeExpression paramThis, string declaringType, bool specialName)
 		{
+			string arrayCtorType = table.Get("arraytype").IsNil() ? null : table.Get("arraytype").String;
+
 			CodeStatementCollection coll = new CodeStatementCollection();
 
 			if (isCtor)
 			{
-				coll.Add(new CodeMethodReturnStatement(new CodeObjectCreateExpression(table.Get("ret").String, arguments)));
+				if (arrayCtorType != null)
+				{
+					var exp = generator.TargetLanguage.CreateMultidimensionalArray(arrayCtorType,
+						arguments);
+
+					coll.Add(new CodeMethodReturnStatement(new CodeArrayCreateExpression(arrayCtorType, arguments)));
+				}
+				else
+				{
+					coll.Add(new CodeMethodReturnStatement(new CodeObjectCreateExpression(table.Get("ret").String, arguments)));
+				}
 			}
 			else if (specialName)
 			{
@@ -176,8 +198,10 @@ namespace MoonSharp.Hardwire.Generators
 					if (isStatic)
 						EmitInvalid(generator, coll, "Static indexers are not supported by hardwired descriptors.");
 					else
+					{
 						stat = new CodeAssignStatement(new CodeIndexerExpression(paramThis,
 							arguments.Take(arguments.Length - 1).ToArray()), arguments.Last());
+					}
 					break;
 				case ReflectionSpecialNameType.ImplicitCast:
 				case ReflectionSpecialNameType.ExplicitCast:
@@ -194,7 +218,24 @@ namespace MoonSharp.Hardwire.Generators
 					exp = new CodePropertyReferenceExpression(paramThis, special.Argument);
 					break;
 				case ReflectionSpecialNameType.PropertySetter:
-					stat = new CodeAssignStatement(new CodePropertyReferenceExpression(paramThis, special.Argument), arguments[0]);
+					{
+						if (isStatic)
+						{
+							var memberExp = new CodePropertyReferenceExpression(new CodeTypeReferenceExpression(declaringType), special.Argument);
+
+							coll.Add(new CodeAssignStatement(memberExp, arguments[0]));
+						}
+						else
+						{
+							coll.Add(new CodeVariableDeclarationStatement(declaringType, "tmp"));
+							coll.Add(new CodeAssignStatement(new CodeVariableReferenceExpression("tmp"), paramThis));
+
+							var memberExp = new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("tmp"), special.Argument);
+
+							coll.Add(new CodeAssignStatement(memberExp, arguments[0]));
+						}
+						coll.Add(new CodeMethodReturnStatement(new CodePrimitiveExpression(null)));
+					}
 					break;
 				case ReflectionSpecialNameType.OperatorAdd:
 					exp = BinaryOperator(CodeBinaryOperatorType.Add, paramThis, arguments);

@@ -18,7 +18,7 @@ namespace MoonSharp.Hardwire.Generators
 
 		public CodeExpression[] Generate(Table table, HardwireCodeGenerationContext generatorContext, CodeTypeMemberCollection members)
 		{
-			string className = "DV_" + Guid.NewGuid().ToString("N");
+			string className = "DVAL_" + Guid.NewGuid().ToString("N");
 			DynValue kval = table.Get("value");
 
 			DynValue vtype = table.Get("type");
@@ -55,7 +55,7 @@ namespace MoonSharp.Hardwire.Generators
 				CodeMemberProperty p = new CodeMemberProperty();
 				p.Name = "Value";
 				p.Type = new CodeTypeReference(typeof(DynValue));
-				p.Attributes = MemberAttributes.Override | MemberAttributes.Family;
+				p.Attributes = MemberAttributes.Override | MemberAttributes.Public;
 				p.GetStatements.Add(
 					new CodeMethodReturnStatement(
 						new CodeMethodInvokeExpression(

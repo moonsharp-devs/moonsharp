@@ -9,7 +9,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 	[TestFixture]
 	public class UserDataIndexerTests
 	{
-		class IndexerTestClass
+		public class IndexerTestClass
 		{
 			Dictionary<int, int> mymap = new Dictionary<int, int>();
 

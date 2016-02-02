@@ -20,7 +20,7 @@ namespace MoonSharp.Hardwire.Generators
 
 		public CodeExpression[] Generate(Table table, HardwireCodeGenerationContext generatorContext, CodeTypeMemberCollection members)
 		{
-			string className = "A_" + Guid.NewGuid().ToString("N");
+			string className = "AIDX_" + Guid.NewGuid().ToString("N");
 			string name = table.Get("name").String;
 			bool setter = table.Get("setter").Boolean;
 
@@ -28,7 +28,7 @@ namespace MoonSharp.Hardwire.Generators
 
 			classCode.TypeAttributes = System.Reflection.TypeAttributes.NestedPrivate | System.Reflection.TypeAttributes.Sealed;
 
-			classCode.BaseTypes.Add(typeof(DynValueMemberDescriptor));
+			classCode.BaseTypes.Add(typeof(ArrayMemberDescriptor));
 
 			CodeConstructor ctor = new CodeConstructor();
 			ctor.Attributes = MemberAttributes.Assembly;

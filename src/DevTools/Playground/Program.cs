@@ -39,17 +39,17 @@ namespace MoonSharp.Playground
 	{
 		static void Main(string[] args)
 		{
-			UserData.RegisterType<int[]>();
+			UserData.RegisterType<TimeSpan>();
 
-			//Table t = UserData.GetDescriptionOfRegisteredTypes();
+			Table t = UserData.GetDescriptionOfRegisteredTypes();
 
 			Script s = new Script();
 			var eee = s.CreateDynamicExpression(File.ReadAllText(@"c:\temp\testdump.lua"));
 
-			Table t = eee.Evaluate(null).Table;
+			//Table t = eee.Evaluate(null).Table;
 
 			string str = t.Serialize();
-			File.WriteAllText(@"c:\temp\luadump.lua", str);
+			//File.WriteAllText(@"c:\temp\luadump.lua", str);
 
 			HardwireGeneratorRegistry.RegisterPredefined();
 

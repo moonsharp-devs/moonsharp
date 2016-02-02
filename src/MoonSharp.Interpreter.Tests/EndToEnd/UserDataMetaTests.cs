@@ -9,18 +9,18 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 	[TestFixture]
 	public class UserDataMetaTests
 	{
-		class ClassWithLength
+		internal class ClassWithLength
 		{
 			public int Length { get { return 55; } }
 		}
 
-		class ClassWithCount
+		internal class ClassWithCount
 		{
 			public int Count { get { return 123; } }
 		}
 
 
-		class ArithmOperatorsTestClass : IComparable, System.Collections.IEnumerable 
+		internal class ArithmOperatorsTestClass : IComparable, System.Collections.IEnumerable 
 		{
 			public int Value { get; set;}
 

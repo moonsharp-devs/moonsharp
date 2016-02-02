@@ -20,7 +20,7 @@ namespace MoonSharp.Hardwire.Generators
 			CodeTypeMemberCollection members)
 		{
 			string type = (string)table["$key"];
-			string className = "T_" + Guid.NewGuid().ToString("N");
+			string className = "TYPE_" + Guid.NewGuid().ToString("N");
 
 			CodeTypeDeclaration classCode = new CodeTypeDeclaration(className);
 

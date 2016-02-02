@@ -18,7 +18,7 @@ namespace MoonSharp.Hardwire.Generators
 		public CodeExpression[] Generate(Table table, HardwireCodeGenerationContext generator, CodeTypeMemberCollection members)
 		{
 			string type = (string)table["$key"];
-			string className = "T_" + Guid.NewGuid().ToString("N");
+			string className = "VTDC_" + Guid.NewGuid().ToString("N");
 
 			CodeTypeDeclaration classCode = new CodeTypeDeclaration(className);
 
@@ -32,7 +32,7 @@ namespace MoonSharp.Hardwire.Generators
 
 			classCode.TypeAttributes = System.Reflection.TypeAttributes.NestedPrivate | System.Reflection.TypeAttributes.Sealed;
 
-			classCode.BaseTypes.Add(typeof(HardwiredUserDataDescriptor));
+			classCode.BaseTypes.Add(typeof(HardwiredMethodMemberDescriptor));
 
 			CodeConstructor ctor = new CodeConstructor();
 			ctor.Attributes = MemberAttributes.Assembly;
@@ -58,7 +58,8 @@ namespace MoonSharp.Hardwire.Generators
 
 
 			ctor.Statements.Add(new CodeMethodInvokeExpression(
-				new CodeThisReferenceExpression(), "AddMember", exp));
+				new CodeThisReferenceExpression(), "AddMember", 
+				new CodePrimitiveExpression("__new"), exp));
 
 
 			members.Add(classCode);

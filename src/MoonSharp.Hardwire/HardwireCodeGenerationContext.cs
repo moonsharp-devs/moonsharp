@@ -112,7 +112,7 @@ namespace MoonSharp.Hardwire
 				{
 					var exp = DispatchTable(key.String, value.Table, members);
 
-					if (action != null)
+					if (action != null && exp != null)
 						foreach (var e in exp)
 							action(key.String, e);
 				}

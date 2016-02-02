@@ -65,5 +65,12 @@ namespace MoonSharp.Hardwire.Languages
 		{
 			return null;
 		}
+
+		public override CodeExpression CreateMultidimensionalArray(string type, CodeExpression[] args)
+		{
+			var idxexp = new CodeSnippetExpression(string.Join(", ", args.Select(e => ExpressionToString(e)).ToArray()));
+
+			return new CodeArrayCreateExpression(type, idxexp);
+		}
 	}
 }
