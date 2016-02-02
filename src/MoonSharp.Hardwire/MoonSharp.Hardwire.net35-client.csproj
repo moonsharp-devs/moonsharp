@@ -34,12 +34,14 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Generators\ArrayMemberDescriptorGenerator.cs" />
+    <Compile Include="Generators\DynValueMemberDescriptorGenerator.cs" />
     <Compile Include="Generators\ValueTypeDefaultCtorMemberDescriptorGenerator.cs" />
     <Compile Include="Languages\VbHardwireCodeGenerationLanguage.cs" />
     <Compile Include="Languages\CSharpHardwireCodeGenerationLanguage.cs" />
     <Compile Include="Languages\HardwireCodeGenerationLanguage.cs" />
     <Compile Include="ICodeGenerationLogger.cs" />
-    <Compile Include="Generators\AssignableMemberDescriptorGeneratorBase.cs" />
+    <Compile Include="Generators\Base\AssignableMemberDescriptorGeneratorBase.cs" />
     <Compile Include="Generators\FieldMemberDescriptorGenerator.cs" />
     <Compile Include="Generators\MethodMemberDescriptorGenerator.cs" />
     <Compile Include="Generators\OverloadedMethodMemberDescriptorGenerator.cs" />
@@ -51,6 +53,8 @@
     <Compile Include="IHardwireGenerator.cs" />
     <Compile Include="Generators\NullGenerator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utils\GeneratorUtilities.cs" />
+    <Compile Include="Utils\HardwireParameterDescriptor.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MoonSharp.Interpreter\MoonSharp.Interpreter.net35-client.csproj">

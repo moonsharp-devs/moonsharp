@@ -60,5 +60,12 @@ namespace MoonSharp.Hardwire.Languages
 		{
 			return null;
 		}
+
+		public override string[] GetInitialComment()
+		{
+			return new string[] {
+				" *** WARNING *** : VB.NET support is experimental and", "is not officially supported."
+			};
+		}
 	}
 }

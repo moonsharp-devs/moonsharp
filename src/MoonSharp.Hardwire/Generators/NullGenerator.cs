@@ -27,7 +27,7 @@ namespace MoonSharp.Hardwire.Generators
 
 		public CodeExpression[] Generate(Table table, HardwireCodeGenerationContext generator, CodeTypeMemberCollection members)
 		{
-			generator.Error("Generation of '{0}' not supported.", ManagedType);
+			generator.Error("Missing code generator for '{0}'.", ManagedType);
 
 			return new CodeExpression[0];
 		}

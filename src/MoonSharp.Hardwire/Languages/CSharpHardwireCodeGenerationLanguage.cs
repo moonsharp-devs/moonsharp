@@ -60,5 +60,10 @@ namespace MoonSharp.Hardwire.Languages
 		{
 			return SnippetExpression("--{0}", arg);
 		}
+
+		public override string[] GetInitialComment()
+		{
+			return null;
+		}
 	}
 }

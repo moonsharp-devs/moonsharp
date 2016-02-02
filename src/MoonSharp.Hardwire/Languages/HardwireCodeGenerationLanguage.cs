@@ -15,6 +15,11 @@ namespace MoonSharp.Hardwire.Languages
 			get { return new CSharpHardwireCodeGenerationLanguage(); }
 		}
 
+		public static HardwireCodeGenerationLanguage VB
+		{
+			get { return new VbHardwireCodeGenerationLanguage(); }
+		}
+
 
 		public abstract string Name { get; }
 
@@ -28,8 +33,9 @@ namespace MoonSharp.Hardwire.Languages
 		public abstract CodeExpression UnaryOneComplement(CodeExpression arg);
 		public abstract CodeExpression BinaryXor(CodeExpression arg1, CodeExpression arg2);
 
+		public abstract string[] GetInitialComment();
 
-
+		
 		protected string ExpressionToString(CodeExpression exp)
 		{
 			using (StringWriter sourceWriter = new StringWriter())

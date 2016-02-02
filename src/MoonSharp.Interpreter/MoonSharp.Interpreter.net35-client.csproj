@@ -164,6 +164,7 @@
     <Compile Include="Interop\StandardDescriptors\HardwiredDescriptors\HardwiredMemberDescriptor.cs" />
     <Compile Include="Interop\StandardDescriptors\HardwiredDescriptors\HardwiredMethodMemberDescriptor.cs" />
     <Compile Include="Interop\StandardDescriptors\HardwiredDescriptors\HardwiredUserDataDescriptor.cs" />
+    <Compile Include="Interop\StandardDescriptors\MemberDescriptors\ArrayMemberDescriptor.cs" />
     <Compile Include="Interop\StandardDescriptors\ProxyUserDataDescriptor.cs" />
     <Compile Include="Interop\StandardDescriptors\MemberDescriptors\ObjectCallbackMemberDescriptor.cs" />
     <Compile Include="Interop\StandardDescriptors\MemberDescriptors\FunctionMemberDescriptorBase.cs" />

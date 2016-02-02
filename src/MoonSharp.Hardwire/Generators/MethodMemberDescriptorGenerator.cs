@@ -3,6 +3,7 @@ using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MoonSharp.Hardwire.Utils;
 using MoonSharp.Interpreter;
 using MoonSharp.Interpreter.Interop;
 using MoonSharp.Interpreter.Interop.BasicDescriptors;
@@ -33,49 +34,18 @@ namespace MoonSharp.Hardwire.Generators
 			CodeConstructor ctor = new CodeConstructor();
 			ctor.Attributes = MemberAttributes.Assembly;
 
-			List<CodeExpression> paramExps = new List<CodeExpression>();
-			List<ParameterDescriptor> paramDescs = new List<ParameterDescriptor>();
+			List<HardwireParameterDescriptor> paramDescs = HardwireParameterDescriptor.LoadDescriptorsFromTable(table.Get("params").Table);
 
-			Table tpars = table.Get("params").Table;
-			int paramNum = 0;
-			int optionalNum = 0;
 
-			for (int i = 1; i <= tpars.Length; i++)
-			{
-				Table tpar = tpars.Get(i).Table;
-
-				CodeExpression ename = new CodePrimitiveExpression(tpar.Get("name").String);
-				CodeExpression etype = new CodeTypeOfExpression(tpar.Get("origtype").String);
-				CodeExpression hasDefaultValue = new CodePrimitiveExpression(tpar.Get("default").Boolean);
-				CodeExpression defaultValue = tpar.Get("default").Boolean ? (CodeExpression)(new CodeObjectCreateExpression(typeof(DefaultValue))) : 
-					(CodeExpression)(new CodePrimitiveExpression(null));
-				CodeExpression isOut = new CodePrimitiveExpression(tpar.Get("out").Boolean);
-				CodeExpression isRef = new CodePrimitiveExpression(tpar.Get("ref").Boolean);
-				CodeExpression isVarArg = new CodePrimitiveExpression(tpar.Get("varargs").Boolean);
-				CodeExpression restrictType = tpar.Get("restricted").Boolean ? (CodeExpression)(new CodeTypeOfExpression(tpar.Get("type").String)) : 
-					(CodeExpression)(new CodePrimitiveExpression(null));
-
-				paramExps.Add(new CodeObjectCreateExpression(typeof(ParameterDescriptor), new CodeExpression[] {
-					ename, etype, hasDefaultValue, defaultValue, isOut, isRef,
-					isVarArg }
-				));
-
-				paramNum += 1;
-
-				paramDescs.Add(new ParameterDescriptor(tpar.Get("origtype").String, typeof(object), 
-					tpar.Get("default").Boolean, null, tpar.Get("out").Boolean, 
-					tpar.Get("ref").Boolean, tpar.Get("varargs").Boolean));
-
-				if (tpar.Get("default").Boolean) 
-					optionalNum += 1;
-			}
+			int paramNum = paramDescs.Count;
+			int optionalNum = paramDescs.Where(p => p.HasDefaultValue).Count();
 
 			List<CodeExpression> initParams = new List<CodeExpression>();
 
 			initParams.Add(new CodePrimitiveExpression(table.Get("name").String));
 			initParams.Add(new CodePrimitiveExpression(table.Get("static").Boolean));
 
-			initParams.Add(new CodeArrayCreateExpression(typeof(ParameterDescriptor), paramExps.ToArray())); 
+			initParams.Add(new CodeArrayCreateExpression(typeof(ParameterDescriptor), paramDescs.Select(e => e.Expression).ToArray())); 
 
 			initParams.Add(new CodePrimitiveExpression(table.Get("extension").Boolean));
 			
@@ -119,7 +89,7 @@ namespace MoonSharp.Hardwire.Generators
 				{
 					var objexp = new CodeArrayIndexerExpression(paramArray, new CodePrimitiveExpression(i));
 
-					var castexp = new CodeCastExpression(paramDescs[i].Name, objexp);
+					var castexp = new CodeCastExpression(paramDescs[i].ParamType, objexp);
 
 					pars.Add(castexp);
 				}
@@ -147,6 +117,7 @@ namespace MoonSharp.Hardwire.Generators
 			members.Add(classCode);
 			return new CodeExpression[] { new CodeObjectCreateExpression(className) };
 		}
+
 
 
 		private static void GenerateReturnStatement(bool isVoid, CodeStatementCollection coll, CodeMethodInvokeExpression expr)

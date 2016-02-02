@@ -162,51 +162,19 @@ namespace MoonSharp.Interpreter.Interop
 
 					set_pars[rank] = new ParameterDescriptor("value", Type.GetElementType());
 
-					AddMember(SPECIALNAME_INDEXER_SET, new ObjectCallbackMemberDescriptor(SPECIALNAME_INDEXER_SET, ArrayIndexerSet, set_pars));
-					AddMember(SPECIALNAME_INDEXER_GET, new ObjectCallbackMemberDescriptor(SPECIALNAME_INDEXER_GET, ArrayIndexerGet, get_pars));
+					AddMember(SPECIALNAME_INDEXER_SET, new ArrayMemberDescriptor(SPECIALNAME_INDEXER_SET, true, set_pars));
+					AddMember(SPECIALNAME_INDEXER_GET, new ArrayMemberDescriptor(SPECIALNAME_INDEXER_GET, false, get_pars));
 				}
 				else if (Type == typeof(Array))
 				{
-					AddMember(SPECIALNAME_INDEXER_SET, new ObjectCallbackMemberDescriptor(SPECIALNAME_INDEXER_SET, ArrayIndexerSet));
-					AddMember(SPECIALNAME_INDEXER_GET, new ObjectCallbackMemberDescriptor(SPECIALNAME_INDEXER_GET, ArrayIndexerGet));
+					AddMember(SPECIALNAME_INDEXER_SET, new ArrayMemberDescriptor(SPECIALNAME_INDEXER_SET, true));
+					AddMember(SPECIALNAME_INDEXER_GET, new ArrayMemberDescriptor(SPECIALNAME_INDEXER_GET, false));
 				}
 			}
 		}
 
 
-		private int[] BuildArrayIndices(CallbackArguments args, int count)
-		{
-			int[] indices = new int[count];
 
-			for (int i = 0; i < count; i++)
-				indices[i] = args.AsInt(i, "userdata_array_indexer");
-
-			return indices;
-		}
-
-		private object ArrayIndexerSet(object arrayObj, ScriptExecutionContext ctx, CallbackArguments args)
-		{
-			Array array = (Array)arrayObj;
-			int[] indices = BuildArrayIndices(args, args.Count - 1);
-			DynValue value = args[args.Count - 1];
-
-			Type elemType = array.GetType().GetElementType();
-
-			object objValue = ScriptToClrConversions.DynValueToObjectOfType(value, elemType, null, false);
-
-			array.SetValue(objValue, indices);
-
-			return DynValue.Void;
-		}
-
-
-		private object ArrayIndexerGet(object arrayObj, ScriptExecutionContext ctx, CallbackArguments args)
-		{
-			Array array = (Array)arrayObj;
-			int[] indices = BuildArrayIndices(args, args.Count);
-
-			return array.GetValue(indices);
-		}
 
 		public void PrepareForWiring(Table t)
 		{
