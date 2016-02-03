@@ -43,6 +43,85 @@ namespace MoonSharp.Interpreter.Interop
 
 
 		/// <summary>
+		/// Gets the visibility of the type as a string
+		/// </summary>
+		public static string GetClrVisibility(this Type t)
+		{
+			if (t.IsPublic || t.IsNestedPublic)
+				return "public";
+			if ((t.IsNotPublic && (!t.IsNested)) || (t.IsNestedAssembly))
+				return "internal";
+			if (t.IsNestedFamORAssem)
+				return "protected-internal";
+			if (t.IsNestedFamANDAssem || t.IsNestedFamily)
+				return "protected";
+			if (t.IsNestedPrivate)
+				return "private";
+
+			return "unknown";
+		}
+
+		/// <summary>
+		/// Gets a string representing visibility of the given member type
+		/// </summary>
+		public static string GetClrVisibility(this FieldInfo info)
+		{
+			if (info.IsPublic)
+				return "public";
+			if (info.IsAssembly)
+				return "internal";
+			if (info.IsFamilyOrAssembly)
+				return "protected-internal";
+			if (info.IsFamilyAndAssembly || info.IsFamily)
+				return "protected";
+			if (info.IsPrivate)
+				return "private";
+
+			return "unknown";
+		}
+
+		/// <summary>
+		/// Gets a string representing visibility of the given member type
+		/// </summary>
+		public static string GetClrVisibility(this PropertyInfo info)
+		{
+			MethodInfo gm = info.GetGetMethod();
+			MethodInfo sm = info.GetSetMethod();
+
+			string gv = (gm != null) ? GetClrVisibility(gm) : "private";
+			string sv = (sm != null) ? GetClrVisibility(sm) : "private";
+
+			if (gv == "public" || sv == "public")
+				return "public";
+			else if (gv == "internal" || sv == "internal")
+				return "internal";
+			else
+				return gv;
+		}
+
+		/// <summary>
+		/// Gets a string representing visibility of the given member type
+		/// </summary>
+		public static string GetClrVisibility(this MethodBase info)
+		{
+			if (info.IsPublic)
+				return "public";
+			if (info.IsAssembly)
+				return "internal";
+			if (info.IsFamilyOrAssembly)
+				return "protected-internal";
+			if (info.IsFamilyAndAssembly || info.IsFamily)
+				return "protected";
+			if (info.IsPrivate)
+				return "private";
+
+			return "unknown";
+		}
+
+
+
+
+		/// <summary>
 		/// Determines whether the specified PropertyInfo is visible publicly (either the getter or the setter is public).
 		/// </summary>
 		/// <param name="pi">The PropertyInfo.</param>

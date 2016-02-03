@@ -143,6 +143,7 @@ namespace MoonSharp.Interpreter.Interop
 					{
 						t.Set("type", DynValue.NewString("userdata"));
 						t.Set("staticType", DynValue.NewString(Value.UserData.Descriptor.Type.FullName));
+						t.Set("visibility", DynValue.NewString(Value.UserData.Descriptor.Type.GetClrVisibility()));
 					}
 					else
 					{

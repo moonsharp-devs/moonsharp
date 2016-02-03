@@ -786,6 +786,8 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		[Test]
 		public void VInterop_TestAutoregisterPolicy()
 		{
+			var oldPolicy = UserData.RegistrationPolicy;
+
 			try
 			{
 				string script = @"return myobj:Test1()";
@@ -805,7 +807,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			}
 			finally
 			{
-				UserData.RegistrationPolicy = InteropRegistrationPolicy.Default;
+				UserData.RegistrationPolicy = oldPolicy;
 			}
 		}
 

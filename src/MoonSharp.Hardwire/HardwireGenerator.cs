@@ -39,5 +39,10 @@ namespace MoonSharp.Hardwire
 			}
 		}
 
+		public bool AllowInternals
+		{
+			get { return m_Context.AllowInternals; }
+			set { m_Context.AllowInternals = value; }
+		}
 	}
 }

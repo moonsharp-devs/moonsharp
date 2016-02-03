@@ -178,14 +178,23 @@ namespace MoonSharp.Interpreter.Interop
 
 		public void PrepareForWiring(Table t)
 		{
-			t.Set("class", DynValue.NewString(this.GetType().FullName));
-			DynValue tm = DynValue.NewPrimeTable();
-			t.Set("members", tm);
-			DynValue tmm = DynValue.NewPrimeTable();
-			t.Set("metamembers", tmm);
+			if (AccessMode == InteropAccessMode.HideMembers || Type.Assembly == this.GetType().Assembly)
+			{
+				t.Set("skip", DynValue.NewBoolean(true));
+			}
+			else
+			{
+				t.Set("visibility", DynValue.NewString(this.Type.GetClrVisibility()));
 
-			Serialize(tm.Table, Members);
-			Serialize(tmm.Table, MetaMembers);
+				t.Set("class", DynValue.NewString(this.GetType().FullName));
+				DynValue tm = DynValue.NewPrimeTable();
+				t.Set("members", tm);
+				DynValue tmm = DynValue.NewPrimeTable();
+				t.Set("metamembers", tmm);
+
+				Serialize(tm.Table, Members);
+				Serialize(tmm.Table, MetaMembers);
+			}
 		}
 
 		private void Serialize(Table t, IEnumerable<KeyValuePair<string, IMemberDescriptor>> members)

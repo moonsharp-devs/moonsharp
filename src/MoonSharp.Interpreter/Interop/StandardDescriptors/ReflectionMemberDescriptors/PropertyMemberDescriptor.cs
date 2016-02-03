@@ -294,6 +294,7 @@ namespace MoonSharp.Interpreter.Interop
 		public void PrepareForWiring(Table t)
 		{
 			t.Set("class", DynValue.NewString(this.GetType().FullName));
+			t.Set("visibility", DynValue.NewString(this.PropertyInfo.GetClrVisibility()));
 			t.Set("name", DynValue.NewString(this.Name));
 			t.Set("static", DynValue.NewBoolean(this.IsStatic));
 			t.Set("read", DynValue.NewBoolean(this.CanRead));

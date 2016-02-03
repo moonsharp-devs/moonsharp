@@ -13,6 +13,18 @@ namespace MoonSharp.Hardwire.Generators
 {
 	class MethodMemberDescriptorGenerator : IHardwireGenerator
 	{
+		string m_Prefix;
+
+		public MethodMemberDescriptorGenerator()
+			: this("MTHD")
+		{
+		}
+
+		public MethodMemberDescriptorGenerator(string prefix)
+		{
+			m_Prefix = prefix;
+		}
+
 		public string ManagedType
 		{
 			get { return "MoonSharp.Interpreter.Interop.MethodMemberDescriptor"; }
@@ -22,64 +34,63 @@ namespace MoonSharp.Hardwire.Generators
 		{
 			bool isArray = table.Get("arraytype").IsNotNil();
 			string memberName = table.Get("name").String;
-
+			
+			// Ignore arrays weird special members 
 			if (isArray)
 			{
-				// ignore special members not marked special..
 				if ((memberName == "Get") || (memberName == "Set") || (memberName == "Address"))
 					return null;
 			}
 
-			string className = "MTHD_" + Guid.NewGuid().ToString("N");
+			// Create the descriptor class
+			string className = m_Prefix + "_" + Guid.NewGuid().ToString("N");
 
 			CodeTypeDeclaration classCode = new CodeTypeDeclaration(className);
-
 			classCode.TypeAttributes = System.Reflection.TypeAttributes.NestedPrivate | System.Reflection.TypeAttributes.Sealed;
-
 			classCode.BaseTypes.Add(typeof(HardwiredMethodMemberDescriptor));
 
-			// ctor:
-			//protected void Initialize(string funcName, bool isStatic, ParameterDescriptor[] parameters, bool isExtensionMethod)
-
+			// Create the class constructor
 			CodeConstructor ctor = new CodeConstructor();
 			ctor.Attributes = MemberAttributes.Assembly;
+			classCode.Members.Add(ctor);
 
+			// Create the parameters
 			List<HardwireParameterDescriptor> paramDescs = HardwireParameterDescriptor.LoadDescriptorsFromTable(table.Get("params").Table);
-
 
 			int paramNum = paramDescs.Count;
 			int optionalNum = paramDescs.Where(p => p.HasDefaultValue).Count();
 
+			// Add initialize call to ctor
 			List<CodeExpression> initParams = new List<CodeExpression>();
 
 			initParams.Add(new CodePrimitiveExpression(memberName));
 			initParams.Add(new CodePrimitiveExpression(table.Get("static").Boolean));
 
-			initParams.Add(new CodeArrayCreateExpression(typeof(ParameterDescriptor), paramDescs.Select(e => e.Expression).ToArray())); 
+			initParams.Add(new CodeArrayCreateExpression(typeof(ParameterDescriptor), 
+				paramDescs.Select(e => e.Expression).ToArray())); 
 
 			initParams.Add(new CodePrimitiveExpression(table.Get("extension").Boolean));
-			
 
 			ctor.Statements.Add(new CodeMethodInvokeExpression(new CodeThisReferenceExpression(), "Initialize", initParams.ToArray()));
 
-			classCode.Members.Add(ctor);
 
-			// protected abstract object Invoke(object[] pars);
+			// Create the Invoke method : protected override object Invoke(Script script, object obj, object[] pars, int argscount);
 
 			CodeMemberMethod m = new CodeMemberMethod();
 			m.Name = "Invoke";
 			m.Attributes = MemberAttributes.Override | MemberAttributes.Family;
 			m.ReturnType = new CodeTypeReference(typeof(object));
+			m.Parameters.Add(new CodeParameterDeclarationExpression(typeof(Script), "script"));
 			m.Parameters.Add(new CodeParameterDeclarationExpression(typeof(object), "obj"));
 			m.Parameters.Add(new CodeParameterDeclarationExpression(typeof(object[]), "pars"));
 			m.Parameters.Add(new CodeParameterDeclarationExpression(typeof(int), "argscount"));
 
+			// get some meta about the method
 			bool isVoid = table.Get("ret").String == "System.Void";
 			bool isCtor = table.Get("ctor").Boolean;
 			bool isStatic = table.Get("static").Boolean;
 			bool isExtension = table.Get("extension").Boolean;
-
-			List<CodeExpression[]> calls = new List<CodeExpression[]>();
+			bool specialName = table.Get("special").Boolean;
 
 			string declType = table.Get("decltype").String;
 			var paramArray = new CodeVariableReferenceExpression("pars");
@@ -87,26 +98,54 @@ namespace MoonSharp.Hardwire.Generators
 				? (CodeExpression)(new CodeTypeReferenceExpression(declType))
 				: (CodeExpression)(new CodeCastExpression(declType, new CodeVariableReferenceExpression("obj")));
 
-			var paramArgsCount = new CodeVariableReferenceExpression("argscount");
+			// Build a list of arguments to the call
+			int refparCount = 0;
+			List<CodeExpression> paramExps = new List<CodeExpression>();
+			for (int i = 0; i < paramDescs.Count; i++)
+			{
+				var P = paramDescs[i];
 
-			bool specialName = table.Get("special").Boolean;
+				CodeExpression paramExp = new CodeCastExpression(paramDescs[i].ParamType, new CodeArrayIndexerExpression(paramArray, new CodePrimitiveExpression(i)));
+
+				if (P.IsOut)
+				{
+					string varName = GenerateRefParamVariable(refparCount++);
+					var vd = new CodeVariableDeclarationStatement(P.ParamType, varName);
+					m.Statements.Add(vd);
+					paramExp = new CodeDirectionExpression(FieldDirection.Out, new CodeVariableReferenceExpression(varName));
+				}
+				else if (P.IsRef)
+				{
+					string varName = GenerateRefParamVariable(refparCount++);
+					var vd = new CodeVariableDeclarationStatement(P.ParamType, varName, paramExp);
+					m.Statements.Add(vd);
+					paramExp = new CodeDirectionExpression(FieldDirection.Ref, new CodeVariableReferenceExpression(varName));
+				}
+
+				paramExps.Add(paramExp);
+			}
+
+
+
+			// build a list of possible dispatching to default params
+			List<CodeExpression[]> calls = new List<CodeExpression[]>();
+			var paramArgsCount = new CodeVariableReferenceExpression("argscount");
 
 			for(int callidx = paramNum - optionalNum; callidx <= paramNum; callidx++)
 			{
 				List<CodeExpression> pars = new List<CodeExpression>();
 
+				// Build the array of parameters expressions
 				for(int i = 0; i < callidx; i++)
 				{
-					var objexp = new CodeArrayIndexerExpression(paramArray, new CodePrimitiveExpression(i));
-
-					var castexp = new CodeCastExpression(paramDescs[i].ParamType, objexp);
-
-					pars.Add(castexp);
+					pars.Add(paramExps[i]);
 				}
 
 				calls.Add(pars.ToArray());
 			}
 
+
+			// foreach "overload" of default pars, dispatch a call
 			for (int i = 0; i < calls.Count - 1; i++)
 			{
 				int argcnt = calls[i].Length;
@@ -114,40 +153,32 @@ namespace MoonSharp.Hardwire.Generators
 				CodeExpression condition = new CodeBinaryOperatorExpression(paramArgsCount,
 						CodeBinaryOperatorType.LessThanOrEqual, new CodePrimitiveExpression(argcnt));
 
-				var ifs = new CodeConditionStatement(condition, GenerateCall(table, generator, isVoid, isCtor, isStatic, isExtension, calls[i], paramThis, declType, specialName).OfType<CodeStatement>().ToArray());
+				var ifs = new CodeConditionStatement(condition, GenerateCall(table, generator, isVoid, isCtor, isStatic, isExtension, calls[i], paramThis, declType, specialName, refparCount).OfType<CodeStatement>().ToArray());
 
 				m.Statements.Add(ifs);
 			}
 
-			m.Statements.AddRange(GenerateCall(table, generator, isVoid, isCtor, isStatic, isExtension, calls[calls.Count - 1],  paramThis, declType, specialName));
+			m.Statements.AddRange(GenerateCall(table, generator, isVoid, isCtor, isStatic, isExtension, calls[calls.Count - 1], paramThis, declType, specialName, refparCount));
 
 
-
+			// close
 			classCode.Members.Add(m);
 			members.Add(classCode);
 			return new CodeExpression[] { new CodeObjectCreateExpression(className) };
 		}
 
-
-
-		private static void GenerateReturnStatement(bool isVoid, CodeStatementCollection coll, CodeMethodInvokeExpression expr)
+		private string GenerateRefParamVariable(int refparIdx)
 		{
-			if (isVoid)
-			{
-				coll.Add(new CodeExpressionStatement(expr));
-				coll.Add(new CodeMethodReturnStatement(new CodePrimitiveExpression(null)));
-			}
-			else
-				coll.Add(new CodeMethodReturnStatement(expr));
+			return string.Format("refp_{0}", refparIdx);
 		}
 
 
-
-		private CodeStatementCollection GenerateCall(Table table, HardwireCodeGenerationContext generator, bool isVoid, bool isCtor, bool isStatic, bool isExtension, CodeExpression[] arguments, CodeExpression paramThis, string declaringType, bool specialName)
+		private CodeStatementCollection GenerateCall(Table table, HardwireCodeGenerationContext generator, bool isVoid, bool isCtor, bool isStatic, bool isExtension, CodeExpression[] arguments, CodeExpression paramThis, string declaringType, bool specialName, int refparCount)
 		{
 			string arrayCtorType = table.Get("arraytype").IsNil() ? null : table.Get("arraytype").String;
 
 			CodeStatementCollection coll = new CodeStatementCollection();
+			CodeExpression retVal = null;
 
 			if (isCtor)
 			{
@@ -156,11 +187,11 @@ namespace MoonSharp.Hardwire.Generators
 					var exp = generator.TargetLanguage.CreateMultidimensionalArray(arrayCtorType,
 						arguments);
 
-					coll.Add(new CodeMethodReturnStatement(new CodeArrayCreateExpression(arrayCtorType, arguments)));
+					retVal = new CodeArrayCreateExpression(arrayCtorType, arguments);
 				}
 				else
 				{
-					coll.Add(new CodeMethodReturnStatement(new CodeObjectCreateExpression(table.Get("ret").String, arguments)));
+					retVal = new CodeObjectCreateExpression(table.Get("ret").String, arguments);
 				}
 			}
 			else if (specialName)
@@ -170,12 +201,48 @@ namespace MoonSharp.Hardwire.Generators
 			}
 			else
 			{
-				var expr = new CodeMethodInvokeExpression(paramThis, table.Get("name").String, arguments);
+				retVal = new CodeMethodInvokeExpression(paramThis, table.Get("name").String, arguments);
+			}
 
-				GenerateReturnStatement(isVoid, coll, expr);
+			if (retVal != null)
+			{
+				if (isVoid)
+				{
+					coll.Add(new CodeExpressionStatement(retVal));
+					retVal = new CodePropertyReferenceExpression(new CodeTypeReferenceExpression(typeof(DynValue)), (refparCount == 0) ? "Void" : "Nil");
+				}
+
+
+				if (refparCount == 0)
+				{
+					coll.Add(new CodeMethodReturnStatement(retVal));
+				}
+				else
+				{
+					coll.Add(new CodeVariableDeclarationStatement(typeof(object), "retv", retVal));
+
+					List<CodeExpression> retVals = new List<CodeExpression>();
+
+					retVals.Add(WrapFromObject(new CodeVariableReferenceExpression("retv")));
+
+					for (int i = 0; i < refparCount; i++)
+						retVals.Add(WrapFromObject(new CodeVariableReferenceExpression(GenerateRefParamVariable(i))));
+
+					var arrayExp = new CodeArrayCreateExpression(typeof(DynValue), retVals.ToArray());
+
+					var tupleExp = new CodeMethodInvokeExpression(new CodeTypeReferenceExpression(typeof(DynValue)), "NewTuple", arrayExp);
+
+					coll.Add(new CodeMethodReturnStatement(tupleExp));
+				}
 			}
 
 			return coll;
+		}
+
+		private CodeExpression WrapFromObject(CodeExpression retVal)
+		{
+			var script = new CodeVariableReferenceExpression("script");
+			return new CodeMethodInvokeExpression(new CodeTypeReferenceExpression(typeof(DynValue)), "FromObject", script, retVal);
 		}
 
 
@@ -199,7 +266,9 @@ namespace MoonSharp.Hardwire.Generators
 						EmitInvalid(generator, coll, "Static indexers are not supported by hardwired descriptors.");
 					else
 					{
-						stat = new CodeAssignStatement(new CodeIndexerExpression(paramThis,
+						coll.Add(new CodeVariableDeclarationStatement(declaringType, "tmp", paramThis));
+
+						stat = new CodeAssignStatement(new CodeIndexerExpression(new CodeVariableReferenceExpression("tmp"),
 							arguments.Take(arguments.Length - 1).ToArray()), arguments.Last());
 					}
 					break;
@@ -227,8 +296,7 @@ namespace MoonSharp.Hardwire.Generators
 						}
 						else
 						{
-							coll.Add(new CodeVariableDeclarationStatement(declaringType, "tmp"));
-							coll.Add(new CodeAssignStatement(new CodeVariableReferenceExpression("tmp"), paramThis));
+							coll.Add(new CodeVariableDeclarationStatement(declaringType, "tmp", paramThis));
 
 							var memberExp = new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("tmp"), special.Argument);
 
@@ -305,8 +373,8 @@ namespace MoonSharp.Hardwire.Generators
 					if (exp == null) EmitInvalid(generator, coll, string.Format("Language {0} does not support unary + operators.", generator.TargetLanguage.Name));
 					break;
 				case ReflectionSpecialNameType.AddEvent:
-					break;
 				case ReflectionSpecialNameType.RemoveEvent:
+					coll.Add(new CodeThrowExceptionStatement(new CodeObjectCreateExpression(typeof(InvalidOperationException), new CodePrimitiveExpression("Access to event special methods is not supported by hardwired decriptors."))));
 					break;
 				default:
 					break;

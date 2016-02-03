@@ -93,8 +93,7 @@ namespace MoonSharp.Hardwire.Generators
 				}
 				else
 				{
-					m.Statements.Add(new CodeVariableDeclarationStatement(decltype, "tmp"));
-					m.Statements.Add(new CodeAssignStatement(new CodeVariableReferenceExpression("tmp"), thisExp));
+					m.Statements.Add(new CodeVariableDeclarationStatement(decltype, "tmp", thisExp));
 
 					var memberExp = GetMemberAccessExpression(new CodeVariableReferenceExpression("tmp"), name);
 

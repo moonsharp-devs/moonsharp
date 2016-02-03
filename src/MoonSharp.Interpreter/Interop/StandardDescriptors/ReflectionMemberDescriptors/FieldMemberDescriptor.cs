@@ -213,6 +213,8 @@ namespace MoonSharp.Interpreter.Interop
 		public void PrepareForWiring(Table t)
 		{
 			t.Set("class", DynValue.NewString(this.GetType().FullName));
+			t.Set("visibility", DynValue.NewString(this.FieldInfo.GetClrVisibility()));
+
 			t.Set("name", DynValue.NewString(this.Name));
 			t.Set("static", DynValue.NewBoolean(this.IsStatic));
 			t.Set("const", DynValue.NewBoolean(this.IsConst));

@@ -27,7 +27,6 @@ namespace MoonSharp.Interpreter.Interop
 			m_IsSetter = isSetter;
 		}
 
-
 		public void PrepareForWiring(Table t)
 		{
 			t.Set("class", DynValue.NewString(this.GetType().FullName));

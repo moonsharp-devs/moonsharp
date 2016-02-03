@@ -65,6 +65,11 @@ namespace MoonSharpTests
 			Console.WriteLine();
 			Console.WriteLine();
 			
+			MyNamespace.MyClass.Initialize();
+
+			UserData.RegistrationPolicy = new HardwireAndLogPolicy();
+
+
 			try
 			{
 				TestRunner T = new TestRunner(Log);
