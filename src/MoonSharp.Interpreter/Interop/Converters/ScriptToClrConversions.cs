@@ -7,6 +7,8 @@ namespace MoonSharp.Interpreter.Interop.Converters
 		internal const int WEIGHT_MAX_VALUE = 100;
 		internal const int WEIGHT_CUSTOM_CONVERTER_MATCH = 100;
 		internal const int WEIGHT_EXACT_MATCH = 100;
+		internal const int WEIGHT_STRING_TO_STRINGBUILDER = 99;
+		internal const int WEIGHT_STRING_TO_CHAR = 98;
 		internal const int WEIGHT_NIL_TO_NULLABLE = 100;
 		internal const int WEIGHT_NIL_TO_REFTYPE = 100;
 		internal const int WEIGHT_VOID_WITH_DEFAULT = 50;
@@ -258,8 +260,12 @@ namespace MoonSharp.Interpreter.Interop.Converters
 						return WEIGHT_NUMBER_TO_STRING;
 					break;
 				case DataType.String:
-					if (stringSubType != StringConversions.StringSubtype.None)
+					if (stringSubType == StringConversions.StringSubtype.String)
 						return WEIGHT_EXACT_MATCH;
+					else if (stringSubType == StringConversions.StringSubtype.StringBuilder)
+						return WEIGHT_STRING_TO_STRINGBUILDER;
+					else if (stringSubType == StringConversions.StringSubtype.Char)
+						return WEIGHT_STRING_TO_CHAR;
 					break;
 				case DataType.Function:
 					if (desiredType == typeof(Closure)) return WEIGHT_EXACT_MATCH;

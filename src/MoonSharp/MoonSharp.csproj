@@ -107,8 +107,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\CommandManager.cs" />
+    <Compile Include="Commands\Implementations\CompileCommand.cs" />
+    <Compile Include="Commands\Implementations\DebugCommand.cs" />
+    <Compile Include="Commands\Implementations\ExitCommand.cs" />
+    <Compile Include="Commands\Implementations\HardWireCommand.cs" />
+    <Compile Include="Commands\Implementations\HelpCommand.cs" />
+    <Compile Include="Commands\ICommand.cs" />
+    <Compile Include="Commands\Implementations\RegisterCommand.cs" />
+    <Compile Include="Commands\Implementations\RunCommand.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ShellContext.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MoonSharp.Hardwire\MoonSharp.Hardwire.net35-client.csproj">

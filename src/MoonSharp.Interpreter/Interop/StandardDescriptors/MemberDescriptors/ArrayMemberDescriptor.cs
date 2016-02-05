@@ -4,10 +4,19 @@ using MoonSharp.Interpreter.Interop.Converters;
 
 namespace MoonSharp.Interpreter.Interop
 {
+	/// <summary>
+	/// Member descriptor for indexer of array types
+	/// </summary>
 	public class ArrayMemberDescriptor : ObjectCallbackMemberDescriptor, IWireableDescriptor 
 	{
 		bool m_IsSetter;
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ArrayMemberDescriptor"/> class.
+		/// </summary>
+		/// <param name="name">The name.</param>
+		/// <param name="isSetter">if set to <c>true</c> is a setter indexer.</param>
+		/// <param name="indexerParams">The indexer parameters.</param>
 		public ArrayMemberDescriptor(string name, bool isSetter, ParameterDescriptor[] indexerParams)
 			: base(
 			name,
@@ -16,6 +25,12 @@ namespace MoonSharp.Interpreter.Interop
 		{
 			m_IsSetter = isSetter;
 		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ArrayMemberDescriptor"/> class.
+		/// </summary>
+		/// <param name="name">The name.</param>
+		/// <param name="isSetter">if set to <c>true</c> [is setter].</param>
 		public ArrayMemberDescriptor(string name, bool isSetter)
 			: base(
 			name,
@@ -24,6 +39,11 @@ namespace MoonSharp.Interpreter.Interop
 			m_IsSetter = isSetter;
 		}
 
+		/// <summary>
+		/// Prepares the descriptor for hard-wiring.
+		/// The descriptor fills the passed table with all the needed data for hardwire generators to generate the appropriate code.
+		/// </summary>
+		/// <param name="t">The table to be filled</param>
 		public void PrepareForWiring(Table t)
 		{
 			t.Set("class", DynValue.NewString(this.GetType().FullName));

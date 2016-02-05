@@ -274,6 +274,11 @@ namespace MoonSharp.Interpreter.Interop
 		}
 
 
+		/// <summary>
+		/// Prepares the descriptor for hard-wiring.
+		/// The descriptor fills the passed table with all the needed data for hardwire generators to generate the appropriate code.
+		/// </summary>
+		/// <param name="t">The table to be filled</param>
 		public void PrepareForWiring(Table t)
 		{
 			t.Set("class", DynValue.NewString(this.GetType().FullName));

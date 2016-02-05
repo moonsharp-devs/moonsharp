@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Linq;
 using MoonSharp.Interpreter.Interop;
 using MoonSharp.Interpreter.Interop.BasicDescriptors;
 using MoonSharp.Interpreter.Interop.RegistrationPolicies;
@@ -370,6 +371,17 @@ namespace MoonSharp.Interpreter
 			}
 
 			return output.Table;
+		}
+
+		/// <summary>
+		/// Gets all the registered types.
+		/// </summary>
+		/// <param name="useHistoricalData">if set to true, it will also include the last found descriptor of all unregistered types.</param>
+		/// <returns></returns>
+		public static IEnumerable<Type> GetRegisteredTypes(bool useHistoricalData = false)
+		{
+			var registeredTypesPairs = useHistoricalData ? TypeDescriptorRegistry.RegisteredTypesHistory : TypeDescriptorRegistry.RegisteredTypes;
+			return registeredTypesPairs.Select(p => p.Value.Type);
 		}
 
 		

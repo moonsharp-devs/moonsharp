@@ -18,7 +18,7 @@ namespace MoonSharpTests
 {
 	class Program
 	{
-		public const string RESTRICT_TEST = "VInterop_ConstructorAndConcatMethodSemicolon_None";
+		public const string RESTRICT_TEST = null; //"VInterop_ConstructorAndConcatMethodSemicolon_None";
 		public const string LOG_ON_FILE = "moonsharp_tests.log";
 
 		// Tests skipped on all platforms
