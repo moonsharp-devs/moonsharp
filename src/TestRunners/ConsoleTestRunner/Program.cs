@@ -18,7 +18,7 @@ namespace MoonSharpTests
 {
 	class Program
 	{
-		public const string RESTRICT_TEST = null; //"Interop_StaticInstanceAccessRaisesError";
+		public const string RESTRICT_TEST = "VInterop_ConstructorAndConcatMethodSemicolon_None";
 		public const string LOG_ON_FILE = "moonsharp_tests.log";
 
 		// Tests skipped on all platforms
@@ -28,28 +28,75 @@ namespace MoonSharpTests
 			"TestMore_309_os",  // avoid interactions with low level system
 		};
 
+		static List<string> HARDWIRE_SKIPLIST = new List<string>()
+		{
+			// events
+			"Interop_Event_Simple",
+			"Interop_Event_TwoObjects",
+			"Interop_Event_Multi",
+			"Interop_Event_MultiAndDetach",
+			"Interop_Event_DetachAndDeregister",
+			"Interop_SEvent_DetachAndDeregister",
+			"Interop_SEvent_DetachAndReregister",
+
+			// tests dependent on type dereg
+			"Interop_ListMethod_None",
+			"Interop_ListMethod_Lazy",
+			"Interop_ListMethod_Precomputed",
+			"VInterop_ListMethod_None",
+			"VInterop_ListMethod_Lazy",
+			"VInterop_ListMethod_Precomputed",
+
+			// private members
+			"Interop_NestedTypes_Private_Ref",
+			"Interop_NestedTypes_Private_Val",
+
+			// value type property setters
+			"VInterop_IntPropertySetter_None",
+			"VInterop_IntPropertySetter_Lazy",
+			"VInterop_IntPropertySetter_Precomputed",
+			"VInterop_NIntPropertySetter_None",
+			"VInterop_NIntPropertySetter_Lazy",
+			"VInterop_NIntPropertySetter_Precomputed",
+			"VInterop_WoIntPropertySetter_None",
+			"VInterop_WoIntPropertySetter_Lazy",
+			"VInterop_WoIntPropertySetter_Precomputed",
+			"VInterop_WoIntProperty2Setter_None",
+			"VInterop_WoIntProperty2Setter_Lazy",
+			"VInterop_WoIntProperty2Setter_Precomputed",
+			"VInterop_IntPropertySetterWithSimplifiedSyntax",
+			"VInterop_IntFieldSetter_None",
+			"VInterop_IntFieldSetter_Lazy",
+			"VInterop_IntFieldSetter_Precomputed",
+			"VInterop_NIntFieldSetter_None",
+			"VInterop_NIntFieldSetter_Lazy",
+			"VInterop_NIntFieldSetter_Precomputed",
+			"VInterop_IntFieldSetterWithSimplifiedSyntax",
+		};
+
+
 		// Tests skipped on AOT platforms - known not workings :(
 		static List<string> AOT_SKIPLIST = new List<string>()
 		{
-			"RegCollGen_List_ExtMeth_Last", 
-			"VInterop_NIntPropertySetter_None",	
-			"VInterop_NIntPropertySetter_Lazy",	
-			"VInterop_NIntPropertySetter_Precomputed",	
-			"VInterop_Overloads_NumDowncast",	
-			"VInterop_Overloads_NilSelectsNonOptional",	
-			"VInterop_Overloads_FullDecl",
-			"VInterop_Overloads_Static2",
-			"VInterop_Overloads_Cache1",
-			"VInterop_Overloads_Cache2",
-			"VInterop_ConcatMethod_None",
-			"VInterop_ConcatMethod_Lazy",
-			"VInterop_ConcatMethod_Precomputed",
-			"VInterop_ConcatMethodSemicolon_None",
-			"VInterop_ConcatMethodSemicolon_Lazy",
-			"VInterop_ConcatMethodSemicolon_Precomputed",
-			"VInterop_ConstructorAndConcatMethodSemicolon_None",
-			"VInterop_ConstructorAndConcatMethodSemicolon_Lazy",
-			"VInterop_ConstructorAndConcatMethodSemicolon_Precomputed",
+			//"RegCollGen_List_ExtMeth_Last", 
+			//"VInterop_NIntPropertySetter_None",	
+			//"VInterop_NIntPropertySetter_Lazy",	
+			//"VInterop_NIntPropertySetter_Precomputed",	
+			//"VInterop_Overloads_NumDowncast",	
+			//"VInterop_Overloads_NilSelectsNonOptional",	
+			//"VInterop_Overloads_FullDecl",
+			//"VInterop_Overloads_Static2",
+			//"VInterop_Overloads_Cache1",
+			//"VInterop_Overloads_Cache2",
+			//"VInterop_ConcatMethod_None",
+			//"VInterop_ConcatMethod_Lazy",
+			//"VInterop_ConcatMethod_Precomputed",
+			//"VInterop_ConcatMethodSemicolon_None",
+			//"VInterop_ConcatMethodSemicolon_Lazy",
+			//"VInterop_ConcatMethodSemicolon_Precomputed",
+			//"VInterop_ConstructorAndConcatMethodSemicolon_None",
+			//"VInterop_ConstructorAndConcatMethodSemicolon_Lazy",
+			//"VInterop_ConstructorAndConcatMethodSemicolon_Precomputed",
 		};
 
 
@@ -64,9 +111,10 @@ namespace MoonSharpTests
 			Console.WriteLine();
 			Console.WriteLine();
 			Console.WriteLine();
-			
-			MyNamespace.MyClass.Initialize();
 
+
+			MyNamespace.MyClass.Initialize();
+			SKIPLIST.AddRange(HARDWIRE_SKIPLIST);
 			UserData.RegistrationPolicy = new HardwireAndLogPolicy();
 
 
@@ -79,6 +127,7 @@ namespace MoonSharpTests
 
 				Console.ForegroundColor = ConsoleColor.Cyan;
 				Console.WriteLine("Running on AOT : {0}", Script.GlobalOptions.Platform.IsRunningOnAOT());
+
 
 				if (Script.GlobalOptions.Platform.IsRunningOnAOT())
 				{
@@ -96,7 +145,7 @@ namespace MoonSharpTests
 					Console.ReadKey();
 				}
 
-				OnTestEnded();
+				//OnTestEnded();
 
 				return T.Fail;
 			}
@@ -123,11 +172,13 @@ namespace MoonSharpTests
 				Console.ForegroundColor = ConsoleColor.Red;
 
 				Console.WriteLine();
-				if (r.Exception!= null)
+				if (r.Exception != null)
 					Console_WriteLine("{0} - {1}", r.TestName, r.Exception);
 				else
 					Console_WriteLine("{0} - {1}", r.TestName, r.Message);
 				Console.WriteLine();
+
+				HARDWIRE_SKIPLIST.Add(r.TestName);
 			}
 			else if (r.Type == TestResultType.Ok)
 			{

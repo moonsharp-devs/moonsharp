@@ -1,8 +1,5 @@
 ﻿#if !PCL
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using MoonSharp.Interpreter.Loaders;
 
 namespace MoonSharp.Interpreter.REPL

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using MoonSharp.Interpreter.DataStructs;
-
+﻿
 namespace MoonSharp.Interpreter
 {
 	/// <summary>

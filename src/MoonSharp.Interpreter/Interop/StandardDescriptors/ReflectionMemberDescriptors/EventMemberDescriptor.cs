@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using MoonSharp.Interpreter.DataStructs;
 using MoonSharp.Interpreter.Interop.BasicDescriptors;
+using MoonSharp.Interpreter.Interop.StandardDescriptors;
 
 namespace MoonSharp.Interpreter.Interop
 {
@@ -18,43 +18,6 @@ namespace MoonSharp.Interpreter.Interop
 		/// The maximum number of arguments supported in an event handler delegate
 		/// </summary>
 		public const int MAX_ARGS_IN_DELEGATE = 16;
-
-		#region Wrapper as DynValue
-		internal class EventFacade : IUserDataType
-		{
-			EventMemberDescriptor m_Parent;
-			object m_Object;
-
-			public EventFacade(EventMemberDescriptor parent, object obj)
-			{
-				m_Parent = parent;
-				m_Object = obj;
-			}
-
-			public DynValue Index(Script script, DynValue index, bool isDirectIndexing)
-			{
-				if (index.Type == DataType.String)
-				{
-					if (index.String == "add")
-						return DynValue.NewCallback((c, a) => m_Parent.AddCallback(m_Object, c, a));
-					else if (index.String == "remove")
-						return DynValue.NewCallback((c, a) => m_Parent.RemoveCallback(m_Object, c, a));
-				}
-
-				throw new ScriptRuntimeException("Events only support add and remove methods");
-			}
-
-			public bool SetIndex(Script script, DynValue index, DynValue value, bool isDirectIndexing)
-			{
-				throw new ScriptRuntimeException("Events do not have settable fields");
-			}
-
-			public DynValue MetaIndex(Script script, string metaname)
-			{
-				return null;
-			}
-		}
-		#endregion
 
 
 		object m_Lock = new object();
@@ -173,6 +136,8 @@ namespace MoonSharp.Interpreter.Interop
 			IsStatic = m_Add.IsStatic;
 		}
 
+
+
 		/// <summary>
 		/// Gets the EventInfo object of the event described by this descriptor
 		/// </summary>
@@ -202,7 +167,7 @@ namespace MoonSharp.Interpreter.Interop
 		}
 
 
-		private DynValue AddCallback(object o, ScriptExecutionContext context, CallbackArguments args)
+		internal DynValue AddCallback(object o, ScriptExecutionContext context, CallbackArguments args)
 		{
 			lock (m_Lock)
 			{
@@ -216,7 +181,7 @@ namespace MoonSharp.Interpreter.Interop
 			}
 		}
 
-		private DynValue RemoveCallback(object o, ScriptExecutionContext context, CallbackArguments args)
+		internal DynValue RemoveCallback(object o, ScriptExecutionContext context, CallbackArguments args)
 		{
 			lock (m_Lock)
 			{

@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace MoonSharp.Interpreter.Interop.RegistrationPolicies
 {
@@ -25,5 +22,6 @@ namespace MoonSharp.Interpreter.Interop.RegistrationPolicies
 		/// <param name="type">The type.</param>
 		/// <returns>True to register the type automatically, false otherwise.</returns>
 		bool AllowTypeAutoRegistration(Type type);
+
 	}
 }

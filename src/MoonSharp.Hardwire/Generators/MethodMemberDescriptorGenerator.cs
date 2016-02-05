@@ -64,7 +64,7 @@ namespace MoonSharp.Hardwire.Generators
 			List<CodeExpression> initParams = new List<CodeExpression>();
 
 			initParams.Add(new CodePrimitiveExpression(memberName));
-			initParams.Add(new CodePrimitiveExpression(table.Get("static").Boolean));
+			initParams.Add(new CodePrimitiveExpression(table.Get("static").Boolean || table.Get("ctor").Boolean));
 
 			initParams.Add(new CodeArrayCreateExpression(typeof(ParameterDescriptor), 
 				paramDescs.Select(e => e.Expression).ToArray())); 

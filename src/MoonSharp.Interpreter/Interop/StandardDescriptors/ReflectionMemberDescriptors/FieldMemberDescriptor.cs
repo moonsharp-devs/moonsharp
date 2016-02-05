@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
 using System.Threading;
 using MoonSharp.Interpreter.Diagnostics;
 using MoonSharp.Interpreter.Interop.BasicDescriptors;
@@ -220,6 +217,7 @@ namespace MoonSharp.Interpreter.Interop
 			t.Set("const", DynValue.NewBoolean(this.IsConst));
 			t.Set("readonly", DynValue.NewBoolean(this.IsReadonly));
 			t.Set("decltype", DynValue.NewString(this.FieldInfo.DeclaringType.FullName));
+			t.Set("declvtype", DynValue.NewBoolean(this.FieldInfo.DeclaringType.IsValueType));
 			t.Set("type", DynValue.NewString(this.FieldInfo.FieldType.FullName));
 			t.Set("read", DynValue.NewBoolean(true));
 			t.Set("write", DynValue.NewBoolean(!(this.IsConst || this.IsReadonly)));

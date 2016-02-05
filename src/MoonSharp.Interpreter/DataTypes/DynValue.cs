@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using MoonSharp.Interpreter.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using System.Threading;
-using MoonSharp.Interpreter.Execution;
-using MoonSharp.Interpreter.Execution.VM;
 
 namespace MoonSharp.Interpreter
 {

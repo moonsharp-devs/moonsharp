@@ -10,6 +10,125 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 	[TestFixture]
 	public class VtUserDataMethodsTests
 	{
+		public struct SomeClass_NoRegister : IComparable
+		{
+			public string ManipulateString(string input, ref string tobeconcat, out string lowercase)
+			{
+				tobeconcat = input + tobeconcat;
+				lowercase = input.ToLower();
+				return input.ToUpper();
+			}
+
+			public string ConcatNums(int p1, int p2)
+			{
+				return string.Format("{0}%{1}", p1, p2);
+			}
+
+			public int SomeMethodWithLongName(int i)
+			{
+				return i * 2;
+			}
+
+			public static StringBuilder SetComplexRecursive(List<int[]> intList)
+			{
+				StringBuilder sb = new StringBuilder();
+
+				foreach (int[] arr in intList)
+				{
+					sb.Append(string.Join(",", arr.Select(s => s.ToString()).ToArray()));
+					sb.Append("|");
+				}
+
+				return sb;
+			}
+
+			public static StringBuilder SetComplexTypes(List<string> strlist, IList<int> intlist, Dictionary<string, int> map,
+				string[] strarray, int[] intarray)
+			{
+				StringBuilder sb = new StringBuilder();
+
+				sb.Append(string.Join(",", strlist.ToArray()));
+
+				sb.Append("|");
+
+				sb.Append(string.Join(",", intlist.Select(i => i.ToString()).ToArray()));
+
+				sb.Append("|");
+
+				sb.Append(string.Join(",", map.Keys.OrderBy(x => x).Select(i => i.ToString()).ToArray()));
+
+				sb.Append("|");
+
+				sb.Append(string.Join(",", map.Values.OrderBy(x => x).Select(i => i.ToString()).ToArray()));
+
+				sb.Append("|");
+
+				sb.Append(string.Join(",", strarray));
+
+				sb.Append("|");
+
+				sb.Append(string.Join(",", intarray.Select(i => i.ToString()).ToArray()));
+
+				return sb;
+			}
+
+
+			public static StringBuilder ConcatS(int p1, string p2, IComparable p3, bool p4, List<object> p5, IEnumerable<object> p6,
+				StringBuilder p7, Dictionary<object, object> p8, SomeClass_NoRegister p9, int p10 = 1994)
+			{
+				p7.Append(p1);
+				p7.Append(p2);
+				p7.Append(p3);
+				p7.Append(p4);
+
+				p7.Append("|");
+				foreach (var o in p5) p7.Append(o);
+				p7.Append("|");
+				foreach (var o in p6) p7.Append(o);
+				p7.Append("|");
+				foreach (var o in p8.Keys.OrderBy(x => x.ToString())) p7.Append(o);
+				p7.Append("|");
+				foreach (var o in p8.Values.OrderBy(x => x.ToString())) p7.Append(o);
+				p7.Append("|");
+
+				p7.Append(p9);
+				p7.Append(p10);
+
+				return p7;
+			}
+
+			public string Format(string s, params object[] args)
+			{
+				return string.Format(s, args);
+			}
+
+			public StringBuilder ConcatI(Script s, int p1, string p2, IComparable p3, bool p4, List<object> p5, IEnumerable<object> p6,
+				StringBuilder p7, Dictionary<object, object> p8, SomeClass_NoRegister p9, int p10 = 1912)
+			{
+				Assert.IsNotNull(s);
+				return ConcatS(p1, p2, p3, p4, p5, p6, p7, p8, this, p10);
+			}
+
+			public override string ToString()
+			{
+				return "!SOMECLASS!";
+			}
+
+			public List<int> MkList(int from, int to)
+			{
+				List<int> l = new List<int>();
+				for (int i = from; i <= to; i++)
+					l.Add(i);
+				return l;
+			}
+
+
+			public int CompareTo(object obj)
+			{
+				throw new NotImplementedException();
+			}
+		}
+
 		public struct SomeClass : IComparable
 		{
 			public string ManipulateString(string input, ref string tobeconcat, out string lowercase)
@@ -540,8 +659,6 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 		public void Test_ListMethod(InteropAccessMode opt)
 		{
-			UserData.UnregisterType<SomeClass>();
-
 			string script = @"    
 				x = mklist(1, 4);
 				sum = 0;				
@@ -554,7 +671,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 			Script S = new Script();
 
-			SomeClass obj = new SomeClass();
+			SomeClass_NoRegister obj = new SomeClass_NoRegister();
 
 			S.Globals["mklist"] = CallbackFunction.FromDelegate(S, (Func<int, int, List<int>>)obj.MkList, opt);
 

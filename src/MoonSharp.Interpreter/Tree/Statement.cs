@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using MoonSharp.Interpreter.Diagnostics;
-using System.Linq;
-using System.Text;
-using MoonSharp.Interpreter.Execution;
-using MoonSharp.Interpreter.Execution.VM;
-using MoonSharp.Interpreter.Tree.Statements;
-using MoonSharp.Interpreter.Debugging;
+﻿using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Tree.Expressions;
+using MoonSharp.Interpreter.Tree.Statements;
 
 namespace MoonSharp.Interpreter.Tree
 {

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using MoonSharp.Interpreter.DataStructs;
-using MoonSharp.Interpreter.Debugging;
-using MoonSharp.Interpreter.Interop;
+﻿using System.Collections.Generic;
 
 namespace MoonSharp.Interpreter.Execution.VM
 {

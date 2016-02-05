@@ -164,6 +164,7 @@
     <Compile Include="Interop\RegistrationPolicies\DefaultRegistrationPolicy.cs" />
     <Compile Include="Interop\RegistrationPolicies\PermanentRegistrationPolicy.cs" />
     <Compile Include="Interop\RegistrationPolicies\IRegistrationPolicy.cs" />
+    <Compile Include="Interop\StandardDescriptors\EventFacade.cs" />
     <Compile Include="Interop\StandardDescriptors\HardwiredDescriptors\DefaultValue.cs" />
     <Compile Include="Interop\StandardDescriptors\HardwiredDescriptors\HardwiredMemberDescriptor.cs" />
     <Compile Include="Interop\StandardDescriptors\HardwiredDescriptors\HardwiredMethodMemberDescriptor.cs" />

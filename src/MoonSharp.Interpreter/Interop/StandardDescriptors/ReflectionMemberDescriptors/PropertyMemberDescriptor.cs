@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
 using System.Threading;
 using MoonSharp.Interpreter.Diagnostics;
 using MoonSharp.Interpreter.Interop.BasicDescriptors;
@@ -300,6 +297,7 @@ namespace MoonSharp.Interpreter.Interop
 			t.Set("read", DynValue.NewBoolean(this.CanRead));
 			t.Set("write", DynValue.NewBoolean(this.CanWrite));
 			t.Set("decltype", DynValue.NewString(this.PropertyInfo.DeclaringType.FullName));
+			t.Set("declvtype", DynValue.NewBoolean(this.PropertyInfo.DeclaringType.IsValueType));
 			t.Set("type", DynValue.NewString(this.PropertyInfo.PropertyType.FullName));
 		}
 	}

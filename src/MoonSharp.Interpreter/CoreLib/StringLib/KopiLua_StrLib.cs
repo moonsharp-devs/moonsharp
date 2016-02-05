@@ -47,18 +47,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using System;
-using System.IO;
-using System.Collections.Generic;
-using System.Text;
-using System.Diagnostics;
 
-using ptrdiff_t = System.Int32;
+using MoonSharp.Interpreter.Interop.LuaStateInterop;
 using lua_Integer = System.Int32;
 using LUA_INTFRM_T = System.Int64;
+using ptrdiff_t = System.Int32;
 using UNSIGNED_LUA_INTFRM_T = System.UInt64;
-using MoonSharp.Interpreter.Interop.LuaStateInterop;
-using MoonSharp.Interpreter.Execution;
 
 namespace MoonSharp.Interpreter.CoreLib.StringLib
 {

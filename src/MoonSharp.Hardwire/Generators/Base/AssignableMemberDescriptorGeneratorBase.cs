@@ -25,8 +25,14 @@ namespace MoonSharp.Hardwire.Generators
 			string memberType = table.Get("type").String;
 			string name = table.Get("name").String;
 			string decltype = table.Get("decltype").String;
+			bool declvtype = table.Get("declvtype").Boolean;
 			bool canWrite = table.Get("write").Boolean;
 			bool canRead = table.Get("read").Boolean;
+
+			if (declvtype && canWrite)
+			{
+				generator.Warning("Member '{0}.{1}::Set' will be a no-op, as it's a member of a value type.", decltype, name);
+			}
 
 			MemberDescriptorAccess access = 0;
 

@@ -11,6 +11,9 @@ namespace MoonSharpTests
 	{
 		public IUserDataDescriptor HandleRegistration(IUserDataDescriptor newDescriptor, IUserDataDescriptor oldDescriptor)
 		{
+			//if (oldDescriptor != null && oldDescriptor.Type.IsGenericType)
+			//	return newDescriptor;
+
 			if (oldDescriptor == null && newDescriptor != null)
 			{
 				var backupColor = Console.ForegroundColor;
@@ -27,5 +30,6 @@ namespace MoonSharpTests
 		{
 			return false;
 		}
+
 	}
 }

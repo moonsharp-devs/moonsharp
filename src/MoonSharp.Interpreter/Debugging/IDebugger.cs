@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using MoonSharp.Interpreter.Execution.VM;
+﻿using System.Collections.Generic;
 
 namespace MoonSharp.Interpreter.Debugging
 {

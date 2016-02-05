@@ -85,8 +85,8 @@ namespace MoonSharp.Interpreter.Interop
 		/// </summary>
 		public static string GetClrVisibility(this PropertyInfo info)
 		{
-			MethodInfo gm = info.GetGetMethod();
-			MethodInfo sm = info.GetSetMethod();
+			MethodInfo gm = info.GetGetMethod(true);
+			MethodInfo sm = info.GetSetMethod(true);
 
 			string gv = (gm != null) ? GetClrVisibility(gm) : "private";
 			string sv = (sm != null) ? GetClrVisibility(sm) : "private";

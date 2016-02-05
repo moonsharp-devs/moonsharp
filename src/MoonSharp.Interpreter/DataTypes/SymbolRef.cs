@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using MoonSharp.Interpreter.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Diagnostics;
+﻿using System.Collections.Generic;
 using System.IO;
 
 namespace MoonSharp.Interpreter

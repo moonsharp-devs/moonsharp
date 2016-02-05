@@ -2,11 +2,8 @@
 #pragma warning disable 1591
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using MoonSharp.Interpreter.Debugging;
-using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.REPL;
 
 namespace MoonSharp.Interpreter.CoreLib
