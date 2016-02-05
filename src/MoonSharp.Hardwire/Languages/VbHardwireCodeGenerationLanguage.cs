@@ -67,5 +67,10 @@ namespace MoonSharp.Hardwire.Languages
 				" *** WARNING *** : VB.NET support is experimental and", "is not officially supported."
 			};
 		}
+
+		public override CodeExpression CreateMultidimensionalArray(string type, CodeExpression[] args)
+		{
+			throw new NotImplementedException();
+		}
 	}
 }

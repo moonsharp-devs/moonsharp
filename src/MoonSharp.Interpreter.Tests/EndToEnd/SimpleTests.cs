@@ -1454,6 +1454,8 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		[Test]
 		public void Simple_Delegate_Interop_2()
 		{
+			var oldPolicy = UserData.RegistrationPolicy;
+
 			try
 			{
 				UserData.RegistrationPolicy = Interop.InteropRegistrationPolicy.Automatic;
@@ -1466,7 +1468,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			}
 			finally
 			{
-				UserData.RegistrationPolicy = Interop.InteropRegistrationPolicy.Explicit;
+				UserData.RegistrationPolicy = oldPolicy;
 			}
 		}
 

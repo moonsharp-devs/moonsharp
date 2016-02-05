@@ -24,7 +24,7 @@ namespace MoonSharp.Hardwire.Generators
 
 		protected override string GetPrefix()
 		{
-			return "P";
+			return "PROP";
 		}
 	}
 }

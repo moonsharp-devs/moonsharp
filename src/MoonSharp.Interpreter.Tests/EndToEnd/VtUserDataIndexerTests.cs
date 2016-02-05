@@ -9,7 +9,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 	[TestFixture]
 	public class VtUserDataIndexerTests
 	{
-		struct IndexerTestClass
+		public struct IndexerTestClass
 		{
 			public Dictionary<int, int> mymap;
 

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using MoonSharp.Interpreter.Interop.BasicDescriptors;
 
 namespace MoonSharp.Interpreter.Interop.StandardDescriptors.HardwiredDescriptors
@@ -14,7 +11,7 @@ namespace MoonSharp.Interpreter.Interop.StandardDescriptors.HardwiredDescriptors
 
 			List<int> outParams = null;
 			object[] pars = base.BuildArgumentList(script, obj, context, args, out outParams);
-			object retv = Invoke(obj, pars, CalcArgsCount(pars));
+			object retv = Invoke(script, obj, pars, CalcArgsCount(pars));
 
 			return DynValue.FromObject(script, retv);
 		}
@@ -32,6 +29,6 @@ namespace MoonSharp.Interpreter.Interop.StandardDescriptors.HardwiredDescriptors
 			return count;
 		}
 
-		protected abstract object Invoke(object obj, object[] pars, int argscount);
+		protected abstract object Invoke(Script script, object obj, object[] pars, int argscount);
 	}
 }

@@ -32,6 +32,7 @@ namespace MoonSharp.Hardwire.Languages
 		public abstract CodeExpression UnaryLogicalNot(CodeExpression arg);
 		public abstract CodeExpression UnaryOneComplement(CodeExpression arg);
 		public abstract CodeExpression BinaryXor(CodeExpression arg1, CodeExpression arg2);
+		public abstract CodeExpression CreateMultidimensionalArray(string type, CodeExpression[] args);
 
 		public abstract string[] GetInitialComment();
 

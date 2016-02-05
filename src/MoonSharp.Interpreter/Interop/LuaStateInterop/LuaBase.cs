@@ -2,13 +2,7 @@
 #pragma warning disable 1591
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using ptrdiff_t = System.Int32;
 using lua_Integer = System.Int32;
-using LUA_INTFRM_T = System.Int64;
-using UNSIGNED_LUA_INTFRM_T = System.UInt64;
 
 namespace MoonSharp.Interpreter.Interop.LuaStateInterop
 {

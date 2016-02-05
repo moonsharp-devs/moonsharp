@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using MoonSharp.Interpreter.Interop.BasicDescriptors;
 using MoonSharp.Interpreter.Interop.Converters;
 
@@ -340,7 +339,7 @@ namespace MoonSharp.Interpreter.Interop
 
 						varargCnt += 1;
 
-						int score = CalcScoreForSingleArgument(method.VarArgsElementType, arg, isOptional: false);
+						int score = CalcScoreForSingleArgument(method.Parameters[i], method.VarArgsElementType, arg, isOptional: false);
 						totalScore = Math.Min(totalScore, score);
 					}
 
@@ -367,7 +366,7 @@ namespace MoonSharp.Interpreter.Interop
 				{
 					var arg = args.RawGet(argsCnt, false) ?? DynValue.Void;
 
-					int score = CalcScoreForSingleArgument(parameterType, arg, method.Parameters[i].HasDefaultValue);
+					int score = CalcScoreForSingleArgument(method.Parameters[i], parameterType, arg, method.Parameters[i].HasDefaultValue);
 
 					totalScore = Math.Min(totalScore, score);
 
@@ -401,12 +400,12 @@ namespace MoonSharp.Interpreter.Interop
 			return totalScore;
 		}
 
-		private static int CalcScoreForSingleArgument(Type parameterType, DynValue arg, bool isOptional)
+		private static int CalcScoreForSingleArgument(ParameterDescriptor desc, Type parameterType, DynValue arg, bool isOptional)
 		{
 			int score = ScriptToClrConversions.DynValueToObjectOfTypeWeight(arg,
 				parameterType, isOptional);
 
-			if (parameterType.IsByRef)
+			if (parameterType.IsByRef || desc.IsOut || desc.IsRef)
 				score = Math.Max(0, score + ScriptToClrConversions.WEIGHT_BYREF_BONUSMALUS);
 
 			return score;

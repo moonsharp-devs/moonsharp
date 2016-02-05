@@ -161,6 +161,7 @@
     <Compile Include="Units\BinDumpStreamTests.cs" />
     <Compile Include="Units\FastStackTests.cs" />
     <Compile Include="Units\InteropTests.cs" />
+    <Compile Include="_Hardwired.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MoonSharp.Interpreter\MoonSharp.Interpreter.net35-client.csproj">

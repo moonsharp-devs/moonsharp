@@ -25,8 +25,14 @@ namespace MoonSharp.Hardwire.Generators
 			string memberType = table.Get("type").String;
 			string name = table.Get("name").String;
 			string decltype = table.Get("decltype").String;
+			bool declvtype = table.Get("declvtype").Boolean;
 			bool canWrite = table.Get("write").Boolean;
 			bool canRead = table.Get("read").Boolean;
+
+			if (declvtype && canWrite)
+			{
+				generator.Warning("Member '{0}.{1}::Set' will be a no-op, as it's a member of a value type.", decltype, name);
+			}
 
 			MemberDescriptorAccess access = 0;
 
@@ -59,10 +65,9 @@ namespace MoonSharp.Hardwire.Generators
 				? (CodeExpression)(new CodeTypeReferenceExpression(decltype))
 				: (CodeExpression)(new CodeCastExpression(decltype, new CodeVariableReferenceExpression("obj")));
 
-			var memberExp = GetMemberAccessExpression(thisExp, name);
-
 			if (canRead)
 			{
+				var memberExp = GetMemberAccessExpression(thisExp, name);
 				//	protected virtual object GetValueImpl(Script script, object obj)
 				CodeMemberMethod m = new CodeMemberMethod();
 				classCode.Members.Add(m);
@@ -79,7 +84,7 @@ namespace MoonSharp.Hardwire.Generators
 				//	protected virtual object GetValueImpl(Script script, object obj)
 				CodeMemberMethod m = new CodeMemberMethod();
 				classCode.Members.Add(m);
-				m.Name = "SetValueImpl";
+				m.Name = "SetValueImpl"; 
 				m.Attributes = MemberAttributes.Override | MemberAttributes.Family;
 				m.Parameters.Add(new CodeParameterDeclarationExpression(typeof(Script), "script"));
 				m.Parameters.Add(new CodeParameterDeclarationExpression(typeof(object), "obj"));
@@ -87,7 +92,19 @@ namespace MoonSharp.Hardwire.Generators
 
 				var valExp = new CodeCastExpression(memberType, new CodeVariableReferenceExpression("value"));
 
-				m.Statements.Add(new CodeAssignStatement(memberExp, valExp));
+				if (isStatic)
+				{
+					var e = GetMemberAccessExpression(thisExp, name);
+					m.Statements.Add(new CodeAssignStatement(e, valExp));
+				}
+				else
+				{
+					m.Statements.Add(new CodeVariableDeclarationStatement(decltype, "tmp", thisExp));
+
+					var memberExp = GetMemberAccessExpression(new CodeVariableReferenceExpression("tmp"), name);
+
+					m.Statements.Add(new CodeAssignStatement(memberExp, valExp));
+				}
 			}
 
 			members.Add(classCode);

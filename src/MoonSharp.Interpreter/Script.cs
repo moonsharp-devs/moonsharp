@@ -2,20 +2,14 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using MoonSharp.Interpreter.CoreLib;
-using MoonSharp.Interpreter.DataStructs;
 using MoonSharp.Interpreter.Debugging;
 using MoonSharp.Interpreter.Diagnostics;
-using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Execution.VM;
-using MoonSharp.Interpreter.Interop;
 using MoonSharp.Interpreter.IO;
 using MoonSharp.Interpreter.Platforms;
-using MoonSharp.Interpreter.Tree;
 using MoonSharp.Interpreter.Tree.Expressions;
 using MoonSharp.Interpreter.Tree.Fast_Interface;
-using MoonSharp.Interpreter.Tree.Statements;
 
 namespace MoonSharp.Interpreter
 {
@@ -28,7 +22,7 @@ namespace MoonSharp.Interpreter
 		/// <summary>
 		/// The version of the MoonSharp engine
 		/// </summary>
-		public const string VERSION = "1.2.99.0"; 
+		public const string VERSION = "1.99.999.9999"; 
 
 		/// <summary>
 		/// The Lua version being supported

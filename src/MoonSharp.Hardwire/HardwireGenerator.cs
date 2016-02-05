@@ -16,9 +16,9 @@ namespace MoonSharp.Hardwire
 		HardwireCodeGenerationLanguage m_Language;
 
 		public HardwireGenerator(string namespaceName, string entryClassName, ICodeGenerationLogger logger,
-			HardwireCodeGenerationLanguage language)
+			HardwireCodeGenerationLanguage language = null)
 		{
-			m_Language = language;
+			m_Language = language ?? HardwireCodeGenerationLanguage.CSharp;
 			m_Context = new HardwireCodeGenerationContext(namespaceName, entryClassName, logger, language);
 		}
 
@@ -39,5 +39,10 @@ namespace MoonSharp.Hardwire
 			}
 		}
 
+		public bool AllowInternals
+		{
+			get { return m_Context.AllowInternals; }
+			set { m_Context.AllowInternals = value; }
+		}
 	}
 }

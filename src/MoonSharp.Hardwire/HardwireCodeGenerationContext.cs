@@ -30,6 +30,8 @@ namespace MoonSharp.Hardwire
 
 		public HardwireCodeGenerationLanguage TargetLanguage { get; private set; }
 
+		public bool AllowInternals { get; internal set; }
+
 
 		internal HardwireCodeGenerationContext(string namespaceName, string entryClassName, ICodeGenerationLogger logger,
 			HardwireCodeGenerationLanguage language)
@@ -81,7 +83,7 @@ namespace MoonSharp.Hardwire
 			try
 			{
 				DispatchTablePairs(table, m_KickstarterClass.Members,
-					exp => m_InitStatements.Add(new CodeMethodInvokeExpression(new CodeTypeReferenceExpression(typeof(UserData)), "Register", exp)));
+					exp => m_InitStatements.Add(new CodeMethodInvokeExpression(new CodeTypeReferenceExpression(typeof(UserData)), "RegisterType", exp)));
 			}
 			catch (Exception ex)
 			{
@@ -110,9 +112,19 @@ namespace MoonSharp.Hardwire
 
 				if (value.Type == DataType.Table)
 				{
+					if (value.Table.Get("skip").IsNotNil())
+						continue;
+
+					if (!IsVisibilityAccepted(value.Table))
+					{
+						Warning("Type/Member '{0}' cannot be hardwired because its visibility is '{1}' (stack = {2}).", key.String ?? "(null)", value.Table.Get("visibility").String, GetStackTrace());
+
+						continue;
+					}
+
 					var exp = DispatchTable(key.String, value.Table, members);
 
-					if (action != null)
+					if (action != null && exp != null)
 						foreach (var e in exp)
 							action(key.String, e);
 				}
@@ -220,6 +232,22 @@ namespace MoonSharp.Hardwire
 			string str = string.Format(format, args);
 			m_Namespace.Comments.Add(new CodeCommentStatement("Minor : " + str));
 			m_Logger.LogMinor(str);
+		}
+
+		public bool IsVisibilityAccepted(Table t)
+		{
+			DynValue dv = t.Get("visibility");
+
+			if (dv.Type != DataType.String)
+				return true;
+
+			if (dv.String == "public")
+				return true;
+
+			if (dv.String == "internal" || dv.String == "protected-internal")
+				return AllowInternals;
+
+			return false;
 		}
 
 

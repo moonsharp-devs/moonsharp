@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using MoonSharp.Interpreter;
 using MoonSharp.Interpreter.Serialization;
 using MoonSharp.Interpreter.Interop;
@@ -39,7 +38,7 @@ namespace MoonSharp.Playground
 	{
 		static void Main(string[] args)
 		{
-			UserData.RegisterType<int[]>();
+			UserData.RegisterType<TimeSpan>();
 
 			//Table t = UserData.GetDescriptionOfRegisteredTypes();
 
@@ -53,7 +52,10 @@ namespace MoonSharp.Playground
 
 			HardwireGeneratorRegistry.RegisterPredefined();
 
-			HardwireGenerator hcg = new HardwireGenerator("MyNamespace", "MyClass", new ConsoleLogger(), HardwireCodeGenerationLanguage.CSharp);
+			HardwireGenerator hcg = new HardwireGenerator("MyNamespace", "MyClass", new ConsoleLogger(), HardwireCodeGenerationLanguage.CSharp)
+			{
+				 AllowInternals = true
+			};
 
 			hcg.BuildCodeModel(t);
 

@@ -7,7 +7,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using MoonSharp.Interpreter.CoreLib.IO;
-using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Platforms;
 
 namespace MoonSharp.Interpreter.CoreLib

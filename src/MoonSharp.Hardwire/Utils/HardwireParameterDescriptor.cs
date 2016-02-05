@@ -14,6 +14,9 @@ namespace MoonSharp.Hardwire.Utils
 		public CodeExpression Expression { get; private set; }
 		public string ParamType { get; private set; }
 		public bool HasDefaultValue { get; private set; }
+		public bool IsOut { get; private set; }
+		public bool IsRef { get; private set; }
+		public string TempVarName { get; private set; }
 
 		public HardwireParameterDescriptor(Table tpar)
 		{
@@ -35,6 +38,8 @@ namespace MoonSharp.Hardwire.Utils
 
 			ParamType = tpar.Get("origtype").String;
 			HasDefaultValue = tpar.Get("default").Boolean;
+			IsOut = tpar.Get("out").Boolean;
+			IsRef = tpar.Get("ref").Boolean;
 		}
 
 		public static List<HardwireParameterDescriptor> LoadDescriptorsFromTable(Table t)
@@ -49,5 +54,13 @@ namespace MoonSharp.Hardwire.Utils
 			return list;
 		}
 
+
+		public void SetTempVar(string varName)
+		{
+			if (!IsOut && !IsRef)
+				throw new InvalidOperationException("ReplaceExprWithVar on byval param");
+
+			TempVarName = varName;
+		}
 	}
 }

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using MoonSharp.Interpreter.Interop.BasicDescriptors;
+﻿using MoonSharp.Interpreter.Interop.BasicDescriptors;
 
 namespace MoonSharp.Interpreter.Interop
 {
@@ -143,6 +139,7 @@ namespace MoonSharp.Interpreter.Interop
 					{
 						t.Set("type", DynValue.NewString("userdata"));
 						t.Set("staticType", DynValue.NewString(Value.UserData.Descriptor.Type.FullName));
+						t.Set("visibility", DynValue.NewString(Value.UserData.Descriptor.Type.GetClrVisibility()));
 					}
 					else
 					{

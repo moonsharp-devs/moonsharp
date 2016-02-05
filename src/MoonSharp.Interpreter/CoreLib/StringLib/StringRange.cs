@@ -1,10 +1,6 @@
 ﻿// Disable warnings about XML documentation
 #pragma warning disable 1591
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace MoonSharp.Interpreter.CoreLib.StringLib
 {

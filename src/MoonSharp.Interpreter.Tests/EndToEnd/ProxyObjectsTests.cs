@@ -10,7 +10,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 	[TestFixture]
 	public class ProxyObjectsTests
 	{
-		private class Proxy
+		public class Proxy
 		{
 			[MoonSharpVisible(false)]
 			public Random random;

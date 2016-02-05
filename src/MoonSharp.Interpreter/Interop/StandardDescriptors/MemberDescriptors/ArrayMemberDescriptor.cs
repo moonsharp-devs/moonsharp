@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using MoonSharp.Interpreter.Interop.BasicDescriptors;
 using MoonSharp.Interpreter.Interop.Converters;
 
@@ -26,7 +23,6 @@ namespace MoonSharp.Interpreter.Interop
 		{
 			m_IsSetter = isSetter;
 		}
-
 
 		public void PrepareForWiring(Table t)
 		{
