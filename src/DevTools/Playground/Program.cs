@@ -38,6 +38,40 @@ namespace MoonSharp.Playground
 	{
 		static void Main(string[] args)
 		{
+			{
+				string test = @"
+function print_env()
+  print(_ENV)
+end
+
+function sandbox()
+  print(_ENV) -- prints: 'table: 0x100100610'
+  -- need to keep access to a few globals:
+  _ENV = { print = print, print_env = print_env, debug = debug, load = load }
+  print(_ENV) -- prints: 'table: 0x100105140'
+  print_env() -- prints: 'table: 0x100105140'
+  local code1 = load('print(_ENV)')
+  code1()     -- prints: 'table: 0x100100610'
+  debug.setupvalue(code1, 0, _ENV) -- set our modified env
+  debug.setupvalue(code1, 1, _ENV) -- set our modified env
+  code1()     -- prints: 'table: 0x100105140'
+  local code2 = load('print(_ENV)', nil, nil, _ENV) -- pass 'env' arg
+  code2()     -- prints: 'table: 0x100105140'
+end
+
+sandbox()";
+
+				Script S = new Script(CoreModules.Preset_Complete);
+
+				S.DoString(test);
+
+				Console.ReadKey();
+				return;
+			}
+
+
+
+
 			UserData.RegisterType<TimeSpan>();
 
 			//Table t = UserData.GetDescriptionOfRegisteredTypes();
@@ -54,7 +88,7 @@ namespace MoonSharp.Playground
 
 			HardwireGenerator hcg = new HardwireGenerator("MyNamespace", "MyClass", new ConsoleLogger(), HardwireCodeGenerationLanguage.CSharp)
 			{
-				 AllowInternals = true
+				AllowInternals = true
 			};
 
 			hcg.BuildCodeModel(t);

@@ -122,6 +122,9 @@
     <Compile Include="..\..\DataStructs\ReferenceEqualityComparer.cs">
       <Link>ReferenceEqualityComparer.cs</Link>
     </Compile>
+    <Compile Include="..\..\Execution\VM\OpCodeMetadataType.cs">
+      <Link>OpCodeMetadataType.cs</Link>
+    </Compile>
     <Compile Include="..\..\Interop\Attributes\MoonSharpPropertyAttribute.cs">
       <Link>MoonSharpPropertyAttribute.cs</Link>
     </Compile>
@@ -142,6 +145,9 @@
     </Compile>
     <Compile Include="..\..\Interop\BasicDescriptors\IOverloadableMemberDescriptor.cs">
       <Link>IOverloadableMemberDescriptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\IWireableDescriptor.cs">
+      <Link>IWireableDescriptor.cs</Link>
     </Compile>
     <Compile Include="..\..\Interop\BasicDescriptors\MemberDescriptorAccess.cs">
       <Link>MemberDescriptorAccess.cs</Link>
@@ -184,6 +190,39 @@
     </Compile>
     <Compile Include="..\..\Interop\ProxyObjects\IProxyFactory.cs">
       <Link>IProxyFactory.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\ReflectionSpecialNames.cs">
+      <Link>ReflectionSpecialNames.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\RegistrationPolicies\AutomaticRegistrationPolicy.cs">
+      <Link>AutomaticRegistrationPolicy.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\RegistrationPolicies\DefaultRegistrationPolicy.cs">
+      <Link>DefaultRegistrationPolicy.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\RegistrationPolicies\PermanentRegistrationPolicy.cs">
+      <Link>PermanentRegistrationPolicy.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\RegistrationPolicies\IRegistrationPolicy.cs">
+      <Link>IRegistrationPolicy.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\StandardDescriptors\EventFacade.cs">
+      <Link>EventFacade.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\StandardDescriptors\HardwiredDescriptors\DefaultValue.cs">
+      <Link>DefaultValue.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\StandardDescriptors\HardwiredDescriptors\HardwiredMemberDescriptor.cs">
+      <Link>HardwiredMemberDescriptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\StandardDescriptors\HardwiredDescriptors\HardwiredMethodMemberDescriptor.cs">
+      <Link>HardwiredMethodMemberDescriptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\StandardDescriptors\HardwiredDescriptors\HardwiredUserDataDescriptor.cs">
+      <Link>HardwiredUserDataDescriptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\StandardDescriptors\MemberDescriptors\ArrayMemberDescriptor.cs">
+      <Link>ArrayMemberDescriptor.cs</Link>
     </Compile>
     <Compile Include="..\..\Interop\StandardDescriptors\ProxyUserDataDescriptor.cs">
       <Link>ProxyUserDataDescriptor.cs</Link>
@@ -609,6 +648,9 @@
     </Compile>
     <Compile Include="..\..\ScriptOptions.cs">
       <Link>ScriptOptions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Serialization\SerializationExtensions.cs">
+      <Link>SerializationExtensions.cs</Link>
     </Compile>
     <Compile Include="..\..\Tree\Expressions\AdjustmentExpression.cs">
       <Link>AdjustmentExpression.cs</Link>

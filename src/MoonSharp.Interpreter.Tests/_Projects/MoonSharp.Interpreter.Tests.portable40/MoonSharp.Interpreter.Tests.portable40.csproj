@@ -205,6 +205,9 @@
     <Compile Include="..\..\Units\InteropTests.cs">
       <Link>InteropTests.cs</Link>
     </Compile>
+    <Compile Include="..\..\_Hardwired.cs">
+      <Link>_Hardwired.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\MoonSharp.Interpreter\_Projects\MoonSharp.Interpreter.portable40\MoonSharp.Interpreter.portable40.csproj">

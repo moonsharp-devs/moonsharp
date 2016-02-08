@@ -163,7 +163,7 @@ namespace MoonSharp.Interpreter.CoreLib
 			if (index < 0 || index >= closure.Count)
 				return DynValue.Nil;
 
-			closure[index] = args[2];
+			closure[index].Assign(args[2]);
 
 			return DynValue.NewString(closure.Symbols[index]);
 		}

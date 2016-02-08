@@ -113,7 +113,6 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
-    <Compile Include="DumpTableGenerator.cs" />
     <Compile Include="EmbeddableNUnitWrapper.cs" />
     <Compile Include="EndToEnd\BinaryDumpTests.cs" />
     <Compile Include="EndToEnd\ClosureTests.cs" />

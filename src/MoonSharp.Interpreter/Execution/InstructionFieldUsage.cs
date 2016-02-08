@@ -87,10 +87,11 @@ namespace MoonSharp.Interpreter.Execution
 				case OpCode.Debug:
 				case OpCode.Invalid:
 					return InstructionFieldUsage.Name;
-				case OpCode.FuncMeta:
 				case OpCode.Call:
 				case OpCode.ThisCall:
 					return InstructionFieldUsage.NumVal | InstructionFieldUsage.Name;
+				case OpCode.Meta:
+					return InstructionFieldUsage.NumVal | InstructionFieldUsage.NumVal2 | InstructionFieldUsage.Value | InstructionFieldUsage.Name;
 				default:
 					throw new NotImplementedException(string.Format("InstructionFieldUsage for instruction {0}", (int)op));
 			}

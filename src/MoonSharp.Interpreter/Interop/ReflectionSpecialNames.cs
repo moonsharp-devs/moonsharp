@@ -61,7 +61,7 @@ namespace MoonSharp.Interpreter.Interop
 		public ReflectionSpecialName(string name)
 			: this()
 		{
-			if (name.Contains('.'))
+			if (name.Contains("."))
 			{
 				string[] split = name.Split('.');
 				name = split[split.Length - 1];

@@ -26,7 +26,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 		// Stack-frame ops and calls
 		Clean,		// Cleansup locals setting them as null
 
-		FuncMeta,	// Injects function metadata used for reflection things (dumping, debugging)
+		Meta,	// Injects function metadata used for reflection things (dumping, debugging)
 		BeginFn,	// Adjusts for start of function, taking in parameters and allocating locals
 		Args,		// Takes the arguments passed to a function and sets the appropriate symbols in the local scope
 		Call,		// Calls the function specified on the specified element from the top of the v-stack. If the function is a MoonSharp function, it pushes its numeric value on the v-stack, then pushes the current PC onto the x-stack, enters the function closure and jumps to the function first instruction. If the function is a CLR function, it pops the function value from the v-stack, then invokes the function synchronously and finally pushes the result on the v-stack.

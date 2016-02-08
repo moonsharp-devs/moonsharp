@@ -31,7 +31,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			if (usage != 0)
 				append += GenSpaces();
 
-			if ((this.OpCode == VM.OpCode.FuncMeta) ||((usage & ((int)InstructionFieldUsage.NumValAsCodeAddress)) == (int)InstructionFieldUsage.NumValAsCodeAddress))
+			if ((this.OpCode == VM.OpCode.Meta) ||((usage & ((int)InstructionFieldUsage.NumValAsCodeAddress)) == (int)InstructionFieldUsage.NumValAsCodeAddress))
 				append += " " + NumVal.ToString("X8");
 			else if ((usage & ((int)InstructionFieldUsage.NumVal)) != 0)
 				append += " " + NumVal.ToString();

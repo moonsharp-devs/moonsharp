@@ -221,12 +221,14 @@ namespace MoonSharp.Interpreter.Execution.VM
 			return AppendInstruction(new Instruction(m_CurrentSourceRef) { OpCode = OpCode.IterUpd });
 		}
 
-		public Instruction Emit_FuncMeta(string funcName)
+		public Instruction Emit_Meta(string funcName, OpCodeMetadataType metaType, DynValue value = null)
 		{
 			return AppendInstruction(new Instruction(m_CurrentSourceRef)
 			{
-				OpCode = OpCode.FuncMeta,
-				Name = funcName
+				OpCode = OpCode.Meta,
+				Name = funcName,
+				NumVal2 = (int)metaType,
+				Value = value
 			});
 		}
 

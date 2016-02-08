@@ -31,13 +31,15 @@ namespace MoonSharp.Interpreter.Tree.Statements
 
 		public override void Compile(Execution.VM.ByteCode bc)
 		{
-			Instruction meta = bc.Emit_FuncMeta("<chunk-root>");
+			var envVal = DynValue.NewTable(m_GlobalEnv);
+
+			Instruction meta = bc.Emit_Meta("<chunk-root>", OpCodeMetadataType.ChunkEntrypoint, envVal);
 			int metaip = bc.GetJumpPointForLastInstruction();
 
 			bc.Emit_BeginFn(m_StackFrame);
 			bc.Emit_Args(m_VarArgs);
 
-			bc.Emit_Literal(DynValue.NewTable(m_GlobalEnv));
+			bc.Emit_Literal(envVal);
 			bc.Emit_Store(m_Env, 0, 0);
 			bc.Emit_Pop();
 

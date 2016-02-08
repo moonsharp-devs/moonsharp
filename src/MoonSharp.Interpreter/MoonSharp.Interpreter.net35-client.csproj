@@ -137,6 +137,7 @@
     <Compile Include="CoreLib\StringLib\KopiLua_StrLib.cs" />
     <Compile Include="DataStructs\MultiDictionary.cs" />
     <Compile Include="DataStructs\ReferenceEqualityComparer.cs" />
+    <Compile Include="Execution\VM\OpCodeMetadataType.cs" />
     <Compile Include="Interop\Attributes\MoonSharpPropertyAttribute.cs" />
     <Compile Include="Interop\Attributes\MoonSharpUserDataMetamethodAttribute.cs" />
     <Compile Include="Interop\Attributes\MoonSharpHideMemberAttribute.cs" />

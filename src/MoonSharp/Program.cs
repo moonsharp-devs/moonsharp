@@ -131,6 +131,8 @@ namespace MoonSharp
 				bool internals = false;
 				string dumpfile = null;
 				string destfile = null;
+				string classname = null;
+				string namespacename = null;
 				bool useVb = false;
 				bool fail = true;
 
@@ -140,6 +142,10 @@ namespace MoonSharp
 						internals = true;
 					else if (args[i] == "--vb")
 						useVb = true;
+					else if (args[i].StartsWith("--class:"))
+						classname = args[i].Substring("--class:".Length);
+					else if (args[i].StartsWith("--namespace:"))
+						namespacename = args[i].Substring("--namespace:".Length);
 					else if (dumpfile == null)
 						dumpfile = args[i];
 					else if (destfile == null)
@@ -157,7 +163,7 @@ namespace MoonSharp
 				}
 				else
 				{
-					HardWireCommand.Generate(useVb ? "vb" : "cs", dumpfile, destfile, internals);
+					HardWireCommand.Generate(useVb ? "vb" : "cs", dumpfile, destfile, internals, classname, namespacename);
 				}
 			}
 
@@ -166,7 +172,7 @@ namespace MoonSharp
 
 		private static void ShowCmdLineHelpBig()
 		{
-			Console.WriteLine("usage: moonsharp [-H | --help | -X \"command\" | -W <dumpfile> <destfile> [--internals] [--vb] | <script>]");
+			Console.WriteLine("usage: moonsharp [-H | --help | -X \"command\" | -W <dumpfile> <destfile> [--internals] [--vb] [--class:<name>] [--namespace:<name>] | <script>]");
 			Console.WriteLine();
 			Console.WriteLine("-H : shows this help");
 			Console.WriteLine("-X : executes the specified command");

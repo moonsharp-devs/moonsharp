@@ -48,7 +48,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 					{
 						case OpCode.Nop:
 						case OpCode.Debug:
-						case OpCode.FuncMeta:
+						case OpCode.Meta:
 							break;
 						case OpCode.Pop:
 							m_ValueStack.RemoveLast(i.NumVal);

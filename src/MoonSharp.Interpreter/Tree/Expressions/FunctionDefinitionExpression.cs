@@ -198,7 +198,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 			Instruction I = bc.Emit_Jump(OpCode.Jump, -1);
 
-			Instruction meta = bc.Emit_FuncMeta(funcName);
+			Instruction meta = bc.Emit_Meta(funcName, OpCodeMetadataType.FunctionEntrypoint);
 			int metaip = bc.GetJumpPointForLastInstruction();
 
 			bc.Emit_BeginFn(m_StackFrame);

@@ -80,11 +80,39 @@ namespace MoonSharp.Commands.Implementations
 			if (allowinternals == null)
 				return;
 
-			Generate(language, luafile, destfile, allowinternals == "y");
+			string namespaceName = AskQuestion("Namespace ? [HardwiredClasses]: ",
+				"HardwiredClasses", s => IsValidIdentifier(s), "Not a valid identifier.");
 
+			if (namespaceName == null)
+				return;
+
+			string className = AskQuestion("Class ? [HardwireTypes]: ",
+				"HardwireTypes", s => IsValidIdentifier(s), "Not a valid identifier.");
+
+			if (className == null)
+				return;
+
+			Generate(language, luafile, destfile, allowinternals == "y", className, namespaceName);
 		}
 
-		public static void Generate(string language, string luafile, string destfile, bool allowInternals)
+		private bool IsValidIdentifier(string s)
+		{
+			if (string.IsNullOrEmpty(s))
+				return false;
+
+			foreach (char c in s)
+			{
+				if (c != '_' && !char.IsLetterOrDigit(c))
+					return false;
+			}
+
+			if (char.IsDigit(s[0]))
+				return false;
+
+			return true;
+		}
+
+		public static void Generate(string language, string luafile, string destfile, bool allowInternals, string classname, string namespacename)
 		{
 			var logger = new ConsoleLogger();
 			try
@@ -96,7 +124,7 @@ namespace MoonSharp.Commands.Implementations
 
 				HardwireGeneratorRegistry.RegisterPredefined();
 
-				HardwireGenerator hcg = new HardwireGenerator("MyNamespace", "MyClass", logger,
+				HardwireGenerator hcg = new HardwireGenerator(namespacename ?? "HardwiredClasses", classname ?? "HardwireTypes", logger,
 					language == "vb" ? HardwireCodeGenerationLanguage.VB : HardwireCodeGenerationLanguage.CSharp)
 				{
 					AllowInternals = allowInternals

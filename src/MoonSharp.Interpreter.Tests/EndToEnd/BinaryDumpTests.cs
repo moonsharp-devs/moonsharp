@@ -42,6 +42,23 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			}
 		}
 
+
+		[Test]
+		public void BinDump_ChunkDump()
+		{
+			string script = @"
+				local chunk = load('return 81;');
+				local str = string.dump(chunk);
+				local fn = load(str);
+				return fn(9);
+			";
+
+			DynValue res = Script.RunString(script);
+
+			Assert.AreEqual(DataType.Number, res.Type);
+			Assert.AreEqual(81, res.Number);
+		}
+
 		[Test]
 		public void BinDump_StringDump()
 		{
@@ -189,7 +206,7 @@ return y;
 			Assert.AreEqual(DataType.Number, res.Type);
 			Assert.AreEqual(140, res.Number);
 		}
-	
+
 		[Test]
 		public void BinDump_ClosureOnParam()
 		{
@@ -273,5 +290,46 @@ return y;
 			Assert.AreEqual(10, res.Number);
 		}
 
+
+		[Test]
+		public void Load_ChangeEnvWithDebugSetUpvalue()
+		{
+			List<Table> list = new List<Table>();
+
+			string script = @"
+				function print_env()
+				  print(_ENV)
+				end
+
+				function sandbox()
+				  print(_ENV) -- prints: 'table: 0x100100610'
+				  -- need to keep access to a few globals:
+				  _ENV = { print = print, print_env = print_env, debug = debug, load = load }
+				  print(_ENV) -- prints: 'table: 0x100105140'
+				  print_env() -- prints: 'table: 0x100105140'
+				  local code1 = load('print(_ENV)')
+				  code1()     -- prints: 'table: 0x100100610'
+				  debug.setupvalue(code1, 0, _ENV) -- set our modified env
+				  debug.setupvalue(code1, 1, _ENV) -- set our modified env
+				  code1()     -- prints: 'table: 0x100105140'
+				  local code2 = load('print(_ENV)', nil, nil, _ENV) -- pass 'env' arg
+				  code2()     -- prints: 'table: 0x100105140'
+				end
+
+				sandbox()";
+
+			Script S = new Script(CoreModules.Preset_Complete);
+
+			S.Globals["print"] = (Action<Table>)(t => list.Add(t));
+
+			S.DoString(script);
+
+			Assert.AreEqual(6, list.Count);
+
+			int[] eqs = new int[] { 0, 1, 1, 0, 1, 1 };
+
+			for (int i = 0; i < 6; i++)
+				Assert.AreEqual(list[eqs[i]], list[i]);
+		}
 	}
 }
