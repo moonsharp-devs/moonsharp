@@ -142,7 +142,7 @@ namespace MoonSharp.Interpreter
 		}
 
 		/// <summary>
-		/// Gets the value of an upvalue 
+		/// Gets the value of an upvalue. To set the value, use GetUpvalue(idx).Assign(...);
 		/// </summary>
 		/// <param name="idx">The index of the upvalue.</param>
 		/// <returns>The value of an upvalue </returns>
