@@ -1,110 +1,34 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using MoonSharp.Interpreter;
-using MoonSharp.Interpreter.Serialization;
-using MoonSharp.Interpreter.Interop;
-using MoonSharp.RemoteDebugger;
-using System.IO;
-using System.CodeDom.Compiler;
-using MoonSharp.Hardwire;
-using MoonSharp.Hardwire.Languages;
+﻿using MoonSharp.Interpreter;
+using System;
 
-namespace MoonSharp.Playground
+namespace Test
 {
-	class ConsoleLogger : ICodeGenerationLogger
+	[MoonSharpUserData]
+	class MyClass
 	{
-		public void LogError(string message)
+		public double calcHypotenuse(double a, double b)
 		{
-			Console.WriteLine("[EE] - " + message);
-		}
-
-		public void LogWarning(string message)
-		{
-			Console.WriteLine("[ww] - " + message);
-		}
-
-		public void LogMinor(string message)
-		{
-			Console.WriteLine("[ii] - " + message);
+			return Math.Sqrt(a * a + b * b);
 		}
 	}
-
 
 	class Program
 	{
 		static void Main(string[] args)
 		{
-			{
-				string test = @"
-function print_env()
-  print(_ENV)
-end
+			string scriptCode = @"return obj.calcHypotenuse(3, 4);";
 
-function sandbox()
-  print(_ENV) -- prints: 'table: 0x100100610'
-  -- need to keep access to a few globals:
-  _ENV = { print = print, print_env = print_env, debug = debug, load = load }
-  print(_ENV) -- prints: 'table: 0x100105140'
-  print_env() -- prints: 'table: 0x100105140'
-  local code1 = load('print(_ENV)')
-  code1()     -- prints: 'table: 0x100100610'
-  debug.setupvalue(code1, 0, _ENV) -- set our modified env
-  debug.setupvalue(code1, 1, _ENV) -- set our modified env
-  code1()     -- prints: 'table: 0x100105140'
-  local code2 = load('print(_ENV)', nil, nil, _ENV) -- pass 'env' arg
-  code2()     -- prints: 'table: 0x100105140'
-end
+			// Automatically register all MoonSharpUserData types
+			UserData.RegisterAssembly();
 
-sandbox()";
+			Script script = new Script();
 
-				Script S = new Script(CoreModules.Preset_Complete);
+			// Pass an instance of MyClass to the script in a global
+			script.Globals["obj"] = new MyClass();
 
-				S.DoString(test);
+			DynValue res = script.DoString(scriptCode);
 
-				Console.ReadKey();
-				return;
-			}
-
-
-
-
-			UserData.RegisterType<TimeSpan>();
-
-			//Table t = UserData.GetDescriptionOfRegisteredTypes();
-
-			Script s = new Script();
-			var eee = s.CreateDynamicExpression(File.ReadAllText(@"c:\temp\testdump.lua"));
-
-			Table t = eee.Evaluate(null).Table;
-
-			string str = t.Serialize();
-			File.WriteAllText(@"c:\temp\luadump.lua", str);
-
-			HardwireGeneratorRegistry.RegisterPredefined();
-
-			HardwireGenerator hcg = new HardwireGenerator("MyNamespace", "MyClass", new ConsoleLogger(), HardwireCodeGenerationLanguage.CSharp)
-			{
-				AllowInternals = true
-			};
-
-			hcg.BuildCodeModel(t);
-
-			string code = hcg.GenerateSourceCode();
-
-			File.WriteAllText(@"c:\temp\gen.cs", code);
-
-			//Console.WriteLine(str);
-			Console.WriteLine("--done");
-
-			//Console.ReadKey();
-
+			return;
 		}
-
-
-
 	}
 }

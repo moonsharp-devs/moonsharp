@@ -140,7 +140,7 @@ namespace MoonSharp.Interpreter
 		/// <param name="includeExtensionTypes">if set to <c>true</c> extension types are registered to the appropriate registry.</param>
 		public static void RegisterAssembly(Assembly asm = null, bool includeExtensionTypes = false)
 		{
-			TypeDescriptorRegistry.RegisterAssembly(asm, includeExtensionTypes);
+			TypeDescriptorRegistry.RegisterAssembly(asm ?? Assembly.GetCallingAssembly(), includeExtensionTypes);
 		}
 
 		/// <summary>
