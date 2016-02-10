@@ -7,18 +7,15 @@ namespace MoonSharp.Interpreter.Tree.Statements
 	{
 		Statement m_Block;
 		RuntimeScopeFrame m_StackFrame;
-		Table m_GlobalEnv;
 		SymbolRef m_Env;
 		SymbolRef m_VarArgs;
 
-		public ChunkStatement(ScriptLoadingContext lcontext, Table globalEnv)
+		public ChunkStatement(ScriptLoadingContext lcontext)
 			: base(lcontext)
 		{
 			lcontext.Scope.PushFunction(this, true);
 			m_Env = lcontext.Scope.DefineLocal(WellKnownSymbols.ENV);
 			m_VarArgs = lcontext.Scope.DefineLocal(WellKnownSymbols.VARARGS);
-
-			m_GlobalEnv = globalEnv;
 
 			m_Block = new CompositeStatement(lcontext);
 
@@ -31,15 +28,13 @@ namespace MoonSharp.Interpreter.Tree.Statements
 
 		public override void Compile(Execution.VM.ByteCode bc)
 		{
-			var envVal = DynValue.NewTable(m_GlobalEnv);
-
-			Instruction meta = bc.Emit_Meta("<chunk-root>", OpCodeMetadataType.ChunkEntrypoint, envVal);
+			Instruction meta = bc.Emit_Meta("<chunk-root>", OpCodeMetadataType.ChunkEntrypoint);
 			int metaip = bc.GetJumpPointForLastInstruction();
 
 			bc.Emit_BeginFn(m_StackFrame);
 			bc.Emit_Args(m_VarArgs);
 
-			bc.Emit_Literal(envVal);
+			bc.Emit_Load(SymbolRef.Upvalue(WellKnownSymbols.ENV, 0));
 			bc.Emit_Store(m_Env, 0, 0);
 			bc.Emit_Pop();
 

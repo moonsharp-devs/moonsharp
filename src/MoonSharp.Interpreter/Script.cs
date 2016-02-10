@@ -126,12 +126,12 @@ namespace MoonSharp.Interpreter
 
 			m_Sources.Add(source);
 
-			int address = Loader_Fast.LoadFunction(this, source, m_ByteCode, globalTable ?? m_GlobalTable);
+			int address = Loader_Fast.LoadFunction(this, source, m_ByteCode, globalTable != null || m_GlobalTable != null);
 
 			SignalSourceCodeChange(source);
 			SignalByteCodeChange();
 
-			return MakeClosure(address);
+			return MakeClosure(address, globalTable ?? m_GlobalTable);
 		}
 
 		private void SignalByteCodeChange()
@@ -180,13 +180,12 @@ namespace MoonSharp.Interpreter
 
 			int address = Loader_Fast.LoadChunk(this,
 				source,
-				m_ByteCode,
-				globalTable ?? m_GlobalTable);
+				m_ByteCode);
 
 			SignalSourceCodeChange(source);
 			SignalByteCodeChange();
 
-			return MakeClosure(address);
+			return MakeClosure(address, globalTable ?? m_GlobalTable);
 		}
 
 		/// <summary>
