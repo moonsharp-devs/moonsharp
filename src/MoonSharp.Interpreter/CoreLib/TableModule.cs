@@ -181,7 +181,7 @@ namespace MoonSharp.Interpreter.CoreLib
 
 			int pos = vpos.IsNil() ? len : (int)vpos.Number;
 
-			if (pos >= len + 1 || (pos < 1 && len > 0))
+			if (pos >= len + 1 || (pos < 0))
 				throw new ScriptRuntimeException("bad argument #1 to 'remove' (position out of bounds)");
 
 			for (int i = pos; i <= len; i++)
