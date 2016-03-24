@@ -16,18 +16,26 @@ namespace Test
 	{
 		static void Main(string[] args)
 		{
-			string scriptCode = @"return obj.calcHypotenuse(3, 4);";
+			string scriptCode = @"
 
-			// Automatically register all MoonSharpUserData types
-			UserData.RegisterAssembly();
+local aClass = {}
+setmetatable(aClass, {__newindex = function() end, __index = function() end })
 
-			Script script = new Script();
+local p = {a = 1, b = 2}
+ 
+for x , v in pairs(p) do
+	print (x, v)
+	aClass[x] = v
+end
 
-			// Pass an instance of MyClass to the script in a global
-			script.Globals["obj"] = new MyClass();
+";
+
+			Script script = new Script(CoreModules.Basic | CoreModules.Table | CoreModules.TableIterators | CoreModules.Metatables);
 
 			DynValue res = script.DoString(scriptCode);
 
+			Console.WriteLine(">> done");
+			Console.ReadKey();
 			return;
 		}
 	}

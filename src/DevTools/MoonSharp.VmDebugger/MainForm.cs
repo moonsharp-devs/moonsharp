@@ -31,7 +31,7 @@ namespace MoonSharp.Debugger
 		{
 			m_Ctx = SynchronizationContext.Current;
 			Script.WarmUp();
-			Script.DefaultOptions.TailCallOptimizationThreshold = 1;
+			//Script.DefaultOptions.TailCallOptimizationThreshold = 1;
 		}
 
 		private void openToolStripMenuItem_Click(object sender, EventArgs e)
@@ -67,15 +67,17 @@ namespace MoonSharp.Debugger
 
 		private void DebugScript(string filename)
 		{
-			m_Script = new Script(CoreModules.Preset_HardSandbox);
-			m_Script.Options.UseLuaErrorLocations = true;
+			m_Script = new Script(CoreModules.Basic | CoreModules.Table | CoreModules.TableIterators | CoreModules.Metatables);
+			// m_Script.Options.UseLuaErrorLocations = true;
 			m_Script.Options.DebugPrint = s => { Console_WriteLine("{0}", s); };
 
-			((ScriptLoaderBase)m_Script.Options.ScriptLoader).ModulePaths = ScriptLoaderBase.UnpackStringPaths("Modules/?;Modules/?.lua");
+			// ((ScriptLoaderBase)m_Script.Options.ScriptLoader).ModulePaths = ScriptLoaderBase.UnpackStringPaths("Modules/?;Modules/?.lua");
+
+			DynValue fn;
 
 			try
 			{
-				m_Script.LoadFile(filename, null, filename.Replace(':', '|'));
+				fn = m_Script.LoadFile(filename, null, filename.Replace(':', '|'));
 			}
 			catch (Exception ex)
 			{
@@ -86,7 +88,7 @@ namespace MoonSharp.Debugger
 
 			m_Script.AttachDebugger(this);
 
-			Thread m_Debugger = new Thread(DebugMain);
+			Thread m_Debugger = new Thread(() => DebugMain(fn));
 			m_Debugger.Name = "MoonSharp Execution Thread";
 			m_Debugger.IsBackground = true;
 			m_Debugger.Start();
@@ -171,11 +173,11 @@ namespace MoonSharp.Debugger
 		}
 
 
-		void DebugMain()
+		void DebugMain(DynValue fn)
 		{
 			try
 			{
-				m_Script.Call(m_Script.GetMainChunk());
+				fn.Function.Call();
 			}
 			catch (ScriptRuntimeException ex)
 			{

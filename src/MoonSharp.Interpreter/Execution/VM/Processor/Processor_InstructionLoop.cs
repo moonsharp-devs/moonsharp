@@ -1256,6 +1256,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				if (h.Type == DataType.Function || h.Type == DataType.ClrFunction)
 				{
 					if (isMultiIndex) throw new ScriptRuntimeException("cannot multi-index through metamethods. userdata expected");
+					m_ValueStack.Pop(); // burn extra value ?
 
 					m_ValueStack.Push(h);
 					m_ValueStack.Push(obj);
