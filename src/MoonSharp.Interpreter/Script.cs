@@ -554,16 +554,6 @@ namespace MoonSharp.Interpreter
 			return CreateCoroutine(DynValue.FromObject(this, function));
 		}
 
-
-		/// <summary>
-		/// Gets the main chunk function.
-		/// </summary>
-		/// <returns>A DynValue containing a function which executes the first chunk that has been loaded.</returns>
-		public DynValue GetMainChunk()
-		{
-			return MakeClosure(0);
-		}
-
 		/// <summary>
 		/// Gets or sets a value indicating whether the debugger is enabled.
 		/// Note that unless a debugger attached, this property returns a 

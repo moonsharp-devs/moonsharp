@@ -272,7 +272,27 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			Assert.AreEqual(120, res.Number);
 		}
 
+		[Test]
+		public void IndexSetDoesNotWrackStack()
+		{
+			string scriptCode = @"
 
+local aClass = {}
+setmetatable(aClass, {__newindex = function() end, __index = function() end })
+
+local p = {a = 1, b = 2}
+ 
+for x , v in pairs(p) do
+	print (x, v)
+	aClass[x] = v
+end
+
+";
+
+			Script script = new Script(CoreModules.Basic | CoreModules.Table | CoreModules.TableIterators | CoreModules.Metatables);
+
+			DynValue res = script.DoString(scriptCode);
+		}
 
 
 

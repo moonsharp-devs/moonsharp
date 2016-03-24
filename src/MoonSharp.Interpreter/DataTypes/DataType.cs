@@ -118,7 +118,7 @@ namespace MoonSharp.Interpreter
 				case DataType.TailCallRequest:
 				case DataType.YieldRequest:
 				default:
-					throw new ScriptRuntimeException("Unexpected LuaType {0}", type);
+					return string.Format("internal<{0}>", type.ToLuaDebuggerString());
 			}
 		}
 

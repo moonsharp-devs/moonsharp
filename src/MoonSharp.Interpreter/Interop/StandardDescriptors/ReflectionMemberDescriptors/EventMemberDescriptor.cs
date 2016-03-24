@@ -36,8 +36,11 @@ namespace MoonSharp.Interpreter.Interop
 			if (!CheckEventIsCompatible(ei, false))
 				return null;
 
-			if (ei.GetVisibilityFromAttributes() ?? (ei.GetAddMethod().IsPublic && ei.GetRemoveMethod().IsPublic))
-				return new EventMemberDescriptor(ei, accessMode);
+	        MethodInfo addm = ei.GetAddMethod();
+	        MethodInfo remm = ei.GetRemoveMethod();
+
+	        if (ei.GetVisibilityFromAttributes() ?? ((remm != null && remm.IsPublic) && (addm != null && addm.IsPublic)))
+	            return new EventMemberDescriptor(ei, accessMode);
 
 			return null;
 		}
