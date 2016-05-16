@@ -42,9 +42,9 @@ namespace MoonSharp.Interpreter.CoreLib
 			if (!v.CastToBool())
 			{
 				if (message.IsNil())
-					throw new ScriptRuntimeException("assertion failed!") { DoNotDecorateMessage = true };
+					throw new ScriptRuntimeException("assertion failed!"); // { DoNotDecorateMessage = true };
 				else
-					throw new ScriptRuntimeException(message.ToPrintString()) { DoNotDecorateMessage = true };
+					throw new ScriptRuntimeException(message.ToPrintString()); // { DoNotDecorateMessage = true };
 			}
 
 			return DynValue.NewTupleNested(args.GetArray());
@@ -84,7 +84,7 @@ namespace MoonSharp.Interpreter.CoreLib
 		public static DynValue error(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			DynValue message = args.AsType(0, "error", DataType.String, false);
-			throw new ScriptRuntimeException(message.String) { DoNotDecorateMessage = true };
+			throw new ScriptRuntimeException(message.String); // { DoNotDecorateMessage = true };
 		}
 
 

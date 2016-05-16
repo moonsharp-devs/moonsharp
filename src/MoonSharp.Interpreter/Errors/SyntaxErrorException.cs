@@ -42,6 +42,13 @@ namespace MoonSharp.Interpreter
 			DecorateMessage(script, sref);
 		}
 
+		private SyntaxErrorException(SyntaxErrorException syntaxErrorException)
+			: base(syntaxErrorException, syntaxErrorException.DecoratedMessage)
+		{
+			this.Token = syntaxErrorException.Token;
+			this.DecoratedMessage = Message;
+		}
+
 		internal void DecorateMessage(Script script)
 		{
 			if (Token != null)
@@ -49,5 +56,16 @@ namespace MoonSharp.Interpreter
 				DecorateMessage(script, Token.GetSourceRef(false));
 			}
 		}
+
+		/// <summary>
+		/// Rethrows this instance if 
+		/// </summary>
+		/// <returns></returns>
+		public override void Rethrow()
+		{
+			if (Script.GlobalOptions.RethrowExceptionNested)
+				throw new SyntaxErrorException(this);
+		}
+
 	}
 }

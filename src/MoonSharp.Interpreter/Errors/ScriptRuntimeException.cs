@@ -18,7 +18,19 @@ namespace MoonSharp.Interpreter
 		public ScriptRuntimeException(Exception ex)
 			: base(ex)
 		{
+		}       
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ScriptRuntimeException"/> class.
+		/// </summary>
+		/// <param name="ex">The ex.</param>
+		public ScriptRuntimeException(ScriptRuntimeException ex)
+			: base(ex, ex.DecoratedMessage)
+		{
+			this.DecoratedMessage = Message;
+			this.DoNotDecorateMessage = true;
 		}
+
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ScriptRuntimeException"/> class.
@@ -40,11 +52,6 @@ namespace MoonSharp.Interpreter
 		{
 
 		}
-
-		/// <summary>
-		/// Gets or sets a value indicating whether the message should not be decorated
-		/// </summary>
-		public bool DoNotDecorateMessage { get; set; }
 
 		/// <summary>
 		/// Creates a ScriptRuntimeException with a predefined error message specifying that
@@ -496,5 +503,16 @@ namespace MoonSharp.Interpreter
 		{
 			return new ScriptRuntimeException("attempt to access instance member {0}.{1} from a static userdata", typeDescr.Name, desc.Name);
 		}
+
+		/// <summary>
+		/// Rethrows this instance if 
+		/// </summary>
+		/// <returns></returns>
+		public override void Rethrow()
+		{
+			if (Script.GlobalOptions.RethrowExceptionNested)
+				throw new ScriptRuntimeException(this);
+		}
+
 	}
 }

@@ -244,7 +244,7 @@ namespace MoonSharp.Interpreter.Tree
 							string name = ReadNameToken();
 							return CreateNameToken(name, fromLine, fromCol);
 						}
-						else if (char.IsDigit(c))
+						else if (LexerUtils.CharIsDigit(c))
 						{
 							return ReadNumberToken(fromLine, fromCol);
 						}
@@ -252,9 +252,6 @@ namespace MoonSharp.Interpreter.Tree
 
 					throw new SyntaxErrorException(CreateToken(TokenType.Invalid, fromLine, fromCol), "unexpected symbol near '{0}'", CursorChar());
 			}
-
-
-
 		}
 
 		private string ReadLongString(int fromLine, int fromCol, string startpattern, string subtypeforerrors)
@@ -360,7 +357,7 @@ namespace MoonSharp.Interpreter.Tree
 					exponentSignAllowed = false;
 					text.Append(c);
 				}
-				else if (char.IsDigit(c))
+				else if (LexerUtils.CharIsDigit(c))
 				{
 					text.Append(c);
 				}

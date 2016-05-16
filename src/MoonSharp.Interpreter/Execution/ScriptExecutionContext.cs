@@ -264,5 +264,6 @@ namespace MoonSharp.Interpreter
 		{
 			get { return this.GetScript(); }
 		}
+
 	}
 }

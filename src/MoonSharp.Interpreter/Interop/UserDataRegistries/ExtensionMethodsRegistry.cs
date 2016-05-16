@@ -153,13 +153,16 @@ namespace MoonSharp.Interpreter.Interop.UserDataRegistries
 
 		private static Type GetGenericMatch(Type extensionType, Type extendedType)
 		{
-			extensionType = extensionType.GetGenericTypeDefinition();
-
-			foreach (Type t in extendedType.GetAllImplementedTypes())
+			if (!extensionType.IsGenericParameter)
 			{
-				if (t.IsGenericType && t.GetGenericTypeDefinition() == extensionType)
+				extensionType = extensionType.GetGenericTypeDefinition();
+
+				foreach (Type t in extendedType.GetAllImplementedTypes())
 				{
-					return t;
+					if (t.IsGenericType && t.GetGenericTypeDefinition() == extensionType)
+					{
+						return t;
+					}
 				}
 			}
 

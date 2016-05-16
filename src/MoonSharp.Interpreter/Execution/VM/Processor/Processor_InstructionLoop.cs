@@ -250,7 +250,11 @@ namespace MoonSharp.Interpreter.Execution.VM
 			{
 				FillDebugData(ex, instructionPtr);
 
-				if (!(ex is ScriptRuntimeException)) throw;
+				if (!(ex is ScriptRuntimeException))
+				{
+					ex.Rethrow();
+					throw;
+				}
 
 				if (m_Debug.DebuggerAttached != null)
 				{
@@ -296,10 +300,12 @@ namespace MoonSharp.Interpreter.Execution.VM
 					}
 					else if ((csi.Flags & CallStackItemFlags.EntryPoint) != 0)
 					{
+						ex.Rethrow();
 						throw;
 					}
 				}
 
+				ex.Rethrow();
 				throw;
 			}
 

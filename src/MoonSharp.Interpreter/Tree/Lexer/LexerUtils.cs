@@ -113,10 +113,14 @@ namespace MoonSharp.Interpreter.Tree
 				throw new InternalErrorException("invalid hex digit near '{0}'", c);
 		}
 
+		public static bool CharIsDigit(char c)
+		{
+			return c >= '0' && c <= '9';
+		}
 
 		public static bool CharIsHexDigit(char c)
 		{
-			return char.IsDigit(c) ||
+			return CharIsDigit(c) ||
 				c == 'a' || c == 'b' || c == 'c' || c == 'd' || c == 'e' || c == 'f' ||
 				c == 'A' || c == 'B' || c == 'C' || c == 'D' || c == 'E' || c == 'F';
 		}
@@ -169,7 +173,7 @@ namespace MoonSharp.Interpreter.Tree
 						else if (c == 'x') { hex = true; }
 						else if (c == 'u') { unicode_state = 1; }
 						else if (c == 'z') { zmode = true; escape = false; }
-						else if (char.IsDigit(c)) { val = val + c; }
+						else if (CharIsDigit(c)) { val = val + c; }
 						else throw new SyntaxErrorException(token, "invalid escape sequence near '\\{0}'", c);
 					}
 					else
@@ -220,12 +224,12 @@ namespace MoonSharp.Interpreter.Tree
 						}
 						else if (val.Length > 0)
 						{
-							if (char.IsDigit(c))
+							if (CharIsDigit(c))
 							{
 								val = val + c;
 							}
 
-							if (val.Length == 3 || !char.IsDigit(c))
+							if (val.Length == 3 || !CharIsDigit(c))
 							{
 								int i = int.Parse(val, CultureInfo.InvariantCulture);
 
@@ -237,7 +241,7 @@ namespace MoonSharp.Interpreter.Tree
 								zmode = false;
 								escape = false;
 
-								if (!char.IsDigit(c))
+								if (!CharIsDigit(c))
 									goto redo;
 							}
 						}

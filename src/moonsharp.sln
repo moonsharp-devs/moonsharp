@@ -1,22 +1,14 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoonSharp", "MoonSharp\MoonSharp.csproj", "{2A4BD262-D6EB-4611-A28B-27B6DAEB089B}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoonSharp.Interpreter.net35-client", "MoonSharp.Interpreter\MoonSharp.Interpreter.net35-client.csproj", "{91EA9B9D-FE03-4273-BDAF-8AD42EDE1E59}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "root", "root", "{F02DBEDA-6AEB-461A-9557-DA7E2CB56C5A}"
 	ProjectSection(SolutionItems) = preProject
 		..\.travis.yml = ..\.travis.yml
 		..\LICENSE = ..\LICENSE
 		..\README.md = ..\README.md
 	EndProjectSection
-EndProject
-Project("{7CF6DF6D-3B04-46F8-A40B-537D21BCA0B4}") = "MoonSharp.Documentation", "MoonSharp.Documentation\MoonSharp.Documentation.shfbproj", "{26B3033C-D1E2-4188-870C-D197E95A7F6B}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoonSharp.RemoteDebugger.net35-client", "MoonSharp.RemoteDebugger\MoonSharp.RemoteDebugger.net35-client.csproj", "{43D3AD52-FED5-4305-B0F4-6B991220CD0A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DevTools", "DevTools", "{3C626068-E8CE-4F62-8974-F42A56F4EFD3}"
 EndProject
@@ -28,6 +20,20 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Distribution", "Distributio
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{FA582319-EA17-4C52-870D-C00EF793628F}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestRunners", "TestRunners", "{023F1F7D-5F49-430F-9CC4-5FF891439548}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extensions", "Extensions", "{32D6B30B-3970-45A0-AE63-2150CAEC325A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tutorial", "Tutorial", "{1AD0980F-0C79-4F83-A638-5CB22ED62675}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoonSharp", "MoonSharp\MoonSharp.csproj", "{2A4BD262-D6EB-4611-A28B-27B6DAEB089B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoonSharp.Interpreter.net35-client", "MoonSharp.Interpreter\MoonSharp.Interpreter.net35-client.csproj", "{91EA9B9D-FE03-4273-BDAF-8AD42EDE1E59}"
+EndProject
+Project("{7CF6DF6D-3B04-46F8-A40B-537D21BCA0B4}") = "MoonSharp.Documentation", "MoonSharp.Documentation\MoonSharp.Documentation.shfbproj", "{26B3033C-D1E2-4188-870C-D197E95A7F6B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoonSharp.RemoteDebugger.net35-client", "MoonSharp.RemoteDebugger\MoonSharp.RemoteDebugger.net35-client.csproj", "{43D3AD52-FED5-4305-B0F4-6B991220CD0A}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoonSharp.Interpreter.net40-client", "MoonSharp.Interpreter\_Projects\MoonSharp.Interpreter.net40-client\MoonSharp.Interpreter.net40-client.csproj", "{88D2880C-A863-4B16-ABEF-F67BD1E98BD1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoonSharp.VmDebugger", "DevTools\MoonSharp.VmDebugger\MoonSharp.VmDebugger.csproj", "{F4F82CCE-2E13-441B-939C-63CF2343B1C9}"
@@ -35,8 +41,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PerformanceComparison", "DevTools\PerformanceComparison\PerformanceComparison.csproj", "{01C3C379-C816-4779-942D-0263763F8EA5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SynchProjects", "DevTools\SynchProjects\SynchProjects.csproj", "{321C9CCF-6F9B-4751-AB34-882DEE982A7E}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestRunners", "TestRunners", "{023F1F7D-5F49-430F-9CC4-5FF891439548}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleTestRunner", "TestRunners\ConsoleTestRunner\ConsoleTestRunner.csproj", "{470C034F-1F1F-499C-9499-DC00B9EEEDE9}"
 EndProject
@@ -59,10 +63,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoonSharp.RemoteDebugger.net40-client", "MoonSharp.RemoteDebugger\_Projects\MoonSharp.RemoteDebugger.net40-client\MoonSharp.RemoteDebugger.net40-client.csproj", "{F9D383B9-2639-4738-A897-4D9F8801B8C9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoonSharpSL5ReplDemo", "DevTools\MoonSharpSL5ReplDemo\MoonSharpSL5ReplDemo.csproj", "{69B110B4-E578-4854-8F63-D80E4E14E1B6}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extensions", "Extensions", "{32D6B30B-3970-45A0-AE63-2150CAEC325A}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tutorial", "Tutorial", "{1AD0980F-0C79-4F83-A638-5CB22ED62675}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tutorials", "Tutorial\Tutorials\Tutorials.csproj", "{56301BAA-FD15-46D4-9C77-84F9DC299C56}"
 EndProject

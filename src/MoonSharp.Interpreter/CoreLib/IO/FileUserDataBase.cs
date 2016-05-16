@@ -119,7 +119,7 @@ namespace MoonSharp.Interpreter.CoreLib.IO
 
 				return UserData.Create(this);
 			}
-			catch (ScriptRuntimeException)
+			catch (ScriptRuntimeException sre)
 			{
 				throw;
 			}
@@ -139,7 +139,7 @@ namespace MoonSharp.Interpreter.CoreLib.IO
 				else
 					return DynValue.NewTuple(DynValue.Nil, DynValue.NewString(msg));
 			}
-			catch (ScriptRuntimeException)
+			catch (ScriptRuntimeException sre)
 			{
 				throw;
 			}
