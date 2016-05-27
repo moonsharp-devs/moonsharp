@@ -3,40 +3,39 @@ using System;
 
 namespace Test
 {
-	[MoonSharpUserData]
-	class MyClass
-	{
-		public double calcHypotenuse(double a, double b)
-		{
-			return Math.Sqrt(a * a + b * b);
-		}
-	}
-
 	class Program
 	{
+		private static void CaptureNewIndex(Table table, DynValue index, DynValue value)
+		{
+			if (index.String == "math")
+			{
+				return; // could do a throw new ScriptRuntimeException($"{index} is read-only");
+			}
+
+			table.Set(index, value);
+		}
+
 		static void Main(string[] args)
 		{
 			string scriptCode = @"
+				math = { sin = function(x) return 3*x; end }
+				print(math.sin(1.57));
+			";
 
-local aClass = {}
-setmetatable(aClass, {__newindex = function() end, __index = function() end })
+			Script script = new Script(CoreModules.None);
+			Table protectedTable = new Table(script);
 
-local p = {a = 1, b = 2}
- 
-for x , v in pairs(p) do
-	print (x, v)
-	aClass[x] = v
-end
+			protectedTable.RegisterCoreModules(CoreModules.Preset_HardSandbox);
 
-";
+			script.Globals.MetaTable = new Table(script);
 
-			Script script = new Script(CoreModules.Basic | CoreModules.Table | CoreModules.TableIterators | CoreModules.Metatables);
+			script.Globals.MetaTable["__index"] = protectedTable;
+			script.Globals.MetaTable["__newindex"] = (Action<Table, DynValue, DynValue>)CaptureNewIndex;
 
-			DynValue res = script.DoString(scriptCode);
+			script.DoString(scriptCode);
 
 			Console.WriteLine(">> done");
 			Console.ReadKey();
-			return;
 		}
 	}
 }
