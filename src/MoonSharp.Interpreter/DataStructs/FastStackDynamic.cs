@@ -1,9 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace MoonSharp.Interpreter.DataStructs
 {
 #if USE_DYNAMIC_STACKS
 	internal class FastStack<T> : FastStackDynamic<T>
+	{
+		public FastStack(int startingCapacity)
+			: base(startingCapacity)
+		{
+		}
+	}
 #endif
 
 	/// <summary>
@@ -16,6 +23,13 @@ namespace MoonSharp.Interpreter.DataStructs
 			: base(startingCapacity)
 		{
 		}
+
+
+		public void Set(int idxofs, T item)
+		{
+			this[this.Count - 1 - idxofs] = item;
+		}
+
 
 		public T Push(T item)
 		{

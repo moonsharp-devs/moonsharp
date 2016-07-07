@@ -1,40 +1,66 @@
 ﻿using MoonSharp.Interpreter;
 using System;
+using System.Diagnostics;
+using System.IO;
 
 namespace Test
 {
-	class Program
+	[MoonSharpUserData]
+	public class API_Hooks
 	{
-		private static void CaptureNewIndex(Table table, DynValue index, DynValue value)
-		{
-			if (index.String == "math")
-			{
-				return; // could do a throw new ScriptRuntimeException($"{index} is read-only");
-			}
+		public event EventHandler Test;
 
-			table.Set(index, value);
+		public void RaiseTheEvent()
+		{
+			if (Test != null)
+				Test(this, EventArgs.Empty);
 		}
 
+	}
+
+	class Program
+	{
 		static void Main(string[] args)
 		{
-			string scriptCode = @"
-				math = { sin = function(x) return 3*x; end }
-				print(math.sin(1.57));
-			";
+			string code = @"
+function handler(o, a)
+    print('test1',o, a);
+end
 
-			Script script = new Script(CoreModules.None);
-			Table protectedTable = new Table(script);
+function handler2(o, a)
+    print('test2', o, a);
+end
 
-			protectedTable.RegisterCoreModules(CoreModules.Preset_HardSandbox);
+Hooks.test.add(handler)
+Hooks.test.add(handler2)
+Hooks.raiseTheEvent()
+";
 
-			script.Globals.MetaTable = new Table(script);
+			UserData.RegisterAssembly();
+			UserData.RegisterType<EventArgs>();
 
-			script.Globals.MetaTable["__index"] = protectedTable;
-			script.Globals.MetaTable["__newindex"] = (Action<Table, DynValue, DynValue>)CaptureNewIndex;
 
-			script.DoString(scriptCode);
+			// *****************************************************
+			// *** DUMP 
+			// *****************************************************
+			Script script = new Script(CoreModules.Preset_Default);
 
-			Console.WriteLine(">> done");
+			script.Globals["Hooks"] = new API_Hooks();
+
+			DynValue chunk = script.LoadString(code);
+
+			using (Stream stream = new FileStream(@"c:\temp\issue140.dump", FileMode.Create, FileAccess.Write))
+				script.Dump(chunk, stream);
+
+			// *****************************************************
+			// *** EXECUTE DUMPED
+			// *****************************************************
+
+			Script script2 = new Script(CoreModules.Preset_Default);
+			script2.Globals["Hooks"] = new API_Hooks();
+			script2.DoFile(@"c:\temp\issue140.dump");
+
+
 			Console.ReadKey();
 		}
 	}
