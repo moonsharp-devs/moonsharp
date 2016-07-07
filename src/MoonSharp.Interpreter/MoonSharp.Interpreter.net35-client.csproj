@@ -21,6 +21,8 @@
     </SccProvider>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <NuGetPackageImportStamp>ee6b0a8a</NuGetPackageImportStamp>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\keypair.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>

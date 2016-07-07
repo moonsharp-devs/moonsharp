@@ -13,6 +13,16 @@ namespace MoonSharp.Interpreter
 		/// Initializes a new instance of the <see cref="InterpreterException"/> class.
 		/// </summary>
 		/// <param name="ex">The ex.</param>
+		protected InterpreterException(Exception ex, string message)
+			: base(message, ex)
+		{
+
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="InterpreterException"/> class.
+		/// </summary>
+		/// <param name="ex">The ex.</param>
 		protected InterpreterException(Exception ex)
 			: base(ex.Message, ex)
 		{
@@ -55,9 +65,20 @@ namespace MoonSharp.Interpreter
 		/// </summary>
 		public string DecoratedMessage { get; internal set; }
 
+
+		/// <summary>
+		/// Gets or sets a value indicating whether the message should not be decorated
+		/// </summary>
+		public bool DoNotDecorateMessage { get; set; }
+
+
 		internal void DecorateMessage(Script script, SourceRef sref, int ip = -1)
 		{
-			if (sref != null)
+			if (DoNotDecorateMessage)
+			{
+				this.DecoratedMessage = this.Message;
+			}
+			else if (sref != null)
 			{
 				this.DecoratedMessage = string.Format("{0}: {1}", sref.FormatLocation(script), this.Message);
 			}
@@ -65,8 +86,17 @@ namespace MoonSharp.Interpreter
 			{
 				this.DecoratedMessage = string.Format("bytecode:{0}: {1}", ip, this.Message);
 			}
-
 		}
+
+
+		/// <summary>
+		/// Rethrows this instance if 
+		/// </summary>
+		/// <returns></returns>
+		public virtual void Rethrow()
+		{
+		}
+
 
 
 	}

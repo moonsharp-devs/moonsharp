@@ -28,6 +28,10 @@ namespace MoonSharp.Interpreter
 		/// </value>
 		public IPlatformAccessor Platform { get; set; }
 
-
+		/// <summary>
+		/// Gets or sets a value indicating whether interpreter exceptions should be 
+		/// re-thrown as nested exceptions.
+		/// </summary>
+		public bool RethrowExceptionNested { get; set; }
 	}
 }

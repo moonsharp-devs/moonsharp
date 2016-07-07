@@ -95,6 +95,7 @@ namespace MoonSharp.Interpreter.REPL
 				if (forced || !ex.IsPrematureStreamTermination)
 				{
 					m_CurrentCommand = "";
+					ex.Rethrow();
 					throw;
 				}
 				else
@@ -102,9 +103,10 @@ namespace MoonSharp.Interpreter.REPL
 					return null;
 				}
 			}
-			catch (ScriptRuntimeException)
+			catch (ScriptRuntimeException sre)
 			{
 				m_CurrentCommand = "";
+				sre.Rethrow();
 				throw;
 			}
 			catch (Exception)

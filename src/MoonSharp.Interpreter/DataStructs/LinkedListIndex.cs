@@ -82,15 +82,17 @@ namespace MoonSharp.Interpreter.DataStructs
 		/// Removes the specified key from the index, and the node indexed by the key from the linked list.
 		/// </summary>
 		/// <param name="key">The key.</param>
-		public void Remove(TKey key)
+		public bool Remove(TKey key)
 		{
 			LinkedListNode<TValue> node = Find(key);
 
 			if (node != null)
 			{
 				m_LinkedList.Remove(node);
-				m_Map.Remove(key);
+				return m_Map.Remove(key);
 			}
+
+			return false;
 		}
 
 

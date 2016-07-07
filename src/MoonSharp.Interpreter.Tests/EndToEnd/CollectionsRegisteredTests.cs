@@ -83,6 +83,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			catch (ScriptRuntimeException ex)
 			{
 				Debug.WriteLine(ex.DecoratedMessage);
+				ex.Rethrow();
 				throw;
 			}
 			finally

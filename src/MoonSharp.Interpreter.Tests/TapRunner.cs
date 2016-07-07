@@ -32,8 +32,14 @@ namespace MoonSharp.Interpreter.Tests
 	{
 		string m_File;
 
+		/// <summary>
+		/// Prints the specified string.
+		/// </summary>
+		/// <param name="str">The string.</param>
 		public void Print(string str)
 		{
+			// System.Diagnostics.Debug.WriteLine(str);
+
 			Assert.IsFalse(str.Trim().StartsWith("not ok"), string.Format("TAP fail ({0}) : {1}", m_File, str));
 		}
 

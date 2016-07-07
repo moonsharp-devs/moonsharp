@@ -118,7 +118,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			Assert.AreEqual(DataType.Boolean, ret.Tuple[0].Type);
 			Assert.AreEqual(false, ret.Tuple[0].Boolean);
 			Assert.AreEqual(DataType.String, ret.Tuple[1].Type);
-			Assert.AreEqual("attempt to yield across a CLR-call boundary", ret.Tuple[1].String);
+			Assert.IsTrue(ret.Tuple[1].String.EndsWith("attempt to yield across a CLR-call boundary"));
 		}
 
 		[Test]
@@ -131,7 +131,7 @@ function checkresume(step, ex, ey)
 	local x, y = coroutine.resume(c)
 	
 	assert(x == ex, 'Step ' .. step .. ': ' .. tostring(ex) .. ' was expected, got ' .. tostring(x));
-	assert(y == ey, 'Step ' .. step .. ': ' .. tostring(ey) .. ' was expected, got ' .. tostring(y));
+	assert(y:endsWith(ey), 'Step ' .. step .. ': ' .. tostring(ey) .. ' was expected, got ' .. tostring(y));
 end
 
 

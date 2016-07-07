@@ -1,42 +1,67 @@
 ﻿using MoonSharp.Interpreter;
 using System;
+using System.Diagnostics;
+using System.IO;
 
 namespace Test
 {
 	[MoonSharpUserData]
-	class MyClass
+	public class API_Hooks
 	{
-		public double calcHypotenuse(double a, double b)
+		public event EventHandler Test;
+
+		public void RaiseTheEvent()
 		{
-			return Math.Sqrt(a * a + b * b);
+			if (Test != null)
+				Test(this, EventArgs.Empty);
 		}
+
 	}
 
 	class Program
 	{
 		static void Main(string[] args)
 		{
-			string scriptCode = @"
-
-local aClass = {}
-setmetatable(aClass, {__newindex = function() end, __index = function() end })
-
-local p = {a = 1, b = 2}
- 
-for x , v in pairs(p) do
-	print (x, v)
-	aClass[x] = v
+			string code = @"
+function handler(o, a)
+    print('test1',o, a);
 end
 
+function handler2(o, a)
+    print('test2', o, a);
+end
+
+Hooks.test.add(handler)
+Hooks.test.add(handler2)
+Hooks.raiseTheEvent()
 ";
 
-			Script script = new Script(CoreModules.Basic | CoreModules.Table | CoreModules.TableIterators | CoreModules.Metatables);
+			UserData.RegisterAssembly();
+			UserData.RegisterType<EventArgs>();
 
-			DynValue res = script.DoString(scriptCode);
 
-			Console.WriteLine(">> done");
+			// *****************************************************
+			// *** DUMP 
+			// *****************************************************
+			Script script = new Script(CoreModules.Preset_Default);
+
+			script.Globals["Hooks"] = new API_Hooks();
+
+			DynValue chunk = script.LoadString(code);
+
+			using (Stream stream = new FileStream(@"c:\temp\issue140.dump", FileMode.Create, FileAccess.Write))
+				script.Dump(chunk, stream);
+
+			// *****************************************************
+			// *** EXECUTE DUMPED
+			// *****************************************************
+
+			Script script2 = new Script(CoreModules.Preset_Default);
+			script2.Globals["Hooks"] = new API_Hooks();
+			script2.DoFile(@"c:\temp\issue140.dump");
+
+
 			Console.ReadKey();
-			return;
 		}
 	}
 }

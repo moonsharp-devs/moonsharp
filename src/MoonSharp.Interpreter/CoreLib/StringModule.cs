@@ -255,6 +255,43 @@ namespace MoonSharp.Interpreter.CoreLib
 
             return DynValue.NewString(s);
         }
+
+		[MoonSharpModuleMethod]
+		public static DynValue startsWith(ScriptExecutionContext executionContext, CallbackArguments args)
+		{
+			DynValue arg_s1 = args.AsType(0, "startsWith", DataType.String, true);
+			DynValue arg_s2 = args.AsType(1, "startsWith", DataType.String, true);
+
+			if (arg_s1.IsNil() || arg_s2.IsNil())
+				return DynValue.False;
+
+			return DynValue.NewBoolean(arg_s1.String.StartsWith(arg_s2.String));
+		}
+
+		[MoonSharpModuleMethod]
+		public static DynValue endsWith(ScriptExecutionContext executionContext, CallbackArguments args)
+		{
+			DynValue arg_s1 = args.AsType(0, "endsWith", DataType.String, true);
+			DynValue arg_s2 = args.AsType(1, "endsWith", DataType.String, true);
+
+			if (arg_s1.IsNil() || arg_s2.IsNil())
+				return DynValue.False;
+
+			return DynValue.NewBoolean(arg_s1.String.EndsWith(arg_s2.String));
+		}
+
+		[MoonSharpModuleMethod]
+		public static DynValue contains(ScriptExecutionContext executionContext, CallbackArguments args)
+		{
+			DynValue arg_s1 = args.AsType(0, "contains", DataType.String, true);
+			DynValue arg_s2 = args.AsType(1, "contains", DataType.String, true);
+
+			if (arg_s1.IsNil() || arg_s2.IsNil())
+				return DynValue.False;
+
+			return DynValue.NewBoolean(arg_s1.String.Contains(arg_s2.String));
+		}
+
 	}
 
 
