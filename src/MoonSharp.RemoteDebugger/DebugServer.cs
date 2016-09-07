@@ -12,7 +12,7 @@ using MoonSharp.RemoteDebugger.Threading;
 
 namespace MoonSharp.RemoteDebugger
 {
-	public class DebugServer : IDebugger
+	public class DebugServer : IDebugger, IDisposable
 	{
 		List<DynamicExpression> m_Watches = new List<DynamicExpression>();
 		HashSet<string> m_WatchesChanging = new HashSet<string>();
@@ -452,5 +452,10 @@ namespace MoonSharp.RemoteDebugger
 			m_RequestPause = m_ErrorRegEx.IsMatch(ex.Message);
 			return IsPauseRequested();
 		}
-	}
+
+        public void Dispose()
+        {
+            m_Server.Dispose();
+        }
+    }
 }
