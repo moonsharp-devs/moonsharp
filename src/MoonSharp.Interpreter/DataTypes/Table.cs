@@ -62,6 +62,7 @@ namespace MoonSharp.Interpreter
 			m_StringMap.Clear();
 			m_ArrayMap.Clear();
 			m_ValueMap.Clear();
+            m_CachedLength = -1;
 		}
 
 		/// <summary>
