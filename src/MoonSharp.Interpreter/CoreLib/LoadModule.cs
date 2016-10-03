@@ -233,6 +233,10 @@ function(modulename)
 
 	local res = func(modulename);
 
+	if (res == nil) then
+		res = true;
+	end
+
 	package.loaded[modulename] = res;
 
 	return res;

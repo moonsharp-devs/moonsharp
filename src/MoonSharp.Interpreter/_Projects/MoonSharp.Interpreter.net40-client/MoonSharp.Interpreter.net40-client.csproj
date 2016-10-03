@@ -540,6 +540,9 @@
     <Compile Include="..\..\Loaders\InvalidScriptLoader.cs">
       <Link>InvalidScriptLoader.cs</Link>
     </Compile>
+    <Compile Include="..\..\Options\ColonOperatorBehaviour.cs">
+      <Link>ColonOperatorBehaviour.cs</Link>
+    </Compile>
     <Compile Include="..\..\REPL\ReplHistoryNavigator.cs">
       <Link>ReplHistoryNavigator.cs</Link>
     </Compile>
