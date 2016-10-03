@@ -523,5 +523,45 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			Assert.Fail();
 		}
 
+
+		[Test]
+		public void Table_Length_Calculations()
+		{
+			Table T = new Table(null);
+
+			Assert.AreEqual(0, T.Length, "A");
+
+			T.Set(1, DynValue.True);
+
+			Assert.AreEqual(1, T.Length, "B");
+
+			T.Set(2, DynValue.True);
+			T.Set(3, DynValue.True);
+			T.Set(4, DynValue.True);
+
+			Assert.AreEqual(4, T.Length, "C");
+
+			T.Set(3, DynValue.Nil);
+
+			Assert.AreEqual(2, T.Length, "D");
+
+			T.Set(3, DynValue.True);
+
+			Assert.AreEqual(4, T.Length, "E");
+
+			T.Set(3, DynValue.Nil);
+
+			Assert.AreEqual(2, T.Length, "F");
+
+			T.Append(DynValue.True);
+
+			Assert.AreEqual(4, T.Length, "G");
+
+			T.Append(DynValue.True);
+
+			Assert.AreEqual(5, T.Length, "H");
+
+		}
+
 	}
 }

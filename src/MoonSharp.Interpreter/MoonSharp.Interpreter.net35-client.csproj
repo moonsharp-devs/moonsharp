@@ -290,6 +290,7 @@
     <Compile Include="Loaders\EmbeddedResourcesScriptLoader.cs" />
     <Compile Include="Loaders\FileSystemScriptLoader.cs" />
     <Compile Include="Loaders\InvalidScriptLoader.cs" />
+    <Compile Include="Options\ColonOperatorBehaviour.cs" />
     <Compile Include="REPL\ReplHistoryNavigator.cs" />
     <Compile Include="REPL\ReplInterpreterScriptLoader.cs" />
     <Compile Include="Loaders\ScriptLoaderBase.cs" />

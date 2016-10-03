@@ -17,6 +17,7 @@ namespace MoonSharp.Interpreter
 
 		int m_InitArray = 0;
 		int m_CachedLength = -1;
+		bool m_ContainsNilEntries = false;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Table"/> class.
@@ -152,25 +153,53 @@ namespace MoonSharp.Interpreter
 		/// <param name="value">The value.</param>
 		public void Append(DynValue value)
 		{
-			Set(Length + 1, value);
+			this.CheckScriptOwnership(value);
+			PerformTableSet(m_ArrayMap, Length + 1, DynValue.NewNumber(Length + 1), value, true, Length + 1);
 		}
 
 		#region Set
 
-		private void PerformTableSet<T>(LinkedListIndex<T, TablePair> listIndex, T key, DynValue keyDynValue, DynValue value, bool isNumber)
+		private void PerformTableSet<T>(LinkedListIndex<T, TablePair> listIndex, T key, DynValue keyDynValue, DynValue value, bool isNumber, int appendKey)
 		{
 			TablePair prev = listIndex.Set(key, new TablePair(keyDynValue, value));
 
-			if (prev.Value == null || prev.Value.IsNil())
+			// If this is an insert, we can invalidate all iterators and collect dead keys
+			if (m_ContainsNilEntries && value.IsNotNil() && (prev.Value == null || prev.Value.IsNil()))
 			{
 				CollectDeadKeys();
+			}
+			// If this value is nil (and we didn't collect), set that there are nil entries, and invalidate array len cache
+			else if (value.IsNil())
+			{
+				m_ContainsNilEntries = true;
 
 				if (isNumber)
 					m_CachedLength = -1;
 			}
-
-			if (isNumber && value.IsNil())
-				m_CachedLength = -1;
+			else if (isNumber)
+			{
+				// If this is an array insert, we might have to invalidate the array length
+				if (prev.Value == null || prev.Value.IsNilOrNan())
+				{
+					// If this is an array append, let's check the next element before blindly invalidating
+					if (appendKey >= 0)
+					{
+						LinkedListNode<TablePair> next = m_ArrayMap.Find(appendKey + 1);
+						if (next == null || next.Value.Value == null || next.Value.Value.IsNil())
+						{
+							m_CachedLength += 1;
+						}
+						else
+						{
+							m_CachedLength = -1;
+						}
+					}
+					else
+					{
+						m_CachedLength = -1;
+					}
+				}
+			}
 		}
 
 		/// <summary>
@@ -184,7 +213,7 @@ namespace MoonSharp.Interpreter
 				throw ScriptRuntimeException.TableIndexIsNil();
 
 			this.CheckScriptOwnership(value);
-			PerformTableSet(m_StringMap, key, DynValue.NewString(key), value, false);
+			PerformTableSet(m_StringMap, key, DynValue.NewString(key), value, false, -1);
 		}
 
 		/// <summary>
@@ -195,7 +224,7 @@ namespace MoonSharp.Interpreter
 		public void Set(int key, DynValue value)
 		{
 			this.CheckScriptOwnership(value);
-			PerformTableSet(m_ArrayMap, key, DynValue.NewNumber(key), value, true);
+			PerformTableSet(m_ArrayMap, key, DynValue.NewNumber(key), value, true, -1);
 		}
 
 		/// <summary>
@@ -233,7 +262,7 @@ namespace MoonSharp.Interpreter
 			this.CheckScriptOwnership(key);
 			this.CheckScriptOwnership(value);
 
-			PerformTableSet(m_ValueMap, key, key, value, false);
+			PerformTableSet(m_ValueMap, key, key, value, false, -1);
 		}
 
 		/// <summary>
@@ -514,6 +543,9 @@ namespace MoonSharp.Interpreter
 					Remove(node.Value.Key);
 				}
 			}
+
+			m_ContainsNilEntries = false;
+			m_CachedLength = -1;
 		}
 
 

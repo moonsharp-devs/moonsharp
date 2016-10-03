@@ -7,7 +7,7 @@ namespace MoonSharp.Interpreter
 	/// <summary>
 	/// Base type of all exceptions thrown in MoonSharp
 	/// </summary>
-	public class InterpreterException : Exception 
+	public class InterpreterException : Exception
 	{
 		/// <summary>
 		/// Initializes a new instance of the <see cref="InterpreterException"/> class.
@@ -74,17 +74,21 @@ namespace MoonSharp.Interpreter
 
 		internal void DecorateMessage(Script script, SourceRef sref, int ip = -1)
 		{
-			if (DoNotDecorateMessage)
+			if (string.IsNullOrEmpty(this.DecoratedMessage))
 			{
-				this.DecoratedMessage = this.Message;
-			}
-			else if (sref != null)
-			{
-				this.DecoratedMessage = string.Format("{0}: {1}", sref.FormatLocation(script), this.Message);
-			}
-			else
-			{
-				this.DecoratedMessage = string.Format("bytecode:{0}: {1}", ip, this.Message);
+				if (DoNotDecorateMessage)
+				{
+					this.DecoratedMessage = this.Message;
+					return;
+				}
+				else if (sref != null)
+				{
+					this.DecoratedMessage = string.Format("{0}: {1}", sref.FormatLocation(script), this.Message);
+				}
+				else
+				{
+					this.DecoratedMessage = string.Format("bytecode:{0}: {1}", ip, this.Message);
+				}
 			}
 		}
 

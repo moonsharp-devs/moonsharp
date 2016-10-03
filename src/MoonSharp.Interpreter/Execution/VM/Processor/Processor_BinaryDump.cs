@@ -15,12 +15,16 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		internal static bool IsDumpStream(Stream stream)
 		{
-			using (BinaryReader br = new BinaryReader(stream, Encoding.UTF8))
+			if (stream.Length >= 8)
 			{
-				ulong magic = br.ReadUInt64();
-				stream.Seek(-8, SeekOrigin.Current);
-				return magic == DUMP_CHUNK_MAGIC;
+				using (BinaryReader br = new BinaryReader(stream, Encoding.UTF8))
+				{
+					ulong magic = br.ReadUInt64();
+					stream.Seek(-8, SeekOrigin.Current);
+					return magic == DUMP_CHUNK_MAGIC;
+				}
 			}
+			return false;
 		}
 
 		internal int Dump(Stream stream, int baseAddress, bool hasUpvalues)

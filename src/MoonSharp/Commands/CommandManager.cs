@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace MoonSharp.Commands
@@ -11,7 +12,7 @@ namespace MoonSharp.Commands
 
 		public static void Initialize()
 		{
-			foreach (Type t in typeof(CommandManager).Assembly.GetTypes()
+			foreach (Type t in Assembly.GetExecutingAssembly().GetTypes()
 				.Where(tt => typeof(ICommand).IsAssignableFrom(tt))
 				.Where(tt => tt.IsClass && (!tt.IsAbstract))
 			)
