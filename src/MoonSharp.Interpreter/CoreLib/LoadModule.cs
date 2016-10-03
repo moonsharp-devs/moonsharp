@@ -231,7 +231,7 @@ function(modulename)
 
 	local func = __require_clr_impl(modulename);
 
-	local res = func();
+	local res = func(modulename);
 
 	package.loaded[modulename] = res;
 
