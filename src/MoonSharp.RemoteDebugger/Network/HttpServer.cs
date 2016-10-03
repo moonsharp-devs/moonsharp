@@ -14,7 +14,7 @@ namespace MoonSharp.RemoteDebugger.Network
 	/// excalated. This just uses a TcpListener and a Socket.
 	/// This supports only GET method and basic (or no) authentication.
 	/// </summary>
-	public class HttpServer
+	public class HttpServer : IDisposable
 	{
 		Utf8TcpServer m_Server;
 		Dictionary<string, List<string>> m_HttpData = new Dictionary<string, List<string>>();
@@ -252,7 +252,9 @@ namespace MoonSharp.RemoteDebugger.Network
 			m_Resources.Add(path, resource);
 		}
 
-
-
-	}
+        public void Dispose()
+        {
+            m_Server.Dispose();
+        }
+    }
 }
