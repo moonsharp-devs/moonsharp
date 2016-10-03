@@ -172,10 +172,15 @@ namespace MoonSharp.Interpreter.Tree
 					CursorCharNext();
 					return CreateToken(TokenType.Op_NotEqual, fromLine, fromCol, "~=");
 				case '.':
-					if (CursorCharNext() == '.')
-						return PotentiallyDoubleCharOperator('.', TokenType.Op_Concat, TokenType.VarArgs, fromLine, fromCol);
-					else
-						return CreateToken(TokenType.Dot, fromLine, fromCol, ".");
+					{
+						char next = CursorCharNext();
+						if (next == '.')
+							return PotentiallyDoubleCharOperator('.', TokenType.Op_Concat, TokenType.VarArgs, fromLine, fromCol);
+						else if (LexerUtils.CharIsDigit(next))
+							return ReadNumberToken(fromLine, fromCol, true);
+						else
+							return CreateToken(TokenType.Dot, fromLine, fromCol, ".");
+					}
 				case '+':
 					return CreateSingleCharToken(TokenType.Op_Add, fromLine, fromCol);
 				case '-':
@@ -246,7 +251,7 @@ namespace MoonSharp.Interpreter.Tree
 						}
 						else if (LexerUtils.CharIsDigit(c))
 						{
-							return ReadNumberToken(fromLine, fromCol);
+							return ReadNumberToken(fromLine, fromCol, false);
 						}
 					}
 
@@ -318,7 +323,7 @@ namespace MoonSharp.Interpreter.Tree
 			}
 		}
 
-		private Token ReadNumberToken(int fromLine, int fromCol)
+		private Token ReadNumberToken(int fromLine, int fromCol, bool leadingDot)
 		{
 			StringBuilder text = new StringBuilder(32);
 
@@ -339,15 +344,21 @@ namespace MoonSharp.Interpreter.Tree
 			bool exponentPart = false;
 			bool exponentSignAllowed = false;
 
-			text.Append(CursorChar());
-
-			char secondChar = CursorCharNext();
-
-			if (secondChar == 'x' || secondChar == 'X')
+			if (leadingDot)
 			{
-				isHex = true;
+				text.Append("0.");
+			}
+			else if (CursorChar() == '0')
+			{
 				text.Append(CursorChar());
-				CursorCharNext();
+				char secondChar = CursorCharNext();
+
+				if (secondChar == 'x' || secondChar == 'X')
+				{
+					isHex = true;
+					text.Append(CursorChar());
+					CursorCharNext();
+				}
 			}
 
 			for (char c = CursorChar(); CursorNotEof(); c = CursorCharNext())
@@ -390,7 +401,8 @@ namespace MoonSharp.Interpreter.Tree
 			else if (isHex)
 				numberType = TokenType.Number_Hex;
 
-			return CreateToken(numberType, fromLine, fromCol, text.ToString());
+			string tokenStr = text.ToString();
+			return CreateToken(numberType, fromLine, fromCol, tokenStr);
 		}
 
 		private Token CreateSingleCharToken(TokenType tokenType, int fromLine, int fromCol)
