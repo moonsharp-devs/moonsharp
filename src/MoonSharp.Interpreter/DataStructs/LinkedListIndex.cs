@@ -113,7 +113,8 @@ namespace MoonSharp.Interpreter.DataStructs
 		/// </summary>
 		public void Clear()
 		{
-			m_Map.Clear();
+            if(m_Map != null)
+			    m_Map.Clear();
 		}
 	}
 }
