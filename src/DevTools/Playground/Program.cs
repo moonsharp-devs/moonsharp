@@ -12,8 +12,14 @@ namespace Test
 		{
 			try
 			{
-				DynValue v = Script.RunString("return 3 + .5");
-				Console.WriteLine(v.Number);
+				Script S = new Script();
+				S.Options.ColonOperatorClrCallbackBehaviour = ColonOperatorBehaviour.TreatAsDotOnUserData;
+
+				Table my_table = S.DoString("my_table = { }; return my_table").Table;
+				my_table["Foo"] = (Action<Table, string>)((self, str) => { Console.WriteLine("!!!" + str); });
+
+				S.DoString("my_table:Foo('Ciao');");
+
 			}
 			catch (InterpreterException ex)
 			{

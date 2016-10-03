@@ -51,6 +51,11 @@ namespace MoonSharp.Interpreter
 		public bool UseLuaErrorLocations { get; set; }
 
 		/// <summary>
+		/// Gets or sets a value which dictates the behaviour of the colon (':') operator in callbacks to CLR code.
+		/// </summary>
+		public ColonOperatorBehaviour ColonOperatorClrCallbackBehaviour { get; set; }
+
+		/// <summary>
 		/// Gets or sets the stream used as stdin. If null, a default stream is used.
 		/// </summary>
 		public Stream Stdin { get; set; }
