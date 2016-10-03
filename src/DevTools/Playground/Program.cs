@@ -10,25 +10,38 @@ namespace Test
 	{
 		static void Main(string[] args)
 		{
-			((ScriptLoaderBase)Script.DefaultOptions.ScriptLoader).ModulePaths = new string[] { "./?", "./?.lua" };
-			string code = @"
-			
-require 'samplescript'
+			Table T = new Table(null);
+			T.Append(DynValue.NewNumber(12));
 
-";
+			Benchmark(10);
+			Benchmark(100);
+			Benchmark(1000);
+			Benchmark(10000);
+			Benchmark(100000);
 
-			try
-			{
-				Script.RunString(code);
-			}
-			catch (InterpreterException ex)
-			{
-				Console.WriteLine(ex.DecoratedMessage);
-			}
 
 			Console.WriteLine(">> DONE");
 
 			Console.ReadKey();
+		}
+
+		private static void Benchmark(int count)
+		{
+			Table T = new Table(null);
+
+			Stopwatch sw = Stopwatch.StartNew();
+
+			for (int i = 0; i < count; i++)
+			{
+				T.Append(DynValue.NewNumber(i));
+				//T.Set(i, DynValue.NewNumber(i));
+			}
+
+			sw.Stop();
+
+			Console.WriteLine($"{count} elements -> ${sw.ElapsedMilliseconds} ms");
+
+
 		}
 	}
 }
