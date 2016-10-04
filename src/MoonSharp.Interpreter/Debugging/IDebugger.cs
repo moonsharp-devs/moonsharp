@@ -8,6 +8,11 @@ namespace MoonSharp.Interpreter.Debugging
 	public interface IDebugger
 	{
 		/// <summary>
+		/// Sets the debug service for this debugger
+		/// </summary>
+		/// <param name="debugService">The debug service.</param>
+		void SetDebugService(DebugService debugService);
+		/// <summary>
 		/// Called by the script engine  when a source code is added or changed.
 		/// </summary>
 		/// <param name="sourceCode">The source code object.</param>

@@ -441,5 +441,9 @@ namespace MoonSharp.Debugger
 		{
 
 		}
+
+		public void SetDebugService(DebugService debugService)
+		{
+		}
 	}
 }

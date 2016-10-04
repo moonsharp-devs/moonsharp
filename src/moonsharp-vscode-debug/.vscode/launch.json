@@ -1,0 +1,53 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "Run Extension",
+			"type": "extensionHost",
+			"request": "launch",
+			"runtimeExecutable": "${execPath}",
+			"args": [
+				"--extensionDevelopmentPath=${workspaceRoot}"
+			],
+			"sourceMaps": true,
+			"outDir": "${workspaceRoot}/out",
+			"preLaunchTask": "npm"
+		},
+		{
+			"name": "Run Server",
+			"type": "node",
+			"request": "launch",
+			"runtimeArgs": [ "--nolazy" ],
+			"program": "${workspaceRoot}/src/mockDebug.ts",
+			"stopOnEntry": false,
+			"args": [ "--server=4711" ],
+			"sourceMaps": true,
+			"outDir": "${workspaceRoot}/out",
+			"cwd": "${workspaceRoot}"
+		},
+		{
+			"name": "Run Tests",
+			"type": "node",
+			"request": "launch",
+			"program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
+			"runtimeArgs": [ "--nolazy" ],
+			"args": [
+				"-u", "tdd",
+				"--timeout", "999999",
+				"--colors",
+				"./out/tests/"
+			],
+			"sourceMaps": true,
+			"outDir": "${workspaceRoot}/out",
+			"cwd": "${workspaceRoot}",
+			"internalConsoleOptions": "openOnSessionStart"
+		},
+		{
+			"name": "Run Mock Sample",
+			"type": "mock",
+			"request": "launch",
+			"program": "${workspaceRoot}/${command.AskForProgramName}",
+			"stopOnEntry": true
+		}
+	]
+}

@@ -53,6 +53,10 @@ namespace MoonSharp.Interpreter.Debugging
 			/// </summary>
 			ClearBreakpoint,
 			/// <summary>
+			/// Reset all breakpoints
+			/// </summary>
+			ResetBreakpoints,
+			/// <summary>
 			/// Refresh the data
 			/// </summary>
 			Refresh,
@@ -87,6 +91,11 @@ namespace MoonSharp.Interpreter.Debugging
 		/// Gets or sets the source column this action refers to.
 		/// </summary>
 		public int SourceCol { get; set; }
+		/// <summary>
+		/// Gets or sets the lines. This is used for the ResetBreakpoints and sets line-based bps only.
+		/// </summary>
+		public int[] Lines { get; set; }
+
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="DebuggerAction"/> class.

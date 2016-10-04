@@ -31,6 +31,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 		internal void AttachDebugger(IDebugger debugger)
 		{
 			m_Debug.DebuggerAttached = debugger;
+			debugger.SetDebugService(new DebugService(m_Script, this));
 		}
 
 		internal bool DebuggerEnabled
@@ -101,6 +102,10 @@ namespace MoonSharp.Interpreter.Execution.VM
 						ToggleBreakPoint(action, null);
 						RefreshDebugger(true, instructionPtr);
 						break;
+					case DebuggerAction.ActionType.ResetBreakpoints:
+						ResetBreakPoints(action);
+						RefreshDebugger(true, instructionPtr);
+						break;
 					case DebuggerAction.ActionType.SetBreakpoint:
 						ToggleBreakPoint(action, true);
 						RefreshDebugger(true, instructionPtr);
@@ -122,7 +127,29 @@ namespace MoonSharp.Interpreter.Execution.VM
 			}
 		}
 
+		private void ResetBreakPoints(DebuggerAction action)
+		{
+			SourceCode src = m_Script.GetSourceCode(action.SourceID);
+			ResetBreakPoints(src, new HashSet<int>(action.Lines));
+		}
 
+		internal HashSet<int> ResetBreakPoints(SourceCode src, HashSet<int> lines)
+		{
+			HashSet<int> result = new HashSet<int>();
+
+			foreach (SourceRef srf in src.Refs)
+			{
+				if (srf.CannotBreakpoint)
+					continue;
+
+				srf.Breakpoint = lines.Contains(srf.FromLine);
+
+				if (srf.Breakpoint)
+					result.Add(srf.FromLine);
+			}
+
+			return result;
+		}
 
 		private bool ToggleBreakPoint(DebuggerAction action, bool? state)
 		{
