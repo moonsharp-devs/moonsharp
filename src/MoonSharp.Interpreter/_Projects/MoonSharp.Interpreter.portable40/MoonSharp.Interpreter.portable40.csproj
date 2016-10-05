@@ -124,6 +124,12 @@
     <Compile Include="..\..\DataStructs\ReferenceEqualityComparer.cs">
       <Link>ReferenceEqualityComparer.cs</Link>
     </Compile>
+    <Compile Include="..\..\Debugging\DebuggerCaps.cs">
+      <Link>DebuggerCaps.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Debugging\DebugService.cs">
+      <Link>DebugService.cs</Link>
+    </Compile>
     <Compile Include="..\..\Execution\VM\OpCodeMetadataType.cs">
       <Link>OpCodeMetadataType.cs</Link>
     </Compile>

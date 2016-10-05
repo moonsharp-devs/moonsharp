@@ -48,9 +48,9 @@
       <Project>{91ea9b9d-fe03-4273-bdaf-8ad42ede1e59}</Project>
       <Name>MoonSharp.Interpreter.net35-client</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\MoonSharp.VsCodeDebugger\MoonSharp.VsCodeDebugger.csproj">
+    <ProjectReference Include="..\..\MoonSharp.VsCodeDebugger\MoonSharp.VsCodeDebugger.net35-client.csproj">
       <Project>{eb7d4595-299f-489b-90ac-55066a4675f9}</Project>
-      <Name>MoonSharp.VsCodeDebugger</Name>
+      <Name>MoonSharp.VsCodeDebugger.net35-client</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

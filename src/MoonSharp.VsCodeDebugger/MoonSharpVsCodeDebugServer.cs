@@ -12,17 +12,28 @@ using MoonSharp.VsCodeDebugger.SDK;
 
 namespace MoonSharp.VsCodeDebugger
 {
+	/// <summary>
+	/// Class implementing a debugger allowing attaching from a Visual Studio Code debugging session.
+	/// </summary>
 	public class MoonSharpVsCodeDebugServer
 	{
 		int m_Port;
 		AsyncDebugger m_Debugger;
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MoonSharpVsCodeDebugServer"/> class.
+		/// </summary>
+		/// <param name="script">The script object to debug.</param>
+		/// <param name="port">The port on which the debugger listens. It's recommended to use 41912 unless you are going to keep more than one script object around.</param>
 		public MoonSharpVsCodeDebugServer(Script script, int port)
 		{
 			m_Port = port;
 			m_Debugger = new AsyncDebugger(script);
 		}
 
+		/// <summary>
+		/// Gets the debugger object (to register it).
+		/// </summary>
 		public IDebugger GetDebugger()
 		{
 			return m_Debugger;
@@ -36,6 +47,9 @@ namespace MoonSharp.VsCodeDebugger
 			debugSession.ProcessLoop(inputStream, outputStream);
 		}
 
+		/// <summary>
+		/// Starts listening on the localhost for incoming connections.
+		/// </summary>
 		public void Start()
 		{
 			TcpListener serverSocket = new TcpListener(IPAddress.Parse("127.0.0.1"), m_Port);

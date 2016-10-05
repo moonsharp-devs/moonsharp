@@ -7,7 +7,7 @@ using MoonSharp.Interpreter.Debugging;
 
 namespace MoonSharp.DebuggerKit
 {
-	public interface IAsyncDebuggerClient
+	internal interface IAsyncDebuggerClient
 	{
 		void SendStopEvent();
 		void OnWatchesUpdated(WatchType watchType);

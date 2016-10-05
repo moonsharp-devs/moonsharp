@@ -11,7 +11,7 @@ using MoonSharp.VsCodeDebugger.SDK;
 
 namespace MoonSharp.DebuggerKit
 {
-	public class AsyncDebugger : IDebugger
+	internal class AsyncDebugger : IDebugger
 	{
 		public bool PauseRequested { get; set; }
 
