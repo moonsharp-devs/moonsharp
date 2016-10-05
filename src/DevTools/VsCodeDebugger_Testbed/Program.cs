@@ -17,33 +17,33 @@ namespace VsCodeDebugger_Testbed
 
 		public static void Main(string[] argv)
 		{
-			try
+			Script script = new Script();
+			MoonSharpVsCodeDebugServer server = new MoonSharpVsCodeDebugServer(script, DEFAULT_PORT);
+
+			script.AttachDebugger(server.GetDebugger());
+
+			script.DoFile(@"R:/temp/lua/fact.lua");
+
+			Closure func = script.Globals.Get("run").Function;
+
+			server.Start();
+
+			Console.WriteLine("READY.");
+
+			while (true)//(Console.ReadKey().Key != ConsoleKey.Escape)
 			{
-				Script script = new Script();
-				MoonSharpVsCodeDebugServer server = new MoonSharpVsCodeDebugServer(script, DEFAULT_PORT);
-
-				script.AttachDebugger(server.GetDebugger());
-
-				script.DoFile(@"C:\Users\mmastropaolo\Desktop\PRJ\script1.lua");
-
-				Closure func = script.Globals.Get("fact").Function;
-
-				server.Start();
-
-				Console.WriteLine("READY.");
-
-				while (Console.ReadKey().Key != ConsoleKey.Escape)
+				try
 				{
 					var val = func.Call(5);
 					Console.ForegroundColor = ConsoleColor.Magenta;
 					Console.WriteLine(val.Number);
+					System.Threading.Thread.Sleep(5000);
 				}
-			}
-			catch (InterpreterException ex)
-			{
-				Console.ForegroundColor = ConsoleColor.Red;
-				Console.Write(ex.DecoratedMessage);
-				Console.ReadLine();
+				catch (InterpreterException ex)
+				{
+					Console.ForegroundColor = ConsoleColor.Red;
+					Console.Write(ex.DecoratedMessage);
+				}
 			}
 		}
 

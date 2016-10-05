@@ -4,6 +4,29 @@ This is an extension to allow debugging of MoonSharp scripts running inside othe
 
 It requires the application to be embedding MoonSharp 1.8.0.0 (or later) and exposing the VSCode debugger extensions.
 
+
+## Features supported
+
+* Connect to one script object embedded in an application
+* Supports breakpoints, watches, local variables, `self` inspection
+* Call stack, with visualization of current coroutine
+* Watches can contain free formed expressions, as long they are side-effects free
+* Inspection of values including internal ids and table contents
+
+
+## Features not supported
+
+* Debugging of multiple script objects from the same vscode instance
+* Editing of values not supported
+* No checks are made for file contents changes
+* Due to how vscode works, token-based breakpoints are not supported
+
+
+## Screenshot
+
+![Screenshot](images/screenshot.png)
+
+
 ## How to use
 
 1) Make sure the application you want to debug supports VSCode debugging.

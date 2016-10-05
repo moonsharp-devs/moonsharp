@@ -49,9 +49,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DebuggerKit\BlockingQueue.cs" />
     <Compile Include="SDK\DebugSession.cs" />
-    <Compile Include="SDK\ObjectDynamic_Ext.cs" />
     <Compile Include="SDK\Protocol.cs" />
     <Compile Include="SDK\Utilities.cs" />
+    <Compile Include="VariableInspector.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MoonSharp.Interpreter\MoonSharp.Interpreter.net35-client.csproj">

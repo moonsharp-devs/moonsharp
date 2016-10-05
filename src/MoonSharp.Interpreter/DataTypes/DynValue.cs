@@ -486,6 +486,42 @@ namespace MoonSharp.Interpreter
 		}
 
 		/// <summary>
+		/// Returns a string which is what it's expected to be output by debuggers.
+		/// </summary>
+		public string ToDebugPrintString()
+		{
+			if (this.m_Object != null && this.m_Object is RefIdObject)
+			{
+				RefIdObject refid = (RefIdObject)m_Object;
+
+				string typeString = this.Type.ToLuaTypeString();
+
+				if (m_Object is UserData)
+				{
+					UserData ud = (UserData)m_Object;
+					string str = ud.Descriptor.AsString(ud.Object);
+					if (str != null)
+						return str;
+				}
+
+				return refid.FormatTypeString(typeString);
+			}
+
+			switch (Type)
+			{
+				case DataType.Tuple:
+					return string.Join("\t", Tuple.Select(t => t.ToPrintString()).ToArray());
+				case DataType.TailCallRequest:
+					return "(TailCallRequest)";
+				case DataType.YieldRequest:
+					return "(YieldRequest)";
+				default:
+					return ToString();
+			}
+		}
+
+
+		/// <summary>
 		/// Returns a <see cref="System.String" /> that represents this instance.
 		/// </summary>
 		/// <returns>

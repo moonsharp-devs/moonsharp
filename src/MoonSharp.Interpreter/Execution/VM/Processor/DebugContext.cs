@@ -14,6 +14,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			public SourceRef LastHlRef = null;
 			public int ExStackDepthAtStep = -1;
 			public List<SourceRef> BreakPoints = new List<SourceRef>();
+			public bool LineBasedBreakPoints = false;
 		}
 	}
 }

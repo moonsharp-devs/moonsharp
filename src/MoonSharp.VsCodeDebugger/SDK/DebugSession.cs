@@ -265,6 +265,7 @@ namespace MoonSharp.VsCodeDebugger.SDK
 	public class EvaluateResponseBody : ResponseBody
 	{
 		public string result { get; }
+		public string type { get; set;  }
 		public int variablesReference { get; }
 
 		public EvaluateResponseBody(string value, int reff = 0)

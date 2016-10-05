@@ -31,6 +31,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 		internal void AttachDebugger(IDebugger debugger)
 		{
 			m_Debug.DebuggerAttached = debugger;
+			m_Debug.LineBasedBreakPoints = (debugger.GetDebuggerCaps() & DebuggerCaps.HasLineBasedBreakpoints) != 0;
 			debugger.SetDebugService(new DebugService(m_Script, this));
 		}
 
@@ -43,8 +44,28 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		private void ListenDebugger(Instruction instr, int instructionPtr)
 		{
+			bool isOnDifferentRef = false;
+
+			if (instr.SourceCodeRef != null && m_Debug.LastHlRef != null)
+			{
+				if (m_Debug.LineBasedBreakPoints)
+				{
+					isOnDifferentRef = instr.SourceCodeRef.SourceIdx != m_Debug.LastHlRef.SourceIdx ||
+						instr.SourceCodeRef.FromLine != m_Debug.LastHlRef.FromLine;
+				}
+				else
+				{
+					isOnDifferentRef = instr.SourceCodeRef != m_Debug.LastHlRef;
+				}
+			}
+			else if (m_Debug.LastHlRef == null)
+			{
+				isOnDifferentRef = instr.SourceCodeRef != null;
+			}
+
+
 			if (m_Debug.DebuggerAttached.IsPauseRequested() ||
-				(instr.SourceCodeRef != null && instr.SourceCodeRef.Breakpoint && instr.SourceCodeRef != m_Debug.LastHlRef))
+				(instr.SourceCodeRef != null && instr.SourceCodeRef.Breakpoint && isOnDifferentRef))
 			{
 				m_Debug.DebuggerCurrentAction = DebuggerAction.ActionType.None;
 				m_Debug.DebuggerCurrentActionTarget = -1;
@@ -96,6 +117,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 						return;
 					case DebuggerAction.ActionType.Run:
 						m_Debug.DebuggerCurrentAction = DebuggerAction.ActionType.Run;
+						m_Debug.LastHlRef = instr.SourceCodeRef;
 						m_Debug.DebuggerCurrentActionTarget = -1;
 						return;
 					case DebuggerAction.ActionType.ToggleBreakpoint:
@@ -238,13 +260,28 @@ namespace MoonSharp.Interpreter.Execution.VM
 			List<WatchItem> callStack = Debugger_GetCallStack(sref);
 			List<WatchItem> watches = Debugger_RefreshWatches(context, watchList);
 			List<WatchItem> vstack = Debugger_RefreshVStack();
+			List<WatchItem> locals = Debugger_RefreshLocals(context);
+			List<WatchItem> threads = Debugger_RefreshThreads(context);
 
 			m_Debug.DebuggerAttached.Update(WatchType.CallStack, callStack);
 			m_Debug.DebuggerAttached.Update(WatchType.Watches, watches);
 			m_Debug.DebuggerAttached.Update(WatchType.VStack, vstack);
+			m_Debug.DebuggerAttached.Update(WatchType.Locals, locals);
+			m_Debug.DebuggerAttached.Update(WatchType.Threads, threads);
 
 			if (hard)
 				m_Debug.DebuggerAttached.RefreshBreakpoints(m_Debug.BreakPoints);
+		}
+
+		private List<WatchItem> Debugger_RefreshThreads(ScriptExecutionContext context)
+		{
+			List<Processor> coroutinesStack = m_Parent != null ? m_Parent.m_CoroutinesStack : this.m_CoroutinesStack;
+
+			return coroutinesStack.Select(c => new WatchItem()
+			{
+				Address = c.AssociatedCoroutine.ReferenceID,
+				Name = "coroutine #" + c.AssociatedCoroutine.ReferenceID.ToString()
+			}).ToList();
 		}
 
 		private List<WatchItem> Debugger_RefreshVStack()
@@ -265,6 +302,30 @@ namespace MoonSharp.Interpreter.Execution.VM
 		private List<WatchItem> Debugger_RefreshWatches(ScriptExecutionContext context, List<DynamicExpression> watchList)
 		{
 			return watchList.Select(w => Debugger_RefreshWatch(context, w)).ToList();
+		}
+
+		private List<WatchItem> Debugger_RefreshLocals(ScriptExecutionContext context)
+		{
+			List<WatchItem> locals = new List<WatchItem>();
+			var top = this.m_ExecutionStack.Peek();
+
+			if (top != null && top.Debug_Symbols != null && top.LocalScope != null)
+			{
+				int len = Math.Min(top.Debug_Symbols.Length, top.LocalScope.Length);
+
+				for (int i = 0; i < len; i++)
+				{
+					locals.Add(new WatchItem()
+					{
+						IsError = false,
+						LValue = top.Debug_Symbols[i],
+						Value = top.LocalScope[i],
+						Name = top.Debug_Symbols[i].i_Name
+					});
+				}
+			}
+
+			return locals;
 		}
 
 		private WatchItem Debugger_RefreshWatch(ScriptExecutionContext context, DynamicExpression dynExpr)
@@ -313,7 +374,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 						BasePtr = -1,
 						RetAddress = c.ReturnAddress,
 						Location = startingRef,
-						Name = c.ClrFunction.Name 
+						Name = c.ClrFunction.Name
 					});
 				}
 				else

@@ -22,7 +22,14 @@ namespace MoonSharp.Interpreter.Debugging
 		/// The list of coroutines
 		/// </summary>
 		Coroutines,
-
+		/// <summary>
+		/// Topmost local variables
+		/// </summary>
+		Locals,
+		/// <summary>
+		/// The list of currently active coroutines
+		/// </summary>
+		Threads,
 		/// <summary>
 		/// The maximum value of this enum
 		/// </summary>

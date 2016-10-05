@@ -8,6 +8,10 @@ namespace MoonSharp.Interpreter.Debugging
 	public interface IDebugger
 	{
 		/// <summary>
+		/// Gets the debugger caps.
+		/// </summary>
+		DebuggerCaps GetDebuggerCaps();
+		/// <summary>
 		/// Sets the debug service for this debugger
 		/// </summary>
 		/// <param name="debugService">The debug service.</param>
