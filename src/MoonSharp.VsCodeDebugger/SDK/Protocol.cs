@@ -6,8 +6,9 @@ using System;
 using System.Text;
 using System.IO;
 using System.Text.RegularExpressions;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using MoonSharp.Interpreter;
+using MoonSharp.Interpreter.Serialization.Json;
+using MoonSharp.Interpreter.Serialization;
 
 namespace MoonSharp.VsCodeDebugger.SDK
 {
@@ -31,9 +32,9 @@ namespace MoonSharp.VsCodeDebugger.SDK
 	public class Request : ProtocolMessage
 	{
 		public string command;
-		public JObject arguments;
+		public Table arguments;
 
-		public Request(int id, string cmd, JObject arg) : base("request", id)
+		public Request(int id, string cmd, Table arg) : base("request", id)
 		{
 			command = cmd;
 			arguments = arg;
@@ -57,11 +58,11 @@ namespace MoonSharp.VsCodeDebugger.SDK
 		public string command { get; }
 		public ResponseBody body { get; private set; }
 
-		public Response(Request req) : base("response")
+		public Response(Table req) : base("response")
 		{
 			success = true;
-			request_seq = req.seq;
-			command = req.command;
+			request_seq = req.Get("seq").ToObject<int>();
+			command = req.Get("command").ToObject<string>();
 		}
 
 		public void SetBody(ResponseBody bdy)
@@ -80,13 +81,12 @@ namespace MoonSharp.VsCodeDebugger.SDK
 
 	public class Event : ProtocolMessage
 	{
-		[JsonProperty(PropertyName = "event")]
-		public string eventType { get; }
+		public string @event { get; }
 		public object body { get; }
 
 		public Event(string type, object bdy = null) : base("event")
 		{
-			eventType = type;
+			@event = type;
 			body = bdy;
 		}
 	}
@@ -157,7 +157,7 @@ namespace MoonSharp.VsCodeDebugger.SDK
 			SendMessage(e);
 		}
 
-		protected abstract void DispatchRequest(string command, JObject args, Response response);
+		protected abstract void DispatchRequest(string command, Table args, Response response);
 
 		// ---- private ------------------------------------------------------------------------
 
@@ -201,17 +201,23 @@ namespace MoonSharp.VsCodeDebugger.SDK
 
 		private void Dispatch(string req)
 		{
-			var request = JsonConvert.DeserializeObject<Request>(req);
-			if (request != null && request.type == "request")
+			try
 			{
-				if (TRACE)
-					Console.Error.WriteLine(string.Format("C {0}: {1}", request.command, JsonConvert.SerializeObject(request.arguments)));
+				Table request = JsonTableConverter.JsonToTable(req);
+				if (request != null && request["type"].ToString() == "request")
+				{
+					if (TRACE)
+						Console.Error.WriteLine(string.Format("C {0}: {1}", request["command"], req));
 
-				var response = new Response(request);
+					var response = new Response(request);
 
-				DispatchRequest(request.command, request.arguments, response);
+					DispatchRequest(request.Get("command").String, request.Get("arguments").Table, response);
 
-				SendMessage(response);
+					SendMessage(response);
+				}
+			}
+			catch
+			{
 			}
 		}
 
@@ -221,12 +227,12 @@ namespace MoonSharp.VsCodeDebugger.SDK
 
 			if (TRACE_RESPONSE && message.type == "response")
 			{
-				Console.Error.WriteLine(string.Format(" R: {0}", JsonConvert.SerializeObject(message)));
+				Console.Error.WriteLine(string.Format(" R: {0}", JsonTableConverter.ObjectToJson(message)));
 			}
 			if (TRACE && message.type == "event")
 			{
 				Event e = (Event)message;
-				Console.Error.WriteLine(string.Format("E {0}: {1}", e.eventType, JsonConvert.SerializeObject(e.body)));
+				Console.Error.WriteLine(string.Format("E {0}: {1}", e.@event, JsonTableConverter.ObjectToJson(e.body)));
 			}
 
 			var data = ConvertToBytes(message);
@@ -241,9 +247,10 @@ namespace MoonSharp.VsCodeDebugger.SDK
 			}
 		}
 
+
 		private static byte[] ConvertToBytes(ProtocolMessage request)
 		{
-			var asJson = JsonConvert.SerializeObject(request);
+			var asJson = JsonTableConverter.ObjectToJson(request);
 			byte[] jsonBytes = Encoding.GetBytes(asJson);
 
 			string header = string.Format("Content-Length: {0}{1}", jsonBytes.Length, TWO_CRLF);
@@ -295,5 +302,17 @@ namespace MoonSharp.VsCodeDebugger.SDK
 			_buffer = newBuffer;
 			return b;
 		}
+
+
+
+
+
+
+
+
+
+
+
+
 	}
 }

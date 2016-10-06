@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
-using Newtonsoft.Json.Linq;
+using MoonSharp.Interpreter;
 
 namespace MoonSharp.VsCodeDebugger.SDK
 {
@@ -321,11 +321,11 @@ namespace MoonSharp.VsCodeDebugger.SDK
 			SendMessage(response);
 		}
 
-		protected override void DispatchRequest(string command, JObject args, Response response)
+		protected override void DispatchRequest(string command, Table args, Response response)
 		{
 			if (args == null)
 			{
-				args = new JObject();
+				args = new Table(null);
 			}
 
 			try
@@ -336,9 +336,9 @@ namespace MoonSharp.VsCodeDebugger.SDK
 					case "initialize":
 
 						if (args["linesStartAt1"] != null)
-						_clientLinesStartAt1 = args["linesStartAt1"].ToObject<bool>();
+						_clientLinesStartAt1 = args.Get("linesStartAt1").ToObject<bool>();
 
-						var pathFormat = args["pathFormat"].ToString();
+						var pathFormat = args.Get("pathFormat").ToObject<string>();
 						if (pathFormat != null)
 						{
 							switch (pathFormat)
@@ -441,48 +441,48 @@ namespace MoonSharp.VsCodeDebugger.SDK
 			}
 		}
 
-		public abstract void Initialize(Response response, JObject args);
+		public abstract void Initialize(Response response, Table args);
 
-		public abstract void Launch(Response response, JObject arguments);
+		public abstract void Launch(Response response, Table arguments);
 
-		public abstract void Attach(Response response, JObject arguments);
+		public abstract void Attach(Response response, Table arguments);
 
-		public abstract void Disconnect(Response response, JObject arguments);
+		public abstract void Disconnect(Response response, Table arguments);
 
-		public virtual void SetFunctionBreakpoints(Response response, JObject arguments)
+		public virtual void SetFunctionBreakpoints(Response response, Table arguments)
 		{
 		}
 
-		public virtual void SetExceptionBreakpoints(Response response, JObject arguments)
+		public virtual void SetExceptionBreakpoints(Response response, Table arguments)
 		{
 		}
 
-		public abstract void SetBreakpoints(Response response, JObject arguments);
+		public abstract void SetBreakpoints(Response response, Table arguments);
 
-		public abstract void Continue(Response response, JObject arguments);
+		public abstract void Continue(Response response, Table arguments);
 
-		public abstract void Next(Response response, JObject arguments);
+		public abstract void Next(Response response, Table arguments);
 
-		public abstract void StepIn(Response response, JObject arguments);
+		public abstract void StepIn(Response response, Table arguments);
 
-		public abstract void StepOut(Response response, JObject arguments);
+		public abstract void StepOut(Response response, Table arguments);
 
-		public abstract void Pause(Response response, JObject arguments);
+		public abstract void Pause(Response response, Table arguments);
 
-		public abstract void StackTrace(Response response, JObject arguments);
+		public abstract void StackTrace(Response response, Table arguments);
 
-		public abstract void Scopes(Response response, JObject arguments);
+		public abstract void Scopes(Response response, Table arguments);
 
-		public abstract void Variables(Response response, JObject arguments);
+		public abstract void Variables(Response response, Table arguments);
 
-		public virtual void Source(Response response, JObject arguments)
+		public virtual void Source(Response response, Table arguments)
 		{
 			SendErrorResponse(response, 1020, "Source not supported");
 		}
 
-		public abstract void Threads(Response response, JObject arguments);
+		public abstract void Threads(Response response, Table arguments);
 
-		public abstract void Evaluate(Response response, JObject arguments);
+		public abstract void Evaluate(Response response, Table arguments);
 
 		// protected
 

@@ -102,12 +102,12 @@ namespace MoonSharp.Interpreter.Serialization
 		{
 			s = s.Replace(@"\", @"\\");
 			s = s.Replace("\n", @"\n");
-			s = s.Replace("\r", @"\n");
-			s = s.Replace("\t", @"\n");
-			s = s.Replace("\a", @"\n");
-			s = s.Replace("\f", @"\n");
-			s = s.Replace("\b", @"\n");
-			s = s.Replace("\v", @"\n");
+			s = s.Replace("\r", @"\r");
+			s = s.Replace("\t", @"\t");
+			s = s.Replace("\a", @"\a");
+			s = s.Replace("\f", @"\f");
+			s = s.Replace("\b", @"\b");
+			s = s.Replace("\v", @"\v");
 			s = s.Replace("\"", "\\\"");
 			s = s.Replace("\'", @"\'");
 			return "\"" + s + "\"";

@@ -126,6 +126,7 @@
     <Compile Include="EndToEnd\DynamicTests.cs" />
     <Compile Include="EndToEnd\ErrorHandlingTests.cs" />
     <Compile Include="EndToEnd\GotoTests.cs" />
+    <Compile Include="EndToEnd\JsonSerializationTests.cs" />
     <Compile Include="EndToEnd\LuaTestSuiteExtract.cs" />
     <Compile Include="EndToEnd\MetatableTests.cs">
       <SubType>Code</SubType>

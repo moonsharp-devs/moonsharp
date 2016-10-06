@@ -7,6 +7,7 @@ using MoonSharp.Interpreter.Interop.BasicDescriptors;
 using MoonSharp.Interpreter.Interop.RegistrationPolicies;
 using MoonSharp.Interpreter.Interop.StandardDescriptors;
 using MoonSharp.Interpreter.Interop.UserDataRegistries;
+using MoonSharp.Interpreter.Serialization.Json;
 
 namespace MoonSharp.Interpreter
 {
@@ -46,6 +47,7 @@ namespace MoonSharp.Interpreter
 			RegisterType<EventFacade>(InteropAccessMode.NoReflectionAllowed);
 			RegisterType<AnonWrapper>(InteropAccessMode.HideMembers);
 			RegisterType<EnumerableWrapper>(InteropAccessMode.NoReflectionAllowed);
+			RegisterType<JsonNull>(InteropAccessMode.Reflection);
 
 			DefaultAccessMode = InteropAccessMode.LazyOptimized;
 		}

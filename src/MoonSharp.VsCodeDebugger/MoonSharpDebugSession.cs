@@ -8,7 +8,7 @@ using MoonSharp.DebuggerKit;
 using MoonSharp.Interpreter;
 using MoonSharp.Interpreter.Debugging;
 using MoonSharp.VsCodeDebugger.SDK;
-using Newtonsoft.Json.Linq;
+
 
 namespace MoonSharp.VsCodeDebugger
 {
@@ -28,7 +28,7 @@ namespace MoonSharp.VsCodeDebugger
 			m_Debug = debugger;
 		}
 
-		public override void Initialize(Response response, JObject args)
+		public override void Initialize(Response response, Table args)
 		{
 			SendText("Connected to MoonSharp {0} [{1}] on process {2} (PID {3})",
 					 Script.VERSION,
@@ -62,24 +62,24 @@ namespace MoonSharp.VsCodeDebugger
 			m_Debug.Client = this;
 		}
 
-		public override void Attach(Response response, JObject arguments)
+		public override void Attach(Response response, Table arguments)
 		{
 			SendResponse(response);
 		}
 
-		public override void Continue(Response response, JObject arguments)
+		public override void Continue(Response response, Table arguments)
 		{
 			m_Debug.QueueAction(new DebuggerAction() { Action = DebuggerAction.ActionType.Run });
 			SendResponse(response);
 		}
 
-		public override void Disconnect(Response response, JObject arguments)
+		public override void Disconnect(Response response, Table arguments)
 		{
 			m_Debug.Client = null;
 			SendResponse(response);
 		}
 
-		private static string getString(JObject args, string property, string dflt = null)
+		private static string getString(Table args, string property, string dflt = null)
 		{
 			var s = (string)args[property];
 			if (s == null)
@@ -94,7 +94,7 @@ namespace MoonSharp.VsCodeDebugger
 			return s;
 		}
 
-		public override void Evaluate(Response response, JObject args)
+		public override void Evaluate(Response response, Table args)
 		{
 			var expression = getString(args, "expression");
 			var frameId = getInt(args, "frameId", 0);
@@ -181,12 +181,12 @@ namespace MoonSharp.VsCodeDebugger
 		}
 
 
-		public override void Launch(Response response, JObject arguments)
+		public override void Launch(Response response, Table arguments)
 		{
 			SendResponse(response);
 		}
 
-		public override void Next(Response response, JObject arguments)
+		public override void Next(Response response, Table arguments)
 		{
 			m_Debug.QueueAction(new DebuggerAction() { Action = DebuggerAction.ActionType.StepOver });
 			SendResponse(response);
@@ -197,14 +197,14 @@ namespace MoonSharp.VsCodeDebugger
 			return new StoppedEvent(0, reason, text);
 		}
 
-		public override void Pause(Response response, JObject arguments)
+		public override void Pause(Response response, Table arguments)
 		{
 			m_Debug.PauseRequested = true;
 			SendResponse(response);
 			SendText("Pause pending -- will pause at first script statement.");
 		}
 
-		public override void Scopes(Response response, JObject arguments)
+		public override void Scopes(Response response, Table arguments)
 		{
 			var scopes = new List<Scope>();
 
@@ -214,11 +214,11 @@ namespace MoonSharp.VsCodeDebugger
 			SendResponse(response, new ScopesResponseBody(scopes));
 		}
 
-		public override void SetBreakpoints(Response response, JObject args)
+		public override void SetBreakpoints(Response response, Table args)
 		{
 			string path = null;
 
-			JObject args_source = args["source"] as JObject;
+			Table args_source = args["source"] as Table;
 
 			if (args_source != null)
 			{
@@ -244,9 +244,9 @@ namespace MoonSharp.VsCodeDebugger
 				return;
 			}
 
-			JArray clientLines = args["lines"] as JArray;
+			Table clientLines = args.Get("lines").Table;
 
-			var lin = new HashSet<int>(clientLines.Select(jt => ConvertClientLineToDebugger(jt.ToObject<int>())).ToArray());
+			var lin = new HashSet<int>(clientLines.Values.Select(jt => ConvertClientLineToDebugger(jt.ToObject<int>())).ToArray());
 
 			var lin2 = m_Debug.DebugService.ResetBreakPoints(src, lin);
 
@@ -259,7 +259,7 @@ namespace MoonSharp.VsCodeDebugger
 			response.SetBody(new SetBreakpointsResponseBody(breakpoints)); SendResponse(response);
 		}
 
-		public override void StackTrace(Response response, JObject args)
+		public override void StackTrace(Response response, Table args)
 		{
 			int maxLevels = getInt(args, "levels", 10);
 			int threadReference = getInt(args, "threadId", 0);
@@ -307,37 +307,37 @@ namespace MoonSharp.VsCodeDebugger
 
 		readonly SourceRef DefaultSourceRef = new SourceRef(-1, 0, 0, 0, 0, false);
 
-		private int getInt(JObject args, string propName, int defaultValue)
+		private int getInt(Table args, string propName, int defaultValue)
 		{
-			var jo = args[propName];
+			var jo = args.Get(propName);
 
-			if (jo == null)
+			if (jo.Type != DataType.Number)
 				return defaultValue;
 			else
 				return jo.ToObject<int>();
 		}
 
 
-		public override void StepIn(Response response, JObject arguments)
+		public override void StepIn(Response response, Table arguments)
 		{
 			m_Debug.QueueAction(new DebuggerAction() { Action = DebuggerAction.ActionType.StepIn });
 			SendResponse(response);
 		}
 
-		public override void StepOut(Response response, JObject arguments)
+		public override void StepOut(Response response, Table arguments)
 		{
 			m_Debug.QueueAction(new DebuggerAction() { Action = DebuggerAction.ActionType.StepOut });
 			SendResponse(response);
 		}
 
-		public override void Threads(Response response, JObject arguments)
+		public override void Threads(Response response, Table arguments)
 		{
 			var threads = new List<Thread>() { new Thread(0, "Main Thread") };
 			SendResponse(response, new ThreadsResponseBody(threads));
 		}
 
 
-		public override void Variables(Response response, JObject arguments)
+		public override void Variables(Response response, Table arguments)
 		{
 			int index = getInt(arguments, "variablesReference", -1);
 

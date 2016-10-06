@@ -22,7 +22,7 @@ namespace VsCodeDebugger_Testbed
 
 			script.AttachDebugger(server.GetDebugger());
 
-			script.DoFile(@"R:/temp/lua/fact.lua");
+			script.DoFile(@"Z:/HDD/temp/lua/fact.lua");
 
 			Closure func = script.Globals.Get("run").Function;
 

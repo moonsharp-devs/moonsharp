@@ -37,10 +37,6 @@
     <AssemblyOriginatorKeyFile>keypair.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net35\Newtonsoft.Json.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -65,14 +61,9 @@
       <Project>{91ea9b9d-fe03-4273-bdaf-8ad42ede1e59}</Project>
       <Name>MoonSharp.Interpreter.net35-client</Name>
     </ProjectReference>
-    <ProjectReference Include="..\MoonSharp\MoonSharp.csproj">
-      <Project>{2a4bd262-d6eb-4611-a28b-27b6daeb089b}</Project>
-      <Name>MoonSharp</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="keypair.snk" />
-    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

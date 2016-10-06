@@ -525,6 +525,7 @@ namespace MoonSharp.Interpreter.Tree
 				"unfinished string near '{0}'", text.ToString()) { IsPrematureStreamTermination = true };
 		}
 
+
 		private Token PotentiallyDoubleCharOperator(char expectedSecondChar, TokenType singleCharToken, TokenType doubleCharToken, int fromLine, int fromCol)
 		{
 			string op = CursorChar().ToString();

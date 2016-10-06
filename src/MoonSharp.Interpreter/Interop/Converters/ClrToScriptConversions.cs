@@ -8,6 +8,37 @@ namespace MoonSharp.Interpreter.Interop.Converters
 	internal static class ClrToScriptConversions
 	{
 		/// <summary>
+		/// Tries to convert a CLR object to a MoonSharp value, using "trivial" logic.
+		/// Skips on custom conversions, etc.
+		/// Does NOT throw on failure.
+		/// </summary>
+		internal static DynValue TryObjectToTrivialDynValue(Script script, object obj)
+		{
+			if (obj == null)
+				return DynValue.Nil;
+
+			if (obj is DynValue)
+				return (DynValue)obj;
+
+			Type t = obj.GetType();
+
+			if (obj is bool)
+				return DynValue.NewBoolean((bool)obj);
+
+			if (obj is string || obj is StringBuilder || obj is char)
+				return DynValue.NewString(obj.ToString());
+
+			if (NumericConversions.NumericTypes.Contains(t))
+				return DynValue.NewNumber(NumericConversions.TypeToDouble(t, obj));
+
+			if (obj is Table)
+				return DynValue.NewTable((Table)obj);
+
+			return null;
+		}
+
+
+		/// <summary>
 		/// Tries to convert a CLR object to a MoonSharp value, using "simple" logic.
 		/// Does NOT throw on failure.
 		/// </summary>
