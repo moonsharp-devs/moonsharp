@@ -156,7 +156,7 @@ namespace MoonSharp.Interpreter
 		/// </summary>
 		/// <param name="code">The code.</param>
 		/// <param name="globalTable">The global table to bind to this chunk.</param>
-		/// <param name="codeFriendlyName">Name of the code - used to report errors, etc.</param>
+		/// <param name="codeFriendlyName">Name of the code - used to report errors, etc. Also used by debuggers to locate the original source file.</param>
 		/// <returns>
 		/// A DynValue containing a function which will execute the loaded code.
 		/// </returns>
@@ -320,12 +320,13 @@ namespace MoonSharp.Interpreter
 		/// </summary>
 		/// <param name="code">The code.</param>
 		/// <param name="globalContext">The global context.</param>
+		/// <param name="codeFriendlyName">Name of the code - used to report errors, etc. Also used by debuggers to locate the original source file.</param>
 		/// <returns>
 		/// A DynValue containing the result of the processing of the loaded chunk.
 		/// </returns>
-		public DynValue DoString(string code, Table globalContext = null)
+		public DynValue DoString(string code, Table globalContext = null, string codeFriendlyName = null)
 		{
-			DynValue func = LoadString(code, globalContext);
+			DynValue func = LoadString(code, globalContext, codeFriendlyName);
 			return Call(func);
 		}
 
@@ -335,12 +336,13 @@ namespace MoonSharp.Interpreter
 		/// </summary>
 		/// <param name="stream">The stream.</param>
 		/// <param name="globalContext">The global context.</param>
+		/// <param name="codeFriendlyName">Name of the code - used to report errors, etc. Also used by debuggers to locate the original source file.</param>
 		/// <returns>
 		/// A DynValue containing the result of the processing of the loaded chunk.
 		/// </returns>
-		public DynValue DoStream(Stream stream, Table globalContext = null)
+		public DynValue DoStream(Stream stream, Table globalContext = null, string codeFriendlyName = null)
 		{
-			DynValue func = LoadStream(stream, globalContext);
+			DynValue func = LoadStream(stream, globalContext, codeFriendlyName);
 			return Call(func);
 		}
 
@@ -350,12 +352,13 @@ namespace MoonSharp.Interpreter
 		/// </summary>
 		/// <param name="filename">The filename.</param>
 		/// <param name="globalContext">The global context.</param>
+		/// <param name="codeFriendlyName">Name of the code - used to report errors, etc. Also used by debuggers to locate the original source file.</param>
 		/// <returns>
 		/// A DynValue containing the result of the processing of the loaded chunk.
 		/// </returns>
-		public DynValue DoFile(string filename, Table globalContext = null)
+		public DynValue DoFile(string filename, Table globalContext = null, string codeFriendlyName = null)
 		{
-			DynValue func = LoadFile(filename, globalContext);
+			DynValue func = LoadFile(filename, globalContext, codeFriendlyName);
 			return Call(func);
 		}
 

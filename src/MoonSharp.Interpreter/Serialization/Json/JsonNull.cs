@@ -16,6 +16,7 @@ namespace MoonSharp.Interpreter.Serialization.Json
 		public static bool IsJsonNull(DynValue v)
 		{
 			return v.Type == DataType.UserData &&
+				v.UserData.Descriptor != null &&
 				v.UserData.Descriptor.Type == typeof(JsonNull);
 		}
 

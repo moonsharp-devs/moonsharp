@@ -77,6 +77,10 @@ namespace MoonSharp.Interpreter
 		/// The "dynamic" package (introduced by MoonSharp).
 		/// </summary>
 		Dynamic = 0x8000,
+		/// <summary>
+		/// The "json" package (introduced by MoonSharp).
+		/// </summary>
+		Json = 0x10000,
 
 
 		/// <summary>
@@ -84,9 +88,9 @@ namespace MoonSharp.Interpreter
 		/// </summary>
 		Preset_HardSandbox = GlobalConsts | TableIterators | String | Table | Basic | Math | Bit32,
 		/// <summary>
-		/// A softer sandbox preset, adding metatables support, error handling, coroutine, time functions and dynamic evaluations.
+		/// A softer sandbox preset, adding metatables support, error handling, coroutine, time functions, json parsing and dynamic evaluations.
 		/// </summary>
-		Preset_SoftSandbox = Preset_HardSandbox | Metatables | ErrorHandling | Coroutine | OS_Time | Dynamic,
+		Preset_SoftSandbox = Preset_HardSandbox | Metatables | ErrorHandling | Coroutine | OS_Time | Dynamic | Json,
 		/// <summary>
 		/// The default preset. Includes everything except "debug" as now.
 		/// Beware that using this preset allows scripts unlimited access to the system.

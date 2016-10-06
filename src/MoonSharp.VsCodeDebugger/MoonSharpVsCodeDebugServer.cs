@@ -21,15 +21,19 @@ namespace MoonSharp.VsCodeDebugger
 		AsyncDebugger m_Debugger;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MoonSharpVsCodeDebugServer"/> class.
+		/// Initializes a new instance of the <see cref="MoonSharpVsCodeDebugServer" /> class.
 		/// </summary>
 		/// <param name="script">The script object to debug.</param>
 		/// <param name="port">The port on which the debugger listens. It's recommended to use 41912 unless you are going to keep more than one script object around.</param>
-		public MoonSharpVsCodeDebugServer(Script script, int port)
+		/// <param name="sourceFinder">A function which gets in input a source code and returns the path to
+		/// source file to use. It can return null and in that case (or if the file cannot be found)
+		/// a temporary file will be generated on the fly.</param>
+		public MoonSharpVsCodeDebugServer(Script script, int port, Func<SourceCode, string> sourceFinder = null)
 		{
 			m_Port = port;
-			m_Debugger = new AsyncDebugger(script);
+			m_Debugger = new AsyncDebugger(script, sourceFinder ?? (s => s.Name));
 		}
+
 
 		/// <summary>
 		/// Gets the debugger object (to register it).

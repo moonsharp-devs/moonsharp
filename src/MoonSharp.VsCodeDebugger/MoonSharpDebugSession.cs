@@ -307,6 +307,7 @@ namespace MoonSharp.VsCodeDebugger
 
 		readonly SourceRef DefaultSourceRef = new SourceRef(-1, 0, 0, 0, 0, false);
 
+
 		private int getInt(Table args, string propName, int defaultValue)
 		{
 			var jo = args.Get(propName);

@@ -24,15 +24,16 @@ namespace MoonSharp.DebuggerKit
 		List<WatchItem>[] m_WatchItems;
 		Dictionary<int, SourceCode> m_SourcesMap = new Dictionary<int, SourceCode>();
 		Dictionary<int, string> m_SourcesOverride = new Dictionary<int, string>();
-
+		Func<SourceCode, string> m_SourceFinder;
 
 
 		public DebugService DebugService { get; private set; }
 
 		public Regex ErrorRegex { get; set; }
 
-		public AsyncDebugger(Script script)
+		public AsyncDebugger(Script script, Func<SourceCode, string> sourceFinder)
 		{
+			m_SourceFinder = sourceFinder;
 			ErrorRegex = new Regex(@"\A.*\Z");
 			m_Script = script;
 			m_WatchItems = new List<WatchItem>[(int)WatchType.MaxValue];
@@ -159,20 +160,34 @@ namespace MoonSharp.DebuggerKit
 			m_SourcesMap[sourceCode.SourceID] = sourceCode;
 
 			bool invalidFile = false;
-			try
+
+			string file = m_SourceFinder(sourceCode);
+
+			if (!string.IsNullOrEmpty(file))
 			{
-				if (!File.Exists(sourceCode.Name))
+				try
+				{
+					if (!File.Exists(file))
+						invalidFile = true;
+				}
+				catch
+				{
 					invalidFile = true;
+				}
 			}
-			catch
+			else
 			{
 				invalidFile = true;
 			}
 
 			if (invalidFile)
 			{
-				string file = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N") + ".lua");
+				file = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N") + ".lua");
 				File.WriteAllText(file, sourceCode.Code + GetFooterForTempFile());
+				m_SourcesOverride[sourceCode.SourceID] = file;
+			}
+			else if (file != sourceCode.Name)
+			{
 				m_SourcesOverride[sourceCode.SourceID] = file;
 			}
 
