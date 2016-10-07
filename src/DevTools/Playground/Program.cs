@@ -10,15 +10,20 @@ namespace Test
 	{
 		static void Main(string[] args)
 		{
+			((ScriptLoaderBase)Script.DefaultOptions.ScriptLoader).ModulePaths = new string[] { "./?", "./?.lua" };
+
 			try
 			{
 				Script S = new Script();
 				S.Options.ColonOperatorClrCallbackBehaviour = ColonOperatorBehaviour.TreatAsDotOnUserData;
 
-				Table my_table = S.DoString("my_table = { }; return my_table").Table;
-				my_table["Foo"] = (Action<Table, string>)((self, str) => { Console.WriteLine("!!!" + str); });
+				S.DoString(@"
 
-				S.DoString("my_table:Foo('Ciao');");
+require 'test'
+require 'test2'
+
+");
+
 
 			}
 			catch (InterpreterException ex)

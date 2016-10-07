@@ -1,0 +1,8 @@
+// Place your settings in this file to overwrite default and user settings.FALSE
+{
+	"javascript.validate.enable": false,
+	"typescript.tsdk": "node_modules/typescript/lib",
+	"files.trimTrailingWhitespace": true,
+	"eslint.enable": false,
+	"editor.insertSpaces": false
+}

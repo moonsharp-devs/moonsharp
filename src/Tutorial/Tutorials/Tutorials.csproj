@@ -78,6 +78,10 @@
       <Project>{f9d383b9-2639-4738-a897-4d9f8801b8c9}</Project>
       <Name>MoonSharp.RemoteDebugger.net40-client</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\MoonSharp.VsCodeDebugger\_Projects\MoonSharp.VsCodeDebugger.net40-client\MoonSharp.VsCodeDebugger.net40-client.csproj">
+      <Project>{37b5fc4b-dee0-4428-8c53-c005f52af4a5}</Project>
+      <Name>MoonSharp.VsCodeDebugger.net40-client</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

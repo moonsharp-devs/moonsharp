@@ -93,6 +93,9 @@
     <Compile Include="..\..\EndToEnd\GotoTests.cs">
       <Link>GotoTests.cs</Link>
     </Compile>
+    <Compile Include="..\..\EndToEnd\JsonSerializationTests.cs">
+      <Link>JsonSerializationTests.cs</Link>
+    </Compile>
     <Compile Include="..\..\EndToEnd\LuaTestSuiteExtract.cs">
       <Link>LuaTestSuiteExtract.cs</Link>
     </Compile>
