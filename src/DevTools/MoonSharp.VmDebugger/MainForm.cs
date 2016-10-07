@@ -441,5 +441,14 @@ namespace MoonSharp.Debugger
 		{
 
 		}
+
+		public void SetDebugService(DebugService debugService)
+		{
+		}
+
+		public DebuggerCaps GetDebuggerCaps()
+		{
+			return DebuggerCaps.CanDebugByteCode;
+		}
 	}
 }

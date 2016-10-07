@@ -97,6 +97,9 @@
     <Compile Include="..\..\CoreLib\IO\StreamFileUserDataBase.cs">
       <Link>StreamFileUserDataBase.cs</Link>
     </Compile>
+    <Compile Include="..\..\CoreLib\JsonModule.cs">
+      <Link>JsonModule.cs</Link>
+    </Compile>
     <Compile Include="..\..\CoreLib\LoadModule.cs">
       <Link>LoadModule.cs</Link>
     </Compile>
@@ -123,6 +126,12 @@
     </Compile>
     <Compile Include="..\..\DataStructs\ReferenceEqualityComparer.cs">
       <Link>ReferenceEqualityComparer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Debugging\DebuggerCaps.cs">
+      <Link>DebuggerCaps.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Debugging\DebugService.cs">
+      <Link>DebugService.cs</Link>
     </Compile>
     <Compile Include="..\..\Execution\VM\OpCodeMetadataType.cs">
       <Link>OpCodeMetadataType.cs</Link>
@@ -653,6 +662,15 @@
     </Compile>
     <Compile Include="..\..\ScriptOptions.cs">
       <Link>ScriptOptions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Serialization\Json\JsonNull.cs">
+      <Link>JsonNull.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Serialization\Json\JsonTableConverter.cs">
+      <Link>JsonTableConverter.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Serialization\ObjectValueConverter.cs">
+      <Link>ObjectValueConverter.cs</Link>
     </Compile>
     <Compile Include="..\..\Serialization\SerializationExtensions.cs">
       <Link>SerializationExtensions.cs</Link>

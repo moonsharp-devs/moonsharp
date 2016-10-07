@@ -457,5 +457,14 @@ namespace MoonSharp.RemoteDebugger
         {
             m_Server.Dispose();
         }
-    }
+
+		public void SetDebugService(DebugService debugService)
+		{
+		}
+
+		public DebuggerCaps GetDebuggerCaps()
+		{
+			return DebuggerCaps.CanDebugSourceCode;
+		}
+	}
 }

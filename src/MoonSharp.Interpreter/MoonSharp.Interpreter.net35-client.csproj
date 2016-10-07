@@ -130,6 +130,7 @@
     <Compile Include="CoreLib\IO\FileUserDataBase.cs" />
     <Compile Include="CoreLib\IO\StandardIOFileUserDataBase.cs" />
     <Compile Include="CoreLib\IO\StreamFileUserDataBase.cs" />
+    <Compile Include="CoreLib\JsonModule.cs" />
     <Compile Include="CoreLib\LoadModule.cs" />
     <Compile Include="CoreLib\Bit32Module.cs" />
     <Compile Include="CoreLib\MathModule.cs" />
@@ -139,6 +140,8 @@
     <Compile Include="CoreLib\StringLib\KopiLua_StrLib.cs" />
     <Compile Include="DataStructs\MultiDictionary.cs" />
     <Compile Include="DataStructs\ReferenceEqualityComparer.cs" />
+    <Compile Include="Debugging\DebuggerCaps.cs" />
+    <Compile Include="Debugging\DebugService.cs" />
     <Compile Include="Execution\VM\OpCodeMetadataType.cs" />
     <Compile Include="Interop\Attributes\MoonSharpPropertyAttribute.cs" />
     <Compile Include="Interop\Attributes\MoonSharpUserDataMetamethodAttribute.cs" />
@@ -334,6 +337,9 @@
     </Compile>
     <Compile Include="ScriptGlobalOptions.cs" />
     <Compile Include="ScriptOptions.cs" />
+    <Compile Include="Serialization\Json\JsonNull.cs" />
+    <Compile Include="Serialization\Json\JsonTableConverter.cs" />
+    <Compile Include="Serialization\ObjectValueConverter.cs" />
     <Compile Include="Serialization\SerializationExtensions.cs" />
     <Compile Include="Tree\Expressions\AdjustmentExpression.cs" />
     <Compile Include="Tree\Expressions\BinaryOperatorExpression.cs" />

@@ -1,0 +1,36 @@
+﻿<Properties StartupItem="DevTools/VsCodeDebugger_Testbed/VsCodeDebugger_Testbed.csproj">
+  <MonoDevelop.Ide.Workbench ActiveDocument="MoonSharp.Interpreter/Execution/VM/Processor/Processor_Debugger.cs">
+    <Files>
+      <File FileName="DevTools/VsCodeDebugger_Testbed/Program.cs" Line="47" Column="24" />
+      <File FileName="MoonSharp.VsCodeDebugger/MoonSharpVsCodeDebugServer.cs" Line="1" Column="1" />
+      <File FileName="MoonSharp.VsCodeDebugger/MoonSharpDebugSession.cs" Line="157" Column="6" />
+      <File FileName="MoonSharp.VsCodeDebugger/DebuggerKit/AsyncDebugger.cs" Line="230" Column="43" />
+      <File FileName="MoonSharp.Interpreter/Execution/VM/Processor/Processor_Debugger.cs" Line="267" Column="40" />
+      <File FileName="MoonSharp.Interpreter/Debugging/WatchItem.cs" Line="8" Column="15" />
+      <File FileName="MoonSharp.Interpreter/Debugging/WatchType.cs" Line="29" Column="3" />
+      <File FileName="MoonSharp.VsCodeDebugger/SDK/DebugSession.cs" Line="62" Column="10" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State name="__root__">
+          <Node name="moonsharp_dev_minimal" expanded="True">
+            <Node name="Interpreters" expanded="True" />
+            <Node name="RemoteDebuggers" expanded="True">
+              <Node name="MoonSharp.VsCodeDebugger" expanded="True" selected="True">
+                <Node name="DebuggerKit" expanded="True" />
+                <Node name="SDK" expanded="True" />
+              </Node>
+              <Node name="VsCodeDebugger_Testbed" expanded="True" />
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.ItemProperties.RemoteDebuggers.VsCodeDebugger__Testbed PreferredExecutionTarget="MonoDevelop.Default" />
+</Properties>
