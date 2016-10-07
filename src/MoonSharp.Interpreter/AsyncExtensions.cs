@@ -79,12 +79,13 @@ namespace MoonSharp.Interpreter
 		/// <param name="script">The script.</param>
 		/// <param name="code">The code.</param>
 		/// <param name="globalContext">The global context.</param>
+		/// <param name="codeFriendlyName">Name of the code - used to report errors, etc. Also used by debuggers to locate the original source file.</param>
 		/// <returns>
 		/// A DynValue containing the result of the processing of the loaded chunk.
 		/// </returns>
-		public static Task<DynValue> DoString(this Script script, string code, Table globalContext = null)
+		public static Task<DynValue> DoStringAsync(this Script script, string code, Table globalContext = null, string codeFriendlyName = null)
 		{
-			return ExecAsync(() => script.DoString(code, globalContext));
+			return ExecAsync(() => script.DoString(code, globalContext, codeFriendlyName));
 		}
 
 
@@ -96,12 +97,13 @@ namespace MoonSharp.Interpreter
 		/// <param name="script">The script.</param>
 		/// <param name="stream">The stream.</param>
 		/// <param name="globalContext">The global context.</param>
+		/// <param name="codeFriendlyName">Name of the code - used to report errors, etc. Also used by debuggers to locate the original source file.</param>
 		/// <returns>
 		/// A DynValue containing the result of the processing of the loaded chunk.
 		/// </returns>
-		public static Task<DynValue> DoStreamAsync(this Script script, Stream stream, Table globalContext = null)
+		public static Task<DynValue> DoStreamAsync(this Script script, Stream stream, Table globalContext = null, string codeFriendlyName = null)
 		{
-			return ExecAsync(() => script.DoStream(stream, globalContext));
+			return ExecAsync(() => script.DoStream(stream, globalContext, codeFriendlyName));
 		}
 
 
@@ -113,12 +115,13 @@ namespace MoonSharp.Interpreter
 		/// <param name="script">The script.</param>
 		/// <param name="filename">The filename.</param>
 		/// <param name="globalContext">The global context.</param>
+		/// <param name="codeFriendlyName">Name of the code - used to report errors, etc. Also used by debuggers to locate the original source file.</param>
 		/// <returns>
 		/// A DynValue containing the result of the processing of the loaded chunk.
 		/// </returns>
-		public static Task<DynValue> DoFile(this Script script, string filename, Table globalContext = null)
+		public static Task<DynValue> DoFileAsync(this Script script, string filename, Table globalContext = null, string codeFriendlyName = null)
 		{
-			return ExecAsync(() => script.DoFile(filename, globalContext));
+			return ExecAsync(() => script.DoFile(filename, globalContext, codeFriendlyName));
 		}
 
 		/// <summary>
