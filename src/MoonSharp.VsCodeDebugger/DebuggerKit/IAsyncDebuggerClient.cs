@@ -14,5 +14,6 @@ namespace MoonSharp.DebuggerKit
 		void OnSourceCodeChanged(int sourceID);
 		void OnExecutionEnded();
 		void OnException(ScriptRuntimeException ex);
+		void Unbind();
 	}
 }

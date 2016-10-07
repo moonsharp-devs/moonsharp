@@ -104,6 +104,15 @@ namespace MoonSharp.DebuggerKit
 			}
 		}
 
+		public void Unbind()
+		{
+			if (m_InGetActionLoop)
+				throw new Exception("Can't unbind if script is still running!!");
+
+			if (Client != null)
+				Client.Unbind();
+		}
+
 		public void QueueAction(DebuggerAction action)
 		{
 			while (true)

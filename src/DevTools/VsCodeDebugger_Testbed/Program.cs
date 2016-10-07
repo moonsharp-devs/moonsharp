@@ -32,6 +32,31 @@ namespace VsCodeDebugger_Testbed
 
 			while (true)//(Console.ReadKey().Key != ConsoleKey.Escape)
 			{
+				if (Console.KeyAvailable)
+					break;
+
+				try
+				{
+					var val = func.Call(5);
+					Console.ForegroundColor = ConsoleColor.Magenta;
+					Console.WriteLine(val.Number);
+					System.Threading.Thread.Sleep(5000);
+				}
+				catch (InterpreterException ex)
+				{
+					Console.ForegroundColor = ConsoleColor.Red;
+					Console.Write(ex.DecoratedMessage);
+				}
+			}
+
+			script = new Script();
+			script.DoFile(@"Z:/HDD/temp/lua/fact2.lua");
+			func = script.Globals.Get("run").Function;
+			server.Rebind(script);
+
+			while (true)//(Console.ReadKey().Key != ConsoleKey.Escape)
+			{
+
 				try
 				{
 					var val = func.Call(5);

@@ -51,6 +51,17 @@ namespace MoonSharp.Interpreter.Debugging
 			return new SourceRef(0, 0, 0, 0, 0, false) { IsClrLocation = true };
 		}
 
+		public SourceRef(SourceRef src, bool isStepStop)
+		{
+			SourceIdx = src.SourceIdx;
+			FromChar = src.FromChar;
+			ToChar = src.ToChar;
+			FromLine = src.FromLine;
+			ToLine = src.ToLine;
+			IsStepStop = isStepStop;
+		}
+
+
 		public SourceRef(int sourceIdx, int from, int to, int fromline, int toline, bool isStepStop)
 		{
 			SourceIdx = sourceIdx;

@@ -402,5 +402,11 @@ namespace MoonSharp.VsCodeDebugger
 		{
 			SendText("runtime error : {0}", ex.DecoratedMessage);
 		}
+
+		public void Unbind()
+		{
+			SendText("Debug session closed from hosting process.");
+			SendEvent(new TerminatedEvent());
+		}
 	}
 }

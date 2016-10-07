@@ -19,6 +19,7 @@ namespace MoonSharp.VsCodeDebugger
 	{
 		int m_Port;
 		AsyncDebugger m_Debugger;
+		Func<SourceCode, string> m_SourceFinder;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MoonSharpVsCodeDebugServer" /> class.
@@ -31,7 +32,8 @@ namespace MoonSharp.VsCodeDebugger
 		public MoonSharpVsCodeDebugServer(Script script, int port, Func<SourceCode, string> sourceFinder = null)
 		{
 			m_Port = port;
-			m_Debugger = new AsyncDebugger(script, sourceFinder ?? (s => s.Name));
+			m_SourceFinder = sourceFinder ?? (s => s.Name);
+			m_Debugger = new AsyncDebugger(script, m_SourceFinder);
 		}
 
 
@@ -51,6 +53,14 @@ namespace MoonSharp.VsCodeDebugger
 			debugSession.ProcessLoop(inputStream, outputStream);
 		}
 
+		public void Rebind(Script script, Func<SourceCode, string> sourceFinder = null)
+		{
+			m_SourceFinder = sourceFinder ?? m_SourceFinder;
+			m_Debugger.Unbind();
+			m_Debugger = new AsyncDebugger(script, m_SourceFinder);
+			script.AttachDebugger(m_Debugger);
+		}
+
 		/// <summary>
 		/// Starts listening on the localhost for incoming connections.
 		/// </summary>
@@ -59,7 +69,8 @@ namespace MoonSharp.VsCodeDebugger
 			TcpListener serverSocket = new TcpListener(IPAddress.Parse("127.0.0.1"), m_Port);
 			serverSocket.Start();
 
-			new System.Threading.Thread(() => {
+			SpawnThread("VsCodeDebugServer", () =>
+			{
 				while (true)
 				{
 					var clientSocket = serverSocket.AcceptSocket();
@@ -67,7 +78,8 @@ namespace MoonSharp.VsCodeDebugger
 					{
 						Console.Error.WriteLine(">> accepted connection from client");
 
-						new System.Threading.Thread(() => {
+						SpawnThread("VsCodeDebugSession", () =>
+						{
 							using (var networkStream = new NetworkStream(clientSocket))
 							{
 								try
@@ -81,10 +93,20 @@ namespace MoonSharp.VsCodeDebugger
 							}
 							clientSocket.Close();
 							Console.Error.WriteLine(">> client connection closed");
-						}).Start();
+						});
 					}
 				}
-			}).Start();
+			});
+		}
+
+		private void SpawnThread(string name, Action threadProc)
+		{
+			new System.Threading.Thread(() => threadProc())
+			{
+				IsBackground = true,
+				Name = name
+			}
+			.Start();
 		}
 	}
 }
