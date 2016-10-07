@@ -1,7 +1,7 @@
 {
     "name": "moonsharp-debug",
     "displayName": "MoonSharp Debug",
-    "version": "1.8.0",
+    "version": "1.8.2",
     "publisher": "xanathar",
     "description": "VS Code Debugger for applications embedding MoonSharp.",
     "author": {

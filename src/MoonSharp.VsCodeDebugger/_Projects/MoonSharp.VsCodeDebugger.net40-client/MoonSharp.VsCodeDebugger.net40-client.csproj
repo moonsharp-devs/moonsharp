@@ -7,8 +7,8 @@
     <ProjectGuid>{37B5FC4B-DEE0-4428-8C53-C005F52AF4A5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MoonSharp.VsCodeDebugger.net40_client</RootNamespace>
-    <AssemblyName>MoonSharp.VsCodeDebugger.net40-client</AssemblyName>
+    <RootNamespace>MoonSharp.VsCodeDebugger</RootNamespace>
+    <AssemblyName>MoonSharp.VsCodeDebugger</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>

@@ -24,7 +24,7 @@ It requires the application to be embedding MoonSharp 1.8.0.0 (or later) and exp
 
 ## Screenshot
 
-![Screenshot](images/screenshot.png)
+![Screenshot](src/moonsharp-vscode-debug/images/screenshot.png)
 
 
 ## How to use
