@@ -5,7 +5,7 @@ using System.Text;
 using MoonSharp.Interpreter;
 using MoonSharp.Interpreter.Debugging;
 
-namespace MoonSharp.DebuggerKit
+namespace MoonSharp.VsCodeDebugger.DebuggerLogic
 {
 	internal interface IAsyncDebuggerClient
 	{

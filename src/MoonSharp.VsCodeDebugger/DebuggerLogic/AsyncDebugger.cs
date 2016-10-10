@@ -7,15 +7,16 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using MoonSharp.Interpreter;
 using MoonSharp.Interpreter.Debugging;
+using MoonSharp.VsCodeDebugger;
 using MoonSharp.VsCodeDebugger.SDK;
 
-namespace MoonSharp.DebuggerKit
+namespace MoonSharp.VsCodeDebugger.DebuggerLogic
 {
 	internal class AsyncDebugger : IDebugger
 	{
-		public bool PauseRequested { get; set; }
+		private static object s_AsyncDebuggerIdLock = new object();
+		private static int s_AsyncDebuggerIdCounter = 0;
 
-		Script m_Script;
 		object m_Lock = new object();
 		private IAsyncDebuggerClient m_Client__;
 		DebuggerAction m_PendingAction = null;
@@ -31,12 +32,25 @@ namespace MoonSharp.DebuggerKit
 
 		public Regex ErrorRegex { get; set; }
 
-		public AsyncDebugger(Script script, Func<SourceCode, string> sourceFinder)
+		public Script Script { get; private set; }
+
+		public bool PauseRequested { get; set; }
+
+		public string Name { get; set; }
+
+		public int Id { get; private set; }
+
+
+		public AsyncDebugger(Script script, Func<SourceCode, string> sourceFinder, string name)
 		{
+			lock (s_AsyncDebuggerIdLock)
+				Id = s_AsyncDebuggerIdCounter++;
+
 			m_SourceFinder = sourceFinder;
 			ErrorRegex = new Regex(@"\A.*\Z");
-			m_Script = script;
+			Script = script;
 			m_WatchItems = new List<WatchItem>[(int)WatchType.MaxValue];
+			Name = name;
 
 			for (int i = 0; i < m_WatchItems.Length; i++)
 				m_WatchItems[i] = new List<WatchItem>(64);
@@ -52,7 +66,7 @@ namespace MoonSharp.DebuggerKit
 				{
 					if (value != null)
 					{
-						for (int i = 0; i < m_Script.SourceCodeCount; i++)
+						for (int i = 0; i < Script.SourceCodeCount; i++)
 							if (m_SourcesMap.ContainsKey(i))
 								value.OnSourceCodeChanged(i);
 					}
@@ -104,14 +118,6 @@ namespace MoonSharp.DebuggerKit
 			}
 		}
 
-		public void Unbind()
-		{
-			if (m_InGetActionLoop)
-				throw new Exception("Can't unbind if script is still running!!");
-
-			if (Client != null)
-				Client.Unbind();
-		}
 
 		public void QueueAction(DebuggerAction action)
 		{
@@ -132,11 +138,11 @@ namespace MoonSharp.DebuggerKit
 		{
 			try
 			{
-				return m_Script.CreateDynamicExpression(code);
+				return Script.CreateDynamicExpression(code);
 			}
 			catch (Exception ex)
 			{
-				return m_Script.CreateConstantDynamicExpression(code, DynValue.NewString(ex.Message));
+				return Script.CreateConstantDynamicExpression(code, DynValue.NewString(ex.Message));
 			}
 		}
 
