@@ -159,8 +159,7 @@ namespace MoonSharp.VsCodeDebugger
 				if (removed == null)
 					throw new ArgumentException("Cannot detach script - not found.");
 
-				if (removed.Client != null)
-					removed.Client.Unbind();
+				removed.Client = null;
 
 				m_DebuggerList.Remove(removed);
 

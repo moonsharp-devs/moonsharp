@@ -64,6 +64,11 @@ namespace MoonSharp.VsCodeDebugger.DebuggerLogic
 			{
 				lock (m_Lock)
 				{
+					if (m_Client__ != null && m_Client__ != value)
+					{
+						m_Client__.Unbind();
+					}
+
 					if (value != null)
 					{
 						for (int i = 0; i < Script.SourceCodeCount; i++)
@@ -78,43 +83,32 @@ namespace MoonSharp.VsCodeDebugger.DebuggerLogic
 
 		DebuggerAction IDebugger.GetAction(int ip, SourceRef sourceref)
 		{
-			try
-			{
-				lock (m_Lock)
-					m_InGetActionLoop = true;
+			PauseRequested = false;
 
-				PauseRequested = false;
-
-				lock (m_Lock)
-					if (Client != null)
-					{
-						Client.SendStopEvent();
-					}
-
-				while (true)
+			lock (m_Lock)
+				if (Client != null)
 				{
-					lock (m_Lock)
-					{
-						if (Client == null)
-						{
-							return new DebuggerAction() { Action = DebuggerAction.ActionType.Run };
-						}
-
-						if (m_PendingAction != null)
-						{
-							var action = m_PendingAction;
-							m_PendingAction = null;
-							return action;
-						}
-					}
-
-					System.Threading.Thread.Sleep(10);
+					Client.SendStopEvent();
 				}
-			}
-			finally
+
+			while (true)
 			{
 				lock (m_Lock)
-					m_InGetActionLoop = false;
+				{
+					if (Client == null)
+					{
+						return new DebuggerAction() { Action = DebuggerAction.ActionType.Run };
+					}
+
+					if (m_PendingAction != null)
+					{
+						var action = m_PendingAction;
+						m_PendingAction = null;
+						return action;
+					}
+				}
+
+				System.Threading.Thread.Sleep(10);
 			}
 		}
 

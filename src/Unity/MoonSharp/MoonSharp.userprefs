@@ -1,11 +1,13 @@
-﻿<Properties StartupItem="Assembly-CSharp-firstpass.csproj">
+﻿<Properties StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Plugins/MoonSharp/Interpreter/CoreLib/IO/FileUserDataBase.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/NewScript.cs">
     <Files>
+      <File FileName="Assets/UnityTests.cs" Line="15" Column="40" />
       <File FileName="Assets/Plugins/MoonSharp/Interpreter/Loaders/UnityAssetsScriptLoader.cs" Line="1" Column="1" />
       <File FileName="Assets/Plugins/MoonSharp/Debugger/SDK/DebugSession.cs" Line="1" Column="1" />
       <File FileName="Assets/Plugins/MoonSharp/Debugger/SDK/Protocol.cs" Line="1" Column="1" />
-      <File FileName="Assets/Plugins/MoonSharp/Interpreter/CoreLib/IO/FileUserDataBase.cs" Line="156" Column="13" />
+      <File FileName="Assets/Plugins/MoonSharp/Interpreter/CoreLib/IO/FileUserDataBase.cs" Line="1" Column="1" />
+      <File FileName="Assets/NewScript.cs" Line="84" Column="62" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

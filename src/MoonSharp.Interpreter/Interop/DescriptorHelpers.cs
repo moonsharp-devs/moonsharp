@@ -41,6 +41,10 @@ namespace MoonSharp.Interpreter.Interop
 				return null;
 		}
 
+		public static bool IsDelegateType(this Type t)
+		{
+			return typeof(Delegate).IsAssignableFrom(t);
+		}
 
 		/// <summary>
 		/// Gets the visibility of the type as a string

@@ -10,8 +10,6 @@ namespace MoonSharp.VsCodeDebugger.DebuggerLogic
 	internal class EmptyDebugSession : DebugSession
 	{
 		MoonSharpVsCodeDebugServer m_Server;
-		bool m_NotifyExecutionEnd = false;
-
 
 		internal EmptyDebugSession(MoonSharpVsCodeDebugServer server)
 			: base(true, false)
