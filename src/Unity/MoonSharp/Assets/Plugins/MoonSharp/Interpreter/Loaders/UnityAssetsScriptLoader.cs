@@ -30,10 +30,14 @@ namespace MoonSharp.Interpreter.Loaders
 		public UnityAssetsScriptLoader(string assetsPath = null)
 		{
 			assetsPath = assetsPath ?? DEFAULT_PATH;
+#if UNITY_5
+                LoadResourcesUnityNative(assetsPath);
+#else
 			LoadResourcesWithReflection(assetsPath);
+#endif
 		}
 
-		 
+
 		/// <summary>
 		/// Initializes a new instance of the <see cref="UnityAssetsScriptLoader"/> class.
 		/// </summary>
@@ -43,6 +47,29 @@ namespace MoonSharp.Interpreter.Loaders
 			m_Resources = scriptToCodeMap;
 		}
 
+#if UNITY_5
+        void LoadResourcesUnityNative(string assetsPath)
+        {
+            try
+            {
+                UnityEngine.Object[] array = UnityEngine.Resources.LoadAll(assetsPath, typeof(UnityEngine.TextAsset));
+
+                for (int i = 0; i < array.Length; i++)
+                {
+                    UnityEngine.TextAsset o = (UnityEngine.TextAsset)array[i];
+
+                    string name = o.name;
+                    string text = o.text;
+
+                    m_Resources.Add(name, text);
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogErrorFormat("Error initializing UnityScriptLoader : {0}", ex);
+            }
+        }
+#endif
 
 		void LoadResourcesWithReflection(string assetsPath)
 		{

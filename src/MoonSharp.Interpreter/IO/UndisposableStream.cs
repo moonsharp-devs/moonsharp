@@ -8,7 +8,7 @@ namespace MoonSharp.Interpreter.IO
 	/// Used to work around the pesky wrappers .NET has over Stream (BinaryReader, StreamWriter, etc.) which think they
 	/// own the Stream and close them when they shouldn't. Damn.
 	/// </summary>
-	internal class UndisposableStream : Stream
+	public class UndisposableStream : Stream
 	{
 		Stream m_Stream;
 

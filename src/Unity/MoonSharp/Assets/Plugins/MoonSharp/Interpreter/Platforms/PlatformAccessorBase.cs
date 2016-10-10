@@ -27,10 +27,22 @@ namespace MoonSharp.Interpreter.Platforms
 
 			if (PlatformAutoDetector.IsRunningOnUnity)
 			{
-				if (PlatformAutoDetector.IsRunningOnMono)
-					suffix = "unity.mono";
+				if (PlatformAutoDetector.IsUnityNative)
+				{
+					if (PlatformAutoDetector.IsUnityIL2CPP)
+						suffix = "unity5.il2cpp";
+					else if (PlatformAutoDetector.IsRunningOnMono)
+						suffix = "unity5.mono";
+					else
+						suffix = "unity5.webp";
+				}
 				else
-					suffix = "unity.webp";
+				{
+					if (PlatformAutoDetector.IsRunningOnMono)
+						suffix = "unity.dll.mono";
+					else
+						suffix = "unity.dll.webp";
+				}
 			}
 			else if (PlatformAutoDetector.IsRunningOnMono)
 				suffix = "mono";

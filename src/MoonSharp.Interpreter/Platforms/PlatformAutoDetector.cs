@@ -30,6 +30,14 @@ namespace MoonSharp.Interpreter.Platforms
 		/// Gets a value indicating whether this instance has been built as a Portable Class Library
 		/// </summary>
 		public static bool IsPortableFramework { get; private set; }
+		/// <summary>
+		/// Gets a value indicating whether this instance has been compiled natively in Unity (as opposite to importing a DLL).
+		/// </summary>
+		public static bool IsUnityNative { get; private set; }
+		/// <summary>
+		/// Gets a value indicating whether this instance has been compiled natively in Unity AND is using IL2CPP
+		/// </summary>
+		public static bool IsUnityIL2CPP { get; private set; }
 
 
 		/// <summary>
@@ -41,8 +49,8 @@ namespace MoonSharp.Interpreter.Platforms
 			// We do a lazy eval here, so we can wire out this code by not calling it, if necessary..
 			get
 			{
-#if UNITY_WEBGL
-				return false;
+#if UNITY_WEBGL || UNITY_IOS || UNITY_TVOS || ENABLE_IL2CPP
+				return true;
 #else
 
 				if (!m_IsRunningOnAOT.HasValue)
@@ -72,10 +80,19 @@ namespace MoonSharp.Interpreter.Platforms
 #if PCL
 			IsPortableFramework = true;
 #else
+#if UNITY_5
+			IsRunningOnUnity = true;
+			IsUnityNative = true;
+
+			#if ENABLE_IL2CPP
+				IsUnityIL2CPP = true;
+			#endif
+#else
 			IsRunningOnUnity = AppDomain.CurrentDomain
 				.GetAssemblies()
 				.SelectMany(a => a.SafeGetTypes())
 				.Any(t => t.FullName.StartsWith("UnityEngine."));
+#endif
 #endif
 
 			IsRunningOnMono = (Type.GetType("Mono.Runtime") != null);

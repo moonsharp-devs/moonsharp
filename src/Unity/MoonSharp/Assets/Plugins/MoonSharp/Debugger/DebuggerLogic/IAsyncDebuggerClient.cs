@@ -5,7 +5,7 @@ using System.Text;
 using MoonSharp.Interpreter;
 using MoonSharp.Interpreter.Debugging;
 
-namespace MoonSharp.DebuggerKit
+namespace MoonSharp.VsCodeDebugger.DebuggerLogic
 {
 	internal interface IAsyncDebuggerClient
 	{
@@ -14,5 +14,6 @@ namespace MoonSharp.DebuggerKit
 		void OnSourceCodeChanged(int sourceID);
 		void OnExecutionEnded();
 		void OnException(ScriptRuntimeException ex);
+		void Unbind();
 	}
 }

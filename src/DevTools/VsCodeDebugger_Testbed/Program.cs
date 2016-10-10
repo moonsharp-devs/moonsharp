@@ -16,6 +16,7 @@ namespace VsCodeDebugger_Testbed
 		public static void Main(string[] argv)
 		{
 			MoonSharpVsCodeDebugServer server = new MoonSharpVsCodeDebugServer();
+			server.Logger = s => Console.WriteLine(s);
 			server.Start();
 
 			Script script1 = new Script();

@@ -74,6 +74,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 			switch (m_Debug.DebuggerCurrentAction)
 			{
 				case DebuggerAction.ActionType.Run:
+					if (m_Debug.LineBasedBreakPoints)
+						m_Debug.LastHlRef = instr.SourceCodeRef;
 					return;
 				case DebuggerAction.ActionType.ByteCodeStepOver:
 					if (m_Debug.DebuggerCurrentActionTarget != instructionPtr) return;

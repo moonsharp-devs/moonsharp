@@ -4,17 +4,17 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using MoonSharp.DebuggerKit;
 using MoonSharp.Interpreter;
 using MoonSharp.Interpreter.Debugging;
 using MoonSharp.VsCodeDebugger.SDK;
 
 
-namespace MoonSharp.VsCodeDebugger
+namespace MoonSharp.VsCodeDebugger.DebuggerLogic
 {
 	internal class MoonSharpDebugSession : DebugSession, IAsyncDebuggerClient
 	{
 		AsyncDebugger m_Debug;
+		MoonSharpVsCodeDebugServer m_Server;
 		List<DynValue> m_Variables = new List<DynValue>();
 		bool m_NotifyExecutionEnd = false;
 
@@ -22,9 +22,10 @@ namespace MoonSharp.VsCodeDebugger
 		const int SCOPE_SELF = 65537;
 
 
-		internal MoonSharpDebugSession(AsyncDebugger debugger)
+		internal MoonSharpDebugSession(MoonSharpVsCodeDebugServer server, AsyncDebugger debugger)
 			: base(true, false)
 		{
+			m_Server = server;
 			m_Debug = debugger;
 		}
 
@@ -35,6 +36,8 @@ namespace MoonSharp.VsCodeDebugger
 					 Script.GlobalOptions.Platform.GetPlatformName(),
 					 System.Diagnostics.Process.GetCurrentProcess().ProcessName,
 					 System.Diagnostics.Process.GetCurrentProcess().Id);
+
+			SendText("Debugging script '{0}'; use the debug console to debug another script.", m_Debug.Name);
 
 			SendText("Type '!help' in the Debug Console for available commands.");
 
@@ -163,6 +166,37 @@ namespace MoonSharp.VsCodeDebugger
 
 				SendText("Notifications of execution end are : {0}", m_NotifyExecutionEnd ? "enabled" : "disabled");
 			}
+			else if (cmd == "list")
+			{
+				int currId = m_Server.CurrentId ?? -1000;
+
+				foreach (var pair in m_Server.GetAttachedDebuggersByIdAndName())
+				{
+					string isthis = (pair.Key == m_Debug.Id) ? " (this)" : "";
+					string isdef = (pair.Key == currId) ? " (default)" : "";
+
+					SendText("{0} : {1}{2}{3}", pair.Key.ToString().PadLeft(9), pair.Value, isdef, isthis);
+				}
+			}
+			else if (cmd.StartsWith("select") || cmd.StartsWith("switch"))
+			{
+				string arg = cmd.Substring("switch".Length).Trim();
+
+				try
+				{
+					int id = int.Parse(arg);
+					m_Server.CurrentId = id;
+
+					if (cmd.StartsWith("switch"))
+						Unbind();
+					else
+						SendText("Next time you'll attach the debugger, it will be atteched to script #{0}", id);
+				}
+				catch (Exception ex)
+				{
+					SendText("Error setting regex: {0}", ex.Message);
+				}
+			}
 			else
 			{
 				SendText("Syntax error : {0}\n", cmd);
@@ -173,6 +207,9 @@ namespace MoonSharp.VsCodeDebugger
 			{
 				SendText("Available commands : ");
 				SendText("    !help - gets this help");
+				SendText("    !list - lists the other scripts which can be debugged");
+				SendText("    !select <id> - select another script for future sessions");
+				SendText("    !switch <id> - switch to another script (same as select + disconnect)");
 				SendText("    !seterror <regex> - sets the regex which tells which errors to trap");
 				SendText("    !geterror - gets the current value of the regex which tells which errors to trap");
 				SendText("    !execendnotify [on|off] - sets the notification of end of execution on or off (default = off)");
@@ -395,12 +432,20 @@ namespace MoonSharp.VsCodeDebugger
 		private void SendText(string msg, params object[] args)
 		{
 			msg = string.Format(msg, args);
-			SendEvent(new OutputEvent("console", DateTime.Now.ToString("u") + ": " + msg + "\n"));
+			// SendEvent(new OutputEvent("console", DateTime.Now.ToString("u") + ": " + msg + "\n"));
+			SendEvent(new OutputEvent("console", msg + "\n"));
 		}
 
 		public void OnException(ScriptRuntimeException ex)
 		{
 			SendText("runtime error : {0}", ex.DecoratedMessage);
+		}
+
+		public void Unbind()
+		{
+			SendText("Debug session has been closed by the hosting process.");
+			SendText("Bye.");
+			SendEvent(new TerminatedEvent());
 		}
 	}
 }

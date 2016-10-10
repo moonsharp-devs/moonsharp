@@ -7,7 +7,7 @@ namespace MoonSharp.Interpreter.IO
 	/// <summary>
 	/// "Optimized" BinaryWriter which shares strings and use a dumb compression for integers
 	/// </summary>
-	internal class BinDumpBinaryWriter : BinaryWriter
+	public class BinDumpBinaryWriter : BinaryWriter
 	{
 		Dictionary<string, int> m_StringMap = new Dictionary<string, int>();
 

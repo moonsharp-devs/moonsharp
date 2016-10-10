@@ -45,10 +45,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Plugins\MoonSharp\Debugger\DebuggerKit\AsyncDebugger.cs" />
-     <Compile Include="Assets\Plugins\MoonSharp\Debugger\DebuggerKit\BlockingQueue.cs" />
-     <Compile Include="Assets\Plugins\MoonSharp\Debugger\DebuggerKit\IAsyncDebuggerClient.cs" />
-     <Compile Include="Assets\Plugins\MoonSharp\Debugger\MoonSharpDebugSession.cs" />
+     <Compile Include="Assets\Plugins\MoonSharp\Debugger\DebuggerLogic\AsyncDebugger.cs" />
+     <Compile Include="Assets\Plugins\MoonSharp\Debugger\DebuggerLogic\EmptyDebugSession.cs" />
+     <Compile Include="Assets\Plugins\MoonSharp\Debugger\DebuggerLogic\IAsyncDebuggerClient.cs" />
+     <Compile Include="Assets\Plugins\MoonSharp\Debugger\DebuggerLogic\MoonSharpDebugSession.cs" />
      <Compile Include="Assets\Plugins\MoonSharp\Debugger\MoonSharpVsCodeDebugServer.cs" />
      <Compile Include="Assets\Plugins\MoonSharp\Debugger\SDK\DebugSession.cs" />
      <Compile Include="Assets\Plugins\MoonSharp\Debugger\SDK\Protocol.cs" />
@@ -297,6 +297,47 @@
      <Compile Include="Assets\Plugins\MoonSharp\Interpreter\Tree\Statements\ReturnStatement.cs" />
      <Compile Include="Assets\Plugins\MoonSharp\Interpreter\Tree\Statements\ScopeBlockStatement.cs" />
      <Compile Include="Assets\Plugins\MoonSharp\Interpreter\Tree\Statements\WhileStatement.cs" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\105-string.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\310-debug.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\212-function.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\204-grammar.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\305-table.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\101-boolean.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\106-table.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\203-lexico.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\202-expr.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\320-stdin.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\000-sanity.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\309-os.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\223-iterator.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\221-table.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\314-regex.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\107-thread.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\015-forlist.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\231-metatable.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\308-io.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\211-scope.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\222-constructor.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\012-repeat.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\104-number.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\Modules\Test\More.lua.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\232-object.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\301-basic.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\306-math.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\001-if.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\102-function.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\108-userdata.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\Modules\Test\Builder.lua.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\201-assign.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\213-closure.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\014-fornum.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\304-string.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\307-bit.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\002-table.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\011-while.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\200-examples.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\214-coroutine.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\103-nil.t.txt" />
  <Reference Include="UnityEngine.UI">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
