@@ -59,7 +59,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			m_CurrentSourceRef = (m_SourceRefStack.Count > 0) ? m_SourceRefStack[m_SourceRefStack.Count - 1] : null;
 		}
 
-#if !PCL
+	#if !(PCL || ENABLE_DOTNET)
 		public void Dump(string file)
 		{
 			StringBuilder sb = new StringBuilder();

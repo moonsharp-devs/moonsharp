@@ -1,4 +1,6 @@
-﻿/*---------------------------------------------------------------------------------------------
+﻿#if (!UNITY_5) || UNITY_STANDALONE || UNITY_EDITOR
+
+/*---------------------------------------------------------------------------------------------
 Copyright (c) Microsoft Corporation
 
 All rights reserved. 
@@ -605,3 +607,4 @@ namespace MoonSharp.VsCodeDebugger.SDK
 		}
 	}
 }
+#endif

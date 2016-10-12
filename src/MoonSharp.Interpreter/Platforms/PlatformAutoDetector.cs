@@ -79,20 +79,24 @@ namespace MoonSharp.Interpreter.Platforms
 				return;
 #if PCL
 			IsPortableFramework = true;
+	#if ENABLE_DOTNET
+			IsRunningOnUnity = true;
+			IsUnityNative = true;
+	#endif
 #else
-#if UNITY_5
+	#if UNITY_5
 			IsRunningOnUnity = true;
 			IsUnityNative = true;
 
-			#if ENABLE_IL2CPP
+	#if ENABLE_IL2CPP
 				IsUnityIL2CPP = true;
-			#endif
-#else
+	#endif
+	#else
 			IsRunningOnUnity = AppDomain.CurrentDomain
 				.GetAssemblies()
 				.SelectMany(a => a.SafeGetTypes())
 				.Any(t => t.FullName.StartsWith("UnityEngine."));
-#endif
+	#endif
 #endif
 
 			IsRunningOnMono = (Type.GetType("Mono.Runtime") != null);
@@ -108,7 +112,7 @@ namespace MoonSharp.Interpreter.Platforms
 		{
 			AutoDetectPlatformFlags();
 
-#if PCL
+#if PCL || ENABLE_DOTNET
 			return new LimitedPlatformAccessor();
 #else
 			if (IsRunningOnUnity)
@@ -122,14 +126,16 @@ namespace MoonSharp.Interpreter.Platforms
 		{
 			AutoDetectPlatformFlags();
 
-#if PCL
-			return new InvalidScriptLoader("Portable Framework");
-#else
 			if (IsRunningOnUnity)
 				return new UnityAssetsScriptLoader();
-
-			return new FileSystemScriptLoader();
+			else
+			{
+#if PCL
+				return new InvalidScriptLoader("Portable Framework");
+#else
+				return new FileSystemScriptLoader();
 #endif
+			}
 		}
 	}
 }

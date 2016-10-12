@@ -178,7 +178,7 @@ namespace MoonSharp.Interpreter.Interop
 				// optimized setters fall here
 				throw ScriptRuntimeException.UserDataArgumentTypeMismatch(v.Type, FieldInfo.FieldType);
 			}
-#if !PCL
+#if !(PCL || ENABLE_DOTNET)
 			catch (FieldAccessException ex)
 			{
 				throw new ScriptRuntimeException(ex);

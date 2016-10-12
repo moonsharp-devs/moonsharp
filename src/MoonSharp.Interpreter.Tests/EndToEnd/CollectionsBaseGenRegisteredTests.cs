@@ -56,6 +56,11 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 		void Do(string code, Action<DynValue> asserts)
 		{
+			// useless ops, to trick AOT to include the extension methods..
+			List<int> lst = new List<int>() { 1, 1, 1, 1 };
+			lst.Add(lst.Sum());
+			lst.Add(lst.Last());
+
 			Do(code, (d, o) => asserts(d));
 		}
 

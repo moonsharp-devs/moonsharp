@@ -283,7 +283,7 @@ namespace MoonSharp.Interpreter.Tree
 
 		private static string ConvertUtf32ToChar(int i)
 		{
-#if PCL
+#if PCL || ENABLE_DOTNET
 			return ((char)i).ToString();
 #else
 			return char.ConvertFromUtf32(i);

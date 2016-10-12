@@ -21,7 +21,7 @@ namespace MoonSharp.Interpreter.IO
 		{
 		}
 
-#if !PCL
+#if !(PCL || ENABLE_DOTNET)
 		public override void Close()
 		{
 		}

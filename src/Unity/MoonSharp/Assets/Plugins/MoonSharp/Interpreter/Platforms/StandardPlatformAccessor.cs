@@ -1,4 +1,4 @@
-﻿#if !PCL
+﻿#if !(PCL || ENABLE_DOTNET)
 using System;
 using System.Diagnostics;
 using System.IO;

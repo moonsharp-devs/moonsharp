@@ -62,7 +62,7 @@ namespace MoonSharp.Interpreter.CoreLib
 
 			if (mode == null || mode == "collect" || mode == "restart")
 			{
-#if PCL
+#if PCL || ENABLE_DOTNET
 				GC.Collect();
 #else
 				GC.Collect(2, GCCollectionMode.Forced);

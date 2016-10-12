@@ -6,7 +6,7 @@ namespace MoonSharp.Interpreter
 	{
 		internal static bool IsDbNull(this object p)
 		{
-#if PCL
+#if PCL || ENABLE_DOTNET
 			return p != null && p.GetType().FullName.StartsWith("System.DBNull");
 #else
 			return p != null && Convert.IsDBNull(p);

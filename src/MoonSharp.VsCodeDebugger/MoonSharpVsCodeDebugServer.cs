@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if (!PCL) && ((!UNITY_5) || UNITY_STANDALONE || UNITY_EDITOR)
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -305,3 +307,77 @@ namespace MoonSharp.VsCodeDebugger
 		}
 	}
 }
+
+#else
+using System;
+using System.Collections.Generic;
+using MoonSharp.Interpreter;
+using MoonSharp.Interpreter.Debugging;
+
+namespace MoonSharp.VsCodeDebugger
+{
+	public class MoonSharpVsCodeDebugServer : IDisposable
+	{
+		public MoonSharpVsCodeDebugServer(int port = 41912)
+		{
+		}
+
+		[Obsolete("Use the constructor taking only a port, and the 'Attach' method instead.")]
+		public MoonSharpVsCodeDebugServer(Script script, int port, Func<SourceCode, string> sourceFinder = null)
+		{
+		}
+
+		public void AttachToScript(Script script, string name, Func<SourceCode, string> sourceFinder = null)
+		{
+		}
+
+		public IEnumerable<KeyValuePair<int, string>> GetAttachedDebuggersByIdAndName()
+		{
+			yield break;
+		}
+
+
+		public int? CurrentId
+		{
+			get { return null; }
+			set { }
+		}
+
+
+		public Script Current
+		{
+			get { return null; }
+			set { }
+		}
+
+		/// <summary>
+		/// Detaches the specified script. The debugger attached to that script will get disconnected.
+		/// </summary>
+		/// <param name="script">The script.</param>
+		/// <exception cref="ArgumentException">Thrown if the script cannot be found.</exception>
+		public void Detach(Script script)
+		{
+
+		}
+
+		public Action<string> Logger { get; set; }
+
+		
+		[Obsolete("Use the Attach method instead.")]
+		public IDebugger GetDebugger()
+		{
+			return null;
+		}
+
+		public void Dispose()
+		{
+		}
+
+		public MoonSharpVsCodeDebugServer Start()
+		{
+			return this;
+		}
+
+	}
+}
+#endif

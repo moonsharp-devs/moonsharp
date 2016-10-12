@@ -46,13 +46,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\DebuggerKit\AsyncDebugger.cs">
+    <Compile Include="..\..\DebuggerLogic\AsyncDebugger.cs">
       <Link>AsyncDebugger.cs</Link>
     </Compile>
-    <Compile Include="..\..\DebuggerKit\IAsyncDebuggerClient.cs">
+    <Compile Include="..\..\DebuggerLogic\IAsyncDebuggerClient.cs">
       <Link>IAsyncDebuggerClient.cs</Link>
     </Compile>
-    <Compile Include="..\..\MoonSharpDebugSession.cs">
+    <Compile Include="..\..\DebuggerLogic\EmptyDebugSession.cs">
+      <Link>EmptyDebugSession.cs</Link>
+    </Compile>
+    <Compile Include="..\..\DebuggerLogic\MoonSharpDebugSession.cs">
       <Link>MoonSharpDebugSession.cs</Link>
     </Compile>
     <Compile Include="..\..\MoonSharpVsCodeDebugServer.cs">
@@ -60,9 +63,6 @@
     </Compile>
     <Compile Include="..\..\Properties\AssemblyInfo.cs">
       <Link>AssemblyInfo.cs</Link>
-    </Compile>
-    <Compile Include="..\..\DebuggerKit\BlockingQueue.cs">
-      <Link>BlockingQueue.cs</Link>
     </Compile>
     <Compile Include="..\..\SDK\DebugSession.cs">
       <Link>DebugSession.cs</Link>

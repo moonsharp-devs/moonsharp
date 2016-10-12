@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if (!UNITY_5) || UNITY_STANDALONE || UNITY_EDITOR
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -82,3 +84,5 @@ namespace MoonSharp.VsCodeDebugger
 		}
 	}
 }
+
+#endif

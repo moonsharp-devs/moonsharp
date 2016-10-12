@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if (!UNITY_5) || UNITY_STANDALONE || UNITY_EDITOR
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -21,7 +23,6 @@ namespace MoonSharp.VsCodeDebugger.DebuggerLogic
 		private IAsyncDebuggerClient m_Client__;
 		DebuggerAction m_PendingAction = null;
 
-		bool m_InGetActionLoop = false;
 		List<WatchItem>[] m_WatchItems;
 		Dictionary<int, SourceCode> m_SourcesMap = new Dictionary<int, SourceCode>();
 		Dictionary<int, string> m_SourcesOverride = new Dictionary<int, string>();
@@ -302,3 +303,5 @@ namespace MoonSharp.VsCodeDebugger.DebuggerLogic
 		}
 	}
 }
+
+#endif

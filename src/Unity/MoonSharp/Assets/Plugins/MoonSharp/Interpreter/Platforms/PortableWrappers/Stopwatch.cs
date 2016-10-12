@@ -1,4 +1,4 @@
-﻿#if PCL
+﻿#if PCL || ((!UNITY_EDITOR) && (ENABLE_DOTNET))
 using System;
 using System.Collections.Generic;
 using System.Linq;

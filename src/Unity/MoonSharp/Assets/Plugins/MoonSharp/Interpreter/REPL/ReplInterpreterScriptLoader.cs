@@ -1,4 +1,4 @@
-﻿#if !PCL
+﻿#if !(PCL || ENABLE_DOTNET)
 using System;
 using MoonSharp.Interpreter.Loaders;
 

@@ -119,7 +119,8 @@ namespace MoonSharp.Interpreter.CoreLib
 			}
 			else
 			{
-#if !PCL
+#if !(PCL || ENABLE_DOTNET)
+
 				try
 				{
 					reference = TimeZoneInfo.ConvertTimeFromUtc(reference, TimeZoneInfo.Local);

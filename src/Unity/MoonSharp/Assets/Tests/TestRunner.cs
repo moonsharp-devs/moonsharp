@@ -37,7 +37,7 @@ namespace MoonSharp.Interpreter.Tests
 
 		public TestRunner(Action<TestResult> loggerAction)
 		{
-			IsRunning = true; 
+			IsRunning = true;
 
 			this.loggerAction = loggerAction;
 
@@ -53,7 +53,7 @@ namespace MoonSharp.Interpreter.Tests
 		}
 
 
-		public IEnumerable<TestResult> IterateOnTests(string whichTest = null, string[] testsToSkip = null)
+		public IEnumerable<TestResult> IterateOnTests(string whichTest = null, string[] testsToSkip = null, Type[] types = null)
 		{
 			HashSet<string> skipList = new HashSet<string>();
 
@@ -62,14 +62,18 @@ namespace MoonSharp.Interpreter.Tests
 
 			Assembly asm = Assembly.GetExecutingAssembly();
 
-			Type[] types = asm.GetTypes().Where(t => t.GetCustomAttributes(typeof(TestFixtureAttribute), true).Any()).ToArray();
+			types = types ?? asm.GetTypes().Where(t => t.GetCustomAttributes(typeof(TestFixtureAttribute), true).Any()).ToArray();
+
+#if UNITY_EDITOR_OSX
+            System.IO.File.WriteAllLines("/temp/types.cs", types.Select(t => t.FullName).ToArray());
+#endif
 
 			Console_WriteLine("Found {0} test types.", types.Length);
 
 			foreach (Type t in types)
 			{
 				MethodInfo[] tests = t.GetMethods().Where(m => m.GetCustomAttributes(typeof(TestAttribute), true).Any()).ToArray();
-				Console_WriteLine("Testing {0} - {1} tests found.", t.Name, tests.Length);
+				//Console_WriteLine("Testing {0} - {1} tests found.", t.Name, tests.Length);
 
 				foreach (MethodInfo mi in tests)
 				{
@@ -189,12 +193,25 @@ namespace MoonSharp.Interpreter.Tests
 					return new TestResult()
 					{
 						TestName = mi.Name,
-						Message = ex.Message,
+						Message = BuildExceptionMessage(ex),
 						Type = TestResultType.Fail,
 						Exception = ex
 					};
 				}
 			}
+		}
+
+		private static string BuildExceptionMessage(Exception ex)
+		{
+			StringBuilder sb = new StringBuilder();
+
+			for (Exception e = ex; e != null; e = e.InnerException)
+			{
+				sb.Append(">>> ");
+				sb.Append(e.Message);
+			}
+
+			return sb.ToString();
 		}
 
 		internal static void Skip()

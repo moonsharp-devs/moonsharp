@@ -151,11 +151,53 @@ public class TestRunnerBehaviour : MonoBehaviour
         SKIPLIST.AddRange(HARDWIRE_SKIPLIST);
         UserData.RegistrationPolicy = new HardwireAndLogPolicy();
 
+        Type[] testFixtures = new Type[] {
+            typeof(MoonSharp.Interpreter.Tests.EndToEnd.BinaryDumpTests),
+            typeof(MoonSharp.Interpreter.Tests.EndToEnd.ClosureTests),
+            typeof(MoonSharp.Interpreter.Tests.EndToEnd.CollectionsBaseGenRegisteredTests),
+            typeof(MoonSharp.Interpreter.Tests.EndToEnd.CollectionsBaseInterfGenRegisteredTests),
+            typeof(MoonSharp.Interpreter.Tests.EndToEnd.CollectionsRegisteredTests),
+            typeof(MoonSharp.Interpreter.Tests.EndToEnd.ConfigPropertyAssignerTests),
+            typeof(MoonSharp.Interpreter.Tests.EndToEnd.CoroutineTests),
+            typeof(MoonSharp.Interpreter.Tests.EndToEnd.DynamicTests),
+            typeof(MoonSharp.Interpreter.Tests.EndToEnd.ErrorHandlingTests),
+            typeof(MoonSharp.Interpreter.Tests.EndToEnd.GotoTests),
+            typeof(MoonSharp.Interpreter.Tests.EndToEnd.JsonSerializationTests),
+            typeof(MoonSharp.Interpreter.Tests.EndToEnd.LuaTestSuiteExtract),
+            typeof(MoonSharp.Interpreter.Tests.EndToEnd.MetatableTests),
+            typeof(MoonSharp.Interpreter.Tests.EndToEnd.ProxyObjectsTests),
+            typeof(MoonSharp.Interpreter.Tests.EndToEnd.SimpleTests),
+            typeof(MoonSharp.Interpreter.Tests.EndToEnd.StringLibTests),
+            typeof(MoonSharp.Interpreter.Tests.EndToEnd.StructAssignmentTechnique),
+            typeof(MoonSharp.Interpreter.Tests.EndToEnd.TableTests),
+            typeof(MoonSharp.Interpreter.Tests.EndToEnd.TailCallTests),
+            typeof(MoonSharp.Interpreter.Tests.EndToEnd.UserDataEnumsTests),
+            typeof(MoonSharp.Interpreter.Tests.EndToEnd.UserDataEventsTests),
+            typeof(MoonSharp.Interpreter.Tests.EndToEnd.UserDataFieldsTests),
+            typeof(MoonSharp.Interpreter.Tests.EndToEnd.UserDataIndexerTests),
+            typeof(MoonSharp.Interpreter.Tests.EndToEnd.UserDataMetaTests),
+            typeof(MoonSharp.Interpreter.Tests.EndToEnd.UserDataMethodsTests),
+            typeof(MoonSharp.Interpreter.Tests.EndToEnd.UserDataNestedTypesTests),
+            typeof(MoonSharp.Interpreter.Tests.EndToEnd.UserDataOverloadsTests),
+            typeof(MoonSharp.Interpreter.Tests.EndToEnd.UserDataPropertiesTests),
+            typeof(MoonSharp.Interpreter.Tests.EndToEnd.VarargsTupleTests),
+            typeof(MoonSharp.Interpreter.Tests.EndToEnd.VtUserDataFieldsTests),
+            typeof(MoonSharp.Interpreter.Tests.EndToEnd.VtUserDataIndexerTests),
+            typeof(MoonSharp.Interpreter.Tests.EndToEnd.VtUserDataMetaTests),
+            typeof(MoonSharp.Interpreter.Tests.EndToEnd.VtUserDataMethodsTests),
+            typeof(MoonSharp.Interpreter.Tests.EndToEnd.VtUserDataOverloadsTests),
+            typeof(MoonSharp.Interpreter.Tests.EndToEnd.VtUserDataPropertiesTests),
+            typeof(MoonSharp.Interpreter.Tests.TestMoreTests),
+            typeof(MoonSharp.Interpreter.Tests.Units.BinDumpStreamTests),
+            typeof(MoonSharp.Interpreter.Tests.Units.FastStackTests),
+            typeof(MoonSharp.Interpreter.Tests.Units.InteropTests),
+        };
+
 
 
         MoonSharp.Interpreter.Tests.TestRunner tr = new MoonSharp.Interpreter.Tests.TestRunner(Log);
 
-        foreach (var r in tr.IterateOnTests(null, SKIPLIST.ToArray()))
+        foreach (var r in tr.IterateOnTests(null, SKIPLIST.ToArray(), testFixtures))
         {
             Log(r);
             yield return null;
@@ -180,7 +222,7 @@ public class TestRunnerBehaviour : MonoBehaviour
         }
         else
         {
-            //Console_WriteLine("{0}", r.Message);
+            Console_WriteLine("{0}", r.Message);
         }
     }
 

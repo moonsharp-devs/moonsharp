@@ -21,7 +21,6 @@ namespace MoonSharp.VsCodeDebugger.DebuggerLogic
 		private IAsyncDebuggerClient m_Client__;
 		DebuggerAction m_PendingAction = null;
 
-		bool m_InGetActionLoop = false;
 		List<WatchItem>[] m_WatchItems;
 		Dictionary<int, SourceCode> m_SourcesMap = new Dictionary<int, SourceCode>();
 		Dictionary<int, string> m_SourcesOverride = new Dictionary<int, string>();
