@@ -191,7 +191,7 @@ namespace MoonSharp.Interpreter.Interop
 		{
 			using (PerformanceStatistics.StartGlobalStopwatch(PerformanceCounter.AdaptersCompilation))
 			{
-				if (m_Setter != null && !(PropertyInfo.DeclaringType.IsValueType))
+				if (m_Setter != null && !(PropertyInfo.DeclaringType.CheckIsValueType()))
 				{
 					MethodInfo setterMethod = PropertyInfo.GetSetMethod(true);
 
@@ -302,7 +302,7 @@ namespace MoonSharp.Interpreter.Interop
 			t.Set("read", DynValue.NewBoolean(this.CanRead));
 			t.Set("write", DynValue.NewBoolean(this.CanWrite));
 			t.Set("decltype", DynValue.NewString(this.PropertyInfo.DeclaringType.FullName));
-			t.Set("declvtype", DynValue.NewBoolean(this.PropertyInfo.DeclaringType.IsValueType));
+			t.Set("declvtype", DynValue.NewBoolean(this.PropertyInfo.DeclaringType.CheckIsValueType()));
 			t.Set("type", DynValue.NewString(this.PropertyInfo.PropertyType.FullName));
 		}
 	}

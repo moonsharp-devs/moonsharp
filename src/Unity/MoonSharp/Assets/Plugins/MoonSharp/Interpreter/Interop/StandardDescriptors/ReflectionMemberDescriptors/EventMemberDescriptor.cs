@@ -36,7 +36,7 @@ namespace MoonSharp.Interpreter.Interop
 			if (!CheckEventIsCompatible(ei, false))
 				return null;
 
-	        MethodInfo addm = ei.GetAddMethod();
+	        MethodInfo addm = ei.GetAddMethod(); 
 	        MethodInfo remm = ei.GetRemoveMethod();
 
 	        if (ei.GetVisibilityFromAttributes() ?? ((remm != null && remm.IsPublic) && (addm != null && addm.IsPublic)))
@@ -70,7 +70,7 @@ namespace MoonSharp.Interpreter.Interop
 		/// </exception>
 		public static bool CheckEventIsCompatible(EventInfo ei, bool throwException)
 		{
-			if (ei.DeclaringType.IsValueType)
+			if (ei.DeclaringType.CheckIsValueType())
 			{
 				if (throwException) throw new ArgumentException("Events are not supported on value types");
 				return false;
@@ -109,7 +109,7 @@ namespace MoonSharp.Interpreter.Interop
 
 			foreach (ParameterInfo pi in pars)
 			{
-				if (pi.ParameterType.IsValueType)
+				if (pi.ParameterType.CheckIsValueType())
 				{
 					if (throwException) throw new ArgumentException("Event handler cannot have value type parameters");
 					return false;
@@ -202,10 +202,14 @@ namespace MoonSharp.Interpreter.Interop
 			m_Delegates.GetOrCreate(o, () =>
 				{
 					Delegate d = CreateDelegate(o);
+#if NETFX_CORE
+					Delegate handler = d.GetMethodInfo().CreateDelegate(EventInfo.EventHandlerType, d.Target);
+#else
 					Delegate handler = Delegate.CreateDelegate(EventInfo.EventHandlerType, d.Target, d.Method);
+#endif
 					m_Add.Invoke(o, new object[] { handler });
 					return handler;
-				});
+				}); 
 		}
 
 		private void UnregisterCallback(object o)

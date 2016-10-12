@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -19,7 +20,7 @@ namespace MoonSharp.Interpreter.Loaders
 		/// <param name="resourceAssembly">The assembly containing the scripts as embedded resources or null to use the calling assembly.</param>
 		public EmbeddedResourcesScriptLoader(Assembly resourceAssembly = null)
 		{
-			m_ResourceAssembly = resourceAssembly ?? Assembly.GetCallingAssembly();
+			m_ResourceAssembly = resourceAssembly ?? AssemblyTools.GetCallingAssembly();
 			m_Namespace = m_ResourceAssembly.FullName.Split(',').First();
 			m_ResourceNames = new HashSet<string>(m_ResourceAssembly.GetManifestResourceNames());
 		}

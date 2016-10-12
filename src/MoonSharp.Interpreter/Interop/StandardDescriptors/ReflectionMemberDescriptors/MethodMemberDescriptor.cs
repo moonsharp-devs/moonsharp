@@ -155,7 +155,7 @@ namespace MoonSharp.Interpreter.Interop
 					return false;
 				}
 
-				if (mi.ReturnType.IsGenericTypeDefinition)
+				if (mi.ReturnType.CheckIsGenericTypeDefinition())
 				{
 					if (throwException) throw new ArgumentException("Method cannot have an unresolved generic return type");
 					return false;

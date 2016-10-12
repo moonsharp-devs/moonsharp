@@ -49,8 +49,13 @@ namespace MoonSharp.Interpreter.Interop
 		/// <summary>
 		/// Gets the visibility of the type as a string
 		/// </summary>
-		public static string GetClrVisibility(this Type t)
+		public static string GetClrVisibility(this Type type)
 		{
+#if NETFX_CORE
+			var t = type.GetTypeInfo();
+#else
+			Type t = type;
+#endif
 			if (t.IsPublic || t.IsNestedPublic)
 				return "public";
 			if ((t.IsNotPublic && (!t.IsNested)) || (t.IsNestedAssembly))
@@ -61,7 +66,6 @@ namespace MoonSharp.Interpreter.Interop
 				return "protected";
 			if (t.IsNestedPrivate)
 				return "private";
-
 			return "unknown";
 		}
 
@@ -161,7 +165,11 @@ namespace MoonSharp.Interpreter.Interop
 		{
 			try
 			{
+#if NETFX_CORE
+				return new Type[0];
+#else
 				return asm.GetTypes();
+#endif
 			}
 			catch (ReflectionTypeLoadException)
 			{
@@ -195,7 +203,7 @@ namespace MoonSharp.Interpreter.Interop
 		/// <returns></returns>
 		public static IEnumerable<Type> GetAllImplementedTypes(this Type t)
 		{
-			for (Type ot = t; ot != null; ot = ot.BaseType)
+			for (Type ot = t; ot != null; ot = ot.GetBaseType())
 				yield return ot;
 
 			foreach (Type it in t.GetInterfaces())

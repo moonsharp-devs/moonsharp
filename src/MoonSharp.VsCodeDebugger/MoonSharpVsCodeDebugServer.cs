@@ -1,4 +1,4 @@
-﻿#if (!PCL) && ((!UNITY_5) || UNITY_STANDALONE || UNITY_EDITOR)
+﻿#if (!PCL) && ((!UNITY_5) || UNITY_STANDALONE)
 
 using System;
 using System.Collections.Generic;

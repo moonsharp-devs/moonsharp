@@ -178,7 +178,7 @@ namespace MoonSharp.Interpreter.Interop
 				// optimized setters fall here
 				throw ScriptRuntimeException.UserDataArgumentTypeMismatch(v.Type, FieldInfo.FieldType);
 			}
-#if !(PCL || ENABLE_DOTNET)
+#if !(PCL || ENABLE_DOTNET || NETFX_CORE)
 			catch (FieldAccessException ex)
 			{
 				throw new ScriptRuntimeException(ex);
@@ -222,7 +222,7 @@ namespace MoonSharp.Interpreter.Interop
 			t.Set("const", DynValue.NewBoolean(this.IsConst));
 			t.Set("readonly", DynValue.NewBoolean(this.IsReadonly));
 			t.Set("decltype", DynValue.NewString(this.FieldInfo.DeclaringType.FullName));
-			t.Set("declvtype", DynValue.NewBoolean(this.FieldInfo.DeclaringType.IsValueType));
+			t.Set("declvtype", DynValue.NewBoolean(this.FieldInfo.DeclaringType.CheckIsValueType()));
 			t.Set("type", DynValue.NewString(this.FieldInfo.FieldType.FullName));
 			t.Set("read", DynValue.NewBoolean(true));
 			t.Set("write", DynValue.NewBoolean(!(this.IsConst || this.IsReadonly)));

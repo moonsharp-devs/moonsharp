@@ -60,10 +60,11 @@ namespace MoonSharp.Interpreter.Tests
 			if (testsToSkip != null)
 				skipList.UnionWith(testsToSkip);
 
-			Assembly asm = Assembly.GetExecutingAssembly();
+			Assembly asm = typeof(TestRunner).GetAssembly();
 
+#if !NETFX_CORE
 			types = types ?? asm.GetTypes().Where(t => t.GetCustomAttributes(typeof(TestFixtureAttribute), true).Any()).ToArray();
-
+#endif
 #if UNITY_EDITOR_OSX
             System.IO.File.WriteAllLines("/temp/types.cs", types.Select(t => t.FullName).ToArray());
 #endif

@@ -119,7 +119,7 @@ namespace MoonSharp.Interpreter.CoreLib
 			}
 			else
 			{
-#if !(PCL || ENABLE_DOTNET)
+#if !(PCL || ENABLE_DOTNET || NETFX_CORE)
 
 				try
 				{

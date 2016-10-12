@@ -17,6 +17,9 @@ namespace System.Reflection
 		{ }
 	}
 }
+#endif
+
+#if PCL || ((!UNITY_EDITOR) && (ENABLE_DOTNET)) || NETFX_CORE
 
 namespace System
 {

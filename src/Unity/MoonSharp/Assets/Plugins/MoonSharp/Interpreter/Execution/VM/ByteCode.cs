@@ -59,7 +59,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			m_CurrentSourceRef = (m_SourceRefStack.Count > 0) ? m_SourceRefStack[m_SourceRefStack.Count - 1] : null;
 		}
 
-	#if !(PCL || ENABLE_DOTNET)
+	#if (!PCL) && ((!UNITY_5) || UNITY_STANDALONE) && (!NETFX_CORE)
 		public void Dump(string file)
 		{
 			StringBuilder sb = new StringBuilder();
@@ -74,7 +74,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 			File.WriteAllText(file, sb.ToString());
 		}
-#endif
+	#endif
 
 		public int GetJumpPointForNextInstruction()
 		{

@@ -54,7 +54,7 @@
     <Compile Include="SDK\DebugSession.cs" />
     <Compile Include="SDK\Protocol.cs" />
     <Compile Include="SDK\Utilities.cs" />
-    <Compile Include="VariableInspector.cs" />
+    <Compile Include="DebuggerLogic\VariableInspector.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MoonSharp.Interpreter\MoonSharp.Interpreter.net35-client.csproj">

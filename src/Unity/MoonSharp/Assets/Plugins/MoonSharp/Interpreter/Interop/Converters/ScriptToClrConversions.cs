@@ -110,11 +110,11 @@ namespace MoonSharp.Interpreter.Interop.Converters
 				case DataType.Void:
 					if (isOptional)
 						return defaultValue;
-					else if ((!desiredType.IsValueType) || (nullableType != null))
+					else if ((!desiredType.CheckIsValueType()) || (nullableType != null))
 						return null;
 					break;
 				case DataType.Nil:
-					if (desiredType.IsValueType)
+					if (desiredType.CheckIsValueType())
 					{
 						if (nullableType != null)
 							return null;
@@ -134,7 +134,7 @@ namespace MoonSharp.Interpreter.Interop.Converters
 						str = value.Boolean.ToString();
 					break;
 				case DataType.Number:
-					if (desiredType.IsEnum)
+					if (desiredType.CheckIsEnum())
 					{	// number to enum conv
 						Type underType = Enum.GetUnderlyingType(desiredType);
 						return NumericConversions.DoubleToType(underType, value.Number);
@@ -225,11 +225,11 @@ namespace MoonSharp.Interpreter.Interop.Converters
 				case DataType.Void:
 					if (isOptional)
 						return WEIGHT_VOID_WITH_DEFAULT;
-					else if ((!desiredType.IsValueType) || (nullableType != null))
+					else if ((!desiredType.CheckIsValueType()) || (nullableType != null))
 						return WEIGHT_VOID_WITHOUT_DEFAULT;
 					break;
 				case DataType.Nil:
-					if (desiredType.IsValueType)
+					if (desiredType.CheckIsValueType())
 					{
 						if (nullableType != null)
 							return WEIGHT_NIL_TO_NULLABLE;
@@ -249,7 +249,7 @@ namespace MoonSharp.Interpreter.Interop.Converters
 						return WEIGHT_BOOL_TO_STRING;
 					break;
 				case DataType.Number:
-					if (desiredType.IsEnum)
+					if (desiredType.CheckIsEnum())
 					{	// number to enum conv
 						return WEIGHT_NUMBER_TO_ENUM;
 					}

@@ -31,7 +31,7 @@ namespace MoonSharp.Interpreter.Loaders
 		{
 			assetsPath = assetsPath ?? DEFAULT_PATH;
 #if UNITY_5
-                LoadResourcesUnityNative(assetsPath);
+            LoadResourcesUnityNative(assetsPath);
 #else
 			LoadResourcesWithReflection(assetsPath);
 #endif
@@ -69,7 +69,8 @@ namespace MoonSharp.Interpreter.Loaders
                 UnityEngine.Debug.LogErrorFormat("Error initializing UnityScriptLoader : {0}", ex);
             }
         }
-#endif
+
+#else
 
 		void LoadResourcesWithReflection(string assetsPath)
 		{
@@ -98,11 +99,12 @@ namespace MoonSharp.Interpreter.Loaders
 			}
 			catch (Exception ex)
 			{
-#if !(PCL || ENABLE_DOTNET)
+#if !(PCL || ENABLE_DOTNET || NETFX_CORE)
 				Console.WriteLine("Error initializing UnityScriptLoader : {0}", ex);
 #endif
 			}
 		}
+#endif
 
 		private string GetFileName(string filename)
 		{

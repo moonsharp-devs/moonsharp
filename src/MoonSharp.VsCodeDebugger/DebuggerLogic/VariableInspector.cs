@@ -1,4 +1,4 @@
-﻿#if (!UNITY_5) || UNITY_STANDALONE || UNITY_EDITOR
+﻿#if (!PCL) && ((!UNITY_5) || UNITY_STANDALONE)
 
 using System;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.Text;
 using MoonSharp.Interpreter;
 using MoonSharp.VsCodeDebugger.SDK;
 
-namespace MoonSharp.VsCodeDebugger
+namespace MoonSharp.VsCodeDebugger.DebuggerLogic
 {
 	internal static class VariableInspector
 	{

@@ -26,7 +26,7 @@ namespace MoonSharp.Interpreter.Interop.UserDataRegistries
 		/// <param name="includeExtensionTypes">if set to <c>true</c> extension types are registered to the appropriate registry.</param>
 		internal static void RegisterAssembly(Assembly asm = null, bool includeExtensionTypes = false)
 		{
-			asm = asm ?? Assembly.GetCallingAssembly();
+			asm = asm ?? AssemblyTools.GetCallingAssembly();
 
 			if (includeExtensionTypes)
 			{
@@ -139,43 +139,47 @@ namespace MoonSharp.Interpreter.Interop.UserDataRegistries
 				IUserDataDescriptor oldDescriptor = null;
 				s_TypeRegistry.TryGetValue(type, out oldDescriptor);
 
-					if (descriptor == null)
+				if (descriptor == null)
+				{
+					if (IsTypeBlacklisted(type))
+						return null;
+
+					if (type.GetInterfaces().Any(ii => ii == typeof(IUserDataType)))
 					{
-						if (IsTypeBlacklisted(type))
-							return null;
-
-						if (type.GetInterfaces().Any(ii => ii == typeof(IUserDataType)))
-						{
-							AutoDescribingUserDataDescriptor audd = new AutoDescribingUserDataDescriptor(type, friendlyName);
-							return PerformRegistration(type, audd, oldDescriptor);
-						}
-						else if (type.IsGenericTypeDefinition)
-						{
-							StandardGenericsUserDataDescriptor typeGen = new StandardGenericsUserDataDescriptor(type, accessMode);
-							return PerformRegistration(type, typeGen, oldDescriptor);
-						}
-						else if (type.IsEnum)
-						{
-							var enumDescr = new StandardEnumUserDataDescriptor(type, friendlyName);
-							return PerformRegistration(type, enumDescr, oldDescriptor);
-						}
-						else
-						{
-							StandardUserDataDescriptor udd = new StandardUserDataDescriptor(type, accessMode, friendlyName);
-
-							if (accessMode == InteropAccessMode.BackgroundOptimized)
-							{
-								ThreadPool.QueueUserWorkItem(o => ((IOptimizableDescriptor)udd).Optimize());
-							}
-
-							return PerformRegistration(type, udd, oldDescriptor);
-						}
+						AutoDescribingUserDataDescriptor audd = new AutoDescribingUserDataDescriptor(type, friendlyName);
+						return PerformRegistration(type, audd, oldDescriptor);
+					}
+					else if (type.CheckIsGenericTypeDefinition())
+					{
+						StandardGenericsUserDataDescriptor typeGen = new StandardGenericsUserDataDescriptor(type, accessMode);
+						return PerformRegistration(type, typeGen, oldDescriptor);
+					}
+					else if (type.CheckIsEnum())
+					{
+						var enumDescr = new StandardEnumUserDataDescriptor(type, friendlyName);
+						return PerformRegistration(type, enumDescr, oldDescriptor);
 					}
 					else
 					{
-						PerformRegistration(type, descriptor, oldDescriptor);
-						return descriptor;
+						StandardUserDataDescriptor udd = new StandardUserDataDescriptor(type, accessMode, friendlyName);
+
+						if (accessMode == InteropAccessMode.BackgroundOptimized)
+						{
+#if NETFX_CORE
+							System.Threading.Tasks.Task.Run(() => ((IOptimizableDescriptor)udd).Optimize());
+#else
+							ThreadPool.QueueUserWorkItem(o => ((IOptimizableDescriptor)udd).Optimize());
+#endif
+						}
+
+						return PerformRegistration(type, udd, oldDescriptor);
 					}
+				}
+				else
+				{
+					PerformRegistration(type, descriptor, oldDescriptor);
+					return descriptor;
+				}
 			}
 		}
 
@@ -251,7 +255,7 @@ namespace MoonSharp.Interpreter.Interop.UserDataRegistries
 				}
 
 				// search for the base object descriptors
-				for (Type t = type; t != null; t = t.BaseType)
+				for (Type t = type; t != null; t = t.GetBaseType())
 				{
 					IUserDataDescriptor u;
 
@@ -260,7 +264,7 @@ namespace MoonSharp.Interpreter.Interop.UserDataRegistries
 						typeDescriptor = u;
 						break;
 					}
-					else if (t.IsGenericType)
+					else if (t.CheckIsGenericType())
 					{
 						if (s_TypeRegistry.TryGetValue(t.GetGenericTypeDefinition(), out u))
 						{
@@ -298,7 +302,7 @@ namespace MoonSharp.Interpreter.Interop.UserDataRegistries
 							if (interfaceDescriptor != null)
 								descriptors.Add(interfaceDescriptor);
 						}
-						else if (interfaceType.IsGenericType)
+						else if (interfaceType.CheckIsGenericType())
 						{
 							if (s_TypeRegistry.TryGetValue(interfaceType.GetGenericTypeDefinition(), out interfaceDescriptor))
 							{
@@ -332,7 +336,7 @@ namespace MoonSharp.Interpreter.Interop.UserDataRegistries
 		/// <returns></returns>
 		public static bool IsTypeBlacklisted(Type t)
 		{
-			if (t.IsValueType && t.GetInterfaces().Contains(typeof(System.Collections.IEnumerator)))
+			if (t.CheckIsValueType() && t.GetInterfaces().Contains(typeof(System.Collections.IEnumerator)))
 				return true;
 
 			return false;

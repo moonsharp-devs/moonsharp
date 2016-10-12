@@ -91,7 +91,7 @@ namespace MoonSharp.Interpreter.Platforms
 	#if ENABLE_IL2CPP
 				IsUnityIL2CPP = true;
 	#endif
-	#else
+	#elif !NETFX_CORE
 			IsRunningOnUnity = AppDomain.CurrentDomain
 				.GetAssemblies()
 				.SelectMany(a => a.SafeGetTypes())
@@ -130,7 +130,7 @@ namespace MoonSharp.Interpreter.Platforms
 				return new UnityAssetsScriptLoader();
 			else
 			{
-#if PCL
+#if (PCL || ENABLE_DOTNET || NETFX_CORE)
 				return new InvalidScriptLoader("Portable Framework");
 #else
 				return new FileSystemScriptLoader();

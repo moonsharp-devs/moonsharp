@@ -44,7 +44,7 @@ namespace MoonSharp.Interpreter.Interop.UserDataRegistries
 
 				foreach (MethodInfo mi in type.GetMethods().Where(_mi => _mi.IsStatic))
 				{
-					if (mi.GetCustomAttributes(typeof(ExtensionAttribute), false).Length == 0)
+					if (mi.GetCustomAttributes(typeof(ExtensionAttribute), false).Count() == 0)
 						continue;
 
 					if (mi.ContainsGenericParameters)
@@ -158,7 +158,7 @@ namespace MoonSharp.Interpreter.Interop.UserDataRegistries
 
 				foreach (Type t in extendedType.GetAllImplementedTypes())
 				{
-					if (t.IsGenericType && t.GetGenericTypeDefinition() == extensionType)
+					if (t.CheckIsGenericType() && t.GetGenericTypeDefinition() == extensionType)
 					{
 						return t;
 					}

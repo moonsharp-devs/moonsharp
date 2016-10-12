@@ -37,7 +37,7 @@ namespace MoonSharp.Interpreter.Interop
 			string[] names = null, object[] values = null, Type underlyingType = null)
 			: base(enumType, friendlyName)
 		{
-			if (!enumType.IsEnum)
+			if (!enumType.CheckIsEnum())
 				throw new ArgumentException("enumType must be an enum!");
 
 			UnderlyingType = underlyingType ?? Enum.GetUnderlyingType(enumType);

@@ -71,7 +71,7 @@ namespace MoonSharp.Interpreter.Interop
 			if (UserData.IsTypeRegistered(type))
 				return null;
 
-			if (type.IsGenericTypeDefinition)
+			if (type.CheckIsGenericTypeDefinition())
 				return null;
 
 			return UserData.RegisterType(type, AccessMode);

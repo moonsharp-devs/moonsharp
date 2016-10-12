@@ -110,7 +110,7 @@ namespace MoonSharp.Interpreter.Interop
 		{
 			m_Type = type;
 
-			if (m_Type.IsValueType)
+			if (m_Type.CheckIsValueType())
 				throw new ArgumentException("Type cannot be a value type.");
 
 			foreach(string property in expectedMissingProperties)
@@ -222,7 +222,7 @@ namespace MoonSharp.Interpreter.Interop
 		/// <param name="assigner">The property assigner.</param>
 		public void SetSubassignerForType(Type propertyType, IPropertyTableAssigner assigner)
 		{
-			if (propertyType.IsAbstract || propertyType.IsGenericType || propertyType.IsInterface || propertyType.IsValueType)
+			if (propertyType.CheckIsAbstract() || propertyType.CheckIsGenericType() || propertyType.CheckIsInterface() || propertyType.CheckIsValueType())
 			{
 				throw new ArgumentException("propertyType must be a concrete, reference type");
 			}

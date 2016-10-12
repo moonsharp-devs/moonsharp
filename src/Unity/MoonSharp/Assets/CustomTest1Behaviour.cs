@@ -17,11 +17,11 @@ public class CustomTest1Behaviour : MonoBehaviour {
 
     void RegisterNamespace(string ns)
     {
-        string @namespace = "System";
+        //string @namespace = "System";
 
-        var q = Assembly.GetExecutingAssembly().GetTypes().Where(t => t.IsClass && t.Namespace == @namespace).ToList();
+        //var q = Assembly.GetExecutingAssembly().GetTypes().Where(t => t.IsClass && t.Namespace == @namespace).ToList();
 
-        q.ForEach(t => UserData.RegisterType(t));
+        //q.ForEach(t => UserData.RegisterType(t));
     }
 
 	// Use this for initialization

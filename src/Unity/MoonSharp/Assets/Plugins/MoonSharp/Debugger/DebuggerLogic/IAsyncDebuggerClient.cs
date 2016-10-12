@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if (!PCL) && ((!UNITY_5) || UNITY_STANDALONE)
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,3 +19,5 @@ namespace MoonSharp.VsCodeDebugger.DebuggerLogic
 		void Unbind();
 	}
 }
+
+#endif

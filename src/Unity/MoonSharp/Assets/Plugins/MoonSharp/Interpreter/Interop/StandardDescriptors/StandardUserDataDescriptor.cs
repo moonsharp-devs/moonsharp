@@ -68,7 +68,7 @@ namespace MoonSharp.Interpreter.Interop
 				}
 
 				// valuetypes don't reflect their empty ctor.. actually empty ctors are a perversion, we don't care and implement ours
-				if (type.IsValueType && !membersToIgnore.Contains("__new"))
+				if (type.CheckIsValueType() && !membersToIgnore.Contains("__new"))
 					AddMember("__new", new ValueTypeDefaultCtorMemberDescriptor(type));
 			}
 
@@ -134,9 +134,9 @@ namespace MoonSharp.Interpreter.Interop
 				if (membersToIgnore.Contains(nestedType.Name))
 					continue;
 
-				if (!nestedType.IsGenericTypeDefinition)
+				if (!nestedType.CheckIsGenericTypeDefinition())
 				{
-					if (nestedType.IsNestedPublic || nestedType.GetCustomAttributes(typeof(MoonSharpUserDataAttribute), true).Length > 0)
+					if (nestedType.CheckIsNestedPublic() || nestedType.GetCustomAttributes(typeof(MoonSharpUserDataAttribute), true).Length > 0)
 					{
 						var descr = UserData.RegisterType(nestedType, this.AccessMode);
 
@@ -176,7 +176,7 @@ namespace MoonSharp.Interpreter.Interop
 
 		public void PrepareForWiring(Table t)
 		{
-			if (AccessMode == InteropAccessMode.HideMembers || Type.Assembly == this.GetType().Assembly)
+			if (AccessMode == InteropAccessMode.HideMembers || Type.GetAssembly() == this.GetType().GetAssembly())
 			{
 				t.Set("skip", DynValue.NewBoolean(true));
 			}

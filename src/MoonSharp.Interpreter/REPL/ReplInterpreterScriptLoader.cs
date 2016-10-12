@@ -1,4 +1,4 @@
-﻿#if !(PCL || ENABLE_DOTNET)
+﻿#if !(PCL || ENABLE_DOTNET || NETFX_CORE)
 using System;
 using MoonSharp.Interpreter.Loaders;
 

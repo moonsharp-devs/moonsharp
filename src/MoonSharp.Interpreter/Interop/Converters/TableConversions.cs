@@ -56,7 +56,7 @@ namespace MoonSharp.Interpreter.Interop.Converters
 			else if (t.IsAssignableFrom(typeof(DynValue[])))
 				return true;
 
-			if (t.IsGenericType)
+			if (t.CheckIsGenericType())
 			{
 				Type generic = t.GetGenericTypeDefinition();
 
@@ -100,7 +100,7 @@ namespace MoonSharp.Interpreter.Interop.Converters
 			else if (t.IsAssignableFrom(typeof(DynValue[])))
 				return TableToList<DynValue>(table, v => v).ToArray();
 
-			if (t.IsGenericType)
+			if (t.CheckIsGenericType())
 			{
 				Type generic = t.GetGenericTypeDefinition();
 

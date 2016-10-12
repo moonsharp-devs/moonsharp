@@ -94,35 +94,34 @@ namespace MoonSharp.Interpreter.Interop.LuaStateInterop
 		/// </returns>
 		public static bool IsPositive(object Value, bool ZeroIsPositive)
 		{
-			switch (Type.GetTypeCode(Value.GetType()))
-			{
-				case TypeCode.SByte:
-					return (ZeroIsPositive ? (sbyte)Value >= 0 : (sbyte)Value > 0);
-				case TypeCode.Int16:
-					return (ZeroIsPositive ? (short)Value >= 0 : (short)Value > 0);
-				case TypeCode.Int32:
-					return (ZeroIsPositive ? (int)Value >= 0 : (int)Value > 0);
-				case TypeCode.Int64:
-					return (ZeroIsPositive ? (long)Value >= 0 : (long)Value > 0);
-				case TypeCode.Single:
-					return (ZeroIsPositive ? (float)Value >= 0 : (float)Value > 0);
-				case TypeCode.Double:
-					return (ZeroIsPositive ? (double)Value >= 0 : (double)Value > 0);
-				case TypeCode.Decimal:
-					return (ZeroIsPositive ? (decimal)Value >= 0 : (decimal)Value > 0);
-				case TypeCode.Byte:
-					return (ZeroIsPositive ? true : (byte)Value > 0);
-				case TypeCode.UInt16:
-					return (ZeroIsPositive ? true : (ushort)Value > 0);
-				case TypeCode.UInt32:
-					return (ZeroIsPositive ? true : (uint)Value > 0);
-				case TypeCode.UInt64:
-					return (ZeroIsPositive ? true : (ulong)Value > 0);
-				case TypeCode.Char:
-					return (ZeroIsPositive ? true : (char)Value != '\0');
-				default:
-					return false;
-			}
+			Type t = Value.GetType();
+
+			if (t == typeof(sbyte))
+				return (ZeroIsPositive ? (sbyte)Value >= 0 : (sbyte)Value > 0);
+			if (t == typeof(short))
+				return (ZeroIsPositive ? (short)Value >= 0 : (short)Value > 0);
+			if (t == typeof(int))
+				return (ZeroIsPositive ? (int)Value >= 0 : (int)Value > 0);
+			if (t == typeof(long))
+				return (ZeroIsPositive ? (long)Value >= 0 : (long)Value > 0);
+			if (t == typeof(byte))
+				return (ZeroIsPositive ? true : (byte)Value > 0);
+			if (t == typeof(ushort))
+				return (ZeroIsPositive ? true : (ushort)Value > 0);
+			if (t == typeof(uint))
+				return (ZeroIsPositive ? true : (uint)Value > 0);
+			if (t == typeof(ulong))
+				return (ZeroIsPositive ? true : (ulong)Value > 0);
+			if (t == typeof(float))
+				return (ZeroIsPositive ? (float)Value >= 0 : (float)Value > 0);
+			if (t == typeof(double))
+				return (ZeroIsPositive ? (double)Value >= 0 : (double)Value > 0);
+			if (t == typeof(decimal))
+				return (ZeroIsPositive ? (decimal)Value >= 0 : (decimal)Value > 0);
+			if (t == typeof(char))
+				return (ZeroIsPositive ? true : (char)Value != '\0');
+
+			return ZeroIsPositive;
 		}
 		#endregion
 		#region ToUnsigned
@@ -134,36 +133,32 @@ namespace MoonSharp.Interpreter.Interop.LuaStateInterop
 		/// <returns>A boxed numeric object whos type is unsigned.</returns>
 		public static object ToUnsigned(object Value)
 		{
-			switch (Type.GetTypeCode(Value.GetType()))
-			{
-				case TypeCode.SByte:
-					return (byte)((sbyte)Value);
-				case TypeCode.Int16:
-					return (ushort)((short)Value);
-				case TypeCode.Int32:
-					return (uint)((int)Value);
-				case TypeCode.Int64:
-					return (ulong)((long)Value);
+			Type t = Value.GetType();
 
-				case TypeCode.Byte:
-					return Value;
-				case TypeCode.UInt16:
-					return Value;
-				case TypeCode.UInt32:
-					return Value;
-				case TypeCode.UInt64:
-					return Value;
+			if (t == typeof(sbyte))
+				return (byte)((sbyte)Value);
+			if (t == typeof(short))
+				return (ushort)((short)Value);
+			if (t == typeof(int))
+				return (uint)((int)Value);
+			if (t == typeof(long))
+				return (ulong)((long)Value);
+			if (t == typeof(byte))
+				return Value;
+			if (t == typeof(ushort))
+				return Value;
+			if (t == typeof(uint))
+				return Value;
+			if (t == typeof(ulong))
+				return Value;
+			if (t == typeof(float))
+				return (uint)((float)Value);
+			if (t == typeof(double))
+				return (ulong)((double)Value);
+			if (t == typeof(decimal))
+				return (ulong)((decimal)Value);
 
-				case TypeCode.Single:
-					return (UInt32)((float)Value);
-				case TypeCode.Double:
-					return (ulong)((double)Value);
-				case TypeCode.Decimal:
-					return (ulong)((decimal)Value);
-
-				default:
-					return null;
-			}
+			return null;
 		}
 		#endregion
 		#region ToInteger
@@ -178,71 +173,63 @@ namespace MoonSharp.Interpreter.Interop.LuaStateInterop
 		/// </returns>
 		public static object ToInteger(object Value, bool Round)
 		{
-			switch (Type.GetTypeCode(Value.GetType()))
-			{
-				case TypeCode.SByte:
-					return Value;
-				case TypeCode.Int16:
-					return Value;
-				case TypeCode.Int32:
-					return Value;
-				case TypeCode.Int64:
-					return Value;
+			Type t = Value.GetType();
 
-				case TypeCode.Byte:
-					return Value;
-				case TypeCode.UInt16:
-					return Value;
-				case TypeCode.UInt32:
-					return Value;
-				case TypeCode.UInt64:
-					return Value;
+			if (t == typeof(sbyte))
+				return Value;
+			if (t == typeof(short))
+				return Value;
+			if (t == typeof(int))
+				return Value;
+			if (t == typeof(long))
+				return Value;
+			if (t == typeof(byte))
+				return Value;
+			if (t == typeof(ushort))
+				return Value;
+			if (t == typeof(uint))
+				return Value;
+			if (t == typeof(ulong))
+				return Value;
+			if (t == typeof(float))
+				return (Round ? (int)Math.Round((float)Value) : (int)((float)Value));
+			if (t == typeof(double))
+				return (Round ? (long)Math.Round((double)Value) : (long)((double)Value));
+			if (t == typeof(decimal))
+				return (Round ? Math.Round((decimal)Value) : (decimal)Value);
 
-				case TypeCode.Single:
-					return (Round ? (int)Math.Round((float)Value) : (int)((float)Value));
-				case TypeCode.Double:
-					return (Round ? (long)Math.Round((double)Value) : (long)((double)Value));
-				case TypeCode.Decimal:
-					return (Round ? Math.Round((decimal)Value) : (decimal)Value);
-
-				default:
-					return null;
-			}
+			return null;
 		}
 		#endregion
 		#region UnboxToLong
 		public static long UnboxToLong(object Value, bool Round)
 		{
-			switch (Type.GetTypeCode(Value.GetType()))
-			{
-				case TypeCode.SByte:
-					return (long)((sbyte)Value);
-				case TypeCode.Int16:
-					return (long)((short)Value);
-				case TypeCode.Int32:
-					return (long)((int)Value);
-				case TypeCode.Int64:
-					return (long)Value;
+			Type t = Value.GetType();
 
-				case TypeCode.Byte:
-					return (long)((byte)Value);
-				case TypeCode.UInt16:
-					return (long)((ushort)Value);
-				case TypeCode.UInt32:
-					return (long)((uint)Value);
-				case TypeCode.UInt64:
-					return (long)((ulong)Value);
+			if (t == typeof(sbyte))
+				return (long)((sbyte)Value);
+			if (t == typeof(short))
+				return (long)((short)Value);
+			if (t == typeof(int))
+				return (long)((int)Value);
+			if (t == typeof(long))
+				return (long)Value;
+			if (t == typeof(byte))
+				return (long)((byte)Value);
+			if (t == typeof(ushort))
+				return (long)((ushort)Value);
+			if (t == typeof(uint))
+				return (long)((uint)Value);
+			if (t == typeof(ulong))
+				return (long)((ulong)Value);
+			if (t == typeof(float))
+				return (Round ? (long)Math.Round((float)Value) : (long)((float)Value));
+			if (t == typeof(double))
+				return (Round ? (long)Math.Round((double)Value) : (long)((double)Value));
+			if (t == typeof(decimal))
+				return (Round ? (long)Math.Round((decimal)Value) : (long)((decimal)Value));
 
-				case TypeCode.Single:
-					return (Round ? (long)Math.Round((float)Value) : (long)((float)Value));
-				case TypeCode.Double:
-					return (Round ? (long)Math.Round((double)Value) : (long)((double)Value));
-				case TypeCode.Decimal:
-					return (Round ? (long)Math.Round((decimal)Value) : (long)((decimal)Value));
-
-				default:
-					return 0;
-			}
+			return 0;
 		}
 		#endregion
 		#region ReplaceMetaChars
@@ -518,7 +505,7 @@ namespace MoonSharp.Interpreter.Interop.LuaStateInterop
 					#endregion
 					#region s - string
 					case 's':   // string
-						//string t = "{0" + ( fieldLength != int.MinValue ? "," + ( flagLeft2Right ? "-" : String.Empty ) + fieldLength.ToString() : String.Empty ) + ":s}";
+								//string t = "{0" + ( fieldLength != int.MinValue ? "," + ( flagLeft2Right ? "-" : String.Empty ) + fieldLength.ToString() : String.Empty ) + ":s}";
 						w = o.ToString();
 						if (fieldPrecision >= 0)
 							w = w.Substring(0, fieldPrecision);
@@ -724,7 +711,7 @@ namespace MoonSharp.Interpreter.Interop.LuaStateInterop
 						w = w.Substring(1);
 					if (FieldLength != int.MinValue)
 						if (PositiveSign)  // xan - change here
-							w = w.PadLeft(FieldLength-1, Padding);
+							w = w.PadLeft(FieldLength - 1, Padding);
 						else
 							w = w.PadLeft(FieldLength, Padding);
 					if (IsPositive(Value, true))

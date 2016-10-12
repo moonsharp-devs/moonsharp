@@ -130,9 +130,18 @@ namespace MoonSharp.Interpreter.Execution.VM
 			}
 		}
 
+		int GetThreadId()
+		{
+			#if ENABLE_DOTNET || NETFX_CORE
+				return 1;
+			#else
+				return Thread.CurrentThread.ManagedThreadId;
+			#endif
+		}
+
 		private void EnterProcessor()
 		{
-			int threadID = Thread.CurrentThread.ManagedThreadId;
+			int threadID = GetThreadId();
 
 			if (m_OwningThreadID >= 0 && m_OwningThreadID != threadID && m_Script.Options.CheckThreadAccess)
 			{
