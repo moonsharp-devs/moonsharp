@@ -1,4 +1,4 @@
-﻿#if DOTNET_CORE
+﻿#if NETFX_CORE
 
 using System;
 using System.Collections.Generic;
@@ -42,28 +42,28 @@ namespace MoonSharp.Interpreter.Compatibility.Frameworks
 
 		public override Type[] GetGenericArguments(Type type)
 		{
-			return type.GetTypeInfo().GetGenericArguments();
+			return type.GetTypeInfo().GenericTypeArguments;
 		}
 
 		public override MethodInfo GetGetMethod(PropertyInfo pi)
 		{
-			return pi.GetGetMethod();
+			return pi.GetMethod;
 		}
 
 		public override Type GetInterface(Type type, string name)
 		{
-			return GetTypeInfoFromType(type).GetInterface(name);
+			return type.GetTypeInfo().ImplementedInterfaces.FirstOrDefault(t => t.Name == name);
 		}
 
 		public override Type[] GetInterfaces(Type t)
 		{
-			return GetTypeInfoFromType(t).GetInterfaces();
+			return SafeArray(GetTypeInfoFromType(t).ImplementedInterfaces);
 		}
 
 
 		public override MethodInfo GetMethod(Type type, string name)
 		{
-			return GetTypeInfoFromType(type).GetMethod(name);
+			return GetTypeInfoFromType(type).GetDeclaredMethod(name);
 		}
 
 		public override MethodInfo[] GetMethods(Type type)
@@ -83,7 +83,7 @@ namespace MoonSharp.Interpreter.Compatibility.Frameworks
 
 		public override PropertyInfo GetProperty(Type type, string name)
 		{
-			return GetTypeInfoFromType(type).GetProperty(name);
+			return GetTypeInfoFromType(type).GetDeclaredProperty(name);
 		}
 
 		public override MethodInfo GetRemoveMethod(EventInfo ei)
@@ -109,7 +109,10 @@ namespace MoonSharp.Interpreter.Compatibility.Frameworks
 
 		public override bool IsInstanceOfType(Type t, object o)
 		{
-			return t.GetTypeInfo().IsInstanceOfType(o);
+			if (o == null)
+				return false;
+
+			return t.GetTypeInfo().IsAssignableFrom(o.GetType().GetTypeInfo());
 		}
 
 		public override bool StringContainsChar(string str, char chr)
@@ -117,14 +120,39 @@ namespace MoonSharp.Interpreter.Compatibility.Frameworks
 			return str.Contains(chr);
 		}
 
-		public  override MethodInfo GetMethod(Type resourcesType, string name, Type[] types)
+		private static MethodInfo GetMethodEx(Type t, string name, Type[] parameters)
 		{
-			return resourcesType.GetTypeInfo().GetMethod(name, types);
+			var ti = t.GetTypeInfo();
+			var methods = ti.GetDeclaredMethods(name);
+			foreach (var m in methods)
+			{
+				var plist = m.GetParameters();
+				bool match = true;
+				foreach (var param in plist)
+				{
+					bool valid = true;
+					if (parameters != null)
+					{
+						foreach (var ptype in parameters)
+							valid &= ptype == param.ParameterType;
+					}
+					match &= valid;
+				}
+				if (match)
+					return m;
+			}
+			return null;
+		}
+
+
+		public override MethodInfo GetMethod(Type resourcesType, string name, Type[] types)
+		{
+			return GetMethodEx(resourcesType, name, types);
 		}
 
 		public override Type[] GetAssemblyTypes(Assembly asm)
 		{
-			return asm.GetExportedTypes();
+			return SafeArray(asm.ExportedTypes);
 		}
 
 	}
