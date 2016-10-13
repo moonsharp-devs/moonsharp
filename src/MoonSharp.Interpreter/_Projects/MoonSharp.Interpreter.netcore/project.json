@@ -1,0 +1,18 @@
+{
+    "title": "MoonSharp.Interpreter",
+    "copyright": "(C) 2014-2016 Marco Mastropaolo",
+    "description": "http://www.moonsharp.org",
+    "version": "2.0.0-*",
+  "dependencies": {
+    "NETStandard.Library": "1.6.0"
+  },
+    "frameworks": {
+        "netstandard1.6": {
+            "imports": "dnxcore50"
+        }
+    },
+    "buildOptions": {
+        "define": [ "DOTNET_CORE", "NETFX_CORE" ],
+        "outputName": "MoonSharp.Interpreter"
+    }
+}

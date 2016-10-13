@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MoonSharp.Interpreter.Compatibility;
 using MoonSharp.Interpreter.Interop;
 using NUnit.Framework;
 
@@ -312,7 +313,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 			public bool IsTypeCompatible(Type type, object obj)
 			{
-				return type.IsInstanceOfType(obj);
+				return Framework.Do.IsInstanceOfType(type, obj);
 			}
 		}
 

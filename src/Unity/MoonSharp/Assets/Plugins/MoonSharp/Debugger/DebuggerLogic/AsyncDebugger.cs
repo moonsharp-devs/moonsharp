@@ -109,7 +109,7 @@ namespace MoonSharp.VsCodeDebugger.DebuggerLogic
 					}
 				}
 
-				System.Threading.Thread.Sleep(10);
+				Sleep(10);
 			}
 		}
 
@@ -125,8 +125,17 @@ namespace MoonSharp.VsCodeDebugger.DebuggerLogic
 						break;
 					}
 
-				System.Threading.Thread.Sleep(10);
+				Sleep(10);
 			}
+		}
+
+		private void Sleep(int v)
+		{
+#if DOTNET_CORE
+			System.Threading.Tasks.Task.Delay(10).Wait();
+#else
+				System.Threading.Thread.Sleep(10);
+#endif
 		}
 
 		private DynamicExpression CreateDynExpr(string code)

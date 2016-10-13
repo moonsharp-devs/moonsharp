@@ -232,7 +232,14 @@ namespace MoonSharp.VsCodeDebugger
 			{
 				while (!m_StopEvent.WaitOne(0))
 				{
+#if DOTNET_CORE
+					var task = serverSocket.AcceptSocketAsync();
+					task.Wait();
+					var clientSocket = task.Result;
+#else
 					var clientSocket = serverSocket.AcceptSocket();
+#endif
+
 					if (clientSocket != null)
 					{
 						string sessionId = Guid.NewGuid().ToString("N");
@@ -251,7 +258,12 @@ namespace MoonSharp.VsCodeDebugger
 									Log("[{0}] : Error : {1}", ex.Message);
 								}
 							}
+
+#if DOTNET_CORE
+							clientSocket.Dispose();
+#else
 							clientSocket.Close();
+#endif
 							Log("[{0}] : Client connection closed", sessionId);
 						});
 					}
@@ -298,18 +310,22 @@ namespace MoonSharp.VsCodeDebugger
 
 		private static void SpawnThread(string name, Action threadProc)
 		{
+#if DOTNET_CORE
+			System.Threading.Tasks.Task.Run(() => threadProc());
+#else
 			new System.Threading.Thread(() => threadProc())
 			{
 				IsBackground = true,
 				Name = name
 			}
 			.Start();
+#endif
 		}
 	}
 }
 
 #else
-using System;
+						using System;
 using System.Collections.Generic;
 using MoonSharp.Interpreter;
 using MoonSharp.Interpreter.Debugging;

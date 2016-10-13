@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using MoonSharp.Interpreter.Compatibility;
 using MoonSharp.Interpreter.Interop.BasicDescriptors;
 
 namespace MoonSharp.Interpreter.Interop
@@ -37,7 +38,7 @@ namespace MoonSharp.Interpreter.Interop
 			string[] names = null, object[] values = null, Type underlyingType = null)
 			: base(enumType, friendlyName)
 		{
-			if (!enumType.CheckIsEnum())
+			if (!Framework.Do.IsEnum(enumType))
 				throw new ArgumentException("enumType must be an enum!");
 
 			UnderlyingType = underlyingType ?? Enum.GetUnderlyingType(enumType);
@@ -64,7 +65,7 @@ namespace MoonSharp.Interpreter.Interop
 				base.AddDynValue(name, cvalue);
 			}
 
-			var attrs = this.Type.GetCustomAttributes(typeof(FlagsAttribute), true);
+			var attrs = Framework.Do.GetCustomAttributes(this.Type, typeof(FlagsAttribute), true);
 
 			if (attrs != null && attrs.Length > 0)
 			{

@@ -1,4 +1,5 @@
 ﻿using System;
+using MoonSharp.Interpreter.Compatibility;
 
 namespace MoonSharp.Interpreter.Interop
 {
@@ -62,7 +63,7 @@ namespace MoonSharp.Interpreter.Interop
 		/// <inheritdoc/>
 		public bool IsTypeCompatible(Type type, object obj)
 		{
-			return type.IsInstanceOfType(obj);
+			return Framework.Do.IsInstanceOfType(type, obj);
 		}
 
 		/// <inheritdoc/>
@@ -71,7 +72,7 @@ namespace MoonSharp.Interpreter.Interop
 			if (UserData.IsTypeRegistered(type))
 				return null;
 
-			if (type.CheckIsGenericTypeDefinition())
+			if (Framework.Do.IsGenericTypeDefinition(type))
 				return null;
 
 			return UserData.RegisterType(type, AccessMode);

@@ -99,6 +99,12 @@ namespace SynchProjects
 
 		static void Main(string[] args)
 		{
+			Console.ForegroundColor = ConsoleColor.Magenta;
+			Console.WriteLine("********************************************************");
+			Console.WriteLine("* !! REMEMBER TO RSYNC UNITY AND .NET CORE PROJECTS !! *");
+			Console.WriteLine("********************************************************");
+
+
 			const string INTERPRETER_PROJECT = @"{BASEPATH}\MoonSharp.Interpreter\MoonSharp.Interpreter.net35-client.csproj";
 			const string INTERPRETER_SUBPROJECTS_PATHS = @"{BASEPATH}\MoonSharp.Interpreter\_Projects\MoonSharp.Interpreter.{0}\MoonSharp.Interpreter.{0}.csproj";
 			const string INTERPRETER_PATH_PREFIX = @"..\..\";

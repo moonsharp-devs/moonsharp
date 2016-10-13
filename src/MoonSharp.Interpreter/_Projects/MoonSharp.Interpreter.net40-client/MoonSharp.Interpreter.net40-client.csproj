@@ -67,6 +67,27 @@
     <Compile Include="..\..\CodeAnalysis\AstNode.cs">
       <Link>AstNode.cs</Link>
     </Compile>
+    <Compile Include="..\..\Compatibility\Framework.cs">
+      <Link>Framework.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Compatibility\Frameworks\Base\FrameworkBase.cs">
+      <Link>FrameworkBase.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Compatibility\Frameworks\FrameworkCLR.cs">
+      <Link>FrameworkCLR.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Compatibility\Frameworks\Base\FrameworkReflectionBase.cs">
+      <Link>FrameworkReflectionBase.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Compatibility\Frameworks\Base\FrameworkClrBase.cs">
+      <Link>FrameworkClrBase.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Compatibility\Frameworks\FrameworkCore.cs">
+      <Link>FrameworkCore.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Compatibility\Frameworks\FrameworkPCL.cs">
+      <Link>FrameworkPCL.cs</Link>
+    </Compile>
     <Compile Include="..\..\CoreLib\CoroutineModule.cs">
       <Link>CoroutineModule.cs</Link>
     </Compile>
@@ -585,22 +606,16 @@
     <Compile Include="..\..\Platforms\LimitedPlatformAccessor.cs">
       <Link>LimitedPlatformAccessor.cs</Link>
     </Compile>
-    <Compile Include="..\..\Platforms\PortableWrappers\Utils.cs">
-      <Link>Utils.cs</Link>
-    </Compile>
     <Compile Include="..\..\Platforms\StandardFileType.cs">
       <Link>StandardFileType.cs</Link>
     </Compile>
     <Compile Include="..\..\Platforms\StandardPlatformAccessor.cs">
       <Link>StandardPlatformAccessor.cs</Link>
     </Compile>
-    <Compile Include="..\..\Platforms\PortableWrappers\Attributes.cs">
+    <Compile Include="..\..\Compatibility\Attributes.cs">
       <Link>Attributes.cs</Link>
     </Compile>
-    <Compile Include="..\..\Platforms\PortableWrappers\ExtensionMethods.cs">
-      <Link>ExtensionMethods.cs</Link>
-    </Compile>
-    <Compile Include="..\..\Platforms\PortableWrappers\Stopwatch.cs">
+    <Compile Include="..\..\Compatibility\Stopwatch.cs">
       <Link>Stopwatch.cs</Link>
     </Compile>
     <Compile Include="..\..\REPL\ReplInterpreter.cs">

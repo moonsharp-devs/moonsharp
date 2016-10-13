@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using MoonSharp.Interpreter.Compatibility;
 using MoonSharp.Interpreter.DataStructs;
 using MoonSharp.Interpreter.Interop.BasicDescriptors;
 using MoonSharp.Interpreter.Interop.StandardDescriptors;
@@ -70,7 +71,7 @@ namespace MoonSharp.Interpreter.Interop
 		/// </exception>
 		public static bool CheckEventIsCompatible(EventInfo ei, bool throwException)
 		{
-			if (ei.DeclaringType.CheckIsValueType())
+			if (Framework.Do.IsValueType(ei.DeclaringType))
 			{
 				if (throwException) throw new ArgumentException("Events are not supported on value types");
 				return false;
@@ -82,7 +83,7 @@ namespace MoonSharp.Interpreter.Interop
 				return false;
 			}
 
-			MethodInfo invoke = ei.EventHandlerType.GetMethod("Invoke");
+			MethodInfo invoke = Framework.Do.GetMethod(ei.EventHandlerType, "Invoke");
 
 			if (invoke == null)
 			{
@@ -109,7 +110,7 @@ namespace MoonSharp.Interpreter.Interop
 
 			foreach (ParameterInfo pi in pars)
 			{
-				if (pi.ParameterType.CheckIsValueType())
+				if (Framework.Do.IsValueType(pi.ParameterType))
 				{
 					if (throwException) throw new ArgumentException("Event handler cannot have value type parameters");
 					return false;
@@ -226,7 +227,7 @@ namespace MoonSharp.Interpreter.Interop
 
 		private Delegate CreateDelegate(object sender)
 		{
-			switch (EventInfo.EventHandlerType.GetMethod("Invoke").GetParameters().Length)
+			switch (Framework.Do.GetMethod(EventInfo.EventHandlerType, "Invoke").GetParameters().Length)
 			{
 				case 0:
 					return (EventWrapper00)(() => DispatchEvent(sender));

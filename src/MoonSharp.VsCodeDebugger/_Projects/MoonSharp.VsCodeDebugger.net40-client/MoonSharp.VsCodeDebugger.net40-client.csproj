@@ -73,7 +73,7 @@
     <Compile Include="..\..\SDK\Utilities.cs">
       <Link>Utilities.cs</Link>
     </Compile>
-    <Compile Include="..\..\VariableInspector.cs">
+    <Compile Include="..\..\DebuggerLogic\VariableInspector.cs">
       <Link>VariableInspector.cs</Link>
     </Compile>
   </ItemGroup>

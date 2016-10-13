@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using MoonSharp.Interpreter.Compatibility;
 using NUnit.Framework;
 
 namespace MoonSharp.Interpreter.Tests
@@ -60,11 +61,11 @@ namespace MoonSharp.Interpreter.Tests
 			if (testsToSkip != null)
 				skipList.UnionWith(testsToSkip);
 
-			Assembly asm = typeof(TestRunner).GetAssembly();
+			Assembly asm = Framework.Do.GetAssembly(typeof(TestRunner));
 
-#if !NETFX_CORE
-			types = types ?? asm.GetTypes().Where(t => t.GetCustomAttributes(typeof(TestFixtureAttribute), true).Any()).ToArray();
-#endif
+			types = types ?? Framework.Do.GetAssemblyTypes(asm).Where(
+				t => Framework.Do.GetCustomAttributes(t, typeof(TestFixtureAttribute), true).Any()).ToArray();
+
 #if UNITY_EDITOR_OSX
             System.IO.File.WriteAllLines("/temp/types.cs", types.Select(t => t.FullName).ToArray());
 #endif

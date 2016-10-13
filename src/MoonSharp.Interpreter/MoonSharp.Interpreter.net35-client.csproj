@@ -119,6 +119,13 @@
   <ItemGroup>
     <Compile Include="AsyncExtensions.cs" />
     <Compile Include="CodeAnalysis\AstNode.cs" />
+    <Compile Include="Compatibility\Framework.cs" />
+    <Compile Include="Compatibility\Frameworks\Base\FrameworkBase.cs" />
+    <Compile Include="Compatibility\Frameworks\FrameworkCLR.cs" />
+    <Compile Include="Compatibility\Frameworks\Base\FrameworkReflectionBase.cs" />
+    <Compile Include="Compatibility\Frameworks\Base\FrameworkClrBase.cs" />
+    <Compile Include="Compatibility\Frameworks\FrameworkCore.cs" />
+    <Compile Include="Compatibility\Frameworks\FrameworkPCL.cs" />
     <Compile Include="CoreLib\CoroutineModule.cs" />
     <Compile Include="CoreLib\BasicModule.cs" />
     <Compile Include="CoreLib\DebugModule.cs" />
@@ -294,7 +301,7 @@
     <Compile Include="Loaders\FileSystemScriptLoader.cs" />
     <Compile Include="Loaders\InvalidScriptLoader.cs" />
     <Compile Include="Options\ColonOperatorBehaviour.cs" />
-    <Compile Include="Platforms\PortableWrappers\FxCoreWrappers.cs" />
+    <Compile Include="Platforms\DotNetCorePlatformAccessor.cs" />
     <Compile Include="REPL\ReplHistoryNavigator.cs" />
     <Compile Include="REPL\ReplInterpreterScriptLoader.cs" />
     <Compile Include="Loaders\ScriptLoaderBase.cs" />
@@ -306,12 +313,10 @@
     <Compile Include="Platforms\PlatformAccessorBase.cs" />
     <Compile Include="Platforms\PlatformAutoDetector.cs" />
     <Compile Include="Platforms\LimitedPlatformAccessor.cs" />
-    <Compile Include="Platforms\PortableWrappers\Utils.cs" />
     <Compile Include="Platforms\StandardFileType.cs" />
     <Compile Include="Platforms\StandardPlatformAccessor.cs" />
-    <Compile Include="Platforms\PortableWrappers\Attributes.cs" />
-    <Compile Include="Platforms\PortableWrappers\ExtensionMethods.cs" />
-    <Compile Include="Platforms\PortableWrappers\Stopwatch.cs" />
+    <Compile Include="Compatibility\Attributes.cs" />
+    <Compile Include="Compatibility\Stopwatch.cs" />
     <Compile Include="REPL\ReplInterpreter.cs" />
     <Compile Include="Script.cs" />
     <Compile Include="DataTypes\Table.cs" />

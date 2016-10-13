@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
+using MoonSharp.Interpreter.Compatibility;
 
 namespace MoonSharp.Interpreter.Interop.BasicDescriptors
 {
@@ -111,7 +112,7 @@ namespace MoonSharp.Interpreter.Interop.BasicDescriptors
 		{
 			Name = pi.Name;
 			Type = pi.ParameterType;
-			HasDefaultValue = !(pi.DefaultValue.IsDbNull());
+			HasDefaultValue = !(Framework.Do.IsDbNull(pi.DefaultValue));
 			DefaultValue = pi.DefaultValue;
 			IsOut = pi.IsOut;
 			IsRef = pi.ParameterType.IsByRef;
@@ -146,7 +147,7 @@ namespace MoonSharp.Interpreter.Interop.BasicDescriptors
 			if (IsOut || IsRef || IsVarArgs)
 				throw new InvalidOperationException("Cannot restrict a ref/out or varargs param");
 
-			if (!Type.IsAssignableFrom(type))
+			if (!Framework.Do.IsAssignableFrom(Type, type))
 				throw new InvalidOperationException("Specified operation is not a restriction");
 
 			m_OriginalType = Type;

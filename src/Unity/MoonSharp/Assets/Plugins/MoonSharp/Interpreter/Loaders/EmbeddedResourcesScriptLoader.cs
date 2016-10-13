@@ -20,7 +20,16 @@ namespace MoonSharp.Interpreter.Loaders
 		/// <param name="resourceAssembly">The assembly containing the scripts as embedded resources or null to use the calling assembly.</param>
 		public EmbeddedResourcesScriptLoader(Assembly resourceAssembly = null)
 		{
-			m_ResourceAssembly = resourceAssembly ?? AssemblyTools.GetCallingAssembly();
+			if (resourceAssembly == null)
+			{
+#if NETFX_CORE || DOTNET_CORE
+				throw new NotSupportedException("Assembly.GetCallingAssembly is not supported on target framework.");
+#else
+				resourceAssembly = Assembly.GetCallingAssembly();
+#endif
+			}
+
+			m_ResourceAssembly = resourceAssembly;
 			m_Namespace = m_ResourceAssembly.FullName.Split(',').First();
 			m_ResourceNames = new HashSet<string>(m_ResourceAssembly.GetManifestResourceNames());
 		}

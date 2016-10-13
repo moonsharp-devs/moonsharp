@@ -288,7 +288,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			return 5 + a;
 		}
 
-
+#if !DOTNET_CORE
 		[Test]
 		public void OverloadTest_WithoutObjects()
 		{
@@ -317,7 +317,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			Assert.AreEqual(1, result.Tuple[0].Number);
 			Assert.AreEqual(22, result.Tuple[1].Number);
 		}
-
+#endif
 
 
 

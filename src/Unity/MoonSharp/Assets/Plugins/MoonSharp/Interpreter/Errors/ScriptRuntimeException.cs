@@ -8,7 +8,9 @@ namespace MoonSharp.Interpreter
 	/// Exception for all runtime errors. In addition to constructors, it offers a lot of static methods
 	/// generating more "standard" Lua errors.
 	/// </summary>
+#if !(PCL || ((!UNITY_EDITOR) && (ENABLE_DOTNET)) || NETFX_CORE)
 	[Serializable]
+#endif
 	public class ScriptRuntimeException : InterpreterException
 	{
 		/// <summary>

@@ -12,7 +12,7 @@ Features:
 * Easy to use API
 * **Debugger** support for Visual Studio Code (PCL targets not supported)
 * Remote debugger accessible with a web browser and Flash (PCL targets not supported)
-* Runs on .NET 3.5, .NET 4.x, Mono, Xamarin and Unity3D
+* Runs on .NET 3.5, .NET 4.x, .NET Core, Mono, Xamarin and Unity3D
 * Runs on Ahead-of-time platforms like iOS
 * Runs on IL2CPP converted code
 * Runs on platforms requiring a .NET 4.x portable class library (e.g. Windows Phone)

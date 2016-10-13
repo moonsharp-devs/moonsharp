@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using MoonSharp.Interpreter.Compatibility;
 using MoonSharp.Interpreter.DataStructs;
 using MoonSharp.Interpreter.Interop.BasicDescriptors;
 
@@ -42,7 +43,7 @@ namespace MoonSharp.Interpreter.Interop.UserDataRegistries
 			{
 				bool changesDone = false;
 
-				foreach (MethodInfo mi in type.GetMethods().Where(_mi => _mi.IsStatic))
+				foreach (MethodInfo mi in Framework.Do.GetMethods(type).Where(_mi => _mi.IsStatic))
 				{
 					if (mi.GetCustomAttributes(typeof(ExtensionAttribute), false).Count() == 0)
 						continue;
@@ -66,6 +67,11 @@ namespace MoonSharp.Interpreter.Interop.UserDataRegistries
 				if (changesDone)
 					++s_ExtensionMethodChangeVersion;
 			}
+		}
+
+		private static object FrameworkGetMethods()
+		{
+			throw new NotImplementedException();
 		}
 
 		/// <summary>
@@ -133,14 +139,14 @@ namespace MoonSharp.Interpreter.Interop.UserDataRegistries
 			}
 
 			return s_Registry.Find(name)
-				.Where(d => d.ExtensionMethodType != null && d.ExtensionMethodType.IsAssignableFrom(extendedType))
+				.Where(d => d.ExtensionMethodType != null && Framework.Do.IsAssignableFrom(d.ExtensionMethodType, extendedType))
 				.ToList();
 		}
 
 		private static MethodInfo InstantiateMethodInfo(MethodInfo mi, Type extensionType, Type genericType, Type extendedType)
 		{
 			Type[] defs = mi.GetGenericArguments();
-			Type[] tdefs = genericType.GetGenericArguments();
+			Type[] tdefs = Framework.Do.GetGenericArguments(genericType);
 
 			if (tdefs.Length == defs.Length)
 			{
@@ -158,7 +164,7 @@ namespace MoonSharp.Interpreter.Interop.UserDataRegistries
 
 				foreach (Type t in extendedType.GetAllImplementedTypes())
 				{
-					if (t.CheckIsGenericType() && t.GetGenericTypeDefinition() == extensionType)
+					if (Framework.Do.IsGenericType(t) && t.GetGenericTypeDefinition() == extensionType)
 					{
 						return t;
 					}

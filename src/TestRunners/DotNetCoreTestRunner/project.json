@@ -1,0 +1,23 @@
+{
+  "version": "1.0.0-*",
+    "buildOptions": {
+        "emitEntryPoint": true,
+        "copyToOutput": [ "TestMore\\" ],
+        "define": [ "DOTNET_CORE", "EMBEDTEST" ]
+    },
+
+  "dependencies": {
+    "Microsoft.NETCore.App": {
+        "type": "platform",
+        "version": "1.0.1"
+    },
+    "MoonSharp.Interpreter.netcore": "2.0.0-*",
+    "MoonSharp.VsCodeDebugger.netcore": "2.0.0-*"
+  },
+
+  "frameworks": {
+    "netcoreapp1.0": {
+      "imports": "dnxcore50"
+    }
+  }
+}

@@ -31,6 +31,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Reflection;
+using MoonSharp.Interpreter.Compatibility;
 
 namespace MoonSharp.VsCodeDebugger.SDK
 {
@@ -56,7 +57,7 @@ namespace MoonSharp.VsCodeDebugger.SDK
 				if (!underscoredOnly || name.StartsWith("_"))
 				{
 
-					PropertyInfo property = type.GetProperty(name);
+					PropertyInfo property = Framework.Do.GetProperty(type, name);
 					if (property != null)
 					{
 						object value = property.GetValue(variables, null);

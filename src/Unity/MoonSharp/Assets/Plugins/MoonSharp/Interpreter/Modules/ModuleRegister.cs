@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
+using MoonSharp.Interpreter.Compatibility;
 using MoonSharp.Interpreter.CoreLib;
 using MoonSharp.Interpreter.Platforms;
 
@@ -84,7 +85,7 @@ namespace MoonSharp.Interpreter
 		{
 			Table table = CreateModuleNamespace(gtable, t);
 
-			foreach (MethodInfo mi in t.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic))
+			foreach (MethodInfo mi in Framework.Do.GetMethods(t).Where(__mi => __mi.IsStatic))
 			{
 				if (mi.GetCustomAttributes(typeof(MoonSharpModuleMethodAttribute), false).ToArray().Length > 0)
 				{
@@ -114,14 +115,15 @@ namespace MoonSharp.Interpreter
 				}
 			}
 
-			foreach (FieldInfo fi in t.GetFields(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic).Where(_mi => _mi.GetCustomAttributes(typeof(MoonSharpModuleMethodAttribute), false).ToArray().Length > 0))
+			foreach (FieldInfo fi in Framework.Do.GetFields(t).Where(_mi => _mi.IsStatic && _mi.GetCustomAttributes(typeof(MoonSharpModuleMethodAttribute), false).ToArray().Length > 0))
 			{
 				MoonSharpModuleMethodAttribute attr = (MoonSharpModuleMethodAttribute)fi.GetCustomAttributes(typeof(MoonSharpModuleMethodAttribute), false).First();
 				string name = (!string.IsNullOrEmpty(attr.Name)) ? attr.Name : fi.Name;
 
 				RegisterScriptField(fi, null, table, t, name);
 			}
-			foreach (FieldInfo fi in t.GetFields(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic).Where(_mi => _mi.GetCustomAttributes(typeof(MoonSharpModuleConstantAttribute), false).ToArray().Length > 0))
+
+			foreach (FieldInfo fi in Framework.Do.GetFields(t).Where(_mi => _mi.IsStatic && _mi.GetCustomAttributes(typeof(MoonSharpModuleConstantAttribute), false).ToArray().Length > 0))
 			{
 				MoonSharpModuleConstantAttribute attr = (MoonSharpModuleConstantAttribute)fi.GetCustomAttributes(typeof(MoonSharpModuleConstantAttribute), false).First();
 				string name = (!string.IsNullOrEmpty(attr.Name)) ? attr.Name : fi.Name;
@@ -167,7 +169,7 @@ namespace MoonSharp.Interpreter
 
 		private static Table CreateModuleNamespace(Table gtable, Type t)
 		{
-			MoonSharpModuleAttribute attr = (MoonSharpModuleAttribute)t.GetCustomAttributes(typeof(MoonSharpModuleAttribute), false).First();
+			MoonSharpModuleAttribute attr = (MoonSharpModuleAttribute)(Framework.Do.GetCustomAttributes(t, typeof(MoonSharpModuleAttribute), false).First());
 
 			if (string.IsNullOrEmpty(attr.Namespace))
 			{

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using MoonSharp.Interpreter.Compatibility;
 
 namespace MoonSharp.Interpreter.Loaders
 {
@@ -79,10 +80,10 @@ namespace MoonSharp.Interpreter.Loaders
 				Type resourcesType = Type.GetType("UnityEngine.Resources, UnityEngine");
 				Type textAssetType = Type.GetType("UnityEngine.TextAsset, UnityEngine");
 
-				MethodInfo textAssetNameGet = textAssetType.GetProperty("name").GetGetMethod();
-				MethodInfo textAssetTextGet = textAssetType.GetProperty("text").GetGetMethod();
+				MethodInfo textAssetNameGet = Framework.Do.GetProperty(textAssetType, "name").GetGetMethod();
+				MethodInfo textAssetTextGet = Framework.Do.GetProperty(textAssetType, "text").GetGetMethod();
 
-				MethodInfo loadAll = resourcesType.GetMethod("LoadAll",
+				MethodInfo loadAll = Framework.Do.GetMethod(resourcesType, "LoadAll",
 					new Type[] { typeof(string), typeof(Type) });
 
 				Array array = (Array)loadAll.Invoke(null, new object[] { assetsPath, textAssetType });
@@ -102,6 +103,7 @@ namespace MoonSharp.Interpreter.Loaders
 #if !(PCL || ENABLE_DOTNET || NETFX_CORE)
 				Console.WriteLine("Error initializing UnityScriptLoader : {0}", ex);
 #endif
+				System.Diagnostics.Debug.WriteLine(string.Format("Error initializing UnityScriptLoader : {0}", ex));
 			}
 		}
 #endif

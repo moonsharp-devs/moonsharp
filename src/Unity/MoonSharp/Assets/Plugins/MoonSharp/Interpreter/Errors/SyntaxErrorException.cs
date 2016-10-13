@@ -7,7 +7,9 @@ namespace MoonSharp.Interpreter
 	/// <summary>
 	/// Exception for all parsing/lexing errors. 
 	/// </summary>
+#if !(PCL || ((!UNITY_EDITOR) && (ENABLE_DOTNET)) || NETFX_CORE)
 	[Serializable]
+#endif
 	public class SyntaxErrorException : InterpreterException
 	{
 		internal Token Token { get; private set; }

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using MoonSharp.Interpreter.Compatibility;
 using MoonSharp.Interpreter.CoreLib.IO;
 using MoonSharp.Interpreter.Platforms;
 
@@ -221,7 +222,7 @@ namespace MoonSharp.Interpreter.CoreLib
 				// list of codes: http://msdn.microsoft.com/en-us/library/vstudio/system.text.encoding%28v=vs.90%29.aspx.
 				// In addition, "binary" is available.
 				Encoding e = null;
-				bool isBinary = mode.Contains('b');
+				bool isBinary = Framework.Do.StringContainsChar(mode, 'b');
 
 				if (encoding == "binary")
 				{

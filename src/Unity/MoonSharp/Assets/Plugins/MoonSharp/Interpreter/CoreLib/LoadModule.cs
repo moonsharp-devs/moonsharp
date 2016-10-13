@@ -24,7 +24,7 @@ namespace MoonSharp.Interpreter.CoreLib
 				throw new InternalErrorException("'package' global variable was found and it is not a table");
 			}
 
-#if PCL || ENABLE_DOTNET || NETFX_CORE
+#if PCL || ENABLE_DOTNET || NETFX_CORE 
 			string cfg = "\\\n;\n?\n!\n-\n";
 #else
 			string cfg = System.IO.Path.DirectorySeparatorChar + "\n;\n?\n!\n-\n";

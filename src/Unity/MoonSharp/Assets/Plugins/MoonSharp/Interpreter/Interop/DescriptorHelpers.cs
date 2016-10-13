@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using MoonSharp.Interpreter.Compatibility;
 
 namespace MoonSharp.Interpreter.Interop
 {
@@ -43,7 +44,7 @@ namespace MoonSharp.Interpreter.Interop
 
 		public static bool IsDelegateType(this Type t)
 		{
-			return typeof(Delegate).IsAssignableFrom(t);
+			return Framework.Do.IsAssignableFrom(typeof(Delegate), t);
 		}
 
 		/// <summary>
@@ -166,7 +167,7 @@ namespace MoonSharp.Interpreter.Interop
 			try
 			{
 #if NETFX_CORE
-				return new Type[0];
+				return asm.GetExportedTypes();
 #else
 				return asm.GetTypes();
 #endif
@@ -203,10 +204,10 @@ namespace MoonSharp.Interpreter.Interop
 		/// <returns></returns>
 		public static IEnumerable<Type> GetAllImplementedTypes(this Type t)
 		{
-			for (Type ot = t; ot != null; ot = ot.GetBaseType())
+			for (Type ot = t; ot != null; ot = Framework.Do.GetBaseType(ot))
 				yield return ot;
 
-			foreach (Type it in t.GetInterfaces())
+			foreach (Type it in Framework.Do.GetInterfaces(t))
 				yield return it;
 		}
 

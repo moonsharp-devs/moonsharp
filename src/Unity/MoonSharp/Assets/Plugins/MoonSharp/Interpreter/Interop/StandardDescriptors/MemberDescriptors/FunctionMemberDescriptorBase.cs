@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using MoonSharp.Interpreter.Compatibility;
 using MoonSharp.Interpreter.Interop.BasicDescriptors;
 using MoonSharp.Interpreter.Interop.Converters;
 
@@ -194,7 +195,7 @@ namespace MoonSharp.Interpreter.Interop
 
 						if (arg.Type == DataType.UserData && arg.UserData.Object != null)
 						{
-							if (VarArgsArrayType.IsAssignableFrom(arg.UserData.Object.GetType()))
+							if (Framework.Do.IsAssignableFrom(VarArgsArrayType, arg.UserData.Object.GetType()))
 							{
 								pars[i] = arg.UserData.Object;
 								continue;
