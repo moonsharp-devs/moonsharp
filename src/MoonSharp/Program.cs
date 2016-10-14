@@ -90,9 +90,7 @@ namespace MoonSharp
 
 		private static void Banner()
 		{
-			Console.WriteLine("MoonSharp Console {0} [{1}]", Script.VERSION, Script.GlobalOptions.Platform.GetPlatformName());
-			Console.WriteLine("Copyright (C) 2014-2016 Marco Mastropaolo");
-			Console.WriteLine("http://www.moonsharp.org");
+			Console.WriteLine(Script.GetBanner("Console"));
 			Console.WriteLine();
 			Console.WriteLine("Type Lua code to execute it or type !help to see help on commands.\n");
 			Console.WriteLine("Welcome.\n");

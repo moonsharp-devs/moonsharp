@@ -13,6 +13,7 @@ using System.Diagnostics;
 using System.IO;
 using MoonSharp.Interpreter;
 using MoonSharp.Interpreter.Serialization;
+using MoonSharp.VsCodeDebugger;
 
 namespace DotNetCoreTestRunner
 {
@@ -99,9 +100,41 @@ namespace DotNetCoreTestRunner
 			//"VInterop_ConstructorAndConcatMethodSemicolon_Precomputed",
 		};
 
-
-
 		static int Main(string[] args)
+		{
+			Console.WriteLine("1 - Unit tests");
+			Console.WriteLine("2 - Debugger");
+
+			while (true)
+			{
+				Console.Write(" ? ");
+				var key = Console.ReadKey();
+				if (key.Key == ConsoleKey.D1)
+					TestMain(args);
+				else if (key.Key == ConsoleKey.D2)
+					DebuggerMain(args);
+			}
+		}
+
+		private static void DebuggerMain(string[] args)
+		{
+			MoonSharpVsCodeDebugServer server = new MoonSharpVsCodeDebugServer().Start();
+			Script s = new Script();
+
+			server.AttachToScript(s, "xxx");
+
+			DynValue func = s.DoString("return function()\nprint 'x';\nend;");
+
+			while (!Console.KeyAvailable)
+			{
+				func.Function.Call();
+				System.Threading.Tasks.Task.Delay(100).Wait();
+			}
+
+			Console.ReadKey();
+		}
+
+		static int TestMain(string[] args)
 		{
 			Console.ForegroundColor = ConsoleColor.Magenta;
 

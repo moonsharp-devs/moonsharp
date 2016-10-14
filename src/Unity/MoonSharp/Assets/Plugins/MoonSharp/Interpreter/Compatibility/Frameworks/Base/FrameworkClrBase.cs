@@ -1,4 +1,4 @@
-﻿#if !(DOTNET_CORE || NETFX_CORE) 
+﻿#if !NETFX_CORE || DOTNET_CORE
 
 using System;
 using System.Collections.Generic;
@@ -13,11 +13,6 @@ namespace MoonSharp.Interpreter.Compatibility.Frameworks
 		BindingFlags BINDINGFLAGS_MEMBER = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
 		BindingFlags BINDINGFLAGS_INNERCLASS = BindingFlags.Public | BindingFlags.NonPublic;
 
-		public override Type GetTypeInfoFromType(Type t)
-		{
-			return t;
-		}
-
 		public override MethodInfo GetAddMethod(EventInfo ei)
 		{
 			return ei.GetAddMethod(true);
@@ -25,84 +20,84 @@ namespace MoonSharp.Interpreter.Compatibility.Frameworks
 
 		public override ConstructorInfo[] GetConstructors(Type type)
 		{
-			return type.GetConstructors(BINDINGFLAGS_MEMBER);
+			return GetTypeInfoFromType(type).GetConstructors(BINDINGFLAGS_MEMBER);
 		}
 
 		public override EventInfo[] GetEvents(Type type)
 		{
-			return type.GetEvents(BINDINGFLAGS_MEMBER);
+			return GetTypeInfoFromType(type).GetEvents(BINDINGFLAGS_MEMBER);
 		}
 
 		public override FieldInfo[] GetFields(Type type)
 		{
-			return type.GetFields(BINDINGFLAGS_MEMBER);
+			return GetTypeInfoFromType(type).GetFields(BINDINGFLAGS_MEMBER);
 		}
 
 		public override Type[] GetGenericArguments(Type type)
 		{
-			return type.GetGenericArguments();
+			return GetTypeInfoFromType(type).GetGenericArguments();
 		}
 
 		public override MethodInfo GetGetMethod(PropertyInfo pi)
 		{
-			return pi.GetGetMethod();
+			return pi.GetGetMethod(true);
 		}
 
 		public override Type[] GetInterfaces(Type t)
 		{
-			return t.GetInterfaces();
+			return GetTypeInfoFromType(t).GetInterfaces();
 		}
 
 		public override MethodInfo GetMethod(Type type, string name)
 		{
-			return type.GetMethod(name);
+			return GetTypeInfoFromType(type).GetMethod(name);
 		}
 
 		public override MethodInfo[] GetMethods(Type type)
 		{
-			return type.GetMethods(BINDINGFLAGS_MEMBER);
+			return GetTypeInfoFromType(type).GetMethods(BINDINGFLAGS_MEMBER);
 		}
 
 		public override Type[] GetNestedTypes(Type type)
 		{
-			return type.GetNestedTypes(BINDINGFLAGS_INNERCLASS);
+			return GetTypeInfoFromType(type).GetNestedTypes(BINDINGFLAGS_INNERCLASS);
 		}
 
 		public override PropertyInfo[] GetProperties(Type type)
 		{
-			return type.GetProperties(BINDINGFLAGS_MEMBER);
+			return GetTypeInfoFromType(type).GetProperties(BINDINGFLAGS_MEMBER);
 		}
 
 		public override PropertyInfo GetProperty(Type type, string name)
 		{
-			return type.GetProperty(name);
+			return GetTypeInfoFromType(type).GetProperty(name);
 		}
 
 		public override MethodInfo GetRemoveMethod(EventInfo ei)
 		{
-			return ei.GetRemoveMethod();
+			return ei.GetRemoveMethod(true);
 		}
 
 		public override MethodInfo GetSetMethod(PropertyInfo pi)
 		{
-			return pi.GetSetMethod();
+			return pi.GetSetMethod(true);
 		}
 
 
 		public override bool IsAssignableFrom(Type current, Type toCompare)
 		{
-			return current.IsAssignableFrom(toCompare);
+			return GetTypeInfoFromType(current).IsAssignableFrom(toCompare);
 		}
 
 		public override bool IsInstanceOfType(Type t, object o)
 		{
-			return t.IsInstanceOfType(o);
+			return GetTypeInfoFromType(t).IsInstanceOfType(o);
 		}
 
 
 		public override MethodInfo GetMethod(Type resourcesType, string name, Type[] types)
 		{
-			return resourcesType.GetMethod(name, types);
+			return GetTypeInfoFromType(resourcesType).GetMethod(name, types);
 		}
 
 		public override Type[] GetAssemblyTypes(Assembly asm)

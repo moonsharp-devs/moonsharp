@@ -4,7 +4,9 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-#if DOTNET_CORE || NETFX_CORE
+#if DOTNET_CORE
+	using TTypeInfo = System.Reflection.TypeInfo;
+#elif NETFX_CORE
 	using TTypeInfo = System.Reflection.TypeInfo;
 #else
 	using TTypeInfo = System.Type;

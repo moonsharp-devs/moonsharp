@@ -10,6 +10,11 @@ namespace MoonSharp.Interpreter.Compatibility.Frameworks
 {
 	class FrameworkCurrent : FrameworkClrBase
 	{
+		public override Type GetTypeInfoFromType(Type t)
+		{
+			return t;
+		}
+
 		public override bool IsDbNull(object o)
 		{
 			return o != null && Convert.IsDBNull(o);

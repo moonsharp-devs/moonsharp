@@ -29,19 +29,14 @@ namespace MoonSharp.Interpreter.Platforms
 			{
 				if (PlatformAutoDetector.IsUnityNative)
 				{
-					if (PlatformAutoDetector.IsUnityIL2CPP)
-						suffix = "unity5.il2cpp";
-					else if (PlatformAutoDetector.IsRunningOnMono)
-						suffix = "unity5.mono";
-					else
-						suffix = "unity5.webp";
+					suffix = "unity." + GetUnityPlatformName().ToLower() + "." + GetUnityRuntimeName();
 				}
 				else
 				{
 					if (PlatformAutoDetector.IsRunningOnMono)
 						suffix = "unity.dll.mono";
 					else
-						suffix = "unity.dll.webp";
+						suffix = "unity.dll.unknown";
 				}
 			}
 			else if (PlatformAutoDetector.IsRunningOnMono)
@@ -57,10 +52,80 @@ namespace MoonSharp.Interpreter.Platforms
 			else
 				suffix = suffix + ".clr2";
 
+#if DOTNET_CORE
+			suffix += ".netcore";
+#endif
+
 			if (PlatformAutoDetector.IsRunningOnAOT)
 				suffix = suffix + ".aot";
 
 			return GetPlatformNamePrefix() + "." + suffix;
+		}
+
+		private string GetUnityRuntimeName()
+		{
+#if ENABLE_MONO
+	return "mono";
+#elif ENABLE_IL2CPP
+	return "il2cpp";
+#elif ENABLE_DOTNET
+	return "dotnet";
+#else
+	return "unknown";
+#endif
+		}
+
+		private string GetUnityPlatformName()
+		{
+#if UNITY_STANDALONE_OSX
+			return "OSX";
+#elif UNITY_STANDALONE_WIN
+			return "WIN";
+#elif UNITY_STANDALONE_LINUX
+			return "LINUX";
+#elif UNITY_STANDALONE
+			return "STANDALONE";
+#elif UNITY_WII
+			return "WII";
+#elif UNITY_IOS
+			return "IOS";
+#elif UNITY_IPHONE
+			return "IPHONE";
+#elif UNITY_ANDROID
+			return "ANDROID";
+#elif UNITY_PS3
+			return "PS3";
+#elif UNITY_PS4
+			return "PS4";
+#elif UNITY_SAMSUNGTV
+			return "SAMSUNGTV";
+#elif UNITY_XBOX360
+			return "XBOX360";
+#elif UNITY_XBOXONE
+			return "XBOXONE";
+#elif UNITY_TIZEN
+			return "TIZEN";
+#elif UNITY_TVOS
+			return "TVOS";
+#elif UNITY_WP_8_1
+			return "WP_8_1";
+#elif UNITY_WSA_10_0
+			return "WSA_10_0";
+#elif UNITY_WSA_8_1
+			return "WSA_8_1";
+#elif UNITY_WSA
+			return "WSA";
+#elif UNITY_WINRT_10_0
+			return "WINRT_10_0";
+#elif UNITY_WINRT_8_1
+			return "WINRT_8_1";
+#elif UNITY_WINRT
+			return "WINRT";
+#elif UNITY_WEBGL
+			return "WEBGL";
+#else
+			return "UNKNOWNHW";
+#endif
 		}
 
 		/// <summary>

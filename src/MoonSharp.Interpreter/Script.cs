@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using MoonSharp.Interpreter.CoreLib;
 using MoonSharp.Interpreter.Debugging;
 using MoonSharp.Interpreter.Diagnostics;
@@ -726,6 +727,19 @@ namespace MoonSharp.Interpreter
 			private set;
 		}
 
+		/// <summary>
+		/// Gets a banner string with copyright info, link to website, version, etc.
+		/// </summary>
+		public static string GetBanner(string subproduct = null)
+		{
+			subproduct = (subproduct != null) ? (subproduct + " ") : "";
+
+			StringBuilder sb = new StringBuilder();
+			sb.AppendLine(string.Format("MoonSharp {0}{1} [{2}]", subproduct, Script.VERSION, Script.GlobalOptions.Platform.GetPlatformName()));
+			sb.AppendLine("Copyright (C) 2014-2016 Marco Mastropaolo");
+			sb.AppendLine("http://www.moonsharp.org");
+			return sb.ToString();
+		}
 
 		Script IScriptPrivateResource.OwnerScript
 		{

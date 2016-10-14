@@ -40,7 +40,7 @@ namespace MoonSharp.Interpreter.Serialization
 
 				foreach (PropertyInfo pi in Framework.Do.GetProperties(type))
 				{
-					var getter = pi.GetGetMethod();
+					var getter = Framework.Do.GetGetMethod(pi);
 					var isStatic = getter.IsStatic;
 					var obj = getter.Invoke(isStatic ? null : o, null); // convoluted workaround for --full-aot Mono execution
 

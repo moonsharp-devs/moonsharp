@@ -80,8 +80,8 @@ namespace MoonSharp.Interpreter.Loaders
 				Type resourcesType = Type.GetType("UnityEngine.Resources, UnityEngine");
 				Type textAssetType = Type.GetType("UnityEngine.TextAsset, UnityEngine");
 
-				MethodInfo textAssetNameGet = Framework.Do.GetProperty(textAssetType, "name").GetGetMethod();
-				MethodInfo textAssetTextGet = Framework.Do.GetProperty(textAssetType, "text").GetGetMethod();
+				MethodInfo textAssetNameGet = Framework.Do.GetGetMethod(Framework.Do.GetProperty(textAssetType, "name"));
+				MethodInfo textAssetTextGet = Framework.Do.GetGetMethod(Framework.Do.GetProperty(textAssetType, "text"));
 
 				MethodInfo loadAll = Framework.Do.GetMethod(resourcesType, "LoadAll",
 					new Type[] { typeof(string), typeof(Type) });

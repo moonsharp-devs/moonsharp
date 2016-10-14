@@ -37,8 +37,8 @@ namespace MoonSharp.Interpreter.Interop
 			if (!CheckEventIsCompatible(ei, false))
 				return null;
 
-	        MethodInfo addm = ei.GetAddMethod(); 
-	        MethodInfo remm = ei.GetRemoveMethod();
+	        MethodInfo addm = Framework.Do.GetAddMethod(ei); 
+	        MethodInfo remm = Framework.Do.GetRemoveMethod(ei);
 
 	        if (ei.GetVisibilityFromAttributes() ?? ((remm != null && remm.IsPublic) && (addm != null && addm.IsPublic)))
 	            return new EventMemberDescriptor(ei, accessMode);
@@ -77,7 +77,7 @@ namespace MoonSharp.Interpreter.Interop
 				return false;
 			}
 
-			if ((ei.GetAddMethod(true) == null) || (ei.GetRemoveMethod(true) == null))
+			if ((Framework.Do.GetAddMethod(ei) == null) || (Framework.Do.GetRemoveMethod(ei) == null))
 			{
 				if (throwException) throw new ArgumentException("Event must have add and remove methods");
 				return false;
@@ -135,8 +135,8 @@ namespace MoonSharp.Interpreter.Interop
 		{
 			CheckEventIsCompatible(ei, true);
 			EventInfo = ei;
-			m_Add = ei.GetAddMethod(true);
-			m_Remove = ei.GetRemoveMethod(true);
+			m_Add = Framework.Do.GetAddMethod(ei);
+			m_Remove = Framework.Do.GetRemoveMethod(ei);
 			IsStatic = m_Add.IsStatic;
 		}
 

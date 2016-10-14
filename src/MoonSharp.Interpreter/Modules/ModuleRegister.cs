@@ -68,6 +68,7 @@ namespace MoonSharp.Interpreter
 			m.Set("is_mono", DynValue.NewBoolean(PlatformAutoDetector.IsRunningOnMono));
 			m.Set("is_clr4", DynValue.NewBoolean(PlatformAutoDetector.IsRunningOnClr4));
 			m.Set("is_pcl", DynValue.NewBoolean(PlatformAutoDetector.IsPortableFramework));
+			m.Set("banner", DynValue.NewString(Script.GetBanner()));
 
 			return table;
 		}

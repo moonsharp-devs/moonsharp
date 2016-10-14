@@ -85,6 +85,9 @@
     <Compile Include="..\..\Compatibility\Frameworks\FrameworkPCL.cs">
       <Link>FrameworkPCL.cs</Link>
     </Compile>
+    <Compile Include="..\..\Compatibility\Frameworks\FrameworkWin8.cs">
+      <Link>FrameworkWin8.cs</Link>
+    </Compile>
     <Compile Include="..\..\CoreLib\CoroutineModule.cs">
       <Link>CoroutineModule.cs</Link>
     </Compile>
@@ -569,6 +572,9 @@
     </Compile>
     <Compile Include="..\..\Options\ColonOperatorBehaviour.cs">
       <Link>ColonOperatorBehaviour.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Platforms\DotNetCorePlatformAccessor.cs">
+      <Link>DotNetCorePlatformAccessor.cs</Link>
     </Compile>
     <Compile Include="..\..\REPL\ReplHistoryNavigator.cs">
       <Link>ReplHistoryNavigator.cs</Link>

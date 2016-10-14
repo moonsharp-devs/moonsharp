@@ -126,6 +126,7 @@
     <Compile Include="Compatibility\Frameworks\Base\FrameworkClrBase.cs" />
     <Compile Include="Compatibility\Frameworks\FrameworkCore.cs" />
     <Compile Include="Compatibility\Frameworks\FrameworkPCL.cs" />
+    <Compile Include="Compatibility\Frameworks\FrameworkWin8.cs" />
     <Compile Include="CoreLib\CoroutineModule.cs" />
     <Compile Include="CoreLib\BasicModule.cs" />
     <Compile Include="CoreLib\DebugModule.cs" />

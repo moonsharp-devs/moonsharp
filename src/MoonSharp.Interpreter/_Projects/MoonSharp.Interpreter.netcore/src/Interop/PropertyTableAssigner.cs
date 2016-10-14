@@ -170,7 +170,7 @@ namespace MoonSharp.Interpreter.Interop
 							pi.PropertyType, null, false);
 					}
 
-					pi.GetSetMethod(true).Invoke(obj, new object[] { o });
+					Framework.Do.GetSetMethod(pi).Invoke(obj, new object[] { o });
 				}
 
 				return true;

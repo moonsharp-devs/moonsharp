@@ -32,6 +32,10 @@ rsync -a --prune-empty-dirs --exclude 'AssemblyInfo.cs' --include '*/' --include
 echo ... Unity - unit tests...
 rsync -a --prune-empty-dirs --exclude 'AssemblyInfo.cs' --include '*/' --include '*.cs' --exclude '*' /git/my/moonsharp/src/MoonSharp.Interpreter.Tests/ ./Unity/MoonSharp/Assets/Tests
 
+echo ... Unity - cleaning cruft...
+rm -R ./Unity/MoonSharp/Assets/Plugins/MoonSharp/Interpreter/_Projects
+rm -R ./Unity/MoonSharp/Assets/Plugins/MoonSharp/Debugger/_Projects
+
 
 echo ... .NET Core - interpreter
 rsync -a --prune-empty-dirs --exclude 'AssemblyInfo.cs' --include '*/' --include '*.cs' --exclude '*' /git/my/moonsharp/src/MoonSharp.Interpreter/ ./MoonSharp.Interpreter/_Projects/MoonSharp.Interpreter.netcore/src/

@@ -94,8 +94,8 @@ namespace MoonSharp.Interpreter.Interop
 		/// </summary>
 		public static string GetClrVisibility(this PropertyInfo info)
 		{
-			MethodInfo gm = info.GetGetMethod(true);
-			MethodInfo sm = info.GetSetMethod(true);
+			MethodInfo gm = Framework.Do.GetGetMethod(info);
+			MethodInfo sm = Framework.Do.GetSetMethod(info);
 
 			string gv = (gm != null) ? GetClrVisibility(gm) : "private";
 			string sv = (sm != null) ? GetClrVisibility(sm) : "private";
@@ -137,8 +137,8 @@ namespace MoonSharp.Interpreter.Interop
 		/// <returns></returns>
 		public static bool IsPropertyInfoPublic(this PropertyInfo pi)
 		{
-			MethodInfo getter = pi.GetGetMethod();
-			MethodInfo setter = pi.GetSetMethod();
+			MethodInfo getter = Framework.Do.GetGetMethod(pi);
+			MethodInfo setter = Framework.Do.GetSetMethod(pi);
 
 			return (getter != null && getter.IsPublic) || (setter != null && setter.IsPublic);
 		}
@@ -166,11 +166,7 @@ namespace MoonSharp.Interpreter.Interop
 		{
 			try
 			{
-#if NETFX_CORE
-				return asm.GetExportedTypes();
-#else
-				return asm.GetTypes();
-#endif
+				return Framework.Do.GetAssemblyTypes(asm);
 			}
 			catch (ReflectionTypeLoadException)
 			{

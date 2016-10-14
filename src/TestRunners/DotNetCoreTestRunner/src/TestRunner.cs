@@ -74,7 +74,7 @@ namespace MoonSharp.Interpreter.Tests
 
 			foreach (Type t in types)
 			{
-				MethodInfo[] tests = t.GetMethods().Where(m => m.GetCustomAttributes(typeof(TestAttribute), true).Any()).ToArray();
+				MethodInfo[] tests = Framework.Do.GetMethods(t).Where(m => m.GetCustomAttributes(typeof(TestAttribute), true).Any()).ToArray();
 				//Console_WriteLine("Testing {0} - {1} tests found.", t.Name, tests.Length);
 
 				foreach (MethodInfo mi in tests)
@@ -181,7 +181,7 @@ namespace MoonSharp.Interpreter.Tests
 					};
 				}
 
-				if (expectedEx != null && expectedEx.ExpectedException.IsInstanceOfType(ex))
+				if (expectedEx != null && Framework.Do.IsInstanceOfType(expectedEx.ExpectedException, ex))
 				{
 					return new TestResult()
 					{
