@@ -14,7 +14,6 @@ namespace MoonSharp.Interpreter.Interop.BasicDescriptors
 	/// </summary>
 	public abstract class DispatchingUserDataDescriptor : IUserDataDescriptor, IOptimizableDescriptor
 	{
-		private int m_ExtMethodsVersion = 0;
 		private Dictionary<string, IMemberDescriptor> m_MetaMembers = new Dictionary<string, IMemberDescriptor>();
 		private Dictionary<string, IMemberDescriptor> m_Members = new Dictionary<string, IMemberDescriptor>();
 
@@ -237,10 +236,8 @@ namespace MoonSharp.Interpreter.Interop.BasicDescriptors
 			if (v == null) v = TryIndex(script, obj, Camelify(index.String));
 			if (v == null) v = TryIndex(script, obj, UpperFirstLetter(Camelify(index.String)));
 
-			if (v == null && m_ExtMethodsVersion < UserData.GetExtensionMethodsChangeVersion())
+			if (v == null)
 			{
-				m_ExtMethodsVersion = UserData.GetExtensionMethodsChangeVersion();
-
 				v = TryIndexOnExtMethod(script, obj, index.String);
 				if (v == null) v = TryIndexOnExtMethod(script, obj, UpperFirstLetter(index.String));
 				if (v == null) v = TryIndexOnExtMethod(script, obj, Camelify(index.String));
