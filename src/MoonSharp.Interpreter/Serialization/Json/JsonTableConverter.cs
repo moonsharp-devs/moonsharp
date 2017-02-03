@@ -214,9 +214,9 @@ namespace MoonSharp.Interpreter.Serialization.Json
 			{
 				return DynValue.NewString(L.Current.Text);
 			}
-			else if (L.Current.Type == TokenType.Number)
+			else if (L.Current.Type == TokenType.Number || L.Current.Type == TokenType.Op_MinusOrSub)
 			{
-				return DynValue.NewNumber(L.Current.GetNumberValue()).AsReadOnly();
+				return ParseJsonNumberValue(L, script);
 			}
 			else if (L.Current.Type == TokenType.True)
 			{
@@ -234,6 +234,31 @@ namespace MoonSharp.Interpreter.Serialization.Json
 			{
 				throw new SyntaxErrorException(L.Current, "Unexpected token : '{0}'", L.Current.Text);
 			}
+		}
+
+		private static DynValue ParseJsonNumberValue(Lexer L, Script script)
+		{
+			bool negative;
+			if (L.Current.Type == TokenType.Op_MinusOrSub)
+			{
+				// Negative number consists of 2 tokens.
+				L.Next();
+				negative = true;
+			}
+			else
+			{
+				negative = false;
+			}
+			if (L.Current.Type != TokenType.Number)
+			{
+				throw new SyntaxErrorException(L.Current, "Unexpected token : '{0}'", L.Current.Text);
+			}
+			var numberValue = L.Current.GetNumberValue();
+			if (negative)
+			{
+				numberValue = -numberValue;
+			}
+			return DynValue.NewNumber(numberValue).AsReadOnly();
 		}
 	}
 }
