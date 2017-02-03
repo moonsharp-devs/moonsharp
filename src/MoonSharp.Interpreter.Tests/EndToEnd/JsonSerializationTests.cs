@@ -59,15 +59,8 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			Assert.AreEqual(DataType.String, s.Get("aString").Type);
 			Assert.AreEqual("8", s.Get("aString").String);
 
-			try
-			{
-				Assert.AreEqual(DataType.Number, t.Get("aNegativeNumber").Type);
-				Assert.AreEqual(-9, t.Get("aNegativeNumber").Number);
-			}
-			catch
-			{
-				throw;
-			}
+			Assert.AreEqual(DataType.Number, t.Get("aNegativeNumber").Type);
+			Assert.AreEqual(-9, t.Get("aNegativeNumber").Number);
 		}
 
 
