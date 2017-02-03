@@ -10,7 +10,7 @@ namespace MoonSharp.Interpreter.Compatibility.Frameworks
 {
 	abstract class FrameworkClrBase : FrameworkReflectionBase
 	{
-		BindingFlags BINDINGFLAGS_MEMBER = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
+		BindingFlags BINDINGFLAGS_MEMBER = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.FlattenHierarchy;
 		BindingFlags BINDINGFLAGS_INNERCLASS = BindingFlags.Public | BindingFlags.NonPublic;
 
 		public override MethodInfo GetAddMethod(EventInfo ei)
