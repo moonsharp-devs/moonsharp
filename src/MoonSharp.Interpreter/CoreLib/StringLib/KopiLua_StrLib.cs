@@ -357,15 +357,15 @@ namespace MoonSharp.Interpreter.CoreLib.StringLib
 														   LUA_QL("%f") + " in pattern");
 									ep = classend(ms, p);  /* points to what is next */
 									previous = (s == ms.src_init) ? '\0' : s[-1];
-									if ((matchbracketclass((byte)(previous), p, ep - 1) != 0) ||
-									   (matchbracketclass((byte)(s[0]), p, ep - 1) == 0)) return null;
+									if ((matchbracketclass(previous, p, ep - 1) != 0) ||
+									   (matchbracketclass(s[0], p, ep - 1) == 0)) return null;
 									p = ep; goto init;  /* else return match(ms, s, ep); */
 								}
 							default:
 								{
 									if (isdigit((char)(p[1])))
 									{  /* capture results (%0-%9)? */
-										s = match_capture(ms, s, (byte)(p[1]));
+										s = match_capture(ms, s, p[1]);
 										if (s == null) return null;
 										p += 2; goto init;  /* else return match(ms, s, p+2) */
 									}
@@ -857,15 +857,15 @@ namespace MoonSharp.Interpreter.CoreLib.StringLib
 			while (p[0] != '\0' && strchr(FLAGS, p[0]) != null) p = p.next();  /* skip flags */
 			if ((uint)(p - strfrmt) >= (FLAGS.Length + 1))
 				LuaLError(L, "invalid format (repeated flags)");
-			if (isdigit((byte)(p[0]))) p = p.next();  /* skip width */
-			if (isdigit((byte)(p[0]))) p = p.next();  /* (2 digits at most) */
+			if (isdigit(p[0])) p = p.next();  /* skip width */
+			if (isdigit(p[0])) p = p.next();  /* (2 digits at most) */
 			if (p[0] == '.')
 			{
 				p = p.next();
-				if (isdigit((byte)(p[0]))) p = p.next();  /* skip precision */
-				if (isdigit((byte)(p[0]))) p = p.next();  /* (2 digits at most) */
+				if (isdigit(p[0])) p = p.next();  /* skip precision */
+				if (isdigit(p[0])) p = p.next();  /* (2 digits at most) */
 			}
-			if (isdigit((byte)(p[0])))
+			if (isdigit(p[0]))
 				LuaLError(L, "invalid format (width or precision too long)");
 			form[0] = '%';
 			form = form.next();
