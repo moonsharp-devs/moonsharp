@@ -203,10 +203,10 @@ namespace MoonSharp.Interpreter.CoreLib.StringLib
 				else if ((p[1] == '-') && (p + 2 < ec))
 				{
 					p += 2;
-					if ((byte)((p[-2])) <= c && (c <= (byte)p[0]))
+					if (p[-2] <= c && (c <= p[0]))
 						return sig;
 				}
-				else if ((byte)(p[0]) == c) return sig;
+				else if (p[0] == c) return sig;
 			}
 			return (sig == 0) ? 1 : 0;
 		}

@@ -272,6 +272,15 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			Utils.DynAssert(res, "書籍籍");
 		}
 
+		[Test]
+		public void String_Match_4()
+		{
+			string s = "㍝"; // U+335D
+			string p = "[Aそ]"; // U+005B, U+0041, U+305D, U+005D
+
+			TestMatch(s, p, false);
+		}
+
 		private void TestMatch(string s, string p, bool expected)
 		{
 			Script S = new Script(CoreModules.String);
