@@ -219,10 +219,9 @@ namespace MoonSharp.Interpreter.CoreLib.StringLib
 				case '.': return 1;  /* matches any char */
 				case L_ESC: return match_class((char)c, (char)(p[1]));
 				case '[': return matchbracketclass(c, p, ep - 1);
-				default: return ((byte)(p[0]) == c) ? 1 : 0;
+				default: return (p[0] == c) ? 1 : 0;
 			}
 		}
-
 
 		private static CharPtr matchbalance(MatchState ms, CharPtr s,
 										   CharPtr p)
@@ -247,12 +246,11 @@ namespace MoonSharp.Interpreter.CoreLib.StringLib
 			return null;  /* string ends out of balance */
 		}
 
-
 		private static CharPtr max_expand(MatchState ms, CharPtr s,
 										 CharPtr p, CharPtr ep)
 		{
 			ptrdiff_t i = 0;  /* counts maximum expand for item */
-			while ((s + i < ms.src_end) && (singlematch((byte)(s[i]), p, ep) != 0))
+			while ((s + i < ms.src_end) && (singlematch(s[i], p, ep) != 0))
 				i++;
 			/* keeps trying to match with the maximum repetitions */
 			while (i >= 0)
@@ -273,7 +271,7 @@ namespace MoonSharp.Interpreter.CoreLib.StringLib
 				CharPtr res = match(ms, s, ep + 1);
 				if (res != null)
 					return res;
-				else if ((s < ms.src_end) && (singlematch((byte)(s[0]), p, ep) != 0))
+				else if ((s < ms.src_end) && (singlematch(s[0], p, ep) != 0))
 					s = s.next();  /* try with one more repetition */
 				else return null;
 			}
@@ -374,7 +372,7 @@ namespace MoonSharp.Interpreter.CoreLib.StringLib
 									//ismeretlen hiba miatt lett ide átmásolva
 									{  /* it is a pattern item */
 										CharPtr ep = classend(ms, p);  /* points to what is next */
-										int m = (s < ms.src_end) && (singlematch((byte)(s[0]), p, ep) != 0) ? 1 : 0;
+										int m = (s < ms.src_end) && (singlematch(s[0], p, ep) != 0) ? 1 : 0;
 										switch (ep[0])
 										{
 											case '?':
@@ -421,7 +419,7 @@ namespace MoonSharp.Interpreter.CoreLib.StringLib
 				dflt:
 					{  /* it is a pattern item */
 						CharPtr ep = classend(ms, p);  /* points to what is next */
-						int m = (s < ms.src_end) && (singlematch((byte)(s[0]), p, ep) != 0) ? 1 : 0;
+						int m = (s < ms.src_end) && (singlematch(s[0], p, ep) != 0) ? 1 : 0;
 						switch (ep[0])
 						{
 							case '?':
