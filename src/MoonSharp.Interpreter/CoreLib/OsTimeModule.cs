@@ -123,7 +123,9 @@ namespace MoonSharp.Interpreter.CoreLib
 
 				try
 				{
-					reference = TimeZoneInfo.ConvertTimeFromUtc(reference, TimeZoneInfo.Local);
+					TimeZoneInfo localTimeZoneInfo = executionContext.OwnerScript.Options.LocalTimeZoneInfo ?? TimeZoneInfo.Local;
+
+					reference = TimeZoneInfo.ConvertTimeFromUtc(reference, localTimeZoneInfo);
 					isDst = reference.IsDaylightSavingTime();
 				}
 				catch (TimeZoneNotFoundException)
