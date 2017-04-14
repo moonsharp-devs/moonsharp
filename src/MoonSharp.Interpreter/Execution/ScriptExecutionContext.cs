@@ -184,13 +184,13 @@ namespace MoonSharp.Interpreter
 					if (v == null && v.IsNil())
 					{
 						throw ScriptRuntimeException.AttemptToCallNonFunc(func.Type);
-					}
+					} else {
+						func = v;
 
-					func = v;
-
-					if (func.Type == DataType.Function || func.Type == DataType.ClrFunction)
-					{
-						return Call(func, args);
+						if (func.Type == DataType.Function || func.Type == DataType.ClrFunction)
+						{
+							return Call(func, args);
+						}
 					}
 				}
 
