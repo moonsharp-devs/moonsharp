@@ -37,7 +37,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 			TimeSpan offset = TimeZoneInfo.Local.GetUtcOffset(new DateTime(1970, 1, 1));
 
-			DynValue res = S.DoString($"return os.date(\"%Y-%m-%d %H:%M:%S\", -{offset.TotalSeconds})");
+			DynValue res = S.DoString(string.Format("return os.date(\"%Y-%m-%d %H:%M:%S\", -{0})", offset.TotalSeconds));
 
 			Assert.AreEqual(DataType.String, res.Type);
 			Assert.AreEqual("1970-01-01 00:00:00", res.String);
