@@ -10,7 +10,14 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		public void LocalTime1()
 		{
 			Script S = new Script();
-			S.Options.LocalTimeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById("Central European Standard Time");
+			try
+			{
+				S.Options.LocalTimeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById("Central European Standard Time");
+			}
+			catch (TimeZoneNotFoundException)
+			{
+				S.Options.LocalTimeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById("Europe/Berlin");
+			}
 
 			DynValue res = S.DoString("return os.date(\"%Y-%m-%d %H:%M:%S\", 0)");
 
@@ -22,7 +29,14 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		public void LocalTime2()
 		{
 			Script S = new Script();
-			S.Options.LocalTimeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById("Central European Standard Time");
+			try
+			{
+				S.Options.LocalTimeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById("Central European Standard Time");
+			}
+			catch (TimeZoneNotFoundException)
+			{
+				S.Options.LocalTimeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById("Europe/Berlin");
+			}
 
 			DynValue res = S.DoString("return os.date(\"!%Y-%m-%d %H:%M:%S\", 0)");
 
