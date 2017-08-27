@@ -82,7 +82,7 @@ namespace MoonSharp.Interpreter.Execution
 				case OpCode.BeginFn:
 					return InstructionFieldUsage.SymbolList | InstructionFieldUsage.NumVal | InstructionFieldUsage.NumVal2;
 				case OpCode.Closure:
-					return InstructionFieldUsage.SymbolList | InstructionFieldUsage.NumVal;
+					return InstructionFieldUsage.SymbolList | InstructionFieldUsage.NumValAsCodeAddress;
 				case OpCode.Nop:
 				case OpCode.Debug:
 				case OpCode.Invalid:
