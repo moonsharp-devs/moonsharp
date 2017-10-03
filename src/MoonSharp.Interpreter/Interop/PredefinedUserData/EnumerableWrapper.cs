@@ -9,6 +9,7 @@ namespace MoonSharp.Interpreter.Interop
 	internal class EnumerableWrapper : IUserDataType
 	{
 		IEnumerator m_Enumerator;
+		private IEnumerator m_RunningEnumerator;
 		Script m_Script;
 		DynValue m_Prev = DynValue.Nil;
 		bool m_HasTurnOnce = false;
@@ -17,14 +18,12 @@ namespace MoonSharp.Interpreter.Interop
 		{
 			m_Script = script;
 			m_Enumerator = enumerator;
+			m_RunningEnumerator = m_Enumerator;
 		}
 
 		public void Reset()
 		{
-			if (m_HasTurnOnce)
-				m_Enumerator.Reset();
-
-			m_HasTurnOnce = true;
+			m_RunningEnumerator = m_Enumerator;
 		}
 
 		private DynValue GetNext(DynValue prev)
@@ -32,9 +31,9 @@ namespace MoonSharp.Interpreter.Interop
 			if (prev.IsNil())
 				Reset();
 
-			while (m_Enumerator.MoveNext())
+			while (m_RunningEnumerator.MoveNext())
 			{
-				DynValue v = ClrToScriptConversions.ObjectToDynValue(m_Script, m_Enumerator.Current);
+				DynValue v = ClrToScriptConversions.ObjectToDynValue(m_Script, m_RunningEnumerator.Current);
 
 				if (!v.IsNil())
 					return v;
@@ -69,11 +68,11 @@ namespace MoonSharp.Interpreter.Interop
 
 				if (idx == "Current" || idx == "current")
 				{
-					return DynValue.FromObject(script, m_Enumerator.Current);
+					return DynValue.FromObject(script, m_RunningEnumerator.Current);
 				}
 				else if (idx == "MoveNext" || idx == "moveNext" || idx == "move_next")
 				{
-					return DynValue.NewCallback((ctx, args) => DynValue.NewBoolean(m_Enumerator.MoveNext()));
+					return DynValue.NewCallback((ctx, args) => DynValue.NewBoolean(m_RunningEnumerator.MoveNext()));
 				}
 				else if (idx == "Reset" || idx == "reset")
 				{
