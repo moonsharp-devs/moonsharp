@@ -167,6 +167,8 @@ namespace MoonSharp.Interpreter.Tree
 						else if (c == 't') { sb.Append('\t'); escape = false; }
 						else if (c == 'v') { sb.Append('\v'); escape = false; }
 						else if (c == '\\') { sb.Append('\\'); escape = false; zmode = false; }
+						// Forward slash is escaped in json, which also uses this lexer.
+						else if (c == '/') { sb.Append('/'); escape = false; zmode = false; }
 						else if (c == '"') { sb.Append('\"'); escape = false; zmode = false; }
 						else if (c == '\'') { sb.Append('\''); escape = false; zmode = false; }
 						else if (c == '[') { sb.Append('['); escape = false; zmode = false; }
