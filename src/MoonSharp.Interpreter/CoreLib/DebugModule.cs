@@ -84,7 +84,7 @@ namespace MoonSharp.Interpreter.CoreLib
 
 			if (v.Type.CanHaveTypeMetatables() && S.GetTypeMetatable(v.Type) != null)
 				return DynValue.NewTable(S.GetTypeMetatable(v.Type));
-			else if (v.Type == DataType.Table)
+			else if (v.Type == DataType.Table && v.Table.MetaTable != null)
 				return DynValue.NewTable(v.Table.MetaTable);
 			else
 				return DynValue.Nil;
