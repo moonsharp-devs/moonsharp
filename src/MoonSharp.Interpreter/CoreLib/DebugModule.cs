@@ -65,9 +65,11 @@ namespace MoonSharp.Interpreter.CoreLib
 		public static DynValue setuservalue(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			DynValue v = args.AsType(0, "setuservalue", DataType.UserData, false);
-			DynValue t = args.AsType(0, "setuservalue", DataType.Table, true);
+			DynValue t = args.AsType(1, "setuservalue", DataType.Table, true);
 
-			return v.UserData.UserValue = t;
+			v.UserData.UserValue = t;
+
+			return v;
 		}
 
 		[MoonSharpModuleMethod]
