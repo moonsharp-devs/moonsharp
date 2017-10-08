@@ -50,7 +50,7 @@ namespace MoonSharp.Interpreter.Tests
 
 		public void Run()
 		{
-			Script S = new Script();
+			Script S = new Script(CoreModules.Preset_Complete);
 
 			S.Options.DebugPrint = Print;
 

@@ -31,10 +31,12 @@ See "Programming in Lua", section 23 "The Debug Library".
 
 require 'Test.More'
 
-plan(51)
+plan(36)
 
 debug = require 'debug'
 
+-- unsupported
+--[[
 info = debug.getinfo(is)
 type_ok(info, 'table', "function getinfo (function)")
 is(info.func, is, " .func")
@@ -56,7 +58,6 @@ error_like(function () debug.getinfo('bad') end,
 error_like(function () debug.getinfo(is, 'X') end,
            "bad argument #2 to 'getinfo' %(invalid option%)",
            "function getinfo (bad opt)")
-
 local name, value = debug.getlocal(0, 1)
 type_ok(name, 'string', "function getlocal (level)")
 is(value, 0)
@@ -68,6 +69,7 @@ error_like(function () debug.getlocal(42, 1) end,
 local name, value = debug.getlocal(like, 1)
 type_ok(name, 'string', "function getlocal (func)")
 is(value, nil)
+--]]
 
 t = {}
 is(debug.getmetatable(t), nil, "function getmetatable")
@@ -85,13 +87,16 @@ is(debug.getmetatable(a), nil)
 debug.setmetatable(a, t1)
 is(debug.getmetatable(t), t1)
 
+-- F61E3AA7247D4D1EB7A45430B0C8C9BB_MATH_RANDOM seems to be the only registry key used by MoonSharp
 local reg = debug.getregistry()
 type_ok(reg, 'table', "function getregistry")
-type_ok(reg._LOADED, 'table')
+type_ok(reg["F61E3AA7247D4D1EB7A45430B0C8C9BB_MATH_RANDOM"], 'userdata')
 
 local name = debug.getupvalue(plan, 1)
 type_ok(name, 'string', "function getupvalue")
 
+-- unsupported
+--[[
 debug.sethook()
 hook, mask, count = debug.gethook()
 is(hook, nil, "function gethook")
@@ -120,14 +125,15 @@ is(name, nil, "function setlocal (level)")
 error_like(function () debug.setlocal(42, 1, true) end,
            "bad argument #1 to 'setlocal' %(level out of range%)",
            "function getlocal (out of range)")
+--]]
 
 t = {}
 t1 = {}
 is(debug.setmetatable(t, t1), t, "function setmetatable")
-is(getmetatable(t), t1)
+is(debug.getmetatable(t), t1)
 
 error_like(function () debug.setmetatable(t, true) end,
-           "^[^:]+:%d+: bad argument #2 to 'setmetatable' %(nil or table expected%)")
+           "^[^:]+:%d+: bad argument #2 to 'setmetatable' %(nil or table expected, got boolean%)")
 
 local name = debug.setupvalue(plan, 1, require 'Test.Builder':new())
 type_ok(name, 'string', "function setupvalue")
@@ -143,6 +149,7 @@ else
     is(old, nil, "function getuservalue")
 end
 is(debug.getuservalue(true), nil)
+
 local data = {}
 r = debug.setuservalue(u, data)
 is(r, u, "function setuservalue")
@@ -150,20 +157,22 @@ is(debug.getuservalue(u), data)
 r = debug.setuservalue(u, old)
 is(debug.getuservalue(u), old)
 
+-- bad argument #2 to 'setuservalue' (nil or table expected, got boolean)
 error_like(function () debug.setuservalue({}, data) end,
            "^[^:]+:%d+: bad argument #1 to 'setuservalue' %(userdata expected, got table%)")
 
 error_like(function () debug.setuservalue(u, true) end,
-           "^[^:]+:%d+: bad argument #2 to 'setuservalue' %(table expected, got boolean%)")
+           "^[^:]+:%d+: bad argument #2 to 'setuservalue' %(nil or table expected, got boolean%)")
 
-like(debug.traceback(), "^stack traceback:\n", "function traceback")
+like(debug.traceback(), "^stack traceback:", "function traceback")
 
-like(debug.traceback("message\n"), "^message\n\nstack traceback:\n", "function traceback with message")
+like(debug.traceback("message"), "^message", "function traceback with message")
 
 like(debug.traceback(false), "false", "function traceback")
 
+-- debug.upvalueid returns number instead of userdata as per implementation
 local id = debug.upvalueid(plan, 1)
-type_ok(id, 'userdata', "function upvalueid")
+type_ok(id, 'number', "function upvalueid")
 
 debug.upvaluejoin (pass, 1, fail, 1)
 

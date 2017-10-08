@@ -271,12 +271,12 @@ namespace MoonSharp.Interpreter.Tests
 		}
 
 
-		//[Test]
+		[Test]
 		//[Ignore]
-		//public void TestMore_310_debug()
-		//{
-		//	TapRunner.Run(@"TestMore/310-debug.t");
-		//}
+		public void TestMore_310_debug()
+		{
+			TapRunner.Run(@"TestMore/310-debug.t");
+		}
 
 
 		[Test]
