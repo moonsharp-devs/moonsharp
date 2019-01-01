@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.168
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "root", "root", "{F02DBEDA-6AEB-461A-9557-DA7E2CB56C5A}"
 	ProjectSection(SolutionItems) = preProject
@@ -25,6 +25,11 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extensions", "Extensions", "{32D6B30B-3970-45A0-AE63-2150CAEC325A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tutorial", "Tutorial", "{1AD0980F-0C79-4F83-A638-5CB22ED62675}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6604B4EB-3418-4AD6-8D9C-02A86274A6E7}"
+	ProjectSection(SolutionItems) = preProject
+		global.json = global.json
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoonSharp", "MoonSharp\MoonSharp.csproj", "{2A4BD262-D6EB-4611-A28B-27B6DAEB089B}"
 EndProject
@@ -74,16 +79,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoonSharp.VsCodeDebugger.ne
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoonSharp.VsCodeDebugger.net40-client", "MoonSharp.VsCodeDebugger\_Projects\MoonSharp.VsCodeDebugger.net40-client\MoonSharp.VsCodeDebugger.net40-client.csproj", "{37B5FC4B-DEE0-4428-8C53-C005F52AF4A5}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MoonSharp.Interpreter.netcore", "MoonSharp.Interpreter\_Projects\MoonSharp.Interpreter.netcore\MoonSharp.Interpreter.netcore.xproj", "{CB2CB168-36C8-4D55-809C-7061CF4F6854}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MoonSharp.Interpreter.netcore", "MoonSharp.Interpreter\_Projects\MoonSharp.Interpreter.netcore\MoonSharp.Interpreter.netcore.csproj", "{CB2CB168-36C8-4D55-809C-7061CF4F6854}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MoonSharp.VsCodeDebugger.netcore", "MoonSharp.VsCodeDebugger\_Projects\MoonSharp.VsCodeDebugger.netcore\MoonSharp.VsCodeDebugger.netcore.xproj", "{ACA22B1F-7187-4E71-9D27-7196C1374086}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MoonSharp.VsCodeDebugger.netcore", "MoonSharp.VsCodeDebugger\_Projects\MoonSharp.VsCodeDebugger.netcore\MoonSharp.VsCodeDebugger.netcore.csproj", "{ACA22B1F-7187-4E71-9D27-7196C1374086}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6604B4EB-3418-4AD6-8D9C-02A86274A6E7}"
-	ProjectSection(SolutionItems) = preProject
-		global.json = global.json
-	EndProjectSection
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "DotNetCoreTestRunner", "TestRunners\DotNetCoreTestRunner\DotNetCoreTestRunner.xproj", "{541C9DCC-3656-459D-AD99-A0CD03D264D6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetCoreTestRunner", "TestRunners\DotNetCoreTestRunner\DotNetCoreTestRunner.csproj", "{541C9DCC-3656-459D-AD99-A0CD03D264D6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -962,5 +962,8 @@ Global
 		{CB2CB168-36C8-4D55-809C-7061CF4F6854} = {16A9EA72-79A5-448D-B7A3-55E7D8362479}
 		{ACA22B1F-7187-4E71-9D27-7196C1374086} = {5014C740-F6C7-4995-8D40-C250FB159A20}
 		{541C9DCC-3656-459D-AD99-A0CD03D264D6} = {023F1F7D-5F49-430F-9CC4-5FF891439548}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8C7D231D-F020-43A8-9B1A-38D1C2BC3DBC}
 	EndGlobalSection
 EndGlobal

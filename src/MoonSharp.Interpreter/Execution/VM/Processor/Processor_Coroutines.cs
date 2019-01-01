@@ -51,7 +51,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				}
 
 				m_State = CoroutineState.Running;
-				DynValue retVal = Processing_Loop(entrypoint);
+				DynValue retVal = Processing_Loop(ExecutionControlToken.Dummy, entrypoint);
 
 				if (retVal.Type == DataType.YieldRequest)
 				{

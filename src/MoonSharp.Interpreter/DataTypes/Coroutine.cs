@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+#if HASDYNAMIC
+using System.Threading.Tasks;
+#endif
 using MoonSharp.Interpreter.Debugging;
 using MoonSharp.Interpreter.Execution.VM;
 
@@ -228,12 +231,102 @@ namespace MoonSharp.Interpreter
 		}
 
 
+#if HASDYNAMIC
+        /// <summary>
+        /// Resumes the coroutine.
+        /// Only non-CLR coroutines can be resumed with this overload of the Resume method. Use the overload accepting a ScriptExecutionContext instead.
+        /// 
+        /// This method is supported only on .NET 4.x and .NET 4.x PCL targets.
+        /// </summary>
+        /// <param name="cor">The coroutine</param>
+        /// <param name="args">The arguments.</param>
+        /// <returns></returns>
+        /// <exception cref="System.InvalidOperationException">Only non-CLR coroutines can be resumed with this overload of the Resume method. Use the overload accepting a ScriptExecutionContext instead</exception>
+        public Task<DynValue> ResumeAsync(params DynValue[] args)
+        {
+            return Task.Factory.StartNew(() => Resume(args));
+        }
 
 
-		/// <summary>
-		/// Gets the coroutine state.
-		/// </summary>
-		public CoroutineState State
+        /// <summary>
+        /// Resumes the coroutine.
+        /// 
+        /// This method is supported only on .NET 4.x and .NET 4.x PCL targets.
+        /// </summary>
+        /// <param name="cor">The coroutine</param>
+        /// <param name="context">The ScriptExecutionContext.</param>
+        /// <param name="args">The arguments.</param>
+        /// <returns></returns>
+        public Task<DynValue> ResumeAsync(ScriptExecutionContext context, params DynValue[] args)
+        {
+            return Task.Factory.StartNew(() => Resume(context, args));
+        }
+
+        /// <summary>
+        /// Resumes the coroutine.
+        /// Only non-CLR coroutines can be resumed with this overload of the Resume method. Use the overload accepting a ScriptExecutionContext instead.
+        /// 
+        /// This method is supported only on .NET 4.x and .NET 4.x PCL targets.
+        /// </summary>
+        /// <param name="cor">The coroutine</param>
+        /// <returns></returns>
+        /// <exception cref="System.InvalidOperationException">Only non-CLR coroutines can be resumed with this overload of the Resume method. Use the overload accepting a ScriptExecutionContext instead</exception>
+        public Task<DynValue> ResumeAsync()
+        {
+            return Task.Factory.StartNew(() => Resume());
+        }
+
+
+        /// <summary>
+        /// Resumes the coroutine.
+        /// 
+        /// This method is supported only on .NET 4.x and .NET 4.x PCL targets.
+        /// </summary>
+        /// <param name="cor">The coroutine</param>
+        /// <param name="context">The ScriptExecutionContext.</param>
+        /// <returns></returns>
+        public Task<DynValue> ResumeAsync(ScriptExecutionContext context)
+        {
+            return Task.Factory.StartNew(() => Resume(context));
+        }
+
+        /// <summary>
+        /// Resumes the coroutine.
+        /// Only non-CLR coroutines can be resumed with this overload of the Resume method. Use the overload accepting a ScriptExecutionContext instead.
+        /// 
+        /// This method is supported only on .NET 4.x and .NET 4.x PCL targets.
+        /// </summary>
+        /// <param name="cor">The coroutine</param>
+        /// <param name="args">The arguments.</param>
+        /// <returns></returns>
+        /// <exception cref="System.InvalidOperationException">Only non-CLR coroutines can be resumed with this overload of the Resume method. Use the overload accepting a ScriptExecutionContext instead.</exception>
+        public Task<DynValue> ResumeAsync(params object[] args)
+        {
+            return Task.Factory.StartNew(() => Resume(args));
+        }
+
+
+        /// <summary>
+        /// Resumes the coroutine
+        /// 
+        /// This method is supported only on .NET 4.x and .NET 4.x PCL targets.
+        /// </summary>
+        /// <param name="cor">The coroutine</param>
+        /// <param name="context">The ScriptExecutionContext.</param>
+        /// <param name="args">The arguments.</param>
+        /// <returns></returns>
+        public Task<DynValue> ResumeAsync(ScriptExecutionContext context, params object[] args)
+        {
+            return Task.Factory.StartNew(() => Resume(context, args));
+        }
+#endif
+
+
+
+        /// <summary>
+        /// Gets the coroutine state.
+        /// </summary>
+        public CoroutineState State
 		{
 			get
 			{

@@ -14,11 +14,12 @@ namespace MoonSharp.Interpreter.CoreLib
 		[MoonSharpModuleMethod]
 		public static DynValue pcall(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
-			return SetErrorHandlerStrategy("pcall", executionContext, args, null);
+			return SetErrorHandlerStrategy(executionContext.m_EcToken, "pcall", executionContext, args, null);
 		}
 
 
-		private static DynValue SetErrorHandlerStrategy(string funcName, 
+		private static DynValue SetErrorHandlerStrategy(ExecutionControlToken ecToken,
+            string funcName, 
 			ScriptExecutionContext executionContext, 
 			CallbackArguments args,
 			DynValue handlerBeforeUnwind)
@@ -125,7 +126,7 @@ namespace MoonSharp.Interpreter.CoreLib
 				args.AsType(1, "xpcall", DataType.Function, false);
 			}
 
-			return SetErrorHandlerStrategy("xpcall", executionContext, new CallbackArguments(a, false), handler);
+			return SetErrorHandlerStrategy(executionContext.m_EcToken, "xpcall", executionContext, new CallbackArguments(a, false), handler);
 		}
 
 	}

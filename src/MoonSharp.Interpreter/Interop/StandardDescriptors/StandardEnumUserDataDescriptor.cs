@@ -321,16 +321,17 @@ namespace MoonSharp.Interpreter.Interop
 			return base.IsTypeCompatible(type, obj);
 		}
 
-		/// <summary>
-		/// Gets a "meta" operation on this userdata. 
-		/// In this specific case, only the concat operator is supported, only on flags enums and it implements the
-		/// 'or' operator.
-		/// </summary>
-		/// <param name="script"></param>
-		/// <param name="obj"></param>
-		/// <param name="metaname"></param>
-		/// <returns></returns>
-		public override DynValue MetaIndex(Script script, object obj, string metaname)
+        /// <summary>
+        /// Gets a "meta" operation on this userdata. 
+        /// In this specific case, only the concat operator is supported, only on flags enums and it implements the
+        /// 'or' operator.
+        /// </summary>
+        /// <param name="ecToken">The execution control token of the script processing thread</param>
+        /// <param name="script"></param>
+        /// <param name="obj"></param>
+        /// <param name="metaname"></param>
+        /// <returns></returns>
+        public override DynValue MetaIndex(ExecutionControlToken ecToken, Script script, object obj, string metaname)
 		{
 			if (metaname == "__concat" && IsFlags)
 				return DynValue.NewCallback(Callback_Or);

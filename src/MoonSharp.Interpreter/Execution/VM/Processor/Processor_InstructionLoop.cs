@@ -13,7 +13,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		internal long AutoYieldCounter = 0;
 
-		private DynValue Processing_Loop(int instructionPtr)
+		private DynValue Processing_Loop(ExecutionControlToken ecToken, int instructionPtr)
 		{
 			// This is the main loop of the processor, has a weird control flow and needs to be as fast as possible.
 			// This sentence is just a convoluted way to say "don't complain about gotos".
@@ -42,7 +42,12 @@ namespace MoonSharp.Interpreter.Execution.VM
 						return DynValue.NewForcedYieldReq();
 					}
 
-					++instructionPtr;
+                    if (ecToken.IsAbortRequested)
+                    {
+                        throw new ScriptTerminationRequestedException();
+                    }
+
+                    ++instructionPtr;
 
 					switch (i.OpCode)
 					{
@@ -63,56 +68,56 @@ namespace MoonSharp.Interpreter.Execution.VM
 							m_ValueStack.Push(i.Value);
 							break;
 						case OpCode.Add:
-							instructionPtr = ExecAdd(i, instructionPtr);
+							instructionPtr = ExecAdd(ecToken, i, instructionPtr);
 							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
 							break;
 						case OpCode.Concat:
-							instructionPtr = ExecConcat(i, instructionPtr);
+							instructionPtr = ExecConcat(ecToken, i, instructionPtr);
 							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
 							break;
 						case OpCode.Neg:
-							instructionPtr = ExecNeg(i, instructionPtr);
+							instructionPtr = ExecNeg(ecToken, i, instructionPtr);
 							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
 							break;
 						case OpCode.Sub:
-							instructionPtr = ExecSub(i, instructionPtr);
+							instructionPtr = ExecSub(ecToken, i, instructionPtr);
 							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
 							break;
 						case OpCode.Mul:
-							instructionPtr = ExecMul(i, instructionPtr);
+							instructionPtr = ExecMul(ecToken, i, instructionPtr);
 							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
 							break;
 						case OpCode.Div:
-							instructionPtr = ExecDiv(i, instructionPtr);
+							instructionPtr = ExecDiv(ecToken, i, instructionPtr);
 							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
 							break;
 						case OpCode.Mod:
-							instructionPtr = ExecMod(i, instructionPtr);
+							instructionPtr = ExecMod(ecToken, i, instructionPtr);
 							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
 							break;
 						case OpCode.Power:
-							instructionPtr = ExecPower(i, instructionPtr);
+							instructionPtr = ExecPower(ecToken, i, instructionPtr);
 							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
 							break;
 						case OpCode.Eq:
-							instructionPtr = ExecEq(i, instructionPtr);
+							instructionPtr = ExecEq(ecToken, i, instructionPtr);
 							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
 							break;
 						case OpCode.LessEq:
-							instructionPtr = ExecLessEq(i, instructionPtr);
+							instructionPtr = ExecLessEq(ecToken, i, instructionPtr);
 							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
 							break;
 						case OpCode.Less:
-							instructionPtr = ExecLess(i, instructionPtr);
+							instructionPtr = ExecLess(ecToken, i, instructionPtr);
 							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
 							break;
 						case OpCode.Len:
-							instructionPtr = ExecLen(i, instructionPtr);
+							instructionPtr = ExecLen(ecToken, i, instructionPtr);
 							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
 							break;
 						case OpCode.Call:
 						case OpCode.ThisCall:
-							instructionPtr = Internal_ExecCall(i.NumVal, instructionPtr, null, null, i.OpCode == OpCode.ThisCall, i.Name);
+							instructionPtr = Internal_ExecCall(ecToken, i.NumVal, instructionPtr, null, null, i.OpCode == OpCode.ThisCall, i.Name);
 							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
 							break;
 						case OpCode.Scalar:
@@ -165,7 +170,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 							ExecArgs(i);
 							break;
 						case OpCode.Ret:
-							instructionPtr = ExecRet(i);
+							instructionPtr = ExecRet(ecToken, i);
 							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
 							if (instructionPtr < 0)
 								goto return_to_native_code;
@@ -187,7 +192,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 								m_ValueStack.Push(DynValue.NewPrimeTable());
 							break;
 						case OpCode.IterPrep:
-							ExecIterPrep(i);
+							ExecIterPrep(ecToken, i);
 							break;
 						case OpCode.IterUpd:
 							ExecIterUpd(i);
@@ -218,19 +223,19 @@ namespace MoonSharp.Interpreter.Execution.VM
 						case OpCode.Index:
 						case OpCode.IndexN:
 						case OpCode.IndexL:
-							instructionPtr = ExecIndex(i, instructionPtr);
+							instructionPtr = ExecIndex(ecToken, i, instructionPtr);
 							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
 							break;
 						case OpCode.IndexSet:
 						case OpCode.IndexSetN:
 						case OpCode.IndexSetL:
-							instructionPtr = ExecIndexSet(i, instructionPtr);
+							instructionPtr = ExecIndexSet(ecToken, i, instructionPtr);
 							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
 							break;
 						case OpCode.Invalid:
 							throw new NotImplementedException(string.Format("Invalid opcode : {0}", i.Name));
 						default:
-							throw new NotImplementedException(string.Format("Execution for {0} not implented yet!", i.OpCode));
+							throw new NotImplementedException(string.Format("Execution for {0} not implemented yet!", i.OpCode));
 					}
 				}
 
@@ -272,7 +277,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 					var c = m_ExecutionStack.Peek(i);
 
 					if (c.ErrorHandlerBeforeUnwind != null)
-						ex.DecoratedMessage = PerformMessageDecorationBeforeUnwind(c.ErrorHandlerBeforeUnwind, ex.DecoratedMessage, GetCurrentSourceRef(instructionPtr));
+						ex.DecoratedMessage = PerformMessageDecorationBeforeUnwind(ecToken, c.ErrorHandlerBeforeUnwind, ex.DecoratedMessage, GetCurrentSourceRef(instructionPtr));
 				}
 
 
@@ -292,7 +297,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 						var cbargs = new DynValue[] { DynValue.NewString(ex.DecoratedMessage) };
 
-						DynValue handled = csi.ErrorHandler.Invoke(new ScriptExecutionContext(this, csi.ErrorHandler, GetCurrentSourceRef(instructionPtr)), cbargs);
+						DynValue handled = csi.ErrorHandler.Invoke(new ScriptExecutionContext(ecToken, this, csi.ErrorHandler, GetCurrentSourceRef(instructionPtr)), cbargs);
 
 						m_ValueStack.Push(handled);
 
@@ -316,7 +321,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 		}
 
 
-		internal string PerformMessageDecorationBeforeUnwind(DynValue messageHandler, string decoratedMessage, SourceRef sourceRef)
+		internal string PerformMessageDecorationBeforeUnwind(ExecutionControlToken ecToken, DynValue messageHandler, string decoratedMessage, SourceRef sourceRef)
 		{
 			try
 			{
@@ -325,11 +330,11 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 				if (messageHandler.Type == DataType.Function)
 				{
-					ret = this.Call(messageHandler, args);
+					ret = this.Call(ecToken, messageHandler, args);
 				}
 				else if (messageHandler.Type == DataType.ClrFunction)
 				{
-					ScriptExecutionContext ctx = new ScriptExecutionContext(this, messageHandler.Callback, sourceRef);
+					ScriptExecutionContext ctx = new ScriptExecutionContext(ecToken, this, messageHandler.Callback, sourceRef);
 					ret = messageHandler.Callback.Invoke(ctx, args);
 				}
 				else
@@ -473,7 +478,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		}
 
-		private void ExecIterPrep(Instruction i)
+		private void ExecIterPrep(ExecutionControlToken ecToken, Instruction i)
 		{
 			DynValue v = m_ValueStack.Pop();
 
@@ -492,7 +497,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 			if (f.Type != DataType.Function && f.Type != DataType.ClrFunction)
 			{
-				DynValue meta = this.GetMetamethod(f, "__iterator");
+				DynValue meta = this.GetMetamethod(ecToken, f, "__iterator");
 
 				if (meta != null && !meta.IsNil())
 				{
@@ -509,7 +514,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				}
 				else if (f.Type == DataType.Table)
 				{
-					DynValue callmeta = this.GetMetamethod(f, "__call");
+					DynValue callmeta = this.GetMetamethod(ecToken, f, "__call");
 
 					if (callmeta == null || callmeta.IsNil())
 					{
@@ -664,7 +669,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 
 
-		private int Internal_ExecCall(int argsCount, int instructionPtr, CallbackFunction handler = null,
+		private int Internal_ExecCall(ExecutionControlToken ecToken, int argsCount, int instructionPtr, CallbackFunction handler = null,
 			CallbackFunction continuation = null, bool thisCall = false, string debugText = null, DynValue unwindHandler = null)
 		{
 			DynValue fn = m_ValueStack.Peek(argsCount);
@@ -717,13 +722,14 @@ namespace MoonSharp.Interpreter.Execution.VM
 					Flags = flags,
 				});
 
-				var ret = fn.Callback.Invoke(new ScriptExecutionContext(this, fn.Callback, sref), args, isMethodCall: thisCall);
-				m_ValueStack.RemoveLast(argsCount + 1);
+
+                var ret = fn.Callback.Invoke(new ScriptExecutionContext(ecToken, this, fn.Callback, sref), args, isMethodCall: thisCall);
+                m_ValueStack.RemoveLast(argsCount + 1);
 				m_ValueStack.Push(ret);
 
 				m_ExecutionStack.Pop();
 
-				return Internal_CheckForTailRequests(null, instructionPtr);
+				return Internal_CheckForTailRequests(ecToken, null, instructionPtr);
 			}
 			else if (fn.Type == DataType.Function)
 			{
@@ -744,7 +750,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			}
 
 			// fallback to __call metamethod
-			var m = GetMetamethod(fn, "__call");
+			var m = GetMetamethod(ecToken, fn, "__call");
 
 			if (m != null && m.IsNotNil())
 			{
@@ -757,7 +763,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				for (int i = argsCount; i >= 0; i--)
 					m_ValueStack.Push(tmp[i]);
 
-				return Internal_ExecCall(argsCount + 1, instructionPtr, handler, continuation);
+				return Internal_ExecCall(ecToken, argsCount + 1, instructionPtr, handler, continuation);
 			}
 
 			throw ScriptRuntimeException.AttemptToCallNonFunc(fn.Type, debugText);
@@ -787,7 +793,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 
 
-		private int ExecRet(Instruction i)
+		private int ExecRet(ExecutionControlToken ecToken, Instruction i)
 		{
 			CallStackItem csi;
 			int retpoint = 0;
@@ -808,7 +814,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				var argscnt = (int)(m_ValueStack.Pop().Number);
 				m_ValueStack.RemoveLast(argscnt + 1);
 				m_ValueStack.Push(retval);
-				retpoint = Internal_CheckForTailRequests(i, retpoint);
+				retpoint = Internal_CheckForTailRequests(ecToken, i, retpoint);
 			}
 			else
 			{
@@ -816,7 +822,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			}
 
 			if (csi.Continuation != null)
-				m_ValueStack.Push(csi.Continuation.Invoke(new ScriptExecutionContext(this, csi.Continuation, i.SourceCodeRef),
+				m_ValueStack.Push(csi.Continuation.Invoke(new ScriptExecutionContext(ecToken, this, csi.Continuation, i.SourceCodeRef),
 					new DynValue[1] { m_ValueStack.Pop() }));
 
 			return retpoint;
@@ -824,7 +830,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 
 
-		private int Internal_CheckForTailRequests(Instruction i, int instructionPtr)
+		private int Internal_CheckForTailRequests(ExecutionControlToken ecToken, Instruction i, int instructionPtr)
 		{
 			DynValue tail = m_ValueStack.Peek(0);
 
@@ -839,7 +845,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				for (int ii = 0; ii < tcd.Args.Length; ii++)
 					m_ValueStack.Push(tcd.Args[ii]);
 
-				return Internal_ExecCall(tcd.Args.Length, instructionPtr, tcd.ErrorHandler, tcd.Continuation, false, null, tcd.ErrorHandlerBeforeUnwind);
+				return Internal_ExecCall(ecToken, tcd.Args.Length, instructionPtr, tcd.ErrorHandler, tcd.Continuation, false, null, tcd.ErrorHandlerBeforeUnwind);
 			}
 			else if (tail.Type == DataType.YieldRequest)
 			{
@@ -881,7 +887,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 		}
 
 
-		private int ExecAdd(Instruction i, int instructionPtr)
+		private int ExecAdd(ExecutionControlToken ecToken, Instruction i, int instructionPtr)
 		{
 			DynValue r = m_ValueStack.Pop().ToScalar();
 			DynValue l = m_ValueStack.Pop().ToScalar();
@@ -896,13 +902,13 @@ namespace MoonSharp.Interpreter.Execution.VM
 			}
 			else
 			{
-				int ip = Internal_InvokeBinaryMetaMethod(l, r, "__add", instructionPtr);
+				int ip = Internal_InvokeBinaryMetaMethod(ecToken, l, r, "__add", instructionPtr);
 				if (ip >= 0) return ip;
 				else throw ScriptRuntimeException.ArithmeticOnNonNumber(l, r);
 			}
 		}
 
-		private int ExecSub(Instruction i, int instructionPtr)
+		private int ExecSub(ExecutionControlToken ecToken, Instruction i, int instructionPtr)
 		{
 			DynValue r = m_ValueStack.Pop().ToScalar();
 			DynValue l = m_ValueStack.Pop().ToScalar();
@@ -917,14 +923,14 @@ namespace MoonSharp.Interpreter.Execution.VM
 			}
 			else
 			{
-				int ip = Internal_InvokeBinaryMetaMethod(l, r, "__sub", instructionPtr);
+				int ip = Internal_InvokeBinaryMetaMethod(ecToken, l, r, "__sub", instructionPtr);
 				if (ip >= 0) return ip;
 				else throw ScriptRuntimeException.ArithmeticOnNonNumber(l, r);
 			}
 		}
 
 
-		private int ExecMul(Instruction i, int instructionPtr)
+		private int ExecMul(ExecutionControlToken ecToken, Instruction i, int instructionPtr)
 		{
 			DynValue r = m_ValueStack.Pop().ToScalar();
 			DynValue l = m_ValueStack.Pop().ToScalar();
@@ -939,13 +945,13 @@ namespace MoonSharp.Interpreter.Execution.VM
 			}
 			else
 			{
-				int ip = Internal_InvokeBinaryMetaMethod(l, r, "__mul", instructionPtr);
+				int ip = Internal_InvokeBinaryMetaMethod(ecToken, l, r, "__mul", instructionPtr);
 				if (ip >= 0) return ip;
 				else throw ScriptRuntimeException.ArithmeticOnNonNumber(l, r);
 			}
 		}
 
-		private int ExecMod(Instruction i, int instructionPtr)
+		private int ExecMod(ExecutionControlToken ecToken, Instruction i, int instructionPtr)
 		{
 			DynValue r = m_ValueStack.Pop().ToScalar();
 			DynValue l = m_ValueStack.Pop().ToScalar();
@@ -962,13 +968,13 @@ namespace MoonSharp.Interpreter.Execution.VM
 			}
 			else
 			{
-				int ip = Internal_InvokeBinaryMetaMethod(l, r, "__mod", instructionPtr);
+				int ip = Internal_InvokeBinaryMetaMethod(ecToken, l, r, "__mod", instructionPtr);
 				if (ip >= 0) return ip;
 				else throw ScriptRuntimeException.ArithmeticOnNonNumber(l, r);
 			}
 		}
 
-		private int ExecDiv(Instruction i, int instructionPtr)
+		private int ExecDiv(ExecutionControlToken ecToken, Instruction i, int instructionPtr)
 		{
 			DynValue r = m_ValueStack.Pop().ToScalar();
 			DynValue l = m_ValueStack.Pop().ToScalar();
@@ -983,12 +989,12 @@ namespace MoonSharp.Interpreter.Execution.VM
 			}
 			else
 			{
-				int ip = Internal_InvokeBinaryMetaMethod(l, r, "__div", instructionPtr);
+				int ip = Internal_InvokeBinaryMetaMethod(ecToken, l, r, "__div", instructionPtr);
 				if (ip >= 0) return ip;
 				else throw ScriptRuntimeException.ArithmeticOnNonNumber(l, r);
 			}
 		}
-		private int ExecPower(Instruction i, int instructionPtr)
+		private int ExecPower(ExecutionControlToken ecToken, Instruction i, int instructionPtr)
 		{
 			DynValue r = m_ValueStack.Pop().ToScalar();
 			DynValue l = m_ValueStack.Pop().ToScalar();
@@ -1003,14 +1009,14 @@ namespace MoonSharp.Interpreter.Execution.VM
 			}
 			else
 			{
-				int ip = Internal_InvokeBinaryMetaMethod(l, r, "__pow", instructionPtr);
+				int ip = Internal_InvokeBinaryMetaMethod(ecToken, l, r, "__pow", instructionPtr);
 				if (ip >= 0) return ip;
 				else throw ScriptRuntimeException.ArithmeticOnNonNumber(l, r);
 			}
 
 		}
 
-		private int ExecNeg(Instruction i, int instructionPtr)
+		private int ExecNeg(ExecutionControlToken ecToken, Instruction i, int instructionPtr)
 		{
 			DynValue r = m_ValueStack.Pop().ToScalar();
 			double? rn = r.CastToNumber();
@@ -1022,14 +1028,14 @@ namespace MoonSharp.Interpreter.Execution.VM
 			}
 			else
 			{
-				int ip = Internal_InvokeUnaryMetaMethod(r, "__unm", instructionPtr);
+				int ip = Internal_InvokeUnaryMetaMethod(ecToken, r, "__unm", instructionPtr);
 				if (ip >= 0) return ip;
 				else throw ScriptRuntimeException.ArithmeticOnNonNumber(r);
 			}
 		}
 
 
-		private int ExecEq(Instruction i, int instructionPtr)
+		private int ExecEq(ExecutionControlToken ecToken, Instruction i, int instructionPtr)
 		{
 			DynValue r = m_ValueStack.Pop().ToScalar();
 			DynValue l = m_ValueStack.Pop().ToScalar();
@@ -1044,7 +1050,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			// then if they are userdatas, attempt meta
 			if (l.Type == DataType.UserData || r.Type == DataType.UserData)
 			{
-				int ip = Internal_InvokeBinaryMetaMethod(l, r, "__eq", instructionPtr);
+				int ip = Internal_InvokeBinaryMetaMethod(ecToken, l, r, "__eq", instructionPtr);
 				if (ip >= 0) return ip;
 			}
 
@@ -1062,7 +1068,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			// then attempt metatables for tables
 			if ((l.Type == DataType.Table) && (GetMetatable(l) != null) && (GetMetatable(l) == GetMetatable(r)))
 			{
-				int ip = Internal_InvokeBinaryMetaMethod(l, r, "__eq", instructionPtr);
+				int ip = Internal_InvokeBinaryMetaMethod(ecToken, l, r, "__eq", instructionPtr);
 				if (ip >= 0) return ip;
 			}
 
@@ -1071,7 +1077,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			return instructionPtr;
 		}
 
-		private int ExecLess(Instruction i, int instructionPtr)
+		private int ExecLess(ExecutionControlToken ecToken, Instruction i, int instructionPtr)
 		{
 			DynValue r = m_ValueStack.Pop().ToScalar();
 			DynValue l = m_ValueStack.Pop().ToScalar();
@@ -1086,7 +1092,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			}
 			else
 			{
-				int ip = Internal_InvokeBinaryMetaMethod(l, r, "__lt", instructionPtr);
+				int ip = Internal_InvokeBinaryMetaMethod(ecToken, l, r, "__lt", instructionPtr);
 				if (ip < 0)
 					throw ScriptRuntimeException.CompareInvalidType(l, r);
 				else
@@ -1097,7 +1103,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 		}
 
 
-		private int ExecLessEq(Instruction i, int instructionPtr)
+		private int ExecLessEq(ExecutionControlToken ecToken, Instruction i, int instructionPtr)
 		{
 			DynValue r = m_ValueStack.Pop().ToScalar();
 			DynValue l = m_ValueStack.Pop().ToScalar();
@@ -1114,10 +1120,10 @@ namespace MoonSharp.Interpreter.Execution.VM
 			}
 			else
 			{
-				int ip = Internal_InvokeBinaryMetaMethod(l, r, "__le", instructionPtr, DynValue.False);
+				int ip = Internal_InvokeBinaryMetaMethod(ecToken, l, r, "__le", instructionPtr, DynValue.False);
 				if (ip < 0)
 				{
-					ip = Internal_InvokeBinaryMetaMethod(r, l, "__lt", instructionPtr, DynValue.True);
+					ip = Internal_InvokeBinaryMetaMethod(ecToken, r, l, "__lt", instructionPtr, DynValue.True);
 
 					if (ip < 0)
 						throw ScriptRuntimeException.CompareInvalidType(l, r);
@@ -1131,7 +1137,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			return instructionPtr;
 		}
 
-		private int ExecLen(Instruction i, int instructionPtr)
+		private int ExecLen(ExecutionControlToken ecToken, Instruction i, int instructionPtr)
 		{
 			DynValue r = m_ValueStack.Pop().ToScalar();
 
@@ -1139,7 +1145,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				m_ValueStack.Push(DynValue.NewNumber(r.String.Length));
 			else
 			{
-				int ip = Internal_InvokeUnaryMetaMethod(r, "__len", instructionPtr);
+				int ip = Internal_InvokeUnaryMetaMethod(ecToken, r, "__len", instructionPtr);
 				if (ip >= 0)
 					return ip;
 				else if (r.Type == DataType.Table)
@@ -1152,7 +1158,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 		}
 
 
-		private int ExecConcat(Instruction i, int instructionPtr)
+		private int ExecConcat(ExecutionControlToken ecToken, Instruction i, int instructionPtr)
 		{
 			DynValue r = m_ValueStack.Pop().ToScalar();
 			DynValue l = m_ValueStack.Pop().ToScalar();
@@ -1167,7 +1173,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			}
 			else
 			{
-				int ip = Internal_InvokeBinaryMetaMethod(l, r, "__concat", instructionPtr);
+				int ip = Internal_InvokeBinaryMetaMethod(ecToken, l, r, "__concat", instructionPtr);
 				if (ip >= 0) return ip;
 				else throw ScriptRuntimeException.ConcatOnNonString(l, r);
 			}
@@ -1200,7 +1206,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			tbl.Table.Set(key, val.ToScalar());
 		}
 
-		private int ExecIndexSet(Instruction i, int instructionPtr)
+		private int ExecIndexSet(ExecutionControlToken ecToken, Instruction i, int instructionPtr)
 		{
 			int nestedMetaOps = 100; // sanity check, to avoid potential infinite loop here
 
@@ -1244,7 +1250,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				{
 					UserData ud = obj.UserData;
 
-					if (!ud.Descriptor.SetIndex(this.GetScript(), ud.Object, originalIdx, value, isNameIndex))
+					if (!ud.Descriptor.SetIndex(ecToken, this.GetScript(), ud.Object, originalIdx, value, isNameIndex))
 					{
 						throw ScriptRuntimeException.UserDataMissingField(ud.Descriptor.Name, idx.String);
 					}
@@ -1268,7 +1274,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 					m_ValueStack.Push(obj);
 					m_ValueStack.Push(idx);
 					m_ValueStack.Push(value);
-					return Internal_ExecCall(3, instructionPtr);
+					return Internal_ExecCall(ecToken, 3, instructionPtr);
 				}
 				else
 				{
@@ -1279,7 +1285,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			throw ScriptRuntimeException.LoopInNewIndex();
 		}
 
-		private int ExecIndex(Instruction i, int instructionPtr)
+		private int ExecIndex(ExecutionControlToken ecToken, Instruction i, int instructionPtr)
 		{
 			int nestedMetaOps = 100; // sanity check, to avoid potential infinite loop here
 
@@ -1326,7 +1332,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				{
 					UserData ud = obj.UserData;
 
-					var v = ud.Descriptor.Index(this.GetScript(), ud.Object, originalIdx, isNameIndex);
+					var v = ud.Descriptor.Index(ecToken, this.GetScript(), ud.Object, originalIdx, isNameIndex);
 
 					if (v == null)
 					{
@@ -1350,7 +1356,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 					m_ValueStack.Push(h);
 					m_ValueStack.Push(obj);
 					m_ValueStack.Push(idx);
-					return Internal_ExecCall(2, instructionPtr);
+					return Internal_ExecCall(ecToken, 2, instructionPtr);
 				}
 				else
 				{

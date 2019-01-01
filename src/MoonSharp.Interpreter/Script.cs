@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+#if HASDYNAMIC
+using System.Threading.Tasks;
+#endif
 using MoonSharp.Interpreter.CoreLib;
 using MoonSharp.Interpreter.Debugging;
 using MoonSharp.Interpreter.Diagnostics;
@@ -363,13 +366,12 @@ namespace MoonSharp.Interpreter
 			return Call(func);
 		}
 
-
-		/// <summary>
-		/// Runs the specified file with all possible defaults for quick experimenting.
-		/// </summary>
-		/// <param name="filename">The filename.</param>
-		/// A DynValue containing the result of the processing of the executed script.
-		public static DynValue RunFile(string filename)
+        /// <summary>
+        /// Runs the specified file with all possible defaults for quick experimenting.
+        /// </summary>
+        /// <param name="filename">The filename.</param>
+        /// A DynValue containing the result of the processing of the executed script.
+        public static DynValue RunFile(string filename)
 		{
 			Script S = new Script();
 			return S.DoFile(filename);
@@ -442,6 +444,38 @@ namespace MoonSharp.Interpreter
 			return Call(function, new DynValue[0]);
 		}
 
+        private DynValue Internal_Call(ExecutionControlToken ecToken, DynValue function, params DynValue[] args)
+        {
+            this.CheckScriptOwnership(function);
+            this.CheckScriptOwnership(args);
+
+            if (function.Type != DataType.Function && function.Type != DataType.ClrFunction)
+            {
+                DynValue metafunction = m_MainProcessor.GetMetamethod(ecToken, function, "__call");
+
+                if (metafunction != null)
+                {
+                    DynValue[] metaargs = new DynValue[args.Length + 1];
+                    metaargs[0] = function;
+                    for (int i = 0; i < args.Length; i++)
+                        metaargs[i + 1] = args[i];
+
+                    function = metafunction;
+                    args = metaargs;
+                }
+                else
+                {
+                    throw new ArgumentException("function is not a function and has no __call metamethod.");
+                }
+            }
+            else if (function.Type == DataType.ClrFunction)
+            {
+                return function.Callback.ClrCallback(this.CreateDynamicExecutionContext(ecToken, function.Callback), new CallbackArguments(args, false));
+            }
+
+            return m_MainProcessor.Call(ecToken, function, args);
+        }
+
 		/// <summary>
 		/// Calls the specified function.
 		/// </summary>
@@ -453,34 +487,7 @@ namespace MoonSharp.Interpreter
 		/// <exception cref="System.ArgumentException">Thrown if function is not of DataType.Function</exception>
 		public DynValue Call(DynValue function, params DynValue[] args)
 		{
-			this.CheckScriptOwnership(function);
-			this.CheckScriptOwnership(args);
-
-			if (function.Type != DataType.Function && function.Type != DataType.ClrFunction)
-			{
-				DynValue metafunction = m_MainProcessor.GetMetamethod(function, "__call");
-
-				if (metafunction != null)
-				{
-					DynValue[] metaargs = new DynValue[args.Length + 1];
-					metaargs[0] = function;
-					for (int i = 0; i < args.Length; i++)
-						metaargs[i + 1] = args[i];
-
-					function = metafunction;
-					args = metaargs;
-				}
-				else
-				{
-					throw new ArgumentException("function is not a function and has no __call metamethod.");
-				}
-			}
-			else if (function.Type == DataType.ClrFunction)
-			{
-				return function.Callback.ClrCallback(this.CreateDynamicExecutionContext(function.Callback), new CallbackArguments(args, false));
-			}
-
-			return m_MainProcessor.Call(function, args);
+            return Internal_Call(ExecutionControlToken.Dummy, function, args);
 		}
 
 		/// <summary>
@@ -525,15 +532,258 @@ namespace MoonSharp.Interpreter
 			return Call(DynValue.FromObject(this, function), args);
 		}
 
-		/// <summary>
-		/// Creates a coroutine pointing at the specified function.
-		/// </summary>
-		/// <param name="function">The function.</param>
-		/// <returns>
-		/// The coroutine handle.
-		/// </returns>
-		/// <exception cref="System.ArgumentException">Thrown if function is not of DataType.Function or DataType.ClrFunction</exception>
-		public DynValue CreateCoroutine(DynValue function)
+
+#if HASDYNAMIC
+        /// <summary>
+        /// Asynchronously loads and executes a string containing a Lua/MoonSharp script.
+        /// 
+        /// This method is supported only on .NET 4.x and .NET 4.x PCL targets.
+        /// </summary>
+        /// <param name="ecToken">The execution control token to be associated with the execution of this function</param>
+        /// <param name="code">The code.</param>
+        /// <param name="globalContext">The global context.</param>
+        /// <param name="codeFriendlyName">Name of the code - used to report errors, etc. Also used by debuggers to locate the original source file.</param>
+        /// <returns>
+        /// A DynValue containing the result of the processing of the loaded chunk.
+        /// </returns>
+        public Task<DynValue> DoStringAsync(ExecutionControlToken ecToken, string code, Table globalContext = null, string codeFriendlyName = null)
+        {
+            return LoadStringAsync(code, globalContext, codeFriendlyName)
+                .ContinueWith((Task<DynValue> prevTask) => CallAsync(ecToken, prevTask.Result).Result);
+        }
+
+
+        /// <summary>
+        /// Asynchronously loads and executes a stream containing a Lua/MoonSharp script.
+        /// 
+        /// This method is supported only on .NET 4.x and .NET 4.x PCL targets.
+        /// </summary>
+        /// <param name="ecToken">The execution control token to be associated with the execution of this function</param>
+        /// <param name="stream">The stream.</param>
+        /// <param name="globalContext">The global context.</param>
+        /// <param name="codeFriendlyName">Name of the code - used to report errors, etc. Also used by debuggers to locate the original source file.</param>
+        /// <returns>
+        /// A DynValue containing the result of the processing of the loaded chunk.
+        /// </returns>
+        public Task<DynValue> DoStreamAsync(ExecutionControlToken ecToken, Stream stream, Table globalContext = null, string codeFriendlyName = null)
+        {
+            return LoadStreamAsync(stream, globalContext, codeFriendlyName)
+                .ContinueWith((Task<DynValue> prevTask) => CallAsync(ecToken, prevTask.Result).Result);
+        }
+
+
+        /// <summary>
+        /// Asynchronously loads and executes a file containing a Lua/MoonSharp script.
+        /// 
+        /// This method is supported only on .NET 4.x and .NET 4.x PCL targets.
+        /// </summary>
+        /// <param name="ecToken">The execution control token to be associated with the execution of this function</param>
+        /// <param name="filename">The filename.</param>
+        /// <param name="globalContext">The global context.</param>
+        /// <param name="codeFriendlyName">Name of the code - used to report errors, etc. Also used by debuggers to locate the original source file.</param>
+        /// <returns>
+        /// A DynValue containing the result of the processing of the loaded chunk.
+        /// </returns>
+        public Task<DynValue> DoFileAsync(ExecutionControlToken ecToken, string filename, Table globalContext = null, string codeFriendlyName = null)
+        {
+            return LoadFileAsync(filename, globalContext, codeFriendlyName)
+                .ContinueWith((Task<DynValue> prevTask) => CallAsync(ecToken, prevTask.Result).Result);
+        }
+
+
+        /// <summary>
+        /// Asynchronously loads a string containing a Lua/MoonSharp script.
+        /// 
+        /// This method is supported only on .NET 4.x and .NET 4.x PCL targets.
+        /// </summary>
+        /// <param name="code">The code.</param>
+        /// <param name="globalTable">The global table to bind to this chunk.</param>
+        /// <param name="codeFriendlyName">Name of the code - used to report errors, etc.</param>
+        /// <returns>
+        /// A DynValue containing a function which will execute the loaded code.
+        /// </returns>
+        public Task<DynValue> LoadStringAsync(string code, Table globalTable = null, string codeFriendlyName = null)
+        {
+            return Task.Factory.StartNew(() => LoadString(code, globalTable, codeFriendlyName));
+        }
+
+
+        /// <summary>
+        /// Asynchronously loads a Lua/MoonSharp script from a System.IO.Stream. NOTE: This will *NOT* close the stream!
+        /// 
+        /// This method is supported only on .NET 4.x and .NET 4.x PCL targets.
+        /// </summary>
+        /// <param name="stream">The stream containing code.</param>
+        /// <param name="globalTable">The global table to bind to this chunk.</param>
+        /// <param name="codeFriendlyName">Name of the code - used to report errors, etc.</param>
+        /// <returns>
+        /// A DynValue containing a function which will execute the loaded code.
+        /// </returns>
+        public Task<DynValue> LoadStreamAsync(Stream stream, Table globalTable = null, string codeFriendlyName = null)
+        {
+            return Task.Factory.StartNew(() => LoadStream(stream, globalTable, codeFriendlyName));
+        }
+
+
+        /// <summary>
+        /// Asynchronously loads a string containing a Lua/MoonSharp script.
+        /// This method is supported only on .NET 4.x and .NET 4.x PCL targets.
+        /// </summary>
+        /// <param name="filename">The code.</param>
+        /// <param name="globalContext">The global table to bind to this chunk.</param>
+        /// <param name="friendlyFilename">The filename to be used in error messages.</param>
+        /// <returns>
+        /// A DynValue containing a function which will execute the loaded code.
+        /// </returns>
+        public Task<DynValue> LoadFileAsync(string filename, Table globalContext = null, string friendlyFilename = null)
+        {
+            return Task.Factory.StartNew(() => LoadFile(filename, globalContext, friendlyFilename));
+        }
+
+
+        /// <summary>
+        /// Asynchronously loads a string containing a Lua/MoonSharp function.
+        /// 
+        /// This method is supported only on .NET 4.x and .NET 4.x PCL targets.
+        /// </summary>
+        /// <param name="code">The code.</param>
+        /// <param name="globalTable">The global table to bind to this chunk.</param>
+        /// <param name="funcFriendlyName">Name of the function used to report errors, etc.</param>
+        /// <returns>
+        /// A DynValue containing a function which will execute the loaded code.
+        /// </returns>
+        public Task<DynValue> LoadFunctionAsync(string code, Table globalTable = null, string funcFriendlyName = null)
+        {
+            return Task.Factory.StartNew(() => LoadFunction(code, globalTable, funcFriendlyName));
+        }
+
+
+        /// <summary>
+        /// Asynchronously dumps a function on the specified stream.
+        /// This method is supported only on .NET 4.x and .NET 4.x PCL targets.
+        /// </summary>
+        /// <param name="function">The function.</param>
+        /// <param name="stream">The stream.</param>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentException">function arg is not a function!
+        /// or
+        /// stream is readonly!
+        /// or
+        /// function arg has upvalues other than _ENV</exception>
+        public Task DumpAsync(DynValue function, Stream stream)
+        {
+            return Task.Factory.StartNew(() => Dump(function, stream));
+        }
+
+
+        /// <summary>
+        /// Calls the specified function.
+        /// This method is supported only on .NET 4.x and .NET 4.x PCL targets.
+        /// </summary>
+        /// <param name="ecToken">The execution control token to be associated with the execution of this function</param>
+        /// <param name="function">The Lua/MoonSharp function to be called</param>
+        /// <returns>
+        /// The return value(s) of the function call.
+        /// </returns>
+        /// <exception cref="System.ArgumentException">Thrown if function is not of DataType.Function</exception>
+        public Task<DynValue> CallAsync(ExecutionControlToken ecToken, DynValue function)
+        {
+            return CallAsync(ecToken, function, new DynValue[0]);
+        }
+
+
+        /// <summary>
+        /// Asynchronously calls the specified function.
+        /// This method is supported only on .NET 4.x and .NET 4.x PCL targets.
+        /// </summary>
+        /// <param name="ecToken">The execution control token to be associated with the execution of this function</param>
+        /// <param name="function">The Lua/MoonSharp function to be called</param>
+        /// <param name="args">The arguments to pass to the function.</param>
+        /// <returns>
+        /// The return value(s) of the function call.
+        /// </returns>
+        /// <exception cref="System.ArgumentException">Thrown if function is not of DataType.Function</exception>
+        public Task<DynValue> CallAsync(ExecutionControlToken ecToken, DynValue function, params DynValue[] args)
+        {
+            return Task.Factory.StartNew(() => Internal_Call(ecToken, function, args));
+        }
+
+
+        /// <summary>
+        /// Asynchronously calls the specified function.
+        /// This method is supported only on .NET 4.x and .NET 4.x PCL targets.
+        /// </summary>
+        /// <param name="ecToken">The execution control token to be associated with the execution of this function</param>
+        /// <param name="function">The Lua/MoonSharp function to be called</param>
+        /// <param name="args">The arguments to pass to the function.</param>
+        /// <returns>
+        /// The return value(s) of the function call.
+        /// </returns>
+        /// <exception cref="System.ArgumentException">Thrown if function is not of DataType.Function</exception>
+        public Task<DynValue> CallAsync(ExecutionControlToken ecToken, DynValue function, params object[] args)
+        {
+            DynValue[] dargs = new DynValue[args.Length];
+
+            for (int i = 0; i < dargs.Length; i++)
+                dargs[i] = DynValue.FromObject(this, args[i]);
+
+            return CallAsync(ecToken, function, dargs);
+        }
+
+
+
+        /// <summary>
+        /// Asynchronously calls the specified function.
+        /// This method is supported only on .NET 4.x and .NET 4.x PCL targets.
+        /// </summary>
+        /// <param name="ecToken">The execution control token to be associated with the execution of this function</param>
+        /// <param name="function">The Lua/MoonSharp function to be called</param>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentException">Thrown if function is not of DataType.Function</exception>
+        public Task<DynValue> CallAsync(ExecutionControlToken ecToken, object function)
+        {
+            return CallAsync(ecToken, DynValue.FromObject(this, function));
+        }
+
+
+        /// <summary>
+        /// Asynchronously calls the specified function.
+        /// 
+        /// This method is supported only on .NET 4.x and .NET 4.x PCL targets.
+        /// </summary>
+        /// <param name="ecToken">The execution control token to be associated with the execution of this function</param>
+        /// <param name="function">The Lua/MoonSharp function to be called</param>
+        /// <param name="args">The arguments to pass to the function.</param>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentException">Thrown if function is not of DataType.Function</exception>
+        public Task<DynValue> CallAsync(ExecutionControlToken ecToken, object function, params object[] args)
+        {
+            return CallAsync(ecToken, DynValue.FromObject(this, function), args);
+        }
+
+        /// <summary>
+        /// Asynchronously creates a new dynamic expression.
+        /// 
+        /// This method is supported only on .NET 4.x and .NET 4.x PCL targets.
+        /// </summary>
+        /// <param name="code">The code of the expression.</param>
+        /// <returns></returns>
+        public Task<DynamicExpression> CreateDynamicExpressionAsync(string code)
+        {
+            return Task.Factory.StartNew(() => CreateDynamicExpression(code));
+        }
+#endif
+
+
+        /// <summary>
+        /// Creates a coroutine pointing at the specified function.
+        /// </summary>
+        /// <param name="function">The function.</param>
+        /// <returns>
+        /// The coroutine handle.
+        /// </returns>
+        /// <exception cref="System.ArgumentException">Thrown if function is not of DataType.Function or DataType.ClrFunction</exception>
+        public DynValue CreateCoroutine(DynValue function)
 		{
 			this.CheckScriptOwnership(function);
 
@@ -708,9 +958,9 @@ namespace MoonSharp.Interpreter
 		/// those cases where the execution engine is not really running - for example for dynamic expression
 		/// or calls from CLR to CLR callbacks
 		/// </summary>
-		internal ScriptExecutionContext CreateDynamicExecutionContext(CallbackFunction func = null)
+		internal ScriptExecutionContext CreateDynamicExecutionContext(ExecutionControlToken ecToken, CallbackFunction func = null)
 		{
-			return new ScriptExecutionContext(m_MainProcessor, func, null, isDynamic: true);
+			return new ScriptExecutionContext(ecToken, m_MainProcessor, func, null, isDynamic: true);
 		}
 
 		/// <summary>

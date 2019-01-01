@@ -12,12 +12,14 @@ namespace MoonSharp.Interpreter
 	{
 		Processor m_Processor;
 		CallbackFunction m_Callback;
+        internal ExecutionControlToken m_EcToken;
 
-		internal ScriptExecutionContext(Processor p, CallbackFunction callBackFunction, SourceRef sourceRef, bool isDynamic = false)
+        internal ScriptExecutionContext(ExecutionControlToken ecToken, Processor p, CallbackFunction callBackFunction, SourceRef sourceRef, bool isDynamic = false)
 		{
 			IsDynamicExecution = isDynamic;
 			m_Processor = p;
 			m_Callback = callBackFunction;
+            m_EcToken = ecToken;
 			CallingLocation = sourceRef;
 		}
 
@@ -74,7 +76,7 @@ namespace MoonSharp.Interpreter
 		/// <returns></returns>
 		public DynValue GetMetamethod(DynValue value, string metamethod)
 		{
-			return m_Processor.GetMetamethod(value, metamethod);
+			return m_Processor.GetMetamethod(m_EcToken, value, metamethod);
 		}
 
 		/// <summary>
@@ -92,7 +94,7 @@ namespace MoonSharp.Interpreter
 		/// </summary>
 		public DynValue GetBinaryMetamethod(DynValue op1, DynValue op2, string eventName)
 		{
-			return m_Processor.GetBinaryMetamethod(op1, op2, eventName);
+			return m_Processor.GetBinaryMetamethod(m_EcToken, op1, op2, eventName);
 		}
 
 		/// <summary>
@@ -248,7 +250,7 @@ namespace MoonSharp.Interpreter
 		public void PerformMessageDecorationBeforeUnwind(DynValue messageHandler, ScriptRuntimeException exception)
 		{
 			if (messageHandler != null)
-				exception.DecoratedMessage = m_Processor.PerformMessageDecorationBeforeUnwind(messageHandler, exception.Message, CallingLocation);
+				exception.DecoratedMessage = m_Processor.PerformMessageDecorationBeforeUnwind(m_EcToken, messageHandler, exception.Message, CallingLocation);
 			else
 				exception.DecoratedMessage = exception.Message;
 		}
@@ -265,5 +267,24 @@ namespace MoonSharp.Interpreter
 			get { return this.GetScript(); }
 		}
 
-	}
+
+        /// <summary>
+        /// Pauses the script thread for the specified amount of time. 
+        /// 
+        /// </summary>
+        /// <param name="timeout">Timeout.</param>
+        /// <returns></returns>
+        public void PauseExecution(TimeSpan timeout)
+        {
+            m_EcToken.Wait(timeout);
+
+            // This is not strictly required, but why allow the code
+            // to go back to Processor::Processing_Loop if we can check right here if
+            // we should stop or not?
+            if (m_EcToken.IsAbortRequested)
+            {
+                throw new ScriptTerminationRequestedException();
+            }
+        }
+    }
 }

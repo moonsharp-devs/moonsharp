@@ -45,44 +45,43 @@ namespace MoonSharp.Interpreter.Execution.VM
 		}
 
 
-
-		public DynValue Call(DynValue function, DynValue[] args)
+		public DynValue Call(ExecutionControlToken ecToken, DynValue function, DynValue[] args)
 		{
-			List<Processor> coroutinesStack = m_Parent != null ? m_Parent.m_CoroutinesStack : this.m_CoroutinesStack;
+            List<Processor> coroutinesStack = m_Parent != null ? m_Parent.m_CoroutinesStack : this.m_CoroutinesStack;
 
-			if (coroutinesStack.Count > 0 && coroutinesStack[coroutinesStack.Count - 1] != this)
-				return coroutinesStack[coroutinesStack.Count - 1].Call(function, args);
+            if (coroutinesStack.Count > 0 && coroutinesStack[coroutinesStack.Count - 1] != this)
+                return coroutinesStack[coroutinesStack.Count - 1].Call(ecToken, function, args);
 
-			EnterProcessor();
+            EnterProcessor();
 
-			try
-			{
-				var stopwatch = this.m_Script.PerformanceStats.StartStopwatch(Diagnostics.PerformanceCounter.Execution);
+            try
+            {
+                var stopwatch = this.m_Script.PerformanceStats.StartStopwatch(Diagnostics.PerformanceCounter.Execution);
 
-				m_CanYield = false;
+                m_CanYield = false;
 
-				try
-				{
-					int entrypoint = PushClrToScriptStackFrame(CallStackItemFlags.CallEntryPoint, function, args);
-					return Processing_Loop(entrypoint);
-				}
-				finally
-				{
-					m_CanYield = true;
+                try
+                {
+                    int entrypoint = PushClrToScriptStackFrame(CallStackItemFlags.CallEntryPoint, function, args);
+                    return Processing_Loop(ecToken, entrypoint);
+                }
+                finally
+                {
+                    m_CanYield = true;
 
-					if (stopwatch != null)
-						stopwatch.Dispose();
-				}
-			}
-			finally
-			{
-				LeaveProcessor();
-			}
-		}
+                    if (stopwatch != null)
+                        stopwatch.Dispose();
+                }
+            }
+            finally
+            {
+                LeaveProcessor();
+            }
+        }
 
-		// pushes all what's required to perform a clr-to-script function call. function can be null if it's already
-		// at vstack top.
-		private int PushClrToScriptStackFrame(CallStackItemFlags flags, DynValue function, DynValue[] args)
+        // pushes all what's required to perform a clr-to-script function call. function can be null if it's already
+        // at vstack top.
+        private int PushClrToScriptStackFrame(CallStackItemFlags flags, DynValue function, DynValue[] args)
 		{
 			if (function == null) 
 				function = m_ValueStack.Peek();
