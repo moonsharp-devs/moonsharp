@@ -140,8 +140,13 @@ namespace MoonSharp.Interpreter.Interop.Converters
 						Type underType = Enum.GetUnderlyingType(desiredType);
 						return NumericConversions.DoubleToType(underType, value.Number);
 					}
-					if (NumericConversions.NumericTypes.Contains(desiredType))
-						return NumericConversions.DoubleToType(desiredType, value.Number);
+                    			if (NumericConversions.NumericTypes.Contains(desiredType))
+                    			{
+                        			object d = NumericConversions.DoubleToType(desiredType, value.Number);
+                        			if (d.GetType() == desiredType)
+                            				return d;
+                        			break;
+                    			}
 					if (stringSubType != StringConversions.StringSubtype.None)
 						str = value.Number.ToString();
 					break;
