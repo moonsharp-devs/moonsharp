@@ -506,6 +506,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 					var = v.Tuple.Length >= 3 ? v.Tuple[2] : DynValue.Nil;
 
 					m_ValueStack.Push(DynValue.NewTuple(f, s, var));
+					return;
 				}
 				else if (f.Type == DataType.Table)
 				{
@@ -514,6 +515,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 					if (callmeta == null || callmeta.IsNil())
 					{
 						m_ValueStack.Push(EnumerableWrapper.ConvertTable(f.Table));
+						return;
 					}
 				}
 			}
