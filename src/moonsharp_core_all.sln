@@ -56,9 +56,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoonSharp.VsCodeDebugger.ne
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoonSharp.VsCodeDebugger.net40-client", "MoonSharp.VsCodeDebugger\_Projects\MoonSharp.VsCodeDebugger.net40-client\MoonSharp.VsCodeDebugger.net40-client.csproj", "{37B5FC4B-DEE0-4428-8C53-C005F52AF4A5}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MoonSharp.Interpreter.netcore", "MoonSharp.Interpreter\_Projects\MoonSharp.Interpreter.netcore\MoonSharp.Interpreter.netcore.xproj", "{CB2CB168-36C8-4D55-809C-7061CF4F6854}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MoonSharp.Interpreter.netcore", "MoonSharp.Interpreter\_Projects\MoonSharp.Interpreter.netcore\MoonSharp.Interpreter.netcore.csproj", "{CB2CB168-36C8-4D55-809C-7061CF4F6854}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MoonSharp.VsCodeDebugger.netcore", "MoonSharp.VsCodeDebugger\_Projects\MoonSharp.VsCodeDebugger.netcore\MoonSharp.VsCodeDebugger.netcore.xproj", "{ACA22B1F-7187-4E71-9D27-7196C1374086}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MoonSharp.VsCodeDebugger.netcore", "MoonSharp.VsCodeDebugger\_Projects\MoonSharp.VsCodeDebugger.netcore\MoonSharp.VsCodeDebugger.netcore.csproj", "{ACA22B1F-7187-4E71-9D27-7196C1374086}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6604B4EB-3418-4AD6-8D9C-02A86274A6E7}"
 	ProjectSection(SolutionItems) = preProject
