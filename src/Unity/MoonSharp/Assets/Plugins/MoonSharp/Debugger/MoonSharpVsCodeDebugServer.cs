@@ -1,4 +1,4 @@
-﻿#if (!PCL) && ((!UNITY_5) || UNITY_STANDALONE)
+﻿#if (!UNITY_5) || UNITY_STANDALONE
 
 using System;
 using System.Collections.Generic;
@@ -92,7 +92,7 @@ namespace MoonSharp.VsCodeDebugger
 
 
 		/// <summary>
-		/// Gets or sets the current script by ID (see GetAttachedDebuggersByIdAndName). 
+		/// Gets or sets the current script by ID (see GetAttachedDebuggersByIdAndName).
 		/// New vscode connections will attach to this debugger ID. Changing the current ID does NOT disconnect
 		/// connected clients.
 		/// </summary>
@@ -181,7 +181,7 @@ namespace MoonSharp.VsCodeDebugger
 		/// </summary>
 		public Action<string> Logger { get; set; }
 
-		
+
 		/// <summary>
 		/// Gets the debugger object. Obsolete, use the new interface using the Attach method instead.
 		/// </summary>
@@ -232,13 +232,7 @@ namespace MoonSharp.VsCodeDebugger
 			{
 				while (!m_StopEvent.WaitOne(0))
 				{
-#if DOTNET_CORE
-					var task = serverSocket.AcceptSocketAsync();
-					task.Wait();
-					var clientSocket = task.Result;
-#else
 					var clientSocket = serverSocket.AcceptSocket();
-#endif
 
 					if (clientSocket != null)
 					{
@@ -259,11 +253,7 @@ namespace MoonSharp.VsCodeDebugger
 								}
 							}
 
-#if DOTNET_CORE
-							clientSocket.Dispose();
-#else
 							clientSocket.Close();
-#endif
 							Log("[{0}] : Client connection closed", sessionId);
 						});
 					}
@@ -310,16 +300,12 @@ namespace MoonSharp.VsCodeDebugger
 
 		private static void SpawnThread(string name, Action threadProc)
 		{
-#if DOTNET_CORE
-			System.Threading.Tasks.Task.Run(() => threadProc());
-#else
 			new System.Threading.Thread(() => threadProc())
 			{
 				IsBackground = true,
 				Name = name
 			}
 			.Start();
-#endif
 		}
 	}
 }
@@ -378,7 +364,7 @@ namespace MoonSharp.VsCodeDebugger
 
 		public Action<string> Logger { get; set; }
 
-		
+
 		[Obsolete("Use the Attach method instead.")]
 		public IDebugger GetDebugger()
 		{

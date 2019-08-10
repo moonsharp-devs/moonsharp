@@ -354,7 +354,7 @@ namespace MoonSharp.Interpreter.Interop.LuaStateInterop
 				#endregion
 
 				#region field length
-				// extract field length and 
+				// extract field length and
 				// pading character
 				paddingCharacter = ' ';
 				fieldLength = int.MinValue;
@@ -566,7 +566,7 @@ namespace MoonSharp.Interpreter.Interop.LuaStateInterop
 					#region p - pointer
 					case 'p':   // pointer
 						if (o is IntPtr)
-#if PCL || ENABLE_DOTNET
+#if ENABLE_DOTNET
 							w = ( (IntPtr)o ).ToString();
 #else
 							w = "0x" + ((IntPtr)o).ToString("x");

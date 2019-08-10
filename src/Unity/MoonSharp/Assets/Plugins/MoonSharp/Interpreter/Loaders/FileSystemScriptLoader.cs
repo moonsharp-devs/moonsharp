@@ -1,5 +1,4 @@
-﻿#if DOTNET_CORE || (!(PCL || ENABLE_DOTNET || NETFX_CORE))
-using System.IO;
+﻿using System.IO;
 
 namespace MoonSharp.Interpreter.Loaders
 {
@@ -35,4 +34,3 @@ namespace MoonSharp.Interpreter.Loaders
 		}
 	}
 }
-#endif

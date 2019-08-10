@@ -6,9 +6,7 @@ namespace MoonSharp.Interpreter
 	/// <summary>
 	/// Exception thrown when a dynamic expression is invalid
 	/// </summary>
-#if !(PCL || ((!UNITY_EDITOR) && (ENABLE_DOTNET)) || NETFX_CORE)
 	[Serializable]
-#endif
 	public class DynamicExpressionException : ScriptRuntimeException
 	{
 		/// <summary>

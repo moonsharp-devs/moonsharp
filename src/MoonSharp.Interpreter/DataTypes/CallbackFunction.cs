@@ -6,7 +6,7 @@ using System.Reflection;
 namespace MoonSharp.Interpreter
 {
 	/// <summary>
-	/// This class wraps a CLR function 
+	/// This class wraps a CLR function
 	/// </summary>
 	public sealed class CallbackFunction : RefIdObject
 	{
@@ -89,7 +89,7 @@ namespace MoonSharp.Interpreter
 			if (accessMode == InteropAccessMode.Default)
 				accessMode = m_DefaultAccessMode;
 
-#if NETFX_CORE
+#if !NET35 && !NET40 && (!UNITY_5 || Unit_5_6_OR_NEWER)
 			MethodMemberDescriptor descr = new MethodMemberDescriptor(del.GetMethodInfo(), accessMode);
 #else
 			MethodMemberDescriptor descr = new MethodMemberDescriptor(del.Method, accessMode);

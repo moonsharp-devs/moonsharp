@@ -4,19 +4,11 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-#if DOTNET_CORE
-	using TTypeInfo = System.Reflection.TypeInfo;
-#elif NETFX_CORE
-	using TTypeInfo = System.Reflection.TypeInfo;
-#else
-	using TTypeInfo = System.Type;
-#endif
-
 namespace MoonSharp.Interpreter.Compatibility.Frameworks
 {
 	abstract class FrameworkReflectionBase : FrameworkBase
 	{
-		public abstract TTypeInfo GetTypeInfoFromType(Type t);
+		public abstract Type GetTypeInfoFromType(Type t);
 
 		public override Assembly GetAssembly(Type t)
 		{

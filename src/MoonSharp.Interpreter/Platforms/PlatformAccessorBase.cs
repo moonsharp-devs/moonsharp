@@ -44,9 +44,6 @@ namespace MoonSharp.Interpreter.Platforms
 			else
 				suffix = "dotnet";
 
-			if (PlatformAutoDetector.IsPortableFramework)
-				suffix = suffix + ".portable";
-			
 			if (PlatformAutoDetector.IsRunningOnClr4)
 				suffix = suffix + ".clr4";
 			else
@@ -137,7 +134,7 @@ namespace MoonSharp.Interpreter.Platforms
 		/// <summary>
 		/// DEPRECATED.
 		/// This is kept for backward compatibility, see the overload taking a prompt as an input parameter.
-		/// 
+		///
 		/// Default handler for interactive line input calls. Can be customized in ScriptOptions.
 		/// If an inheriting class whants to give a meaningful implementation, this method MUST be overridden.
 		/// </summary>
@@ -161,7 +158,7 @@ namespace MoonSharp.Interpreter.Platforms
 		}
 
 		/// <summary>
-		/// A function used to open files in the 'io' module. 
+		/// A function used to open files in the 'io' module.
 		/// Can have an invalid implementation if 'io' module is filtered out.
 		/// It should return a correctly initialized Stream for the given file and access
 		/// </summary>

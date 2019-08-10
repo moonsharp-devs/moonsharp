@@ -31,11 +31,11 @@ namespace MoonSharp.Interpreter.Interop
 		/// </summary>
 		public string Name { get; private set; }
 		/// <summary>
-		/// Gets a value indicating whether this instance is a constant 
+		/// Gets a value indicating whether this instance is a constant
 		/// </summary>
 		public bool IsConst { get; private set; }
 		/// <summary>
-		/// Gets a value indicating whether this instance is readonly 
+		/// Gets a value indicating whether this instance is readonly
 		/// </summary>
 		public bool IsReadonly { get; private set; }
 
@@ -46,7 +46,7 @@ namespace MoonSharp.Interpreter.Interop
 
 
 		/// <summary>
-		/// Tries to create a new StandardUserDataFieldDescriptor, returning <c>null</c> in case the field is not 
+		/// Tries to create a new StandardUserDataFieldDescriptor, returning <c>null</c> in case the field is not
 		/// visible to script code.
 		/// </summary>
 		/// <param name="fi">The FieldInfo.</param>
@@ -103,7 +103,7 @@ namespace MoonSharp.Interpreter.Interop
 		{
 			this.CheckAccess(MemberDescriptorAccess.CanRead, obj);
 
-			// optimization+workaround of Unity bug.. 
+			// optimization+workaround of Unity bug..
 			if (IsConst)
 				return ClrToScriptConversions.ObjectToDynValue(script, m_ConstValue);
 
@@ -179,12 +179,10 @@ namespace MoonSharp.Interpreter.Interop
 				// optimized setters fall here
 				throw ScriptRuntimeException.UserDataArgumentTypeMismatch(v.Type, FieldInfo.FieldType);
 			}
-#if !(PCL || ENABLE_DOTNET || NETFX_CORE)
 			catch (FieldAccessException ex)
 			{
 				throw new ScriptRuntimeException(ex);
 			}
-#endif
 		}
 
 

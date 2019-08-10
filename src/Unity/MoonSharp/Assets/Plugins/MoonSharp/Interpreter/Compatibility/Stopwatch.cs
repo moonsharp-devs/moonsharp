@@ -1,4 +1,4 @@
-﻿#if PCL || ((!UNITY_EDITOR) && (ENABLE_DOTNET))
+﻿#if (!UNITY_EDITOR) && (ENABLE_DOTNET)
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,12 +10,12 @@ namespace System.Diagnostics
 	{
 		DateTime startTime, stopTime;
 
-		public void Start() 
+		public void Start()
 		{
 			startTime = DateTime.UtcNow;
 		}
-		
-		public void Stop() 
+
+		public void Stop()
 		{
 			stopTime = DateTime.UtcNow;
 		}
