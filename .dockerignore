@@ -1,0 +1,6 @@
+.git/
+**/bin/
+**/obj/
+**/packages/
+src/Unity/
+

@@ -1,16 +1,13 @@
-language: csharp
-solution: src/moonsharp.sln
-sudo: required
+language: minimal
 
-mono: 
-  - 2.10.8
+language: minimal
+
+services:
+  - docker
+
+before_install:
+  - docker build -t moonsharp-ci .
 
 script:
-  - xbuild /p:TargetFrameworkProfile='' /p:Configuration=Release src/moonsharp_ci_net35.sln
-  - cd src/TestRunners/ConsoleTestRunner/bin/Release
-  - mono ConsoleTestRunner.exe
-#  - chmod 777 aotregen.sh
-#  - chmod 777 aottest.sh
-#  - sudo ./aotregen.sh
-#  - sudo ./aottest.sh
+  - docker run moonsharp-ci
 
