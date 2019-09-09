@@ -1,72 +1,83 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
-    <PropertyGroup>
-        <TargetFramework>net35</TargetFramework>
-        <AssemblyOriginatorKeyFile>keypair.snk</AssemblyOriginatorKeyFile>
-        <Authors>MoonSharp</Authors>
-        <Description></Description>
-        <Copyright>Copyright © 2014-2015, Marco Mastropaolo</Copyright>
-        <PackageProjectUrl>https://www.moonsharp.org</PackageProjectUrl>
-        <PackageLicenseUrl>https://raw.githubusercontent.com/xanathar/moonsharp/master/LICENSE</PackageLicenseUrl>
-        <RepositoryUrl>https://github.com/xanathar/moonsharp/</RepositoryUrl>
-        <PackageId>MoonSharp.VmDebugger</PackageId>
-        <Title>MoonSharp.VmDebugger</Title>
-        <SignAssembly>true</SignAssembly>
-        <PackageVersion>2.0.0</PackageVersion>
-        <OutputType>WinExe</OutputType>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(Configuration)'=='Debug'">
-        <DebugSymbols>true</DebugSymbols>
-        <DebugType>full</DebugType>
-        <Optimize>false</Optimize>
-        <OutputPath>bin\Debug\</OutputPath>
-        <DefineConstants>TRACE;DEBUG</DefineConstants>
-        <ErrorReport>prompt</ErrorReport>
-        <WarningLevel>4</WarningLevel>
-        <NoWarn>3021, 1591</NoWarn>
-        <DocumentationFile />
-    </PropertyGroup>
-
-    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-        <DebugType>pdbonly</DebugType>
-        <Optimize>true</Optimize>
-        <OutputPath>bin\Release\</OutputPath>
-        <DefineConstants>TRACE</DefineConstants>
-        <ErrorReport>prompt</ErrorReport>
-        <WarningLevel>4</WarningLevel>
-        <NoWarn />
-        <RunCodeAnalysis>false</RunCodeAnalysis>
-        <CodeAnalysisRuleSet>ExtendedDesignGuidelineRules.ruleset</CodeAnalysisRuleSet>
-        <DocumentationFile>bin\Release\MoonSharp.Interpreter.xml</DocumentationFile>
-        <UseVSHostingProcess>false</UseVSHostingProcess>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(DebugType)' == 'portable'">
-        <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
-    </PropertyGroup>
-
-    <ItemGroup>
-        <None Include="App.config" />
-        <None Include="test.lua">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </None>
-        <None Include="test2.lua">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </None>
-        <None Include="core.lua">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </None>
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\..\MoonSharp.Hardwire\MoonSharp.Hardwire.csproj" />
-        <ProjectReference Include="..\..\MoonSharp.Interpreter\MoonSharp.Interpreter.csproj" />
-      <ProjectReference Include="..\..\MoonSharp.RemoteDebugger\MoonSharp.RemoteDebugger.csproj" />
-    </ItemGroup>
-
-    <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-      <PackageReference Include="System.CodeDom" Version="4.5.0" />
-    </ItemGroup>
-
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{F039D7BE-0761-4618-BFA4-924E96584219}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Playground</RootNamespace>
+    <AssemblyName>Playground</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Test.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="test.lua">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="test2.lua">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="core.lua">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\MoonSharp.Hardwire\MoonSharp.Hardwire.net35-client.csproj">
+      <Project>{b25a2316-6897-4caa-be0e-e784071d8199}</Project>
+      <Name>MoonSharp.Hardwire.net35-client</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\MoonSharp.Interpreter\MoonSharp.Interpreter.net35-client.csproj">
+      <Project>{91ea9b9d-fe03-4273-bdaf-8ad42ede1e59}</Project>
+      <Name>MoonSharp.Interpreter.net35-client</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\MoonSharp.RemoteDebugger\MoonSharp.RemoteDebugger.net35-client.csproj">
+      <Project>{43d3ad52-fed5-4305-b0f4-6b991220cd0a}</Project>
+      <Name>MoonSharp.RemoteDebugger.net35-client</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
 </Project>

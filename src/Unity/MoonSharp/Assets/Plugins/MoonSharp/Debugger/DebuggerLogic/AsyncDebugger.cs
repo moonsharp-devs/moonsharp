@@ -1,4 +1,4 @@
-﻿#if (!UNITY_5) || UNITY_STANDALONE
+﻿#if (!PCL) && ((!UNITY_5) || UNITY_STANDALONE)
 
 using System;
 using System.Collections.Generic;
@@ -131,7 +131,11 @@ namespace MoonSharp.VsCodeDebugger.DebuggerLogic
 
 		private void Sleep(int v)
 		{
-			System.Threading.Thread.Sleep(10);
+#if DOTNET_CORE
+			System.Threading.Tasks.Task.Delay(10).Wait();
+#else
+				System.Threading.Thread.Sleep(10);
+#endif
 		}
 
 		private DynamicExpression CreateDynExpr(string code)
@@ -278,7 +282,7 @@ namespace MoonSharp.VsCodeDebugger.DebuggerLogic
 
 		public SourceCode FindSourceByName(string path)
 		{
-			// we use case insensitive match - be damned if you have files which differ only by
+			// we use case insensitive match - be damned if you have files which differ only by 
 			// case in the same directory on Unix.
 			path = path.Replace('\\', '/').ToUpperInvariant();
 

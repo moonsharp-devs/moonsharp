@@ -7,7 +7,9 @@ namespace MoonSharp.Interpreter
 	/// <summary>
 	/// Base type of all exceptions thrown in MoonSharp
 	/// </summary>
+#if !(PCL || ((!UNITY_EDITOR) && (ENABLE_DOTNET)) || NETFX_CORE)
 	[Serializable]
+#endif
 	public class InterpreterException : Exception
 	{
 		/// <summary>
@@ -95,7 +97,7 @@ namespace MoonSharp.Interpreter
 
 
 		/// <summary>
-		/// Rethrows this instance if
+		/// Rethrows this instance if 
 		/// </summary>
 		/// <returns></returns>
 		public virtual void Rethrow()

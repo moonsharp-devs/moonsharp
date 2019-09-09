@@ -56,6 +56,14 @@ namespace MoonSharp.Interpreter.Tests
 
 			S.Options.UseLuaErrorLocations = true;
 
+#if PCL
+	#if EMBEDTEST
+			S.Options.ScriptLoader = new EmbeddedResourcesScriptLoader(Assembly.GetExecutingAssembly());
+	#else
+			S.Options.ScriptLoader = new TestsScriptLoader();
+	#endif
+#endif
+
 			S.Globals.Set("arg", DynValue.NewTable(S));
 
 			((ScriptLoaderBase)S.Options.ScriptLoader).ModulePaths = new string[] { "TestMore/Modules/?", "TestMore/Modules/?.lua" };

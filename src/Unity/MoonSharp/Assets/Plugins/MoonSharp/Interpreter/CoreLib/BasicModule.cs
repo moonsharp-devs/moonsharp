@@ -16,8 +16,8 @@ namespace MoonSharp.Interpreter.CoreLib
 	{
 		//type (v)
 		//----------------------------------------------------------------------------------------------------------------
-		//Returns the type of its only argument, coded as a string. The possible results of this function are "nil"
-		//(a string, not the value nil), "number", "string", "boolean", "table", "function", "thread", and "userdata".
+		//Returns the type of its only argument, coded as a string. The possible results of this function are "nil" 
+		//(a string, not the value nil), "number", "string", "boolean", "table", "function", "thread", and "userdata". 
 		[MoonSharpModuleMethod]
 		public static DynValue type(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
@@ -31,8 +31,8 @@ namespace MoonSharp.Interpreter.CoreLib
 
 		//assert (v [, message])
 		//----------------------------------------------------------------------------------------------------------------
-		//Issues an error when the value of its argument v is false (i.e., nil or false);
-		//otherwise, returns all its arguments. message is an error message; when absent, it defaults to "assertion failed!"
+		//Issues an error when the value of its argument v is false (i.e., nil or false); 
+		//otherwise, returns all its arguments. message is an error message; when absent, it defaults to "assertion failed!" 
 		[MoonSharpModuleMethod]
 		public static DynValue assert(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
@@ -62,7 +62,7 @@ namespace MoonSharp.Interpreter.CoreLib
 
 			if (mode == null || mode == "collect" || mode == "restart")
 			{
-#if ENABLE_DOTNET
+#if PCL || ENABLE_DOTNET
 				GC.Collect();
 #else
 				GC.Collect(2, GCCollectionMode.Forced);
@@ -75,11 +75,11 @@ namespace MoonSharp.Interpreter.CoreLib
 		// error (message [, level])
 		// ----------------------------------------------------------------------------------------------------------------
 		// Terminates the last protected function called and returns message as the error message. Function error never returns.
-		// Usually, error adds some information about the error position at the beginning of the message.
-		// The level argument specifies how to get the error position.
-		// With level 1 (the default), the error position is where the error function was called.
-		// Level 2 points the error to where the function that called error was called; and so on.
-		// Passing a level 0 avoids the addition of error position information to the message.
+		// Usually, error adds some information about the error position at the beginning of the message. 
+		// The level argument specifies how to get the error position. 
+		// With level 1 (the default), the error position is where the error function was called. 
+		// Level 2 points the error to where the function that called error was called; and so on. 
+		// Passing a level 0 avoids the addition of error position information to the message. 
 		[MoonSharpModuleMethod]
 		public static DynValue error(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
@@ -90,11 +90,11 @@ namespace MoonSharp.Interpreter.CoreLib
 
 		// tostring (v)
 		// ----------------------------------------------------------------------------------------------------------------
-		// Receives a value of any type and converts it to a string in a reasonable format. (For complete control of how
+		// Receives a value of any type and converts it to a string in a reasonable format. (For complete control of how 
 		// numbers are converted, use string.format.)
-		//
-		// If the metatable of v has a "__tostring" field, then tostring calls the corresponding value with v as argument,
-		// and uses the result of the call as its result.
+		// 
+		// If the metatable of v has a "__tostring" field, then tostring calls the corresponding value with v as argument, 
+		// and uses the result of the call as its result. 
 		[MoonSharpModuleMethod]
 		public static DynValue tostring(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
@@ -102,7 +102,7 @@ namespace MoonSharp.Interpreter.CoreLib
 
 			DynValue v = args[0];
 			DynValue tail = executionContext.GetMetamethodTailCall(v, "__tostring", v);
-
+			
 			if (tail == null || tail.IsNil())
 				return DynValue.NewString(v.ToPrintString());
 
@@ -127,9 +127,9 @@ namespace MoonSharp.Interpreter.CoreLib
 
 		// select (index, ...)
 		// -----------------------------------------------------------------------------
-		// If index is a number, returns all arguments after argument number index; a negative number indexes from
+		// If index is a number, returns all arguments after argument number index; a negative number indexes from 
 		// the end (-1 is the last argument). Otherwise, index must be the string "#", and select returns the total
-		// number of extra arguments it received.
+		// number of extra arguments it received. 
 		[MoonSharpModuleMethod]
 		public static DynValue select(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
@@ -178,14 +178,14 @@ namespace MoonSharp.Interpreter.CoreLib
 
 		// tonumber (e [, base])
 		// ----------------------------------------------------------------------------------------------------------------
-		// When called with no base, tonumber tries to convert its argument to a number. If the argument is already
-		// a number or a string convertible to a number (see §3.4.2), then tonumber returns this number; otherwise,
+		// When called with no base, tonumber tries to convert its argument to a number. If the argument is already 
+		// a number or a string convertible to a number (see §3.4.2), then tonumber returns this number; otherwise, 
 		// it returns nil.
 		//
-		// When called with base, then e should be a string to be interpreted as an integer numeral in that base.
-		// The base may be any integer between 2 and 36, inclusive. In bases above 10, the letter 'A' (in either
-		// upper or lower case) represents 10, 'B' represents 11, and so forth, with 'Z' representing 35. If the
-		// string e is not a valid numeral in the given base, the function returns nil.
+		// When called with base, then e should be a string to be interpreted as an integer numeral in that base. 
+		// The base may be any integer between 2 and 36, inclusive. In bases above 10, the letter 'A' (in either 
+		// upper or lower case) represents 10, 'B' represents 11, and so forth, with 'Z' representing 35. If the 
+		// string e is not a valid numeral in the given base, the function returns nil. 
 		[MoonSharpModuleMethod]
 		public static DynValue tonumber(ScriptExecutionContext executionContext, CallbackArguments args)
 		{

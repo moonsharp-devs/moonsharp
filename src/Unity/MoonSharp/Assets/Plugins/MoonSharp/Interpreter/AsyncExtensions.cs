@@ -13,8 +13,8 @@ namespace MoonSharp.Interpreter
 	/// <summary>
 	/// This class contains extension methods providing async wrappers of many methods.
 	/// Asynchronous execution is performed by scheduling the method on the thread pool (through a Task.Factory.StartNew).
-	///
-	/// This type is supported only on .NET 4.x.
+	/// 
+	/// This type is supported only on .NET 4.x and .NET 4.x PCL targets.
 	/// </summary>
 	public static class AsyncExtensions
 	{
@@ -32,8 +32,8 @@ namespace MoonSharp.Interpreter
 
 		/// <summary>
 		/// Asynchronously calls this function with the specified args
-		///
-		/// This method is supported only on .NET 4.x.
+		/// 
+		/// This method is supported only on .NET 4.x and .NET 4.x PCL targets.
 		/// </summary>
 		/// <param name="function">The function.</param>
 		/// <returns></returns>
@@ -45,8 +45,8 @@ namespace MoonSharp.Interpreter
 
 		/// <summary>
 		/// Asynchronously calls this function with the specified args
-		///
-		/// This method is supported only on .NET 4.x.
+		/// 
+		/// This method is supported only on .NET 4.x and .NET 4.x PCL targets.
 		/// </summary>
 		/// <param name="function">The function.</param>
 		/// <param name="args">The arguments to pass to the function.</param>
@@ -59,8 +59,8 @@ namespace MoonSharp.Interpreter
 
 		/// <summary>
 		/// Asynchronously calls this function with the specified args
-		///
-		/// This method is supported only on .NET 4.x.
+		/// 
+		/// This method is supported only on .NET 4.x and .NET 4.x PCL targets.
 		/// </summary>
 		/// <param name="function">The function.</param>
 		/// <param name="args">The arguments to pass to the function.</param>
@@ -73,8 +73,8 @@ namespace MoonSharp.Interpreter
 
 		/// <summary>
 		/// Asynchronously loads and executes a string containing a Lua/MoonSharp script.
-		///
-		/// This method is supported only on .NET 4.x.
+		/// 
+		/// This method is supported only on .NET 4.x and .NET 4.x PCL targets.
 		/// </summary>
 		/// <param name="script">The script.</param>
 		/// <param name="code">The code.</param>
@@ -91,8 +91,8 @@ namespace MoonSharp.Interpreter
 
 		/// <summary>
 		/// Asynchronously loads and executes a stream containing a Lua/MoonSharp script.
-		///
-		/// This method is supported only on .NET 4.x.
+		/// 
+		/// This method is supported only on .NET 4.x and .NET 4.x PCL targets.
 		/// </summary>
 		/// <param name="script">The script.</param>
 		/// <param name="stream">The stream.</param>
@@ -109,8 +109,8 @@ namespace MoonSharp.Interpreter
 
 		/// <summary>
 		/// Asynchronously loads and executes a file containing a Lua/MoonSharp script.
-		///
-		/// This method is supported only on .NET 4.x.
+		/// 
+		/// This method is supported only on .NET 4.x and .NET 4.x PCL targets.
 		/// </summary>
 		/// <param name="script">The script.</param>
 		/// <param name="filename">The filename.</param>
@@ -126,8 +126,8 @@ namespace MoonSharp.Interpreter
 
 		/// <summary>
 		/// Asynchronously loads a string containing a Lua/MoonSharp function.
-		///
-		/// This method is supported only on .NET 4.x.
+		/// 
+		/// This method is supported only on .NET 4.x and .NET 4.x PCL targets.
 		/// </summary>
 		/// <param name="script">The script.</param>
 		/// <param name="code">The code.</param>
@@ -145,8 +145,8 @@ namespace MoonSharp.Interpreter
 
 		/// <summary>
 		/// Asynchronously loads a string containing a Lua/MoonSharp script.
-		///
-		/// This method is supported only on .NET 4.x.
+		/// 
+		/// This method is supported only on .NET 4.x and .NET 4.x PCL targets.
 		/// </summary>
 		/// <param name="script">The script.</param>
 		/// <param name="code">The code.</param>
@@ -164,8 +164,8 @@ namespace MoonSharp.Interpreter
 
 		/// <summary>
 		/// Asynchronously loads a Lua/MoonSharp script from a System.IO.Stream. NOTE: This will *NOT* close the stream!
-		///
-		/// This method is supported only on .NET 4.x.
+		/// 
+		/// This method is supported only on .NET 4.x and .NET 4.x PCL targets.
 		/// </summary>
 		/// <param name="script">The script.</param>
 		/// <param name="stream">The stream containing code.</param>
@@ -182,7 +182,7 @@ namespace MoonSharp.Interpreter
 
 		/// <summary>
 		/// Asynchronously dumps a function on the specified stream.
-		/// This method is supported only on .NET 4.x.
+		/// This method is supported only on .NET 4.x and .NET 4.x PCL targets.
 		/// </summary>
 		/// <param name="script">The script.</param>
 		/// <param name="function">The function.</param>
@@ -202,7 +202,7 @@ namespace MoonSharp.Interpreter
 
 		/// <summary>
 		/// Asynchronously loads a string containing a Lua/MoonSharp script.
-		/// This method is supported only on .NET 4.x.
+		/// This method is supported only on .NET 4.x and .NET 4.x PCL targets.
 		/// </summary>
 		/// <param name="script">The script.</param>
 		/// <param name="filename">The code.</param>
@@ -220,7 +220,7 @@ namespace MoonSharp.Interpreter
 
 		/// <summary>
 		/// Calls the specified function.
-		/// This method is supported only on .NET 4.x.
+		/// This method is supported only on .NET 4.x and .NET 4.x PCL targets.
 		/// </summary>
 		/// <param name="script">The script.</param>
 		/// <param name="function">The Lua/MoonSharp function to be called</param>
@@ -236,7 +236,7 @@ namespace MoonSharp.Interpreter
 
 		/// <summary>
 		/// Asynchronously calls the specified function.
-		/// This method is supported only on .NET 4.x.
+		/// This method is supported only on .NET 4.x and .NET 4.x PCL targets.
 		/// </summary>
 		/// <param name="script">The script.</param>
 		/// <param name="function">The Lua/MoonSharp function to be called</param>
@@ -254,7 +254,7 @@ namespace MoonSharp.Interpreter
 
 		/// <summary>
 		/// Asynchronously calls the specified function.
-		/// This method is supported only on .NET 4.x.
+		/// This method is supported only on .NET 4.x and .NET 4.x PCL targets.
 		/// </summary>
 		/// <param name="script">The script.</param>
 		/// <param name="function">The Lua/MoonSharp function to be called</param>
@@ -272,7 +272,7 @@ namespace MoonSharp.Interpreter
 
 		/// <summary>
 		/// Asynchronously calls the specified function.
-		/// This method is supported only on .NET 4.x.
+		/// This method is supported only on .NET 4.x and .NET 4.x PCL targets.
 		/// </summary>
 		/// <param name="script">The script.</param>
 		/// <param name="function">The Lua/MoonSharp function to be called</param>
@@ -286,8 +286,8 @@ namespace MoonSharp.Interpreter
 
 		/// <summary>
 		/// Asynchronously calls the specified function.
-		///
-		/// This method is supported only on .NET 4.x.
+		/// 
+		/// This method is supported only on .NET 4.x and .NET 4.x PCL targets.
 		/// </summary>
 		/// <param name="script">The script.</param>
 		/// <param name="function">The Lua/MoonSharp function to be called</param>
@@ -301,8 +301,8 @@ namespace MoonSharp.Interpreter
 
 		/// <summary>
 		/// Asynchronously creates a new dynamic expression.
-		///
-		/// This method is supported only on .NET 4.x.
+		/// 
+		/// This method is supported only on .NET 4.x and .NET 4.x PCL targets.
 		/// </summary>
 		/// <param name="script">The script.</param>
 		/// <param name="code">The code of the expression.</param>
@@ -316,8 +316,8 @@ namespace MoonSharp.Interpreter
 		/// Asynchronously evaluates a REPL command.
 		/// This method returns the result of the computation, or null if more input is needed for having valid code.
 		/// In case of errors, exceptions are propagated to the caller.
-		///
-		/// This method is supported only on .NET 4.x.
+		/// 
+		/// This method is supported only on .NET 4.x and .NET 4.x PCL targets.
 		/// </summary>
 		/// <param name="interpreter">The interpreter.</param>
 		/// <param name="input">The input.</param>
@@ -332,8 +332,8 @@ namespace MoonSharp.Interpreter
 		/// <summary>
 		/// Resumes the coroutine.
 		/// Only non-CLR coroutines can be resumed with this overload of the Resume method. Use the overload accepting a ScriptExecutionContext instead.
-		///
-		/// This method is supported only on .NET 4.x.
+		/// 
+		/// This method is supported only on .NET 4.x and .NET 4.x PCL targets.
 		/// </summary>
 		/// <param name="cor">The coroutine</param>
 		/// <param name="args">The arguments.</param>
@@ -347,8 +347,8 @@ namespace MoonSharp.Interpreter
 
 		/// <summary>
 		/// Resumes the coroutine.
-		///
-		/// This method is supported only on .NET 4.x.
+		/// 
+		/// This method is supported only on .NET 4.x and .NET 4.x PCL targets.
 		/// </summary>
 		/// <param name="cor">The coroutine</param>
 		/// <param name="context">The ScriptExecutionContext.</param>
@@ -362,8 +362,8 @@ namespace MoonSharp.Interpreter
 		/// <summary>
 		/// Resumes the coroutine.
 		/// Only non-CLR coroutines can be resumed with this overload of the Resume method. Use the overload accepting a ScriptExecutionContext instead.
-		///
-		/// This method is supported only on .NET 4.x.
+		/// 
+		/// This method is supported only on .NET 4.x and .NET 4.x PCL targets.
 		/// </summary>
 		/// <param name="cor">The coroutine</param>
 		/// <returns></returns>
@@ -376,8 +376,8 @@ namespace MoonSharp.Interpreter
 
 		/// <summary>
 		/// Resumes the coroutine.
-		///
-		/// This method is supported only on .NET 4.x.
+		/// 
+		/// This method is supported only on .NET 4.x and .NET 4.x PCL targets.
 		/// </summary>
 		/// <param name="cor">The coroutine</param>
 		/// <param name="context">The ScriptExecutionContext.</param>
@@ -390,8 +390,8 @@ namespace MoonSharp.Interpreter
 		/// <summary>
 		/// Resumes the coroutine.
 		/// Only non-CLR coroutines can be resumed with this overload of the Resume method. Use the overload accepting a ScriptExecutionContext instead.
-		///
-		/// This method is supported only on .NET 4.x.
+		/// 
+		/// This method is supported only on .NET 4.x and .NET 4.x PCL targets.
 		/// </summary>
 		/// <param name="cor">The coroutine</param>
 		/// <param name="args">The arguments.</param>
@@ -405,8 +405,8 @@ namespace MoonSharp.Interpreter
 
 		/// <summary>
 		/// Resumes the coroutine
-		///
-		/// This method is supported only on .NET 4.x.
+		/// 
+		/// This method is supported only on .NET 4.x and .NET 4.x PCL targets.
 		/// </summary>
 		/// <param name="cor">The coroutine</param>
 		/// <param name="context">The ScriptExecutionContext.</param>

@@ -1,4 +1,4 @@
-﻿#if (!UNITY_5) || UNITY_STANDALONE
+﻿#if (!PCL) && ((!UNITY_5) || UNITY_STANDALONE)
 
 using System;
 using System.Collections.Generic;
@@ -33,11 +33,17 @@ namespace MoonSharp.VsCodeDebugger.DebuggerLogic
 
 		public override void Initialize(Response response, Table args)
 		{
+#if DOTNET_CORE
+			SendText("Connected to MoonSharp {0} [{1}]",
+					 Script.VERSION,
+					 Script.GlobalOptions.Platform.GetPlatformName());
+#else
 			SendText("Connected to MoonSharp {0} [{1}] on process {2} (PID {3})",
 					 Script.VERSION,
 					 Script.GlobalOptions.Platform.GetPlatformName(),
 					 System.Diagnostics.Process.GetCurrentProcess().ProcessName,
 					 System.Diagnostics.Process.GetCurrentProcess().Id);
+#endif
 
 			SendText("Debugging script '{0}'; use the debug console to debug another script.", m_Debug.Name);
 

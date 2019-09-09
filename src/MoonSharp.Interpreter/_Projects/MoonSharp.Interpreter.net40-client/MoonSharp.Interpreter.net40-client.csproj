@@ -1,0 +1,826 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{88D2880C-A863-4B16-ABEF-F67BD1E98BD1}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MoonSharp.Interpreter.net40_client</RootNamespace>
+    <AssemblyName>MoonSharp.Interpreter</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\..\..\keypair.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;HASDYNAMIC</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;HASDYNAMIC</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\MoonSharp.Interpreter.XML</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Dev|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Dev\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;HASDYNAMIC</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Devp4|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Devp4\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;HASDYNAMIC</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\AsyncExtensions.cs">
+      <Link>AsyncExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\CodeAnalysis\AstNode.cs">
+      <Link>AstNode.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Compatibility\Framework.cs">
+      <Link>Framework.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Compatibility\Frameworks\Base\FrameworkBase.cs">
+      <Link>FrameworkBase.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Compatibility\Frameworks\FrameworkCLR.cs">
+      <Link>FrameworkCLR.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Compatibility\Frameworks\Base\FrameworkReflectionBase.cs">
+      <Link>FrameworkReflectionBase.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Compatibility\Frameworks\Base\FrameworkClrBase.cs">
+      <Link>FrameworkClrBase.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Compatibility\Frameworks\FrameworkCore.cs">
+      <Link>FrameworkCore.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Compatibility\Frameworks\FrameworkPCL.cs">
+      <Link>FrameworkPCL.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Compatibility\Frameworks\FrameworkWin8.cs">
+      <Link>FrameworkWin8.cs</Link>
+    </Compile>
+    <Compile Include="..\..\CoreLib\CoroutineModule.cs">
+      <Link>CoroutineModule.cs</Link>
+    </Compile>
+    <Compile Include="..\..\CoreLib\BasicModule.cs">
+      <Link>BasicModule.cs</Link>
+    </Compile>
+    <Compile Include="..\..\CoreLib\DebugModule.cs">
+      <Link>DebugModule.cs</Link>
+    </Compile>
+    <Compile Include="..\..\CoreLib\DynamicModule.cs">
+      <Link>DynamicModule.cs</Link>
+    </Compile>
+    <Compile Include="..\..\CoreLib\ErrorHandlingModule.cs">
+      <Link>ErrorHandlingModule.cs</Link>
+    </Compile>
+    <Compile Include="..\..\CoreLib\IO\BinaryEncoding.cs">
+      <Link>BinaryEncoding.cs</Link>
+    </Compile>
+    <Compile Include="..\..\CoreLib\IO\FileUserData.cs">
+      <Link>FileUserData.cs</Link>
+    </Compile>
+    <Compile Include="..\..\CoreLib\IoModule.cs">
+      <Link>IoModule.cs</Link>
+    </Compile>
+    <Compile Include="..\..\CoreLib\IO\FileUserDataBase.cs">
+      <Link>FileUserDataBase.cs</Link>
+    </Compile>
+    <Compile Include="..\..\CoreLib\IO\StandardIOFileUserDataBase.cs">
+      <Link>StandardIOFileUserDataBase.cs</Link>
+    </Compile>
+    <Compile Include="..\..\CoreLib\IO\StreamFileUserDataBase.cs">
+      <Link>StreamFileUserDataBase.cs</Link>
+    </Compile>
+    <Compile Include="..\..\CoreLib\JsonModule.cs">
+      <Link>JsonModule.cs</Link>
+    </Compile>
+    <Compile Include="..\..\CoreLib\LoadModule.cs">
+      <Link>LoadModule.cs</Link>
+    </Compile>
+    <Compile Include="..\..\CoreLib\Bit32Module.cs">
+      <Link>Bit32Module.cs</Link>
+    </Compile>
+    <Compile Include="..\..\CoreLib\MathModule.cs">
+      <Link>MathModule.cs</Link>
+    </Compile>
+    <Compile Include="..\..\CoreLib\MetaTableModule.cs">
+      <Link>MetaTableModule.cs</Link>
+    </Compile>
+    <Compile Include="..\..\CoreLib\OsSystemModule.cs">
+      <Link>OsSystemModule.cs</Link>
+    </Compile>
+    <Compile Include="..\..\CoreLib\OsTimeModule.cs">
+      <Link>OsTimeModule.cs</Link>
+    </Compile>
+    <Compile Include="..\..\CoreLib\StringLib\KopiLua_StrLib.cs">
+      <Link>KopiLua_StrLib.cs</Link>
+    </Compile>
+    <Compile Include="..\..\DataStructs\MultiDictionary.cs">
+      <Link>MultiDictionary.cs</Link>
+    </Compile>
+    <Compile Include="..\..\DataStructs\ReferenceEqualityComparer.cs">
+      <Link>ReferenceEqualityComparer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Debugging\DebuggerCaps.cs">
+      <Link>DebuggerCaps.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Debugging\DebugService.cs">
+      <Link>DebugService.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Execution\VM\OpCodeMetadataType.cs">
+      <Link>OpCodeMetadataType.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\Attributes\MoonSharpPropertyAttribute.cs">
+      <Link>MoonSharpPropertyAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\Attributes\MoonSharpUserDataMetamethodAttribute.cs">
+      <Link>MoonSharpUserDataMetamethodAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\Attributes\MoonSharpHideMemberAttribute.cs">
+      <Link>MoonSharpHideMemberAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\Attributes\MoonSharpHiddenAttribute.cs">
+      <Link>MoonSharpHiddenAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\BasicDescriptors\IMemberDescriptor.cs">
+      <Link>IMemberDescriptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\BasicDescriptors\IOptimizableDescriptor.cs">
+      <Link>IOptimizableDescriptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\BasicDescriptors\IOverloadableMemberDescriptor.cs">
+      <Link>IOverloadableMemberDescriptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\IWireableDescriptor.cs">
+      <Link>IWireableDescriptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\BasicDescriptors\MemberDescriptorAccess.cs">
+      <Link>MemberDescriptorAccess.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\BasicDescriptors\ParameterDescriptor.cs">
+      <Link>ParameterDescriptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\Converters\ClrToScriptConversions.cs">
+      <Link>ClrToScriptConversions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\Converters\NumericConversions.cs">
+      <Link>NumericConversions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\Converters\ScriptToClrConversions.cs">
+      <Link>ScriptToClrConversions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\Converters\StringConversions.cs">
+      <Link>StringConversions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\Converters\TableConversions.cs">
+      <Link>TableConversions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\CustomConvertersCollection.cs">
+      <Link>CustomConvertersCollection.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\DescriptorHelpers.cs">
+      <Link>DescriptorHelpers.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\BasicDescriptors\DispatchingUserDataDescriptor.cs">
+      <Link>DispatchingUserDataDescriptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\IGeneratorUserDataDescriptor.cs">
+      <Link>IGeneratorUserDataDescriptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\PropertyTableAssigner.cs">
+      <Link>PropertyTableAssigner.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\ProxyObjects\DelegateProxyFactory.cs">
+      <Link>DelegateProxyFactory.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\ProxyObjects\IProxyFactory.cs">
+      <Link>IProxyFactory.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\ReflectionSpecialNames.cs">
+      <Link>ReflectionSpecialNames.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\RegistrationPolicies\AutomaticRegistrationPolicy.cs">
+      <Link>AutomaticRegistrationPolicy.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\RegistrationPolicies\DefaultRegistrationPolicy.cs">
+      <Link>DefaultRegistrationPolicy.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\RegistrationPolicies\PermanentRegistrationPolicy.cs">
+      <Link>PermanentRegistrationPolicy.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\RegistrationPolicies\IRegistrationPolicy.cs">
+      <Link>IRegistrationPolicy.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\StandardDescriptors\EventFacade.cs">
+      <Link>EventFacade.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\StandardDescriptors\HardwiredDescriptors\DefaultValue.cs">
+      <Link>DefaultValue.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\StandardDescriptors\HardwiredDescriptors\HardwiredMemberDescriptor.cs">
+      <Link>HardwiredMemberDescriptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\StandardDescriptors\HardwiredDescriptors\HardwiredMethodMemberDescriptor.cs">
+      <Link>HardwiredMethodMemberDescriptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\StandardDescriptors\HardwiredDescriptors\HardwiredUserDataDescriptor.cs">
+      <Link>HardwiredUserDataDescriptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\StandardDescriptors\MemberDescriptors\ArrayMemberDescriptor.cs">
+      <Link>ArrayMemberDescriptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\StandardDescriptors\ProxyUserDataDescriptor.cs">
+      <Link>ProxyUserDataDescriptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\StandardDescriptors\MemberDescriptors\ObjectCallbackMemberDescriptor.cs">
+      <Link>ObjectCallbackMemberDescriptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\StandardDescriptors\MemberDescriptors\FunctionMemberDescriptorBase.cs">
+      <Link>FunctionMemberDescriptorBase.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\StandardDescriptors\StandardEnumUserDataDescriptor.cs">
+      <Link>StandardEnumUserDataDescriptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\StandardDescriptors\MemberDescriptors\DynValueMemberDescriptor.cs">
+      <Link>DynValueMemberDescriptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\StandardDescriptors\ReflectionMemberDescriptors\EventMemberDescriptor.cs">
+      <Link>EventMemberDescriptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\StandardDescriptors\ReflectionMemberDescriptors\OverloadedMethodMemberDescriptor.cs">
+      <Link>OverloadedMethodMemberDescriptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\StandardDescriptors\ReflectionMemberDescriptors\FieldMemberDescriptor.cs">
+      <Link>FieldMemberDescriptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\StandardDescriptors\ReflectionMemberDescriptors\ValueTypeDefaultCtorMemberDescriptor.cs">
+      <Link>ValueTypeDefaultCtorMemberDescriptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\StandardDescriptors\StandardGenericsUserDataDescriptor.cs">
+      <Link>StandardGenericsUserDataDescriptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\UserDataRegistries\ExtensionMethodsRegistry.cs">
+      <Link>ExtensionMethodsRegistry.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\UserDataRegistries\TypeDescriptorRegistry.cs">
+      <Link>TypeDescriptorRegistry.cs</Link>
+    </Compile>
+    <Compile Include="..\..\IO\BinDumpBinaryReader.cs">
+      <Link>BinDumpBinaryReader.cs</Link>
+    </Compile>
+    <Compile Include="..\..\IO\BinDumpBinaryWriter.cs">
+      <SubType>Code</SubType>
+      <Link>BinDumpBinaryWriter.cs</Link>
+    </Compile>
+    <Compile Include="..\..\IO\UndisposableStream.cs">
+      <Link>UndisposableStream.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Execution\InstructionFieldUsage.cs">
+      <Link>InstructionFieldUsage.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Execution\VM\Processor\Processor_BinaryDump.cs">
+      <Link>Processor_BinaryDump.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\InteropRegistrationPolicy.cs">
+      <Link>InteropRegistrationPolicy.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\IUserDataType.cs">
+      <Link>IUserDataType.cs</Link>
+    </Compile>
+    <Compile Include="..\..\DataTypes\ScriptFunctionDelegate.cs">
+      <Link>ScriptFunctionDelegate.cs</Link>
+    </Compile>
+    <Compile Include="..\..\DataTypes\TypeValidationFlags.cs">
+      <Link>TypeValidationFlags.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Errors\DynamicExpressionException.cs">
+      <Link>DynamicExpressionException.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Execution\DynamicExpression.cs">
+      <Link>DynamicExpression.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Execution\VM\CallStackItemFlags.cs">
+      <Link>CallStackItemFlags.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\PredefinedUserData\AnonWrapper.cs">
+      <Link>AnonWrapper.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\IUserDataDescriptor.cs">
+      <Link>IUserDataDescriptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\LuaStateInterop\CharPtr.cs">
+      <Link>CharPtr.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\LuaStateInterop\LuaBase.cs">
+      <Link>LuaBase.cs</Link>
+    </Compile>
+    <Compile Include="..\..\CoreLib\StringLib\StringRange.cs">
+      <Link>StringRange.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\LuaStateInterop\Tools.cs">
+      <Link>Tools.cs</Link>
+    </Compile>
+    <Compile Include="..\..\CoreLib\StringModule.cs">
+      <Link>StringModule.cs</Link>
+    </Compile>
+    <Compile Include="..\..\CoreLib\TableIteratorsModule.cs">
+      <Link>TableIteratorsModule.cs</Link>
+    </Compile>
+    <Compile Include="..\..\CoreLib\TableModule.cs">
+      <Link>TableModule.cs</Link>
+    </Compile>
+    <Compile Include="..\..\DataStructs\Extension_Methods.cs">
+      <Link>Extension_Methods.cs</Link>
+    </Compile>
+    <Compile Include="..\..\DataStructs\FastStackDynamic.cs">
+      <Link>FastStackDynamic.cs</Link>
+    </Compile>
+    <Compile Include="..\..\DataStructs\LinkedListIndex.cs">
+      <Link>LinkedListIndex.cs</Link>
+    </Compile>
+    <Compile Include="..\..\DataStructs\Slice.cs">
+      <Link>Slice.cs</Link>
+    </Compile>
+    <Compile Include="..\..\DataTypes\Coroutine.cs">
+      <Link>Coroutine.cs</Link>
+    </Compile>
+    <Compile Include="..\..\DataTypes\IScriptPrivateResource.cs">
+      <Link>IScriptPrivateResource.cs</Link>
+    </Compile>
+    <Compile Include="..\..\DataTypes\RefIdObject.cs">
+      <Link>RefIdObject.cs</Link>
+    </Compile>
+    <Compile Include="..\..\DataTypes\TailCallData.cs">
+      <Link>TailCallData.cs</Link>
+    </Compile>
+    <Compile Include="..\..\DataTypes\UserData.cs">
+      <SubType>Code</SubType>
+      <Link>UserData.cs</Link>
+    </Compile>
+    <Compile Include="..\..\DataTypes\WellKnownSymbols.cs">
+      <Link>WellKnownSymbols.cs</Link>
+    </Compile>
+    <Compile Include="..\..\DataTypes\YieldRequest.cs">
+      <Link>YieldRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Debugging\DebuggerAction.cs">
+      <Link>DebuggerAction.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Debugging\IDebugger.cs">
+      <Link>IDebugger.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Debugging\SourceRef.cs">
+      <Link>SourceRef.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Debugging\WatchItem.cs">
+      <Link>WatchItem.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Debugging\WatchType.cs">
+      <Link>WatchType.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Diagnostics\PerformanceCounters\DummyPerformanceStopwatch.cs">
+      <Link>DummyPerformanceStopwatch.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Diagnostics\PerformanceCounters\IPerformanceStopwatch.cs">
+      <Link>IPerformanceStopwatch.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Diagnostics\PerformanceCounter.cs">
+      <Link>PerformanceCounter.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Diagnostics\PerformanceCounters\GlobalPerformanceStopwatch.cs">
+      <Link>GlobalPerformanceStopwatch.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Diagnostics\PerformanceCounterType.cs">
+      <Link>PerformanceCounterType.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Diagnostics\PerformanceStatistics.cs">
+      <Link>PerformanceStatistics.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Diagnostics\PerformanceResult.cs">
+      <Link>PerformanceResult.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Diagnostics\PerformanceCounters\PerformanceStopwatch.cs">
+      <Link>PerformanceStopwatch.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Errors\ScriptRuntimeException.cs">
+      <SubType>Code</SubType>
+      <Link>ScriptRuntimeException.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Errors\InternalErrorException.cs">
+      <Link>InternalErrorException.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Errors\InterpreterException.cs">
+      <Link>InterpreterException.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Errors\SyntaxErrorException.cs">
+      <Link>SyntaxErrorException.cs</Link>
+    </Compile>
+    <Compile Include="..\..\DataTypes\CallbackArguments.cs">
+      <Link>CallbackArguments.cs</Link>
+    </Compile>
+    <Compile Include="..\..\DataTypes\Closure.cs">
+      <Link>Closure.cs</Link>
+    </Compile>
+    <Compile Include="..\..\DataTypes\CallbackFunction.cs">
+      <Link>CallbackFunction.cs</Link>
+    </Compile>
+    <Compile Include="..\..\DataTypes\DynValue.cs">
+      <SubType>Code</SubType>
+      <Link>DynValue.cs</Link>
+    </Compile>
+    <Compile Include="..\..\DataTypes\TablePair.cs">
+      <Link>TablePair.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Execution\ScriptExecutionContext.cs">
+      <SubType>Code</SubType>
+      <Link>ScriptExecutionContext.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Debugging\SourceCode.cs">
+      <Link>SourceCode.cs</Link>
+    </Compile>
+    <Compile Include="..\..\DataTypes\CoroutineState.cs">
+      <Link>CoroutineState.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Execution\VM\ExecutionState.cs">
+      <Link>ExecutionState.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Execution\VM\Processor\DebugContext.cs">
+      <Link>DebugContext.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Execution\VM\Processor\Processor_Coroutines.cs">
+      <Link>Processor_Coroutines.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Execution\VM\Processor\Processor_Errors.cs">
+      <Link>Processor_Errors.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\PredefinedUserData\EnumerableWrapper.cs">
+      <Link>EnumerableWrapper.cs</Link>
+    </Compile>
+    <Compile Include="..\..\LinqHelpers.cs">
+      <Link>LinqHelpers.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\LuaStateInterop\LuaBase_CLib.cs">
+      <Link>LuaBase_CLib.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\LuaStateInterop\LuaLBuffer.cs">
+      <Link>LuaLBuffer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\LuaStateInterop\LuaState.cs">
+      <Link>LuaState.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\Attributes\MoonSharpUserDataAttribute.cs">
+      <Link>MoonSharpUserDataAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\Attributes\MoonSharpVisibleAttribute.cs">
+      <Link>MoonSharpVisibleAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\StandardDescriptors\AutoDescribingUserDataDescriptor.cs">
+      <SubType>Code</SubType>
+      <Link>AutoDescribingUserDataDescriptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\StandardDescriptors\CompositeUserDataDescriptor.cs">
+      <SubType>Code</SubType>
+      <Link>CompositeUserDataDescriptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\StandardDescriptors\StandardUserDataDescriptor.cs">
+      <Link>StandardUserDataDescriptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\InteropAccessMode.cs">
+      <Link>InteropAccessMode.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\StandardDescriptors\ReflectionMemberDescriptors\MethodMemberDescriptor.cs">
+      <Link>MethodMemberDescriptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\StandardDescriptors\ReflectionMemberDescriptors\PropertyMemberDescriptor.cs">
+      <SubType>Code</SubType>
+      <Link>PropertyMemberDescriptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Execution\Scopes\ClosureContext.cs">
+      <Link>ClosureContext.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Execution\Scopes\LoopTracker.cs">
+      <Link>LoopTracker.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Execution\Scopes\IClosureBuilder.cs">
+      <Link>IClosureBuilder.cs</Link>
+    </Compile>
+    <Compile Include="..\..\DataTypes\SymbolRefType.cs">
+      <Link>SymbolRefType.cs</Link>
+    </Compile>
+    <Compile Include="..\..\DataTypes\SymbolRef.cs">
+      <Link>SymbolRef.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Execution\Scopes\BuildTimeScope.cs">
+      <Link>BuildTimeScope.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Execution\Scopes\BuildTimeScopeBlock.cs">
+      <Link>BuildTimeScopeBlock.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Execution\Scopes\BuildTimeScopeFrame.cs">
+      <Link>BuildTimeScopeFrame.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Execution\Scopes\RuntimeScopeBlock.cs">
+      <Link>RuntimeScopeBlock.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Execution\Scopes\RuntimeScopeFrame.cs">
+      <Link>RuntimeScopeFrame.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Execution\ScriptLoadingContext.cs">
+      <Link>ScriptLoadingContext.cs</Link>
+    </Compile>
+    <Compile Include="..\..\DataTypes\DataType.cs">
+      <Link>DataType.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Loaders\EmbeddedResourcesScriptLoader.cs">
+      <Link>EmbeddedResourcesScriptLoader.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Loaders\FileSystemScriptLoader.cs">
+      <Link>FileSystemScriptLoader.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Loaders\InvalidScriptLoader.cs">
+      <Link>InvalidScriptLoader.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Options\ColonOperatorBehaviour.cs">
+      <Link>ColonOperatorBehaviour.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Platforms\DotNetCorePlatformAccessor.cs">
+      <Link>DotNetCorePlatformAccessor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\REPL\ReplHistoryNavigator.cs">
+      <Link>ReplHistoryNavigator.cs</Link>
+    </Compile>
+    <Compile Include="..\..\REPL\ReplInterpreterScriptLoader.cs">
+      <Link>ReplInterpreterScriptLoader.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Loaders\ScriptLoaderBase.cs">
+      <Link>ScriptLoaderBase.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Loaders\IScriptLoader.cs">
+      <Link>IScriptLoader.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Loaders\UnityAssetsScriptLoader.cs">
+      <Link>UnityAssetsScriptLoader.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Modules\MoonSharpModuleConstantAttribute.cs">
+      <Link>MoonSharpModuleConstantAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NameSpace_XmlHelp.cs">
+      <Link>NameSpace_XmlHelp.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Platforms\IPlatformAccessor.cs">
+      <Link>IPlatformAccessor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Platforms\PlatformAccessorBase.cs">
+      <Link>PlatformAccessorBase.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Platforms\PlatformAutoDetector.cs">
+      <Link>PlatformAutoDetector.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Platforms\LimitedPlatformAccessor.cs">
+      <Link>LimitedPlatformAccessor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Platforms\StandardFileType.cs">
+      <Link>StandardFileType.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Platforms\StandardPlatformAccessor.cs">
+      <Link>StandardPlatformAccessor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Compatibility\Attributes.cs">
+      <Link>Attributes.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Compatibility\Stopwatch.cs">
+      <Link>Stopwatch.cs</Link>
+    </Compile>
+    <Compile Include="..\..\REPL\ReplInterpreter.cs">
+      <Link>ReplInterpreter.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Script.cs">
+      <Link>Script.cs</Link>
+    </Compile>
+    <Compile Include="..\..\DataTypes\Table.cs">
+      <Link>Table.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Execution\VM\ByteCode.cs">
+      <Link>ByteCode.cs</Link>
+    </Compile>
+    <Compile Include="..\..\DataStructs\FastStack.cs">
+      <Link>FastStack.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Execution\VM\Instruction.cs">
+      <Link>Instruction.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Execution\VM\OpCode.cs">
+      <Link>OpCode.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Execution\VM\CallStackItem.cs">
+      <Link>CallStackItem.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Execution\VM\Processor\Processor.cs">
+      <SubType>Code</SubType>
+      <Link>Processor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Execution\VM\Processor\Processor_Debugger.cs">
+      <Link>Processor_Debugger.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Execution\VM\Processor\Processor_IExecutionContext.cs">
+      <Link>Processor_IExecutionContext.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Execution\VM\Processor\Processor_InstructionLoop.cs">
+      <Link>Processor_InstructionLoop.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Execution\VM\Processor\Processor_Scope.cs">
+      <Link>Processor_Scope.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Execution\VM\Processor\Processor_UtilityFunctions.cs">
+      <Link>Processor_UtilityFunctions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Modules\CoreModules.cs">
+      <Link>CoreModules.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Modules\ModuleRegister.cs">
+      <SubType>Code</SubType>
+      <Link>ModuleRegister.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Modules\MoonSharpModuleMethodAttribute.cs">
+      <Link>MoonSharpModuleMethodAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Modules\MoonSharpModuleAttribute.cs">
+      <SubType>Code</SubType>
+      <Link>MoonSharpModuleAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\..\ScriptGlobalOptions.cs">
+      <Link>ScriptGlobalOptions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\ScriptOptions.cs">
+      <Link>ScriptOptions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Serialization\Json\JsonNull.cs">
+      <Link>JsonNull.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Serialization\Json\JsonTableConverter.cs">
+      <Link>JsonTableConverter.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Serialization\ObjectValueConverter.cs">
+      <Link>ObjectValueConverter.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Serialization\SerializationExtensions.cs">
+      <Link>SerializationExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Tree\Expressions\AdjustmentExpression.cs">
+      <Link>AdjustmentExpression.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Tree\Expressions\BinaryOperatorExpression.cs">
+      <Link>BinaryOperatorExpression.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Tree\Expressions\DynamicExprExpression.cs">
+      <Link>DynamicExprExpression.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Tree\Expressions\FunctionCallExpression.cs">
+      <Link>FunctionCallExpression.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Tree\Expressions\FunctionDefinitionExpression.cs">
+      <Link>FunctionDefinitionExpression.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Tree\Expressions\LiteralExpression.cs">
+      <Link>LiteralExpression.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Tree\Expressions\UnaryOperatorExpression.cs">
+      <Link>UnaryOperatorExpression.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Tree\Fast_Interface\Loader_Fast.cs">
+      <Link>Loader_Fast.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Tree\Statements\GotoStatement.cs">
+      <Link>GotoStatement.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Tree\IVariable.cs">
+      <Link>IVariable.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Properties\AssemblyInfo.cs">
+      <Link>AssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Tree\Expressions\ExprListExpression.cs">
+      <Link>ExprListExpression.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Tree\Expressions\IndexExpression.cs">
+      <Link>IndexExpression.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Tree\Lexer\LexerUtils.cs">
+      <Link>LexerUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Tree\Statements\EmptyStatement.cs">
+      <Link>EmptyStatement.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Tree\Statements\FunctionCallStatement.cs">
+      <Link>FunctionCallStatement.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Tree\Statements\FunctionDefinitionStatement.cs">
+      <Link>FunctionDefinitionStatement.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Tree\Expression_.cs">
+      <Link>Expression_.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Tree\Expressions\SymbolRefExpression.cs">
+      <Link>SymbolRefExpression.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Tree\Lexer\Lexer.cs">
+      <Link>Lexer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Tree\Lexer\Token.cs">
+      <Link>Token.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Tree\Lexer\TokenType.cs">
+      <Link>TokenType.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Tree\Loop.cs">
+      <Link>Loop.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Tree\NodeBase.cs">
+      <Link>NodeBase.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Tree\Statements\AssignmentStatement.cs">
+      <Link>AssignmentStatement.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Tree\Statements\ChunkStatement.cs">
+      <SubType>Code</SubType>
+      <Link>ChunkStatement.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Tree\Statements\CompositeStatement.cs">
+      <Link>CompositeStatement.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Tree\Statements\BreakStatement.cs">
+      <Link>BreakStatement.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Tree\Statements\ForEachLoopStatement.cs">
+      <Link>ForEachLoopStatement.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Tree\Statements\ForLoopStatement.cs">
+      <Link>ForLoopStatement.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Tree\Statements\IfStatement.cs">
+      <Link>IfStatement.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Tree\Statement.cs">
+      <Link>Statement.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Tree\Statements\LabelStatement.cs">
+      <Link>LabelStatement.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Tree\Statements\RepeatStatement.cs">
+      <Link>RepeatStatement.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Tree\Statements\ReturnStatement.cs">
+      <Link>ReturnStatement.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Tree\Expressions\TableConstructor.cs">
+      <Link>TableConstructor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Tree\Statements\ScopeBlockStatement.cs">
+      <Link>ScopeBlockStatement.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Tree\Statements\WhileStatement.cs">
+      <Link>WhileStatement.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

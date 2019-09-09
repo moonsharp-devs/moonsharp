@@ -289,6 +289,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			return 5 + a;
 		}
 
+#if !DOTNET_CORE
 		[Test]
 		public void OverloadTest_WithoutObjects()
 		{
@@ -305,7 +306,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			}
 
 			// Creates the callback over the 'this' object
-			DynValue callback = DynValue.NewCallback(ov.GetCallbackFunction(s, this));
+			DynValue callback = DynValue.NewCallback(ov.GetCallbackFunction(s, this)); 
 			s.Globals.Set("func", callback);
 
 			// Execute and check the results.
@@ -317,6 +318,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			Assert.AreEqual(1, result.Tuple[0].Number);
 			Assert.AreEqual(22, result.Tuple[1].Number);
 		}
+#endif
 
 
 

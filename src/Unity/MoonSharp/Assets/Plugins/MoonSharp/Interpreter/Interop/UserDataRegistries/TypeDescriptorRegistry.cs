@@ -29,7 +29,11 @@ namespace MoonSharp.Interpreter.Interop.UserDataRegistries
 		{
 			if (asm == null)
 			{
-				asm = Assembly.GetCallingAssembly();
+				#if NETFX_CORE || DOTNET_CORE
+					throw new NotSupportedException("Assembly.GetCallingAssembly is not supported on target framework.");
+				#else
+					asm = Assembly.GetCallingAssembly();
+				#endif
 			}
 
 			if (includeExtensionTypes)
@@ -169,7 +173,11 @@ namespace MoonSharp.Interpreter.Interop.UserDataRegistries
 
 						if (accessMode == InteropAccessMode.BackgroundOptimized)
 						{
+#if NETFX_CORE
+							System.Threading.Tasks.Task.Run(() => ((IOptimizableDescriptor)udd).Optimize());
+#else
 							ThreadPool.QueueUserWorkItem(o => ((IOptimizableDescriptor)udd).Optimize());
+#endif
 						}
 
 						return PerformRegistration(type, udd, oldDescriptor);

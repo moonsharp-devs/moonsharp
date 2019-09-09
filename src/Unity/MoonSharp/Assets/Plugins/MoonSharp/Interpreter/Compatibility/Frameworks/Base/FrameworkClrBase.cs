@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if !NETFX_CORE || DOTNET_CORE
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -105,3 +107,5 @@ namespace MoonSharp.Interpreter.Compatibility.Frameworks
 
 	}
 }
+
+#endif

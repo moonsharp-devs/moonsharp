@@ -52,7 +52,7 @@ namespace MoonSharp.Interpreter.Interop
 		/// </summary>
 		public static string GetClrVisibility(this Type type)
 		{
-#if !NET35 && !NET40 && (!UNITY_5 || Unit_5_6_OR_NEWER)
+#if NETFX_CORE
 			var t = type.GetTypeInfo();
 #else
 			Type t = type;

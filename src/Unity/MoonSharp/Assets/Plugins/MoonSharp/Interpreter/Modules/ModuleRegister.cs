@@ -67,6 +67,7 @@ namespace MoonSharp.Interpreter
 			m.Set("is_unity", DynValue.NewBoolean(PlatformAutoDetector.IsRunningOnUnity));
 			m.Set("is_mono", DynValue.NewBoolean(PlatformAutoDetector.IsRunningOnMono));
 			m.Set("is_clr4", DynValue.NewBoolean(PlatformAutoDetector.IsRunningOnClr4));
+			m.Set("is_pcl", DynValue.NewBoolean(PlatformAutoDetector.IsPortableFramework));
 			m.Set("banner", DynValue.NewString(Script.GetBanner()));
 
 			return table;
@@ -94,12 +95,15 @@ namespace MoonSharp.Interpreter
 					if (!CallbackFunction.CheckCallbackSignature(mi, true))
 							throw new ArgumentException(string.Format("Method {0} does not have the right signature.", mi.Name));
 
-
+#if NETFX_CORE
+					Delegate deleg = mi.CreateDelegate(typeof(Func<ScriptExecutionContext, CallbackArguments, DynValue>));
+#else
 					Delegate deleg = Delegate.CreateDelegate(typeof(Func<ScriptExecutionContext, CallbackArguments, DynValue>), mi);
+#endif
 
 					Func<ScriptExecutionContext, CallbackArguments, DynValue> func =
 						(Func<ScriptExecutionContext, CallbackArguments, DynValue>)deleg;
-
+						
 
 					string name = (!string.IsNullOrEmpty(attr.Name)) ? attr.Name : mi.Name;
 

@@ -162,7 +162,7 @@ namespace MoonSharpTests
 
 			string str = dump.Serialize();
 
-			File.WriteAllText(Path.GetTempPath() + Path.DirectorySeparatorChar + "testdump.lua", str);
+			File.WriteAllText(@"c:\temp\testdump.lua", str);
 		}
 
 		private static void Log(TestResult r)

@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if !(DOTNET_CORE || NETFX_CORE) && !PCL
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -30,3 +32,5 @@ namespace MoonSharp.Interpreter.Compatibility.Frameworks
 		}
 	}
 }
+
+#endif

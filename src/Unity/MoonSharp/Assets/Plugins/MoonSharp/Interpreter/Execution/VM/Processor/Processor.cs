@@ -84,7 +84,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 		// at vstack top.
 		private int PushClrToScriptStackFrame(CallStackItemFlags flags, DynValue function, DynValue[] args)
 		{
-			if (function == null)
+			if (function == null) 
 				function = m_ValueStack.Peek();
 			else
 				m_ValueStack.Push(function);  // func val
@@ -123,7 +123,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				m_Parent.m_CoroutinesStack.RemoveAt(m_Parent.m_CoroutinesStack.Count - 1);
 			}
 
-			if (m_ExecutionNesting == 0 && m_Debug != null && m_Debug.DebuggerEnabled
+			if (m_ExecutionNesting == 0 && m_Debug != null && m_Debug.DebuggerEnabled 
 				&& m_Debug.DebuggerAttached != null)
 			{
 				m_Debug.DebuggerAttached.SignalExecutionEnded();
@@ -132,7 +132,11 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		int GetThreadId()
 		{
-			return Thread.CurrentThread.ManagedThreadId;
+			#if ENABLE_DOTNET || NETFX_CORE
+				return 1;
+			#else
+				return Thread.CurrentThread.ManagedThreadId;
+			#endif
 		}
 
 		private void EnterProcessor()

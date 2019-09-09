@@ -27,6 +27,10 @@ namespace MoonSharp.Interpreter.Platforms
 		/// </summary>
 		public static bool IsRunningOnUnity { get; private set; }
 		/// <summary>
+		/// Gets a value indicating whether this instance has been built as a Portable Class Library
+		/// </summary>
+		public static bool IsPortableFramework { get; private set; }
+		/// <summary>
 		/// Gets a value indicating whether this instance has been compiled natively in Unity (as opposite to importing a DLL).
 		/// </summary>
 		public static bool IsUnityNative { get; private set; }
@@ -37,7 +41,7 @@ namespace MoonSharp.Interpreter.Platforms
 
 
 		/// <summary>
-		/// Gets a value indicating whether this instance is running a system using Ahead-Of-Time compilation
+		/// Gets a value indicating whether this instance is running a system using Ahead-Of-Time compilation 
 		/// and not supporting JIT.
 		/// </summary>
 		public static bool IsRunningOnAOT
@@ -73,20 +77,27 @@ namespace MoonSharp.Interpreter.Platforms
 		{
 			if (m_AutoDetectionsDone)
 				return;
-
-	#if UNITY_5
+#if PCL
+			IsPortableFramework = true;
+#if ENABLE_DOTNET
+			IsRunningOnUnity = true;
+			IsUnityNative = true;
+#endif
+#else
+#if UNITY_5
 			IsRunningOnUnity = true;
 			IsUnityNative = true;
 
 	#if ENABLE_IL2CPP
 					IsUnityIL2CPP = true;
 	#endif
-	#else
+	#elif !(NETFX_CORE)
 			IsRunningOnUnity = AppDomain.CurrentDomain
 				.GetAssemblies()
 				.SelectMany(a => a.SafeGetTypes())
 				.Any(t => t.FullName.StartsWith("UnityEngine."));
 	#endif
+#endif
 
 			IsRunningOnMono = (Type.GetType("Mono.Runtime") != null);
 
@@ -101,7 +112,7 @@ namespace MoonSharp.Interpreter.Platforms
 		{
 			AutoDetectPlatformFlags();
 
-#if ENABLE_DOTNET
+#if PCL || ENABLE_DOTNET
 			return new LimitedPlatformAccessor();
 #else
 			if (IsRunningOnUnity)
@@ -122,7 +133,15 @@ namespace MoonSharp.Interpreter.Platforms
 			if (IsRunningOnUnity)
 				return new UnityAssetsScriptLoader();
 			else
+			{
+#if (DOTNET_CORE)
 				return new FileSystemScriptLoader();
+#elif (PCL || ENABLE_DOTNET || NETFX_CORE)
+				return new InvalidScriptLoader("Portable Framework");
+#else
+				return new FileSystemScriptLoader();
+#endif
+			}
 		}
 	}
 }

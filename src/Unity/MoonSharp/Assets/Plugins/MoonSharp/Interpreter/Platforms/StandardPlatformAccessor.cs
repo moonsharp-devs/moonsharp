@@ -1,5 +1,5 @@
-﻿#if UNITY_5
-// Dummy implementation for Unity targets
+﻿#if (PCL) || (UNITY_5) || NETFX_CORE
+// Dummy implementation for PCL and Unity targets
 using System;
 using System.IO;
 using System.Text;
@@ -129,7 +129,7 @@ namespace MoonSharp.Interpreter.Platforms
 
 
 		/// <summary>
-		/// A function used to open files in the 'io' module.
+		/// A function used to open files in the 'io' module. 
 		/// Can have an invalid implementation if 'io' module is filtered out.
 		/// It should return a correctly initialized Stream for the given file and access
 		/// </summary>
@@ -239,7 +239,7 @@ namespace MoonSharp.Interpreter.Platforms
 		/// <param name="dst">The DST.</param>
 		public override void OS_FileMove(string src, string dst)
 		{
-#if (!UNITY_5) || UNITY_STANDALONE
+#if (!PCL) && ((!UNITY_5) || UNITY_STANDALONE)
 				File.Move(src, dst);
 #endif
 		}

@@ -34,10 +34,10 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 			Script S = new Script();
 
-			S.Globals.Set("print", DynValue.NewCallback(new CallbackFunction((x, a) =>
+			S.Globals.Set("print", DynValue.NewCallback(new CallbackFunction((x, a) => 
 			{
 				args = a.GetArray();
-				return DynValue.NewNumber(1234.0);
+				return DynValue.NewNumber(1234.0); 
 			})));
 
 			DynValue res = S.DoString(script);
@@ -147,7 +147,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		//!!! DO NOT REFORMAT THIS METHOD !!!
 		public void LongStrings()
 		{
-			string script = @"
+			string script = @"    
 				x = [[
 					ciao
 				]];
@@ -173,7 +173,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		[Test]
 		public void UnicodeEscapeLua53Style()
 		{
-			string script = @"
+			string script = @"    
 				x = 'ciao\u{41}';
 				return x;";
 
@@ -187,7 +187,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		[ExpectedException(typeof(SyntaxErrorException))]
 		public void InvalidEscape()
 		{
-			string script = @"
+			string script = @"    
 				x = 'ciao\k{41}';
 				return x;";
 
@@ -199,7 +199,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		{
 			string keywrd = "and break do else elseif end false end for function end goto if ::in:: in local nil not [or][[][==][[]] repeat return { then 0 end return; }; then true (x != 5 or == * 3 - 5) x";
 
-			string script = string.Format(@"
+			string script = string.Format(@"    
 				x = '{0}';
 				return x;", keywrd);
 
@@ -214,7 +214,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		public void ParserErrorMessage()
 		{
 			bool caught = false;
-			string script = @"
+			string script = @"    
 				return 'It's a wet floor warning saying wheat flour instead. \
 				Probably, the cook thought it was funny. \
 				He was wrong.'";
@@ -235,7 +235,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		[Test]
 		public void StringsWithBackslashLineEndings2()
 		{
-			string script = @"
+			string script = @"    
 				return 'a\
 				b\
 				c'";
@@ -248,7 +248,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		[Test]
 		public void StringsWithBackslashLineEndings()
 		{
-			string script = @"
+			string script = @"    
 				return 'It is a wet floor warning saying wheat flour instead. \
 				Probably, the cook thought it was funny. \
 				He was wrong.'";
@@ -261,8 +261,8 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		[Test]
 		public void FunctionCallWrappers()
 		{
-			string script = @"
-				function boh(x)
+			string script = @"    
+				function boh(x) 
 					return 1912 + x;
 				end
 			";
@@ -315,7 +315,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		[Test]
 		public void SimpleBoolShortCircuit()
 		{
-			string script = @"
+			string script = @"    
 				x = true or crash();
 				y = false and crash();
 			";
@@ -332,7 +332,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		[Test]
 		public void FunctionOrOperator()
 		{
-			string script = @"
+			string script = @"    
 				loadstring = loadstring or load;
 
 				return loadstring;
@@ -349,7 +349,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		[Test]
 		public void SelectNegativeIndex()
 		{
-			string script = @"
+			string script = @"    
 				return select(-1,'a','b','c');
 			";
 
@@ -367,14 +367,14 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		[Test]
 		public void BoolConversionAndShortCircuit()
 		{
-			string script = @"
+			string script = @"    
 				i = 0;
 
 				function f()
 					i = i + 1;
 					return '!';
-				end
-
+				end					
+				
 				x = false;
 				y = true;
 
@@ -404,7 +404,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 					move(n - 1, via, dst, src)
 				end
 			end
-
+ 
 			move(4, 1, 2, 3)
 			";
 
@@ -414,7 +414,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		[Test]
 		public void Factorial()
 		{
-			string script = @"
+			string script = @"    
 				-- defines a factorial function
 				function fact (n)
 					if (n == 0) then
@@ -423,7 +423,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 						return n*fact(n - 1)
 					end
 				end
-
+    
 				return fact(5)";
 
 			DynValue res = Script.RunString(script);
@@ -435,14 +435,14 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		[Test]
 		public void IfStatmWithScopeCheck()
 		{
-			string script = @"
+			string script = @"    
 				x = 0
 
 				if (x == 0) then
 					local i = 3;
 					x = i * 2;
 				end
-
+    
 				return i, x";
 
 			DynValue res = Script.RunString(script);
@@ -457,13 +457,13 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		[Test]
 		public void ScopeBlockCheck()
 		{
-			string script = @"
+			string script = @"    
 				local x = 6;
-
+				
 				do
 					local i = 33;
 				end
-
+		
 				return i, x";
 
 			DynValue res = Script.RunString(script);
@@ -478,14 +478,14 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		[Test]
 		public void ForLoopWithBreak()
 		{
-			string script = @"
+			string script = @"    
 				x = 0
 
 				for i = 1, 10 do
 					x = i
 					break;
 				end
-
+    
 				return x";
 
 			DynValue res = Script.RunString(script);
@@ -498,7 +498,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		[Test]
 		public void ForEachLoopWithBreak()
 		{
-			string script = @"
+			string script = @"    
 				x = 0
 				y = 0
 
@@ -511,7 +511,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 					return ii, v
 				  end
 				end
-
+    
 				function ipairslua (a)
 				  return iter, a, 0
 				end
@@ -524,7 +524,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 						break
 					end
 				end
-
+    
 				return x, y";
 
 			DynValue res = Script.RunString(script);
@@ -541,7 +541,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		[Test]
 		public void ForEachLoop()
 		{
-			string script = @"
+			string script = @"    
 				x = 0
 				y = 0
 
@@ -554,7 +554,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 					return ii, v
 				  end
 				end
-
+    
 				function ipairslua (a)
 				  return iter, a, 0
 				end
@@ -563,7 +563,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 					x = x + i
 					y = y + j
 				end
-
+    
 				return x, y";
 
 			DynValue res = Script.RunString(script);
@@ -579,10 +579,10 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		[Test]
 		public void LengthOperator()
 		{
-			string script = @"
+			string script = @"    
 				x = 'ciao'
 				y = { 1, 2, 3 }
-
+   
 				return #x, #y";
 
 			DynValue res = Script.RunString(script);
@@ -599,7 +599,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		[Test]
 		public void ForLoopWithBreakAndScopeCheck()
 		{
-			string script = @"
+			string script = @"    
 				x = 0
 
 				for i = 1, 10 do
@@ -609,7 +609,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 						break
 					end
 				end
-
+    
 				return i, x";
 
 			DynValue res = Script.RunString(script);
@@ -624,7 +624,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		[Test]
 		public void FactorialWithOneReturn()
 		{
-			string script = @"
+			string script = @"    
 				-- defines a factorial function
 				function fact (n)
 					if (n == 0) then
@@ -632,7 +632,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 					end
 					return n*fact(n - 1)
 				end
-
+    
 				return fact(5)";
 
 			DynValue res = Script.RunString(script);
@@ -770,7 +770,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		[Test]
 		public void GlobalVarAssignment()
 		{
-			string script = @"x = 1; return x;";
+			string script = @"x = 1; return x;";    
 
 			DynValue res = Script.RunString(script);
 
@@ -780,7 +780,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		[Test]
 		public void TupleAssignment1()
 		{
-			string script = @"
+			string script = @"    
 				function y()
 					return 2, 3
 				end
@@ -790,7 +790,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 				end
 
 				w, x, y, z = 0, x()
-
+    
 				return w+x+y+z";
 
 			DynValue res = Script.RunString(script);
@@ -802,7 +802,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		[Test]
 		public void IterativeFactorialWithWhile()
 		{
-			string script = @"
+			string script = @"    
 				function fact (n)
 					local result = 1;
 					while(n > 0) do
@@ -811,7 +811,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 					end
 					return result;
 				end
-
+    
 				return fact(5)";
 
 			DynValue res = Script.RunString(script);
@@ -825,7 +825,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		[Test]
 		public void IterativeFactorialWithRepeatUntilAndScopeCheck()
 		{
-			string script = @"
+			string script = @"    
 				function fact (n)
 					local result = 1;
 					repeat
@@ -835,7 +835,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 					until (n == 0 and checkscope == 1)
 					return result;
 				end
-
+    
 				return fact(5)";
 
 			Script s = new Script(CoreModules.None);
@@ -849,7 +849,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 		public void SimpleForLoop()
 		{
-			string script = @"
+			string script = @"    
 					x = 0
 					for i = 1, 3 do
 						x = x + i;
@@ -867,11 +867,11 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		[Test]
 		public void SimpleFunc()
 		{
-			string script = @"
+			string script = @"    
 				function fact (n)
 					return 3;
 				end
-
+    
 				return fact(3)";
 
 			DynValue res = Script.RunString(script);
@@ -883,7 +883,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		[Test]
 		public void IterativeFactorialWithFor()
 		{
-			string script = @"
+			string script = @"    
 				-- defines a factorial function
 				function fact (n)
 					x = 1
@@ -893,7 +893,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 					return x;
 				end
-
+    
 				return fact(5)";
 
 			DynValue res = Script.RunString(script);
@@ -906,7 +906,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		[Test]
 		public void LocalFunctionsObscureScopeRule()
 		{
-			string script = @"
+			string script = @"    
 				local function fact()
 					return fact;
 				end
@@ -922,7 +922,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		[Test]
 		public void FunctionWithStringArg2()
 		{
-			string script = @"
+			string script = @"    
 				x = 0;
 
 				fact = function(y)
@@ -944,7 +944,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		[Test]
 		public void FunctionWithStringArg()
 		{
-			string script = @"
+			string script = @"    
 				x = 0;
 
 				function fact(y)
@@ -967,7 +967,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		[Test]
 		public void FunctionWithTableArg()
 		{
-			string script = @"
+			string script = @"    
 				x = 0;
 
 				function fact(y)
@@ -990,7 +990,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		[Test]
 		public void TupleAssignment2()
 		{
-			string script = @"
+			string script = @"    
 				function boh()
 					return 1, 2;
 				end
@@ -1016,7 +1016,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		{
 			string script = @"function Allowed( )
 									for i = 1, 20 do
-  										return false
+  										return false 
 									end
 									return true
 								end
@@ -1031,10 +1031,10 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		{
 			string script = @"function Allowed( )
 									for i = 1, 20 do
-									if ( false ) or ( true and true ) or ( 7+i <= 9 and false ) then
-  										return false
+									if ( false ) or ( true and true ) or ( 7+i <= 9 and false ) then 
+  										return false 
 									end
-									end
+									end		
 									return true
 								end
 						Allowed();
@@ -1049,13 +1049,13 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		{
 			string script = @"
 						t = { {}, {} }
-
+						
 						function Allowed( )
 									for i = 1, 20 do
-									if ( t[1][3] ) or ( i <= 17 and t[1][1] ) or ( 7+i <= 9 and t[1][1] ) then
-  										return false
+									if ( t[1][3] ) or ( i <= 17 and t[1][1] ) or ( 7+i <= 9 and t[1][1] ) then 
+  										return false 
 									end
-									end
+									end		
 									return true
 								end
 						Allowed();
@@ -1162,7 +1162,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 						for i = 1, #t do
 							sum = sum + t[i];
 						end
-
+	
 						return sum;
 					end
 
@@ -1186,7 +1186,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 						for i = 1, #t do
 							sum = sum + t[i];
 						end
-
+	
 						return sum * m;
 					end
 
@@ -1210,7 +1210,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 						for i = 1, #t do
 							sum = sum + t[i];
 						end
-
+	
 						return sum;
 					end
 
@@ -1275,15 +1275,15 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			string script = @"
 				local RES = { }
 
-				RES.T1 = (_ENV == _G)
+				RES.T1 = (_ENV == _G) 
 
 				a = 1
 
 				local function f(t)
-				  local _ENV = t
+				  local _ENV = t 
 
-				  RES.T2 = (getmetatable == nil)
-
+				  RES.T2 = (getmetatable == nil) 
+  
 				  a = 2 -- create a new entry in t, doesn't touch the original 'a' global
 				  b = 3 -- create a new entry in t
 				end
@@ -1326,12 +1326,12 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		[Test]
 		public void TupleToOperator()
 		{
-			string script = @"
+			string script = @"    
 				function x()
 					return 3, 'xx';
 				end
 
-				return x() == 3;
+				return x() == 3;	
 			";
 
 			Script S = new Script(CoreModules.None);
@@ -1345,9 +1345,9 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		[Test]
 		public void LiteralExpands()
 		{
-			string script = @"
+			string script = @"    
 				x = 'a\65\66\67z';
-				return x;
+				return x;	
 			";
 
 			Script S = new Script(CoreModules.None);
@@ -1360,10 +1360,10 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		[Test]
 		public void HomonymArguments()
 		{
-			string script = @"
+			string script = @"    
 				function test(_,value,_) return _; end
 
-				return test(1, 2, 3);
+				return test(1, 2, 3);	
 			";
 
 			Script S = new Script(CoreModules.None);
@@ -1383,7 +1383,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 					for i = 1, #t do
 						sum = sum + t[i];
 					end
-
+	
 					return sum;
 								";
 
@@ -1407,7 +1407,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 						for i = 1, #t do
 							sum = sum + t[i];
 						end
-
+	
 						return sum;
 					end
 
@@ -1511,7 +1511,26 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 				v,v = myFunc()
 				print(v)
 				print(v)
-				");
+				");			
 		}
+
+
+//		[Test]
+//		public void TestModulesLoadingWithoutCrash()
+//		{
+//#if !PCL
+//			var basePath = AppDomain.CurrentDomain.BaseDirectory;
+//			var scriptPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "scripts\\test");
+//			Script script = new Script();
+
+//			((ScriptLoaderBase)script.Options.ScriptLoader).ModulePaths = new[]
+//			{
+//				System.IO.Path.Combine(basePath, "scripts\\test\\test.lua"),
+//			};
+//			var obj = script.LoadFile(System.IO.Path.Combine(scriptPath, "test.lua"));
+//			obj.Function.Call();
+//#endif
+//		}
+
 	}
 }

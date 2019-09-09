@@ -84,7 +84,7 @@ namespace MoonSharp.Interpreter.Interop.Converters
 				Delegate d = (Delegate)obj;
 
 
-#if !NET35 && !NET40 && (!UNITY_5 || Unit_5_6_OR_NEWER)
+#if NETFX_CORE
 				MethodInfo mi = d.GetMethodInfo();
 #else
 				MethodInfo mi = d.Method;

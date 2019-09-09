@@ -5,9 +5,11 @@ using MoonSharp.Interpreter.Tree;
 namespace MoonSharp.Interpreter
 {
 	/// <summary>
-	/// Exception for all parsing/lexing errors.
+	/// Exception for all parsing/lexing errors. 
 	/// </summary>
+#if !(PCL || ((!UNITY_EDITOR) && (ENABLE_DOTNET)) || NETFX_CORE)
 	[Serializable]
+#endif
 	public class SyntaxErrorException : InterpreterException
 	{
 		internal Token Token { get; private set; }
@@ -58,7 +60,7 @@ namespace MoonSharp.Interpreter
 		}
 
 		/// <summary>
-		/// Rethrows this instance if
+		/// Rethrows this instance if 
 		/// </summary>
 		/// <returns></returns>
 		public override void Rethrow()
