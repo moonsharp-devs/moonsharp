@@ -11,6 +11,7 @@ using MoonSharp.Interpreter.Tests;
 using NUnit.Framework;
 using System.Diagnostics;
 using System.IO;
+using System.Text.RegularExpressions;
 using MoonSharp.Interpreter;
 using MoonSharp.Interpreter.Serialization;
 using MoonSharp.VsCodeDebugger;
@@ -105,6 +106,25 @@ namespace DotNetCoreTestRunner
 			Console.WriteLine("1 - Unit tests");
 			Console.WriteLine("2 - Debugger");
 
+			if (args.Length == 1)
+			{
+				Regex unitRegex = new Regex(@"^(--?|/)unit$", RegexOptions.IgnoreCase);
+
+				if (unitRegex.IsMatch(args[0]))
+				{
+					TestMain(args);
+					return 0;
+				}
+
+				Regex debuggerRegex = new Regex(@"^(--?|/)unit$", RegexOptions.IgnoreCase);
+
+				if (debuggerRegex.IsMatch(args[0]))
+				{
+					DebuggerMain(args);
+					return 0;
+				}
+			}
+
 			while (true)
 			{
 				Console.Write(" ? ");
@@ -130,8 +150,6 @@ namespace DotNetCoreTestRunner
 				func.Function.Call();
 				System.Threading.Tasks.Task.Delay(100).Wait();
 			}
-
-			Console.ReadKey();
 		}
 
 		static int TestMain(string[] args)
@@ -179,14 +197,12 @@ namespace DotNetCoreTestRunner
 				}
 
 				//OnTestEnded();
-				Console.ReadKey();
 
 				return T.Fail;
 			}
 			catch (Exception ex)
 			{
 				Console.WriteLine(ex.ToString());
-				Console.ReadKey();
 				return 999;
 			}
 
@@ -198,7 +214,7 @@ namespace DotNetCoreTestRunner
 
 			string str = dump.Serialize();
 
-			File.WriteAllText(@"c:\temp\testdump.lua", str);
+			File.WriteAllText(Path.GetTempPath() + Path.DirectorySeparatorChar + "testdump.lua", str);
 		}
 
 		private static void Log(TestResult r)

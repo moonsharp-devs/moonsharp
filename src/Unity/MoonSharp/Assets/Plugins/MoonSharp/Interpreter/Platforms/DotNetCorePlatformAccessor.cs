@@ -57,7 +57,7 @@ namespace MoonSharp.Interpreter.Platforms
 
 
 		/// <summary>
-		/// A function used to open files in the 'io' module. 
+		/// A function used to open files in the 'io' module.
 		/// Can have an invalid implementation if 'io' module is filtered out.
 		/// It should return a correctly initialized Stream for the given file and access
 		/// </summary>
@@ -167,7 +167,7 @@ namespace MoonSharp.Interpreter.Platforms
 		/// <param name="dst">The DST.</param>
 		public override void OS_FileMove(string src, string dst)
 		{
-#if (!PCL) && ((!UNITY_5) || UNITY_STANDALONE)
+#if (!UNITY_5) || UNITY_STANDALONE
 			File.Move(src, dst);
 #endif
 		}

@@ -9,7 +9,7 @@ namespace MoonSharp.Interpreter.Loaders
 	/// <summary>
 	/// A script loader which can load scripts from assets in Unity3D.
 	/// Scripts should be saved as .txt files in a subdirectory of Assets/Resources.
-	/// 
+	///
 	/// When MoonSharp is activated on Unity3D and the default script loader is used,
 	/// scripts should be saved as .txt files in Assets/Resources/MoonSharp/Scripts.
 	/// </summary>
@@ -100,9 +100,7 @@ namespace MoonSharp.Interpreter.Loaders
 			}
 			catch (Exception ex)
 			{
-#if !(PCL || ENABLE_DOTNET || NETFX_CORE)
 				Console.WriteLine("Error initializing UnityScriptLoader : {0}", ex);
-#endif
 				System.Diagnostics.Debug.WriteLine(string.Format("Error initializing UnityScriptLoader : {0}", ex));
 			}
 		}

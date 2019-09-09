@@ -97,7 +97,7 @@ namespace MoonSharp.Interpreter.CoreLib.IO
 			return true;
 		}
 
-		public override long seek(string whence, long offset)
+		public override long seek(string whence, long offset = 0)
 		{
 			CheckFileIsNotClosed();
 			if (whence != null)

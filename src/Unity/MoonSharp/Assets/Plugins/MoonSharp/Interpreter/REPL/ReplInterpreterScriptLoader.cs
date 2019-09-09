@@ -1,5 +1,4 @@
-﻿#if !(PCL || ENABLE_DOTNET || NETFX_CORE)
-using System;
+﻿using System;
 using MoonSharp.Interpreter.Loaders;
 
 namespace MoonSharp.Interpreter.REPL
@@ -7,13 +6,13 @@ namespace MoonSharp.Interpreter.REPL
 	/// <summary>
 	/// A script loader loading scripts directly from the file system (does not go through platform object)
 	/// AND starts with module paths taken from environment variables (again, not going through the platform object).
-	/// 
+	///
 	/// The paths are preconstructed using :
 	///		* The MOONSHARP_PATH environment variable if it exists
 	///		* The LUA_PATH_5_2 environment variable if MOONSHARP_PATH does not exists
 	///		* The LUA_PATH environment variable if LUA_PATH_5_2 and MOONSHARP_PATH do not exists
 	///		* The "?;?.lua" path if all the above fail
-	///		
+	///
 	/// Also, everytime a module is require(d), the "LUA_PATH" global variable is checked. If it exists, those paths
 	/// will be used to load the module instead of the global ones.
 	/// </summary>
@@ -66,6 +65,3 @@ namespace MoonSharp.Interpreter.REPL
 		}
 	}
 }
-
-
-#endif

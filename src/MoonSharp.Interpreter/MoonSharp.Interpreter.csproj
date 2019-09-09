@@ -1,0 +1,53 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>netstandard2.0;net35;net40</TargetFrameworks>
+        <AssemblyOriginatorKeyFile>keypair.snk</AssemblyOriginatorKeyFile>
+        <Authors>MoonSharp</Authors>
+        <Description>An interpreter for the Lua language</Description>
+        <Copyright>Copyright © 2014-2015, Marco Mastropaolo</Copyright>
+        <PackageProjectUrl>https://www.moonsharp.org</PackageProjectUrl>
+        <PackageLicenseUrl>https://raw.githubusercontent.com/xanathar/moonsharp/master/LICENSE</PackageLicenseUrl>
+        <RepositoryUrl>https://github.com/xanathar/moonsharp/</RepositoryUrl>
+        <Title>MoonSharp.Interpreter</Title>
+        <SignAssembly>true</SignAssembly>
+        <PackageVersion>2.0.0</PackageVersion>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+        <DebugSymbols>true</DebugSymbols>
+        <DebugType>full</DebugType>
+        <Optimize>false</Optimize>
+        <OutputPath>bin\Debug\</OutputPath>
+        <DefineConstants>TRACE;DEBUG</DefineConstants>
+        <ErrorReport>prompt</ErrorReport>
+        <WarningLevel>4</WarningLevel>
+        <NoWarn>3021, 1591</NoWarn>
+        <DocumentationFile />
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+        <DebugType>pdbonly</DebugType>
+        <Optimize>true</Optimize>
+        <OutputPath>bin\Release\</OutputPath>
+        <DefineConstants>TRACE</DefineConstants>
+        <ErrorReport>prompt</ErrorReport>
+        <WarningLevel>4</WarningLevel>
+        <NoWarn />
+        <DocumentationFile>bin\Release\MoonSharp.Interpreter.xml</DocumentationFile>
+        <UseVSHostingProcess>false</UseVSHostingProcess>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(DebugType)' == 'portable'">
+        <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" $(TargetFramework.StartsWith('netstandard')) ">
+        <DefineConstants>$(DefineConstants);DOTNET_CORE</DefineConstants>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(TargetFramework)' != 'net35' ">
+        <DefineConstants>$(DefineConstants);HASDYNAMIC</DefineConstants>
+    </PropertyGroup>
+
+</Project>

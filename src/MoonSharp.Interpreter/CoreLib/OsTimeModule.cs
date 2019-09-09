@@ -119,8 +119,6 @@ namespace MoonSharp.Interpreter.CoreLib
 			}
 			else
 			{
-#if !(PCL || ENABLE_DOTNET || NETFX_CORE)
-
 				try
 				{
 					reference = TimeZoneInfo.ConvertTimeFromUtc(reference, TimeZoneInfo.Local);
@@ -131,7 +129,6 @@ namespace MoonSharp.Interpreter.CoreLib
 					// this catches a weird mono bug: https://bugzilla.xamarin.com/show_bug.cgi?id=11817
 					// however the behavior is definitely not correct. damn.
 				}
-#endif
 			}
 
 

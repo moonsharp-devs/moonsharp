@@ -21,12 +21,9 @@ namespace MoonSharp.Interpreter.IO
 		{
 		}
 
-#if !(PCL || ENABLE_DOTNET || NETFX_CORE)
 		public override void Close()
 		{
 		}
-#endif
-
 
 		public override bool CanRead
 		{
@@ -79,7 +76,7 @@ namespace MoonSharp.Interpreter.IO
 			m_Stream.Write(buffer, offset, count);
 		}
 
-#if (!(NETFX_CORE))
+#if (!(NETSTANDARD1_6))
 		public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
 		{
 			return m_Stream.BeginRead(buffer, offset, count, callback, state);

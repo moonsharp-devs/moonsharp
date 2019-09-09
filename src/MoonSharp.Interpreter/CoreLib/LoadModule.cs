@@ -24,12 +24,7 @@ namespace MoonSharp.Interpreter.CoreLib
 				throw new InternalErrorException("'package' global variable was found and it is not a table");
 			}
 
-#if PCL || ENABLE_DOTNET || NETFX_CORE 
-			string cfg = "\\\n;\n?\n!\n-\n";
-#else
 			string cfg = System.IO.Path.DirectorySeparatorChar + "\n;\n?\n!\n-\n";
-#endif
-
 			package.Table.Set("config", DynValue.NewString(cfg));
 		}
 
@@ -38,17 +33,17 @@ namespace MoonSharp.Interpreter.CoreLib
 		// load (ld [, source [, mode [, env]]])
 		// ----------------------------------------------------------------
 		// Loads a chunk.
-		// 
-		// If ld is a string, the chunk is this string. 
-		// 
-		// If there are no syntactic errors, returns the compiled chunk as a function; 
+		//
+		// If ld is a string, the chunk is this string.
+		//
+		// If there are no syntactic errors, returns the compiled chunk as a function;
 		// otherwise, returns nil plus the error message.
-		// 
-		// source is used as the source of the chunk for error messages and debug 
-		// information (see §4.9). When absent, it defaults to ld, if ld is a string, 
+		//
+		// source is used as the source of the chunk for error messages and debug
+		// information (see §4.9). When absent, it defaults to ld, if ld is a string,
 		// or to "=(load)" otherwise.
-		// 
-		// The string mode is ignored, and assumed to be "t"; 
+		//
+		// The string mode is ignored, and assumed to be "t";
 		[MoonSharpModuleMethod]
 		public static DynValue load(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
@@ -112,7 +107,7 @@ namespace MoonSharp.Interpreter.CoreLib
 
 		// loadfile ([filename [, mode [, env]]])
 		// ----------------------------------------------------------------
-		// Similar to load, but gets the chunk from file filename or from the standard input, 
+		// Similar to load, but gets the chunk from file filename or from the standard input,
 		// if no file name is given. INCOMPAT: stdin not supported, mode ignored
 		[MoonSharpModuleMethod]
 		public static DynValue loadfile(ScriptExecutionContext executionContext, CallbackArguments args)
@@ -163,9 +158,9 @@ namespace MoonSharp.Interpreter.CoreLib
 
 		//dofile ([filename])
 		//--------------------------------------------------------------------------------------------------------------
-		//Opens the named file and executes its contents as a Lua chunk. When called without arguments, 
-		//dofile executes the contents of the standard input (stdin). Returns all values returned by the chunk. 
-		//In case of errors, dofile propagates the error to its caller (that is, dofile does not run in protected mode). 
+		//Opens the named file and executes its contents as a Lua chunk. When called without arguments,
+		//dofile executes the contents of the standard input (stdin). Returns all values returned by the chunk.
+		//In case of errors, dofile propagates the error to its caller (that is, dofile does not run in protected mode).
 		[MoonSharpModuleMethod]
 		public static DynValue dofile(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
@@ -186,25 +181,25 @@ namespace MoonSharp.Interpreter.CoreLib
 
 		//require (modname)
 		//----------------------------------------------------------------------------------------------------------------
-		//Loads the given module. The function starts by looking into the package.loaded table to determine whether 
-		//modname is already loaded. If it is, then require returns the value stored at package.loaded[modname]. 
+		//Loads the given module. The function starts by looking into the package.loaded table to determine whether
+		//modname is already loaded. If it is, then require returns the value stored at package.loaded[modname].
 		//Otherwise, it tries to find a loader for the module.
 		//
-		//To find a loader, require is guided by the package.loaders array. By changing this array, we can change 
+		//To find a loader, require is guided by the package.loaders array. By changing this array, we can change
 		//how require looks for a module. The following explanation is based on the default configuration for package.loaders.
 		//
-		//First require queries package.preload[modname]. If it has a value, this value (which should be a function) 
-		//is the loader. Otherwise require searches for a Lua loader using the path stored in package.path. 
-		//If that also fails, it searches for a C loader using the path stored in package.cpath. If that also fails, 
+		//First require queries package.preload[modname]. If it has a value, this value (which should be a function)
+		//is the loader. Otherwise require searches for a Lua loader using the path stored in package.path.
+		//If that also fails, it searches for a C loader using the path stored in package.cpath. If that also fails,
 		//it tries an all-in-one loader (see package.loaders).
 		//
-		//Once a loader is found, require calls the loader with a single argument, modname. If the loader returns any value, 
-		//require assigns the returned value to package.loaded[modname]. If the loader returns no value and has not assigned 
-		//any value to package.loaded[modname], then require assigns true to this entry. In any case, require returns the 
+		//Once a loader is found, require calls the loader with a single argument, modname. If the loader returns any value,
+		//require assigns the returned value to package.loaded[modname]. If the loader returns no value and has not assigned
+		//any value to package.loaded[modname], then require assigns true to this entry. In any case, require returns the
 		//final value of package.loaded[modname].
 		//
-		//If there is any error loading or running the module, or if it cannot find any loader for the module, then require 
-		//signals an error. 
+		//If there is any error loading or running the module, or if it cannot find any loader for the module, then require
+		//signals an error.
 		[MoonSharpModuleMethod]
 		public static DynValue __require_clr_impl(ScriptExecutionContext executionContext, CallbackArguments args)
 		{

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -67,7 +68,7 @@ namespace MoonSharp.Interpreter.Tests
 				t => Framework.Do.GetCustomAttributes(t, typeof(TestFixtureAttribute), true).Any()).ToArray();
 
 #if UNITY_EDITOR_OSX
-            System.IO.File.WriteAllLines("/temp/types.cs", types.Select(t => t.FullName).ToArray());
+            File.WriteAllLines(Path.GetTempPath() + Path.DirectorySeparatorChar + "types.cs", types.Select(t => t.FullName).ToArray());
 #endif
 
 			Console_WriteLine("Found {0} test types.", types.Length);

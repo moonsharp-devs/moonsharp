@@ -1,9 +1,9 @@
-﻿#if (!PCL) && ((!UNITY_5) || UNITY_STANDALONE)
+﻿#if (!UNITY_5) || UNITY_STANDALONE
 
 /*---------------------------------------------------------------------------------------------
 Copyright (c) Microsoft Corporation
 
-All rights reserved. 
+All rights reserved.
 
 MIT License
 
