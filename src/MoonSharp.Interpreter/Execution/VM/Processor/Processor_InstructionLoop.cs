@@ -703,9 +703,12 @@ namespace MoonSharp.Interpreter.Execution.VM
 			{
 				//IList<DynValue> args = new Slice<DynValue>(m_ValueStack, m_ValueStack.Count - argsCount, argsCount, false);
 				IList<DynValue> args = CreateArgsListForFunctionCall(argsCount, 0);
-				// we expand tuples before callbacks
+		                // we expand tuples before callbacks
 				// args = DynValue.ExpandArgumentsToList(args);
-				SourceRef sref = GetCurrentSourceRef(instructionPtr);
+
+				// instructionPtr - 1: instructionPtr already points to the next instruction at this moment
+				// but we need the current instruction here
+                		SourceRef sref = GetCurrentSourceRef(instructionPtr - 1);
 
 				m_ExecutionStack.Push(new CallStackItem()
 				{
@@ -735,7 +738,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 					BasePointer = m_ValueStack.Count,
 					ReturnAddress = instructionPtr,
 					Debug_EntryPoint = fn.Function.EntryPointByteCodeLocation,
-					CallingSourceRef = GetCurrentSourceRef(instructionPtr),
+					CallingSourceRef = GetCurrentSourceRef(instructionPtr - 1), // See right above in GetCurrentSourceRef(instructionPtr - 1)
 					ClosureScope = fn.Function.ClosureContext,
 					ErrorHandler = handler,
 					Continuation = continuation,
