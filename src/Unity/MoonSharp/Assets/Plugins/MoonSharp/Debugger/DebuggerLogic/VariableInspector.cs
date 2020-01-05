@@ -54,12 +54,22 @@ namespace MoonSharp.VsCodeDebugger.DebuggerLogic
 					if (v.UserData.Descriptor != null)
 					{
 						variables.Add(new Variable("(descriptor)", v.UserData.Descriptor.Name));
-						variables.Add(new Variable("(native type)", v.UserData.Descriptor.Type.ToString()));
+						if (v.UserData.MetaTable != null)
+						{
+							variables.Add(new Variable("(native type)", v.UserData.Descriptor.Type.ToString() + ", has metatable"));
+						}
+						else
+						{
+							variables.Add(new Variable("(native type)", v.UserData.Descriptor.Type.ToString()));
+						}
 					}
 					else
 					{
 						variables.Add(new Variable("(descriptor)", "null!"));
 					}
+					
+					if (v.UserData.MetaTable != null)
+						variables.Add(new Variable("(metatable #id)", v.UserData.MetaTable.ReferenceID.ToString()));
 
 					variables.Add(new Variable("(native object)", v.UserData.Object != null ? v.UserData.Object.ToString() : "(null)"));
 					break;

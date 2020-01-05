@@ -86,6 +86,8 @@ namespace MoonSharp.Interpreter.CoreLib
 				return DynValue.NewTable(S.GetTypeMetatable(v.Type));
 			else if (v.Type == DataType.Table)
 				return DynValue.NewTable(v.Table.MetaTable);
+			else if (v.Type == DataType.UserData)
+				return DynValue.NewTable(v.UserData.MetaTable);
 			else
 				return DynValue.Nil;
 		}
@@ -102,6 +104,8 @@ namespace MoonSharp.Interpreter.CoreLib
 				S.SetTypeMetatable(v.Type, m);
 			else if (v.Type == DataType.Table)
 				v.Table.MetaTable = m;
+			else if (v.Type == DataType.UserData)
+				v.UserData.MetaTable = m;
 			else
 				throw new ScriptRuntimeException("cannot debug.setmetatable on type {0}", v.Type.ToErrorTypeString());
 

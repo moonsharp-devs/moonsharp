@@ -1243,13 +1243,18 @@ namespace MoonSharp.Interpreter.Execution.VM
 				else if (obj.Type == DataType.UserData)
 				{
 					UserData ud = obj.UserData;
+					
+					h = GetMetamethodRaw(obj, "__newindex");
 
-					if (!ud.Descriptor.SetIndex(this.GetScript(), ud.Object, originalIdx, value, isNameIndex))
+					if (h == null || h.IsNil())
 					{
-						throw ScriptRuntimeException.UserDataMissingField(ud.Descriptor.Name, idx.String);
-					}
+						if (!ud.Descriptor.SetIndex(this.GetScript(), ud.Object, originalIdx, value, isNameIndex))
+						{
+							throw ScriptRuntimeException.UserDataMissingField(ud.Descriptor.Name, idx.String);
+						}
 
-					return instructionPtr;
+						return instructionPtr;
+					}
 				}
 				else
 				{
@@ -1330,11 +1335,17 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 					if (v == null)
 					{
-						throw ScriptRuntimeException.UserDataMissingField(ud.Descriptor.Name, idx.String);
+						h = GetMetamethodRaw(obj, "__index");
+						if (h == null || h.IsNil())
+						{
+							throw ScriptRuntimeException.UserDataMissingField(ud.Descriptor.Name, idx.String);
+						}
 					}
-
-					m_ValueStack.Push(v.AsReadOnly());
-					return instructionPtr;
+					else
+					{
+						m_ValueStack.Push(v.AsReadOnly());
+						return instructionPtr;
+					}
 				}
 				else
 				{
