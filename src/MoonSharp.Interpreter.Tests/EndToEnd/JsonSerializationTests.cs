@@ -58,6 +58,9 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 			Assert.AreEqual(DataType.String, s.Get("aString").Type);
 			Assert.AreEqual("8", s.Get("aString").String);
+
+			Assert.AreEqual(DataType.Number, t.Get("aNegativeNumber").Type);
+			Assert.AreEqual(-9, t.Get("aNegativeNumber").Number);
 		}
 
 
@@ -68,7 +71,8 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 				'aNumber' : 1,
 				'aString' : '2',
 				'anObject' : { 'aNumber' : 3, 'aString' : '4' },
-				'anArray' : [ 5, '6', true, null, { 'aNumber' : 7, 'aString' : '8' } ]
+				'anArray' : [ 5, '6', true, null, { 'aNumber' : 7, 'aString' : '8' } ],
+				'aNegativeNumber' : -9
 				}
 			".Replace('\'', '\"');
 
@@ -83,7 +87,8 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 				'aNumber' : 1,
 				'aString' : '2',
 				'anObject' : { 'aNumber' : 3, 'aString' : '4' },
-				'anArray' : [ 5, '6', true, null, { 'aNumber' : 7, 'aString' : '8' } ]
+				'anArray' : [ 5, '6', true, null, { 'aNumber' : 7, 'aString' : '8' } ],
+				'aNegativeNumber' : -9
 				}
 			".Replace('\'', '\"');
 
@@ -120,7 +125,8 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 						aNumber = 7,
 						aString = "8"
 					}
-				}
+				},
+				aNegativeNumber = -9
 			};
 
 
