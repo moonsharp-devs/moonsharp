@@ -52,6 +52,20 @@ namespace MoonSharp.Interpreter
 			DefaultAccessMode = InteropAccessMode.LazyOptimized;
 		}
 
+		
+		
+		/// <summary>
+		/// Gets the meta-table associated with this instance.
+		/// </summary>
+		public Table MetaTable
+		{
+			get { return m_MetaTable; }
+			set { m_MetaTable = value; }
+		}
+		private Table m_MetaTable;
+		
+		
+		
 		/// <summary>
 		/// Registers a type for userdata interop
 		/// </summary>

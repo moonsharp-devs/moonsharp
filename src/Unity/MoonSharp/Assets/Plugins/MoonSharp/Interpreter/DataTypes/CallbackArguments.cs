@@ -200,6 +200,15 @@ namespace MoonSharp.Interpreter
 					throw new ScriptRuntimeException("'tostring' must return a string to '{0}'", funcName);
 
 				return v.ToPrintString();
+			} else if ((this[argNum].Type == DataType.UserData) && (this[argNum].UserData.MetaTable != null) &&
+			           (this[argNum].UserData.MetaTable.RawGet("__tostring") != null))
+			{
+				var v = executionContext.GetScript().Call(this[argNum].UserData.MetaTable.RawGet("__tostring"), this[argNum]);
+
+				if (v.Type != DataType.String)
+					throw new ScriptRuntimeException("'tostring' must return a string to '{0}'", funcName);
+
+				return v.ToPrintString();
 			}
 			else
 			{

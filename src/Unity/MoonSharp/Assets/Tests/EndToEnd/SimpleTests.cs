@@ -1016,7 +1016,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		{
 			string script = @"function Allowed( )
 									for i = 1, 20 do
-  										return false
+										return false
 									end
 									return true
 								end
@@ -1032,7 +1032,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			string script = @"function Allowed( )
 									for i = 1, 20 do
 									if ( false ) or ( true and true ) or ( 7+i <= 9 and false ) then
-  										return false
+										return false
 									end
 									end
 									return true
@@ -1053,7 +1053,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 						function Allowed( )
 									for i = 1, 20 do
 									if ( t[1][3] ) or ( i <= 17 and t[1][1] ) or ( 7+i <= 9 and t[1][1] ) then
-  										return false
+										return false
 									end
 									end
 									return true

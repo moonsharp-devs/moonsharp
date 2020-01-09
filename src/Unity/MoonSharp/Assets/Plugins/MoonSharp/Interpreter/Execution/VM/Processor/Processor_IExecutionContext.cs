@@ -9,6 +9,9 @@ namespace MoonSharp.Interpreter.Execution.VM
 			{
 				return value.Table.MetaTable;
 			}
+			else if (value.Type == DataType.UserData) {
+				return value.UserData.MetaTable;
+			}
 			else if (value.Type.CanHaveTypeMetatables())
 			{
 				return m_Script.GetTypeMetatable(value.Type);
