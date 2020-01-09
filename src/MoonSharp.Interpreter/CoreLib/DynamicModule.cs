@@ -45,7 +45,7 @@ namespace MoonSharp.Interpreter.CoreLib
 				}
 			}
 			catch (SyntaxErrorException ex)
-			{ 
+			{
 				throw new ScriptRuntimeException(ex);
 			}
 		}
