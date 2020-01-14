@@ -182,9 +182,9 @@ namespace MoonSharp.Interpreter.Interop
 		private void AssignProperty(object obj, string name, DynValue value)
 		{
 			if (TryAssignProperty(obj, name, value)) return;
-			if (Script.GlobalOptions.FuzzySymbolMatching == FuzzySymbolMatchingBehaviour.UpperFirstLeter && TryAssignProperty(obj, DescriptorHelpers.UpperFirstLetter(name), value)) return;
-			if (Script.GlobalOptions.FuzzySymbolMatching == FuzzySymbolMatchingBehaviour.Camelify && TryAssignProperty(obj, DescriptorHelpers.Camelify(name), value)) return;
-			if (Script.GlobalOptions.FuzzySymbolMatching == FuzzySymbolMatchingBehaviour.All && TryAssignProperty(obj, DescriptorHelpers.UpperFirstLetter(DescriptorHelpers.Camelify(name)), value)) return;
+			if ((Script.GlobalOptions.FuzzySymbolMatching & FuzzySymbolMatchingBehaviour.UpperFirstLeter) == FuzzySymbolMatchingBehaviour.UpperFirstLeter && TryAssignProperty(obj, DescriptorHelpers.UpperFirstLetter(name), value)) return;
+			if ((Script.GlobalOptions.FuzzySymbolMatching & FuzzySymbolMatchingBehaviour.Camelify) == FuzzySymbolMatchingBehaviour.Camelify && TryAssignProperty(obj, DescriptorHelpers.Camelify(name), value)) return;
+			if ((Script.GlobalOptions.FuzzySymbolMatching & (FuzzySymbolMatchingBehaviour.UpperFirstLeter | FuzzySymbolMatchingBehaviour.Camelify)) == (FuzzySymbolMatchingBehaviour.UpperFirstLeter | FuzzySymbolMatchingBehaviour.Camelify) && TryAssignProperty(obj, DescriptorHelpers.UpperFirstLetter(DescriptorHelpers.Camelify(name)), value)) return;
 
 			throw new ScriptRuntimeException("Invalid property {0}", name);
 		}

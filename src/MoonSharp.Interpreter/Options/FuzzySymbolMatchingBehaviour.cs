@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace MoonSharp.Interpreter {
 
@@ -8,8 +6,7 @@ namespace MoonSharp.Interpreter {
 	/// A flag that controls if/how symbols (method, property, userdata) are fuzzily matched when they do not exist. Flags can be combined for multiple checks.
 	/// </summary>
 	[Flags]
-	public enum FuzzySymbolMatchingBehaviour
-	{
+	public enum FuzzySymbolMatchingBehaviour {
 
 		/// <summary>No fuzzy matching is performed.</summary>
 		None = 0,
