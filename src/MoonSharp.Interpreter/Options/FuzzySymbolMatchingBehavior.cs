@@ -18,9 +18,9 @@ namespace MoonSharp.Interpreter {
 		Camelify = 2,
 
 		/// <summary>
-		/// Combines both <see cref="UpperFirstLetter"/> and <see cref="Camelify"/>. For example, test_Method_two() becomes TestMethodTwo()
+		/// Converts a symbol to pascal case. For example, test_Method_two() becomes TestMethodTwo()
 		/// </summary>
-		All = UpperFirstLetter | Camelify
+		PascalCase = 4
 
 	}
 

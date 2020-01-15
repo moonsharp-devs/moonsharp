@@ -12,7 +12,7 @@ namespace MoonSharp.Interpreter
 		internal ScriptGlobalOptions() {
 			Platform = PlatformAutoDetector.GetDefaultPlatform();
 			CustomConverters = new CustomConvertersCollection();
-			FuzzySymbolMatching = FuzzySymbolMatchingBehavior.All;
+			FuzzySymbolMatching = FuzzySymbolMatchingBehavior.Camelify | FuzzySymbolMatchingBehavior.UpperFirstLetter | FuzzySymbolMatchingBehavior.PascalCase;
 		}
 
 		/// <summary>
