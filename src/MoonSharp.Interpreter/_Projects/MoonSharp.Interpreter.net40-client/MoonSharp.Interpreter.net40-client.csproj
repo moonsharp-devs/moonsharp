@@ -576,6 +576,9 @@
     <Compile Include="..\..\Options\ColonOperatorBehaviour.cs">
       <Link>ColonOperatorBehaviour.cs</Link>
     </Compile>
+    <Compile Include="..\..\Options\FuzzySymbolMatchingBehavior.cs">
+      <Link>FuzzySymbolMatchingBehaviour.cs</Link>
+    </Compile>
     <Compile Include="..\..\Platforms\DotNetCorePlatformAccessor.cs">
       <Link>DotNetCorePlatformAccessor.cs</Link>
     </Compile>
