@@ -233,9 +233,9 @@ namespace MoonSharp.Interpreter.Interop.BasicDescriptors
 				return null;
 
 			DynValue v = TryIndex(script, obj, index.String);
-			if (v == null && (Script.GlobalOptions.FuzzySymbolMatching & FuzzySymbolMatchingBehaviour.UpperFirstLeter) == FuzzySymbolMatchingBehaviour.UpperFirstLeter) v = TryIndex(script, obj, UpperFirstLetter(index.String));
-			if (v == null && (Script.GlobalOptions.FuzzySymbolMatching & FuzzySymbolMatchingBehaviour.Camelify) == FuzzySymbolMatchingBehaviour.Camelify) v = TryIndex(script, obj, Camelify(index.String));
-			if (v == null && (Script.GlobalOptions.FuzzySymbolMatching & (FuzzySymbolMatchingBehaviour.UpperFirstLeter | FuzzySymbolMatchingBehaviour.Camelify)) == (FuzzySymbolMatchingBehaviour.UpperFirstLeter | FuzzySymbolMatchingBehaviour.Camelify))
+			if (v == null && (Script.GlobalOptions.FuzzySymbolMatching & FuzzySymbolMatchingBehavior.UpperFirstLetter) == FuzzySymbolMatchingBehavior.UpperFirstLetter) v = TryIndex(script, obj, UpperFirstLetter(index.String));
+			if (v == null && (Script.GlobalOptions.FuzzySymbolMatching & FuzzySymbolMatchingBehavior.Camelify) == FuzzySymbolMatchingBehavior.Camelify) v = TryIndex(script, obj, Camelify(index.String));
+			if (v == null && (Script.GlobalOptions.FuzzySymbolMatching & (FuzzySymbolMatchingBehavior.UpperFirstLetter | FuzzySymbolMatchingBehavior.Camelify)) == (FuzzySymbolMatchingBehavior.UpperFirstLetter | FuzzySymbolMatchingBehavior.Camelify))
 				v = TryIndex(script, obj, UpperFirstLetter(Camelify(index.String)));
 
 			if (v == null && m_ExtMethodsVersion < UserData.GetExtensionMethodsChangeVersion())
@@ -243,9 +243,9 @@ namespace MoonSharp.Interpreter.Interop.BasicDescriptors
 				m_ExtMethodsVersion = UserData.GetExtensionMethodsChangeVersion();
 
 				v = TryIndexOnExtMethod(script, obj, index.String);
-				if (v == null && (Script.GlobalOptions.FuzzySymbolMatching & FuzzySymbolMatchingBehaviour.UpperFirstLeter) == FuzzySymbolMatchingBehaviour.UpperFirstLeter) v = TryIndexOnExtMethod(script, obj, UpperFirstLetter(index.String));
-				if (v == null && (Script.GlobalOptions.FuzzySymbolMatching & FuzzySymbolMatchingBehaviour.Camelify) == FuzzySymbolMatchingBehaviour.Camelify) v = TryIndexOnExtMethod(script, obj, Camelify(index.String));
-				if (v == null && (Script.GlobalOptions.FuzzySymbolMatching & (FuzzySymbolMatchingBehaviour.UpperFirstLeter | FuzzySymbolMatchingBehaviour.Camelify)) == (FuzzySymbolMatchingBehaviour.UpperFirstLeter | FuzzySymbolMatchingBehaviour.Camelify))
+				if (v == null && (Script.GlobalOptions.FuzzySymbolMatching & FuzzySymbolMatchingBehavior.UpperFirstLetter) == FuzzySymbolMatchingBehavior.UpperFirstLetter) v = TryIndexOnExtMethod(script, obj, UpperFirstLetter(index.String));
+				if (v == null && (Script.GlobalOptions.FuzzySymbolMatching & FuzzySymbolMatchingBehavior.Camelify) == FuzzySymbolMatchingBehavior.Camelify) v = TryIndexOnExtMethod(script, obj, Camelify(index.String));
+				if (v == null && (Script.GlobalOptions.FuzzySymbolMatching & (FuzzySymbolMatchingBehavior.UpperFirstLetter | FuzzySymbolMatchingBehavior.Camelify)) == (FuzzySymbolMatchingBehavior.UpperFirstLetter | FuzzySymbolMatchingBehavior.Camelify))
 					v = TryIndexOnExtMethod(script, obj, UpperFirstLetter(Camelify(index.String)));
 			}
 
@@ -346,9 +346,9 @@ namespace MoonSharp.Interpreter.Interop.BasicDescriptors
 				return false;
 
 			bool v = TrySetIndex(script, obj, index.String, value);
-			if (!v && (Script.GlobalOptions.FuzzySymbolMatching & FuzzySymbolMatchingBehaviour.UpperFirstLeter) == FuzzySymbolMatchingBehaviour.UpperFirstLeter) v = TrySetIndex(script, obj, UpperFirstLetter(index.String), value);
-			if (!v && (Script.GlobalOptions.FuzzySymbolMatching & FuzzySymbolMatchingBehaviour.Camelify) == FuzzySymbolMatchingBehaviour.Camelify) v = TrySetIndex(script, obj, Camelify(index.String), value);
-			if (!v && (Script.GlobalOptions.FuzzySymbolMatching & (FuzzySymbolMatchingBehaviour.UpperFirstLeter | FuzzySymbolMatchingBehaviour.Camelify)) == (FuzzySymbolMatchingBehaviour.UpperFirstLeter | FuzzySymbolMatchingBehaviour.Camelify))
+			if (!v && (Script.GlobalOptions.FuzzySymbolMatching & FuzzySymbolMatchingBehavior.UpperFirstLetter) == FuzzySymbolMatchingBehavior.UpperFirstLetter) v = TrySetIndex(script, obj, UpperFirstLetter(index.String), value);
+			if (!v && (Script.GlobalOptions.FuzzySymbolMatching & FuzzySymbolMatchingBehavior.Camelify) == FuzzySymbolMatchingBehavior.Camelify) v = TrySetIndex(script, obj, Camelify(index.String), value);
+			if (!v && (Script.GlobalOptions.FuzzySymbolMatching & (FuzzySymbolMatchingBehavior.UpperFirstLetter | FuzzySymbolMatchingBehavior.Camelify)) == (FuzzySymbolMatchingBehavior.UpperFirstLetter | FuzzySymbolMatchingBehavior.Camelify))
 				v = TrySetIndex(script, obj, UpperFirstLetter(Camelify(index.String)), value);
 
 			return v;

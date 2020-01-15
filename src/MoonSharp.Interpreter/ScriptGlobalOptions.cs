@@ -12,7 +12,7 @@ namespace MoonSharp.Interpreter
 		internal ScriptGlobalOptions() {
 			Platform = PlatformAutoDetector.GetDefaultPlatform();
 			CustomConverters = new CustomConvertersCollection();
-			FuzzySymbolMatching = FuzzySymbolMatchingBehaviour.All;
+			FuzzySymbolMatching = FuzzySymbolMatchingBehavior.All;
 		}
 
 		/// <summary>
@@ -36,10 +36,10 @@ namespace MoonSharp.Interpreter
 
 		/// <summary>
 		/// Gets or sets an enum that controls behaviour when a symbol (method, property, userdata) is not found in a userdata's descriptor. For instance,
-		/// when this value is <see cref="FuzzySymbolMatchingBehaviour.UpperFirstLeter"/> and Lua code calls the non-existent method <c>someuserdata.someMethod()</c>,
+		/// when this value is <see cref="FuzzySymbolMatchingBehavior.UpperFirstLetter"/> and Lua code calls the non-existent method <c>someuserdata.someMethod()</c>,
 		/// <c>someuserdata.SomeMethod()</c> will also be tried.
 		/// </summary>
-		public FuzzySymbolMatchingBehaviour FuzzySymbolMatching { get; set; }
+		public FuzzySymbolMatchingBehavior FuzzySymbolMatching { get; set; }
 
 	}
 }
