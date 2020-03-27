@@ -30,7 +30,7 @@ namespace MoonSharp.Interpreter.CoreLib.IO
 
 		protected override bool Eof()
 		{
-			CheckFileIsNotClosed();
+			flush();
 
 			if (m_Reader != null)
 				return m_Reader.EndOfStream;
@@ -40,19 +40,19 @@ namespace MoonSharp.Interpreter.CoreLib.IO
 
 		protected override string ReadLine()
 		{
-			CheckFileIsNotClosed();
+			flush();
 			return m_Reader.ReadLine();
 		}
 
 		protected override string ReadToEnd()
 		{
-			CheckFileIsNotClosed();
+			flush();
 			return m_Reader.ReadToEnd();
 		}
 
 		protected override string ReadBuffer(int p)
 		{
-			CheckFileIsNotClosed();
+			flush();
 			char[] buffer = new char[p];
 			int length = m_Reader.ReadBlock(buffer, 0, p);
 			return new string(buffer, 0, length);
@@ -60,7 +60,7 @@ namespace MoonSharp.Interpreter.CoreLib.IO
 
 		protected override char Peek()
 		{
-			CheckFileIsNotClosed();
+			flush();
 			return (char)m_Reader.Peek();
 		}
 
@@ -99,7 +99,7 @@ namespace MoonSharp.Interpreter.CoreLib.IO
 
 		public override long seek(string whence, long offset = 0)
 		{
-			CheckFileIsNotClosed();
+			flush();
 			if (whence != null)
 			{
 				if (whence == "set")
