@@ -53,7 +53,7 @@ namespace MoonSharp.Interpreter.Platforms
 				return FileMode.Create;
 			else if (mode == "w+")
 				return FileMode.Truncate;
-			else // mode == "a" || mode == "a+"
+			else // mode == "a"
 				return FileMode.Append;
 		}
 
