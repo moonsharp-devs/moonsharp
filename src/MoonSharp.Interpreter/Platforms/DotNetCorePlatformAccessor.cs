@@ -30,7 +30,9 @@ namespace MoonSharp.Interpreter.Platforms
 				return FileAccess.Write;
 			else if (mode == "w+")
 				return FileAccess.ReadWrite;
-			else
+			else if (mode == "a")
+				return FileAccess.Write;
+			else // mode == "a+"
 				return FileAccess.ReadWrite;
 		}
 
@@ -45,13 +47,13 @@ namespace MoonSharp.Interpreter.Platforms
 
 			if (mode == "r")
 				return FileMode.Open;
-			else if (mode == "r+")
+			else if (mode == "r+" || mode == "a+")
 				return FileMode.OpenOrCreate;
 			else if (mode == "w")
 				return FileMode.Create;
 			else if (mode == "w+")
 				return FileMode.Truncate;
-			else
+			else // mode == "a" || mode == "a+"
 				return FileMode.Append;
 		}
 
@@ -68,7 +70,14 @@ namespace MoonSharp.Interpreter.Platforms
 		/// <returns></returns>
 		public override Stream IO_OpenFile(Script script, string filename, Encoding encoding, string mode)
 		{
-			return new FileStream(filename, ParseFileMode(mode), ParseFileAccess(mode), FileShare.ReadWrite | FileShare.Delete);
+			FileStream stream = new FileStream(filename, ParseFileMode(mode), ParseFileAccess(mode), FileShare.ReadWrite | FileShare.Delete);
+
+			if (mode == "a+")
+			{
+				stream.Seek(0, SeekOrigin.End);
+			}
+
+			return stream;
 		}
 
 		/// <summary>
