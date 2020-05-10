@@ -224,6 +224,11 @@ namespace MoonSharp.Interpreter.Interop.LuaStateInterop
 				L.Pop();
 		}
 
+		protected static void LuaRemove(LuaState L, lua_Integer p)
+		{
+			L.Remove(-p);
+		}
+
 		protected static void LuaGetTable(LuaState L, lua_Integer p)
 		{
 			// DEBT: this should call metamethods, now it performs raw access

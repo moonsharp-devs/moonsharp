@@ -745,5 +745,17 @@ namespace MoonSharp.Interpreter
 		{
 			get { return this; }
 		}
+
+		public string CurrentSource
+		{
+			get
+			{
+				var callStack = m_MainProcessor.Debugger_GetCallStack(m_MainProcessor.GetCurrentSourceRef());
+				foreach(var item in callStack)
+					if (item.Location != null && item.Location.SourceIdx >= 1 && item.Location.SourceIdx <= SourceCodeCount)
+						return m_Sources[item.Location.SourceIdx].Name;
+				return null;
+			}
+		}
 	}
 }

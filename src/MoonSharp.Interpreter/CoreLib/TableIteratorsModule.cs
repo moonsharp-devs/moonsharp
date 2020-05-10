@@ -20,6 +20,8 @@ namespace MoonSharp.Interpreter.CoreLib
 		public static DynValue ipairs(ScriptExecutionContext executionContext, CallbackArguments args) 
 		{
 			DynValue table = args[0];
+			if(table == null || table.Type == DataType.Nil)
+				throw new System.ApplicationException("attempt to index nil");
 
 			DynValue meta = executionContext.GetMetamethodTailCall(table, "__ipairs", args.GetArray());
 

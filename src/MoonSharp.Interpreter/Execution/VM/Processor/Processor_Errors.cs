@@ -4,6 +4,15 @@ namespace MoonSharp.Interpreter.Execution.VM
 {
 	sealed partial class Processor
 	{
+		public SourceRef GetCurrentSourceRef()
+		{
+			if (m_SavedInstructionPtr >= 0 && m_SavedInstructionPtr < m_RootChunk.Code.Count)
+			{
+				return m_RootChunk.Code[m_SavedInstructionPtr].SourceCodeRef;
+			}
+
+			return null;
+		}
 		private SourceRef GetCurrentSourceRef(int instructionPtr)
 		{
 			if (instructionPtr >= 0 && instructionPtr < m_RootChunk.Code.Count)

@@ -134,8 +134,13 @@ namespace MoonSharp.Interpreter.Interop.LuaStateInterop
 		public static CharPtr operator +(CharPtr ptr, uint offset) { return new CharPtr(ptr.chars, ptr.index + (int)offset); }
 		public static CharPtr operator -(CharPtr ptr, uint offset) { return new CharPtr(ptr.chars, ptr.index - (int)offset); }
 
-		public void inc() { this.index++; }
-		public void dec() { this.index--; }
+		public CharPtr Copy()
+		{
+			return new CharPtr(this);
+		}
+
+		public CharPtr inc() { this.index++; return this; }
+		public CharPtr dec() { this.index--; return this; }
 		public CharPtr next() { return new CharPtr(this.chars, this.index + 1); }
 		public CharPtr prev() { return new CharPtr(this.chars, this.index - 1); }
 		public CharPtr add(int ofs) { return new CharPtr(this.chars, this.index + ofs); }

@@ -42,10 +42,11 @@ namespace MoonSharp.Interpreter.CoreLib
 
 			if (!v.CastToBool())
 			{
+				var cor = executionContext.GetCallingCoroutine();
 				if (message.IsNil())
-					throw new ScriptRuntimeException("assertion failed!"); // { DoNotDecorateMessage = true };
+					throw new ScriptRuntimeException("assertion failed!") { CallStack = cor.GetStackTrace(0) }; // { DoNotDecorateMessage = true };
 				else
-					throw new ScriptRuntimeException(message.ToPrintString()); // { DoNotDecorateMessage = true };
+					throw new ScriptRuntimeException(message.ToPrintString()) { CallStack = cor.GetStackTrace(0) }; // { DoNotDecorateMessage = true };
 			}
 
 			return DynValue.NewTupleNested(args.GetArray());
@@ -91,7 +92,7 @@ namespace MoonSharp.Interpreter.CoreLib
 
             		WatchItem[] stacktrace = cor.GetStackTrace(0, executionContext.CallingLocation);
 
-            		var e = new ScriptRuntimeException(message.String);
+            		var e = new ScriptRuntimeException(message.String) { CallStack = stacktrace };
 
             		if (level.IsNil())
             		{
