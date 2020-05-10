@@ -76,10 +76,10 @@ namespace MoonSharp.Interpreter.Interop.LuaStateInterop
 			}
 		}
 
-		protected static string LuaLCheckLString(LuaState L, lua_Integer argNum, out uint l)
+		protected static string LuaLCheckLString(LuaState L, lua_Integer argNum, out uint l, bool allowNil = false)
 		{
-			string str = ArgAsType(L, argNum, DataType.String, false).String;
-			l = (uint)str.Length;
+			string str = ArgAsType(L, argNum, DataType.String, allowNil).String;
+			l = (uint)(str?.Length ?? 0);
 			return str;
 		}
 
