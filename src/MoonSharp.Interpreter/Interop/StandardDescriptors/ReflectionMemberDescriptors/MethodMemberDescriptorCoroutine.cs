@@ -13,10 +13,14 @@ namespace MoonSharp.Interpreter.Interop
             var enumerateYielder = script.DoString(@"return function (callable) 
     return function (...)
         for y in callable(...) do
-            coroutine.yield(y)
+            if coroutine.is_return_value(y) then
+                return coroutine.get_return_value(y)
+            else 
+                coroutine.yield(y)
+            end
         end
     end
-end");
+end", null, MethodInfo + "_yielder");
             return script.Call(enumerateYielder, base.GetValue(script, obj));
         }
         
