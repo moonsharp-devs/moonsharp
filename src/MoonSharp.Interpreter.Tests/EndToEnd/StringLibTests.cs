@@ -238,6 +238,15 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			";
 			DynValue res = S.DoString(script);
 		}
+		[Test]
+        public void String_GSub_4()
+        {
+            string script = @"
+				return string.gsub('Ррррр Нннннн Сссссс','%S+', 'Z')
+			";
+            DynValue res = Script.RunString(script);
+			Assert.AreEqual("Z Z Z", res.Tuple[0].String);
+		}
 
 		[Test]
 		public void String_Match_1()
