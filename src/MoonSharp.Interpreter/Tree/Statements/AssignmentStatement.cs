@@ -95,7 +95,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			{
 				foreach (var exp in m_RValues)
 				{
-					exp.Compile(bc);
+					exp.CompilePossibleLiteral(bc);
 				}
 
 				for (int i = 0; i < m_LValues.Count; i++)

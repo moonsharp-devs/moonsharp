@@ -1,4 +1,5 @@
-﻿using MoonSharp.Interpreter.Execution;
+﻿using MoonSharp.Interpreter.DataStructs;
+using MoonSharp.Interpreter.Execution;
 
 namespace MoonSharp.Interpreter.Tree.Expressions
 {
@@ -56,6 +57,12 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 		public override DynValue Eval(ScriptExecutionContext context)
 		{
 			return context.EvaluateSymbolByName(m_VarName);
+		}
+
+		public override bool EvalLiteral(out DynValue dv)
+		{
+			dv = null;
+			return false;
 		}
 
 		public override SymbolRef FindDynamic(ScriptExecutionContext context)

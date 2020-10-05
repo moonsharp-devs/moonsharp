@@ -83,7 +83,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 					if (lastIfJmp != null)
 						lastIfJmp.NumVal = bc.GetJumpPointForNextInstruction();
 
-					ifblock.Exp.Compile(bc);
+					ifblock.Exp.CompilePossibleLiteral(bc);
 					lastIfJmp = bc.Emit_Jump(OpCode.Jf, -1);
 					bc.Emit_Enter(ifblock.StackFrame);
 					ifblock.Block.Compile(bc);

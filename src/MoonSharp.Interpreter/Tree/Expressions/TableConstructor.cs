@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using MoonSharp.Interpreter.DataStructs;
 using MoonSharp.Interpreter.Execution;
 
 namespace MoonSharp.Interpreter.Tree.Expressions
@@ -130,6 +131,12 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			}
 
 			return tval;
+		}
+
+		public override bool EvalLiteral(out DynValue dv)
+		{
+			dv = null;
+			return false;
 		}
 	}
 }

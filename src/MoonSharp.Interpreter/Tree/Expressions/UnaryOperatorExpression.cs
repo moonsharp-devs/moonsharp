@@ -1,4 +1,6 @@
-﻿using MoonSharp.Interpreter.Execution;
+﻿using System;
+using MoonSharp.Interpreter.DataStructs;
+using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Execution.VM;
 
 namespace MoonSharp.Interpreter.Tree.Expressions
@@ -61,6 +63,32 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 				default:
 					throw new DynamicExpressionException("Unexpected unary operator '{0}'", m_OpText);
 			}
+		}
+
+		public override bool EvalLiteral(out DynValue dv)
+		{
+			dv = null;
+			if (!m_Exp.EvalLiteral(out var v))
+			{
+				return false;
+			}
+			switch (m_OpText)
+			{
+				case "not":
+					dv = DynValue.NewBoolean(!v.CastToBool());
+					return true;
+				case "#":
+					return false;
+				case "-":
+					double? d = v.CastToNumber();
+					if (d.HasValue)
+					{
+						dv = DynValue.NewNumber(-d.Value);
+						return true;
+					}
+					break;
+			}
+			throw new Exception("Invalid literal evaluation");
 		}
 	}
 }

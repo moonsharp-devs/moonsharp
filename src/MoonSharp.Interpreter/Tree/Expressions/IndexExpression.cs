@@ -1,4 +1,5 @@
-﻿using MoonSharp.Interpreter.Execution;
+﻿using MoonSharp.Interpreter.DataStructs;
+using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Execution.VM;
 
 namespace MoonSharp.Interpreter.Tree.Expressions
@@ -73,6 +74,12 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			if (b.Type != DataType.Table) throw new DynamicExpressionException("Attempt to index non-table.");
 			else if (i.IsNilOrNan()) throw new DynamicExpressionException("Attempt to index with nil or nan key.");
 			return b.Table.Get(i) ?? DynValue.Nil;
+		}
+
+		public override bool EvalLiteral(out DynValue dv)
+		{
+			dv = null;
+			return false;
 		}
 	}
 }
