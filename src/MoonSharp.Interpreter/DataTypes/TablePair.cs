@@ -1,9 +1,12 @@
 ﻿
+using System.Diagnostics;
+
 namespace MoonSharp.Interpreter
 {
 	/// <summary>
 	/// A class representing a key/value pair for Table use
 	/// </summary>
+	[DebuggerDisplay("\\{\"{Key}\", {Value}\\}")]
 	public struct TablePair
 	{
 		private static TablePair s_NilNode = new TablePair(DynValue.Nil, DynValue.Nil);
