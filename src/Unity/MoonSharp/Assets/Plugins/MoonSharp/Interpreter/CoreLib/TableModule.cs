@@ -137,11 +137,11 @@ namespace MoonSharp.Interpreter.CoreLib
 
 			if (args.Count > 3)
 				throw new ScriptRuntimeException("wrong number of arguments to 'insert'");
-			
+
 			int len = GetTableLength(executionContext, vlist);
 			Table list = vlist.Table;
 
-			if (vvalue.IsNil())
+			if (args.Count == 2)
 			{
 				vvalue = vpos;
 				vpos = DynValue.NewNumber(len + 1);
