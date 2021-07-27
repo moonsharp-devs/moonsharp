@@ -19,6 +19,22 @@ namespace MoonSharp.Interpreter.Execution.VM
 			return DynValue.NewCoroutine(new Coroutine(P));
 		}
 
+		public DynValue Coroutine_Recycle(Processor mainProcessor, Closure closure)
+		{
+			// Clear the used parts of the stacks to prep for reuse
+			this.m_ValueStack.ClearUsed();
+			this.m_ExecutionStack.ClearUsed();
+
+			// Create a new processor instance, recycling this one
+			Processor P = new Processor(mainProcessor, this);
+
+			// Put the closure as first value on the stack, for future reference
+			P.m_ValueStack.Push(DynValue.NewClosure(closure));
+
+			// Return the coroutine handle
+			return DynValue.NewCoroutine(new Coroutine(P));
+		}
+
 		public CoroutineState State { get { return m_State; } }
 		public Coroutine AssociatedCoroutine { get; set; }
 

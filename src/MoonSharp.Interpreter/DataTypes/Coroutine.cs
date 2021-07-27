@@ -62,6 +62,10 @@ namespace MoonSharp.Interpreter
 			Type = CoroutineType.ClrCallbackDead;
 		}
 
+		internal DynValue Recycle(Processor mainProcessor, Closure closure)
+		{
+			return m_Processor.Coroutine_Recycle(mainProcessor, closure);
+		}
 
 		/// <summary>
 		/// Gets this coroutine as a typed enumerable which can be looped over for resuming.
