@@ -93,7 +93,7 @@ namespace MoonSharp.Interpreter.DataStructs
 
 		public void ClearUsed()
 		{
-			Array.Clear(m_Storage, 0, m_HeadIdx+1);
+			Array.Clear(m_Storage, 0, m_HeadIdx);
 			m_HeadIdx = 0;
 		}
 
