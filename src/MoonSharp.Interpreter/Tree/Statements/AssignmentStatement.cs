@@ -39,7 +39,8 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			}
 			else
 			{
-				m_RValues = new List<Expression>();
+				if (names.Count > 0)
+					m_RValues = new List<Expression>(new Expression[] { new LiteralExpression(lcontext, DynValue.Nil) });
 			}
 
 			foreach (string name in names)
