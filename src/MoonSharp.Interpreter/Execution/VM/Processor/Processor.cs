@@ -8,10 +8,12 @@ namespace MoonSharp.Interpreter.Execution.VM
 {
 	sealed partial class Processor
 	{
+		const int STACK_SIZE = 131072;
+
 		ByteCode m_RootChunk;
 
-		FastStack<DynValue> m_ValueStack = new FastStack<DynValue>(131072);
-		FastStack<CallStackItem> m_ExecutionStack = new FastStack<CallStackItem>(131072);
+		FastStack<DynValue> m_ValueStack;
+		FastStack<CallStackItem> m_ExecutionStack;
 		List<Processor> m_CoroutinesStack;
 
 		Table m_GlobalTable;
@@ -22,8 +24,11 @@ namespace MoonSharp.Interpreter.Execution.VM
 		int m_SavedInstructionPtr = -1;
 		DebugContext m_Debug;
 
+
 		public Processor(Script script, Table globalContext, ByteCode byteCode)
 		{
+			m_ValueStack = new FastStack<DynValue>(STACK_SIZE);
+			m_ExecutionStack = new FastStack<CallStackItem>(STACK_SIZE);
 			m_CoroutinesStack = new List<Processor>();
 
 			m_Debug = new DebugContext();
@@ -36,6 +41,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		private Processor(Processor parentProcessor)
 		{
+			m_ValueStack = new FastStack<DynValue>(STACK_SIZE);
+			m_ExecutionStack = new FastStack<CallStackItem>(STACK_SIZE);
 			m_Debug = parentProcessor.m_Debug;
 			m_RootChunk = parentProcessor.m_RootChunk;
 			m_GlobalTable = parentProcessor.m_GlobalTable;
@@ -44,7 +51,19 @@ namespace MoonSharp.Interpreter.Execution.VM
 			m_State = CoroutineState.NotStarted;
 		}
 
+		//Takes the value and execution stack from recycleProcessor
+		internal Processor(Processor parentProcessor, Processor recycleProcessor)
+		{
+			m_ValueStack = recycleProcessor.m_ValueStack;
+			m_ExecutionStack = recycleProcessor.m_ExecutionStack;
 
+			m_Debug = parentProcessor.m_Debug;
+			m_RootChunk = parentProcessor.m_RootChunk;
+			m_GlobalTable = parentProcessor.m_GlobalTable;
+			m_Script = parentProcessor.m_Script;
+			m_Parent = parentProcessor;
+			m_State = CoroutineState.NotStarted;
+		}
 
 		public DynValue Call(DynValue function, DynValue[] args)
 		{
