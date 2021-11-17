@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using MoonSharp.Interpreter.DataStructs;
 using MoonSharp.Interpreter.Debugging;
 using MoonSharp.Interpreter.Execution;
 
@@ -80,8 +81,9 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 				++argslen;
 			}
 
+			
 			for (int i = 0; i < m_Arguments.Count; i++)
-				m_Arguments[i].Compile(bc);
+				m_Arguments[i].CompilePossibleLiteral(bc);
 
 			if (!string.IsNullOrEmpty(m_Name))
 			{
@@ -91,6 +93,12 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			{
 				bc.Emit_Call(argslen, m_DebugErr);
 			}
+		}
+
+		public override bool EvalLiteral(out DynValue dv)
+		{
+			dv = null;
+			return false;
 		}
 
 		public override DynValue Eval(ScriptExecutionContext context)
