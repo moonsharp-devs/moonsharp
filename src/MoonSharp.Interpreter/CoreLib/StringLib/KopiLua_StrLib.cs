@@ -203,10 +203,10 @@ namespace MoonSharp.Interpreter.CoreLib.StringLib
 				else if ((p[1] == '-') && (p + 2 < ec))
 				{
 					p += 2;
-					if ((byte)((p[-2])) <= c && (c <= (byte)p[0]))
+					if (p[-2] <= c && (c <= p[0]))
 						return sig;
 				}
-				else if ((byte)(p[0]) == c) return sig;
+				else if (p[0] == c) return sig;
 			}
 			return (sig == 0) ? 1 : 0;
 		}
@@ -219,10 +219,9 @@ namespace MoonSharp.Interpreter.CoreLib.StringLib
 				case '.': return 1;  /* matches any char */
 				case L_ESC: return match_class((char)c, (char)(p[1]));
 				case '[': return matchbracketclass(c, p, ep - 1);
-				default: return ((byte)(p[0]) == c) ? 1 : 0;
+				default: return (p[0] == c) ? 1 : 0;
 			}
 		}
-
 
 		private static CharPtr matchbalance(MatchState ms, CharPtr s,
 										   CharPtr p)
@@ -247,12 +246,11 @@ namespace MoonSharp.Interpreter.CoreLib.StringLib
 			return null;  /* string ends out of balance */
 		}
 
-
 		private static CharPtr max_expand(MatchState ms, CharPtr s,
 										 CharPtr p, CharPtr ep)
 		{
 			ptrdiff_t i = 0;  /* counts maximum expand for item */
-			while ((s + i < ms.src_end) && (singlematch((byte)(s[i]), p, ep) != 0))
+			while ((s + i < ms.src_end) && (singlematch(s[i], p, ep) != 0))
 				i++;
 			/* keeps trying to match with the maximum repetitions */
 			while (i >= 0)
@@ -273,7 +271,7 @@ namespace MoonSharp.Interpreter.CoreLib.StringLib
 				CharPtr res = match(ms, s, ep + 1);
 				if (res != null)
 					return res;
-				else if ((s < ms.src_end) && (singlematch((byte)(s[0]), p, ep) != 0))
+				else if ((s < ms.src_end) && (singlematch(s[0], p, ep) != 0))
 					s = s.next();  /* try with one more repetition */
 				else return null;
 			}
@@ -359,22 +357,22 @@ namespace MoonSharp.Interpreter.CoreLib.StringLib
 														   LUA_QL("%f") + " in pattern");
 									ep = classend(ms, p);  /* points to what is next */
 									previous = (s == ms.src_init) ? '\0' : s[-1];
-									if ((matchbracketclass((byte)(previous), p, ep - 1) != 0) ||
-									   (matchbracketclass((byte)(s[0]), p, ep - 1) == 0)) return null;
+									if ((matchbracketclass(previous, p, ep - 1) != 0) ||
+									   (matchbracketclass(s[0], p, ep - 1) == 0)) return null;
 									p = ep; goto init;  /* else return match(ms, s, ep); */
 								}
 							default:
 								{
 									if (isdigit((char)(p[1])))
 									{  /* capture results (%0-%9)? */
-										s = match_capture(ms, s, (byte)(p[1]));
+										s = match_capture(ms, s, p[1]);
 										if (s == null) return null;
 										p += 2; goto init;  /* else return match(ms, s, p+2) */
 									}
 									//ismeretlen hiba miatt lett ide átmásolva
 									{  /* it is a pattern item */
 										CharPtr ep = classend(ms, p);  /* points to what is next */
-										int m = (s < ms.src_end) && (singlematch((byte)(s[0]), p, ep) != 0) ? 1 : 0;
+										int m = (s < ms.src_end) && (singlematch(s[0], p, ep) != 0) ? 1 : 0;
 										switch (ep[0])
 										{
 											case '?':
@@ -421,7 +419,7 @@ namespace MoonSharp.Interpreter.CoreLib.StringLib
 				dflt:
 					{  /* it is a pattern item */
 						CharPtr ep = classend(ms, p);  /* points to what is next */
-						int m = (s < ms.src_end) && (singlematch((byte)(s[0]), p, ep) != 0) ? 1 : 0;
+						int m = (s < ms.src_end) && (singlematch(s[0], p, ep) != 0) ? 1 : 0;
 						switch (ep[0])
 						{
 							case '?':
@@ -859,15 +857,15 @@ namespace MoonSharp.Interpreter.CoreLib.StringLib
 			while (p[0] != '\0' && strchr(FLAGS, p[0]) != null) p = p.next();  /* skip flags */
 			if ((uint)(p - strfrmt) >= (FLAGS.Length + 1))
 				LuaLError(L, "invalid format (repeated flags)");
-			if (isdigit((byte)(p[0]))) p = p.next();  /* skip width */
-			if (isdigit((byte)(p[0]))) p = p.next();  /* (2 digits at most) */
+			if (isdigit(p[0])) p = p.next();  /* skip width */
+			if (isdigit(p[0])) p = p.next();  /* (2 digits at most) */
 			if (p[0] == '.')
 			{
 				p = p.next();
-				if (isdigit((byte)(p[0]))) p = p.next();  /* skip precision */
-				if (isdigit((byte)(p[0]))) p = p.next();  /* (2 digits at most) */
+				if (isdigit(p[0])) p = p.next();  /* skip precision */
+				if (isdigit(p[0])) p = p.next();  /* (2 digits at most) */
 			}
-			if (isdigit((byte)(p[0])))
+			if (isdigit(p[0]))
 				LuaLError(L, "invalid format (width or precision too long)");
 			form[0] = '%';
 			form = form.next();

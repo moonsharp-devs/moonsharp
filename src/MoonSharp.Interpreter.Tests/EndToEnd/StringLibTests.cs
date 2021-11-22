@@ -248,6 +248,39 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			TestMatch(s, p, true);
 		}
 
+		[Test]
+		public void String_Match_2()
+		{
+			string s = "糸筍"; // U+7CF8, U+7B4D
+			string p = "書籍"; // U+66F8, U+7C4D
+
+			TestMatch(s, p, false);
+		}
+
+		[Test]
+		public void String_Match_3()
+		{
+			// maxexpand
+			string s = "書籍籍筍筍筍"; // U+66F8, U+7C4D, U+7B4D, ...
+			string p = "書籍+"; // U+66F8, U+7C4D
+
+			Script S = new Script(CoreModules.String);
+			S.Globals["s"] = s;
+			S.Globals["p"] = p;
+			DynValue res = S.DoString("return string.match(s, p)");
+
+			Utils.DynAssert(res, "書籍籍");
+		}
+
+		[Test]
+		public void String_Match_4()
+		{
+			string s = "㍝"; // U+335D
+			string p = "[Aそ]"; // U+005B, U+0041, U+305D, U+005D
+
+			TestMatch(s, p, false);
+		}
+
 		private void TestMatch(string s, string p, bool expected)
 		{
 			Script S = new Script(CoreModules.String);
