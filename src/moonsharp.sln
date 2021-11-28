@@ -75,11 +75,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MoonSharp.Interpreter.netco
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MoonSharp.VsCodeDebugger.netcore", "MoonSharp.VsCodeDebugger\_Projects\MoonSharp.VsCodeDebugger.netcore\MoonSharp.VsCodeDebugger.netcore.csproj", "{ACA22B1F-7187-4E71-9D27-7196C1374086}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6604B4EB-3418-4AD6-8D9C-02A86274A6E7}"
-	ProjectSection(SolutionItems) = preProject
-		global.json = global.json
-	EndProjectSection
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetCoreTestRunner", "TestRunners\DotNetCoreTestRunner\DotNetCoreTestRunner.csproj", "{541C9DCC-3656-459D-AD99-A0CD03D264D6}"
 EndProject
 Global
@@ -804,6 +799,6 @@ Global
 		{541C9DCC-3656-459D-AD99-A0CD03D264D6} = {023F1F7D-5F49-430F-9CC4-5FF891439548}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {8C7D231D-F020-43A8-9B1A-38D1C2BC3DBC}
+		SolutionGuid = {2CBD5A8C-E3D2-41F2-9202-D9B8280AA317}
 	EndGlobalSection
 EndGlobal
