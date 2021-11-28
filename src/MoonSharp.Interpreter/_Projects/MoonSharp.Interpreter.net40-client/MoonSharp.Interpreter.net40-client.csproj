@@ -61,9 +61,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\AsyncExtensions.cs">
-      <Link>AsyncExtensions.cs</Link>
-    </Compile>
     <Compile Include="..\..\CodeAnalysis\AstNode.cs">
       <Link>AstNode.cs</Link>
     </Compile>
@@ -817,6 +814,8 @@
     <Compile Include="..\..\Tree\Statements\WhileStatement.cs">
       <Link>WhileStatement.cs</Link>
     </Compile>
+    <Compile Include="..\..\ExecutionControlToken.cs" />
+    <Compile Include="ScriptTerminationRequestedException.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

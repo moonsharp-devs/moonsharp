@@ -36,7 +36,7 @@ namespace MoonSharp.Interpreter
 		/// <returns></returns>
 		public DynValue Evaluate(ScriptExecutionContext context = null)
 		{
-			context = context ?? OwnerScript.CreateDynamicExecutionContext();
+			context = context ?? OwnerScript.CreateDynamicExecutionContext(ExecutionControlToken.Dummy);
 
 			this.CheckScriptOwnership(context.GetScript());
 

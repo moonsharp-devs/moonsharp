@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using MoonSharp.Interpreter.DataStructs;
@@ -23,7 +23,6 @@ namespace MoonSharp.Interpreter.Execution.VM
 		bool m_CanYield = true;
 		int m_SavedInstructionPtr = -1;
 		DebugContext m_Debug;
-
 
 		public Processor(Script script, Table globalContext, ByteCode byteCode)
 		{
@@ -65,12 +64,12 @@ namespace MoonSharp.Interpreter.Execution.VM
 			m_State = CoroutineState.NotStarted;
 		}
 
-		public DynValue Call(DynValue function, DynValue[] args)
+		public DynValue Call(ExecutionControlToken ecToken, DynValue function, DynValue[] args)
 		{
 			List<Processor> coroutinesStack = m_Parent != null ? m_Parent.m_CoroutinesStack : this.m_CoroutinesStack;
 
 			if (coroutinesStack.Count > 0 && coroutinesStack[coroutinesStack.Count - 1] != this)
-				return coroutinesStack[coroutinesStack.Count - 1].Call(function, args);
+				return coroutinesStack[coroutinesStack.Count - 1].Call(ecToken, function, args);
 
 			EnterProcessor();
 
@@ -83,7 +82,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				try
 				{
 					int entrypoint = PushClrToScriptStackFrame(CallStackItemFlags.CallEntryPoint, function, args);
-					return Processing_Loop(entrypoint);
+					return Processing_Loop(ecToken, entrypoint);
 				}
 				finally
 				{

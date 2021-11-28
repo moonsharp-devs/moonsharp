@@ -18,22 +18,24 @@ namespace MoonSharp.Interpreter.Interop
 		/// <summary>
 		/// Performs an "index" "get" operation.
 		/// </summary>
+		/// <param name="ecToken">The execution control token of the script processing thread</param>
 		/// <param name="script">The script originating the request</param>
 		/// <param name="obj">The object (null if a static request is done)</param>
 		/// <param name="index">The index.</param>
 		/// <param name="isDirectIndexing">If set to true, it's indexed with a name, if false it's indexed through brackets.</param>
 		/// <returns></returns>
-		DynValue Index(Script script, object obj, DynValue index, bool isDirectIndexing);
+		DynValue Index(ExecutionControlToken ecToken, Script script, object obj, DynValue index, bool isDirectIndexing);
 		/// <summary>
 		/// Performs an "index" "set" operation.
 		/// </summary>
+		/// <param name="ecToken">The execution control token of the script processing thread</param>
 		/// <param name="script">The script originating the request</param>
 		/// <param name="obj">The object (null if a static request is done)</param>
 		/// <param name="index">The index.</param>
 		/// <param name="value">The value to be set</param>
 		/// <param name="isDirectIndexing">If set to true, it's indexed with a name, if false it's indexed through brackets.</param>
 		/// <returns></returns>
-		bool SetIndex(Script script, object obj, DynValue index, DynValue value, bool isDirectIndexing);
+		bool SetIndex(ExecutionControlToken ecToken, Script script, object obj, DynValue index, DynValue value, bool isDirectIndexing);
 		/// <summary>
 		/// Converts this userdata to string
 		/// </summary>
@@ -54,11 +56,12 @@ namespace MoonSharp.Interpreter.Interop
 		/// __index, __newindex, __tostring
 		/// 
 		/// </summary>
+		/// <param name="ecToken">The execution control token of the script processing thread</param>
 		/// <param name="script">The script originating the request</param>
 		/// <param name="obj">The object (null if a static request is done)</param>
 		/// <param name="metaname">The name of the metamember.</param>
 		/// <returns></returns>
-		DynValue MetaIndex(Script script, object obj, string metaname);
+		DynValue MetaIndex(ExecutionControlToken ecToken, Script script, object obj, string metaname);
 		/// <summary>
 		/// Determines whether the specified object is compatible with the specified type.
 		/// Unless a very specific behaviour is needed, the correct implementation is a 

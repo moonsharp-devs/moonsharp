@@ -19,7 +19,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			}
 		}
 
-		internal DynValue GetBinaryMetamethod(DynValue op1, DynValue op2, string eventName)
+		internal DynValue GetBinaryMetamethod(ExecutionControlToken ecToken, DynValue op1, DynValue op2, string eventName)
 		{
 			var op1_MetaTable = GetMetatable(op1);
 			if (op1_MetaTable != null)
@@ -39,7 +39,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 			if (op1.Type == DataType.UserData)
 			{
-				DynValue meta = op1.UserData.Descriptor.MetaIndex(this.m_Script,
+				DynValue meta = op1.UserData.Descriptor.MetaIndex(ecToken, this.m_Script,
 					op1.UserData.Object, eventName);
 
 				if (meta != null)
@@ -48,7 +48,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 			if (op2.Type == DataType.UserData)
 			{
-				DynValue meta = op2.UserData.Descriptor.MetaIndex(this.m_Script,
+				DynValue meta = op2.UserData.Descriptor.MetaIndex(ecToken, this.m_Script,
 					op2.UserData.Object, eventName);
 
 				if (meta != null)
@@ -58,11 +58,11 @@ namespace MoonSharp.Interpreter.Execution.VM
 			return null;
 		}
 
-		internal DynValue GetMetamethod(DynValue value, string metamethod)
+		internal DynValue GetMetamethod(ExecutionControlToken ecToken, DynValue value, string metamethod)
 		{
 			if (value.Type == DataType.UserData)
 			{
-				DynValue v = value.UserData.Descriptor.MetaIndex(m_Script, value.UserData.Object, metamethod);
+				DynValue v = value.UserData.Descriptor.MetaIndex(ecToken, m_Script, value.UserData.Object, metamethod);
 				if (v != null)
 					return v;
 			}
