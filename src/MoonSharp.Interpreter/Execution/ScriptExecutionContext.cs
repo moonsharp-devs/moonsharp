@@ -12,14 +12,14 @@ namespace MoonSharp.Interpreter
 	{
 		Processor m_Processor;
 		CallbackFunction m_Callback;
-        internal ExecutionControlToken m_EcToken;
+		internal ExecutionControlToken m_EcToken;
 
-        internal ScriptExecutionContext(ExecutionControlToken ecToken, Processor p, CallbackFunction callBackFunction, SourceRef sourceRef, bool isDynamic = false)
+		internal ScriptExecutionContext(ExecutionControlToken ecToken, Processor p, CallbackFunction callBackFunction, SourceRef sourceRef, bool isDynamic = false)
 		{
 			IsDynamicExecution = isDynamic;
 			m_Processor = p;
 			m_Callback = callBackFunction;
-            m_EcToken = ecToken;
+			m_EcToken = ecToken;
 			CallingLocation = sourceRef;
 		}
 
@@ -268,23 +268,23 @@ namespace MoonSharp.Interpreter
 		}
 
 
-        /// <summary>
-        /// Pauses the script thread for the specified amount of time. 
-        /// 
-        /// </summary>
-        /// <param name="timeout">Timeout.</param>
-        /// <returns></returns>
-        public void PauseExecution(TimeSpan timeout)
-        {
-            m_EcToken.Wait(timeout);
+		/// <summary>
+		/// Pauses the script thread for the specified amount of time. 
+		/// 
+		/// </summary>
+		/// <param name="timeout">Timeout.</param>
+		/// <returns></returns>
+		public void PauseExecution(TimeSpan timeout)
+		{
+			m_EcToken.Wait(timeout);
 
-            // This is not strictly required, but why allow the code
-            // to go back to Processor::Processing_Loop if we can check right here if
-            // we should stop or not?
-            if (m_EcToken.IsAbortRequested)
-            {
-                throw new ScriptTerminationRequestedException();
-            }
-        }
-    }
+			// This is not strictly required, but why allow the code
+			// to go back to Processor::Processing_Loop if we can check right here if
+			// we should stop or not?
+			if (m_EcToken.IsAbortRequested)
+			{
+				throw new ScriptTerminationRequestedException();
+			}
+		}
+	}
 }

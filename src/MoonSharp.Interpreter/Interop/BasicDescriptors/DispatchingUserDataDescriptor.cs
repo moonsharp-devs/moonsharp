@@ -207,16 +207,16 @@ namespace MoonSharp.Interpreter.Interop.BasicDescriptors
 			}
 		}
 
-        /// <summary>
-        /// Performs an "index" "get" operation. This tries to resolve minor variations of member names.
-        /// </summary>
-        /// <param name="ecToken">The execution control token of the script processing thread</param>
-        /// <param name="script">The script originating the request</param>
-        /// <param name="obj">The object (null if a static request is done)</param>
-        /// <param name="index">The index.</param>
-        /// <param name="isDirectIndexing">If set to true, it's indexed with a name, if false it's indexed through brackets.</param>
-        /// <returns></returns>
-        public virtual DynValue Index(ExecutionControlToken ecToken, Script script, object obj, DynValue index, bool isDirectIndexing)
+		/// <summary>
+		/// Performs an "index" "get" operation. This tries to resolve minor variations of member names.
+		/// </summary>
+		/// <param name="ecToken">The execution control token of the script processing thread</param>
+		/// <param name="script">The script originating the request</param>
+		/// <param name="obj">The object (null if a static request is done)</param>
+		/// <param name="index">The index.</param>
+		/// <param name="isDirectIndexing">If set to true, it's indexed with a name, if false it's indexed through brackets.</param>
+		/// <returns></returns>
+		public virtual DynValue Index(ExecutionControlToken ecToken, Script script, object obj, DynValue index, bool isDirectIndexing)
 		{
 			if (!isDirectIndexing)
 			{
@@ -468,31 +468,31 @@ namespace MoonSharp.Interpreter.Interop.BasicDescriptors
 		}
 
 
-        /// <summary>
-        /// Gets a "meta" operation on this userdata. If a descriptor does not support this functionality,
-        /// it should return "null" (not a nil). 
-        /// See <see cref="IUserDataDescriptor.MetaIndex" /> for further details.
-        /// 
-        /// If a method exists marked with <see cref="MoonSharpUserDataMetamethodAttribute" /> for the specific
-        /// metamethod requested, that method is returned.
-        /// 
-        /// If the above fails, the following dispatching occur:
-        /// 
-        /// __add, __sub, __mul, __div, __mod and __unm are dispatched to C# operator overloads (if they exist)
-        /// __eq is dispatched to System.Object.Equals.
-        /// __lt and __le are dispatched IComparable.Compare, if the type implements IComparable or IComparable{object}
-        /// __len is dispatched to Length and Count properties, if those exist.
-        /// __iterator is handled if the object implements IEnumerable or IEnumerator.
-        /// __tonumber is dispatched to implicit or explicit conversion operators to standard numeric types.
-        /// __tobool is dispatched to an implicit or explicit conversion operator to bool. If that fails, operator true is used.
-        /// 
-        /// <param name="ecToken">The execution control token of the script processing thread</param>
-        /// <param name="script">The script originating the request</param>
-        /// <param name="obj">The object (null if a static request is done)</param>
-        /// <param name="metaname">The name of the metamember.</param>
-        /// </summary>
-        /// <returns></returns>
-        public virtual DynValue MetaIndex(ExecutionControlToken ecToken, Script script, object obj, string metaname)
+		/// <summary>
+		/// Gets a "meta" operation on this userdata. If a descriptor does not support this functionality,
+		/// it should return "null" (not a nil). 
+		/// See <see cref="IUserDataDescriptor.MetaIndex" /> for further details.
+		/// 
+		/// If a method exists marked with <see cref="MoonSharpUserDataMetamethodAttribute" /> for the specific
+		/// metamethod requested, that method is returned.
+		/// 
+		/// If the above fails, the following dispatching occur:
+		/// 
+		/// __add, __sub, __mul, __div, __mod and __unm are dispatched to C# operator overloads (if they exist)
+		/// __eq is dispatched to System.Object.Equals.
+		/// __lt and __le are dispatched IComparable.Compare, if the type implements IComparable or IComparable{object}
+		/// __len is dispatched to Length and Count properties, if those exist.
+		/// __iterator is handled if the object implements IEnumerable or IEnumerator.
+		/// __tonumber is dispatched to implicit or explicit conversion operators to standard numeric types.
+		/// __tobool is dispatched to an implicit or explicit conversion operator to bool. If that fails, operator true is used.
+		/// 
+		/// <param name="ecToken">The execution control token of the script processing thread</param>
+		/// <param name="script">The script originating the request</param>
+		/// <param name="obj">The object (null if a static request is done)</param>
+		/// <param name="metaname">The name of the metamember.</param>
+		/// </summary>
+		/// <returns></returns>
+		public virtual DynValue MetaIndex(ExecutionControlToken ecToken, Script script, object obj, string metaname)
 		{
 			IMemberDescriptor desc = m_MetaMembers.GetOrDefault(metaname);
 

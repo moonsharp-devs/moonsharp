@@ -120,22 +120,22 @@ namespace MoonSharp.Interpreter.REPL
 		}
 
 #if HASDYNAMIC
-        /// <summary>
-        /// Asynchronously evaluates a REPL command.
-        /// This method returns the result of the computation, or null if more input is needed for having valid code.
-        /// In case of errors, exceptions are propagated to the caller.
-        /// 
-        /// This method is supported only on .NET 4.x and .NET 4.x PCL targets.
-        /// </summary>
-        /// <param name="interpreter">The interpreter.</param>
-        /// <param name="input">The input.</param>
-        /// <returns>
-        /// This method returns the result of the computation, or null if more input is needed for a computation.
-        /// </returns>
-        public Task<DynValue> EvaluateAsync(string input)
-        {
-            return Task.Factory.StartNew(() => Evaluate(input));
-        }
+		/// <summary>
+		/// Asynchronously evaluates a REPL command.
+		/// This method returns the result of the computation, or null if more input is needed for having valid code.
+		/// In case of errors, exceptions are propagated to the caller.
+		/// 
+		/// This method is supported only on .NET 4.x and .NET 4.x PCL targets.
+		/// </summary>
+		/// <param name="interpreter">The interpreter.</param>
+		/// <param name="input">The input.</param>
+		/// <returns>
+		/// This method returns the result of the computation, or null if more input is needed for a computation.
+		/// </returns>
+		public Task<DynValue> EvaluateAsync(string input)
+		{
+			return Task.Factory.StartNew(() => Evaluate(input));
+		}
 #endif
-    }
+	}
 }

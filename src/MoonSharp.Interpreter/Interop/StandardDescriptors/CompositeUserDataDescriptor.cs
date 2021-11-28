@@ -52,16 +52,16 @@ namespace MoonSharp.Interpreter.Interop
 			get { return m_Type; }
 		}
 
-        /// <summary>
-        /// Performs an "index" "get" operation.
-        /// </summary>
-        /// <param name="ecToken">The execution control token of the script processing thread</param>
-        /// <param name="script">The script originating the request</param>
-        /// <param name="obj">The object (null if a static request is done)</param>
-        /// <param name="index">The index.</param>
-        /// <param name="isDirectIndexing">If set to true, it's indexed with a name, if false it's indexed through brackets.</param>
-        /// <returns></returns>
-        public DynValue Index(ExecutionControlToken ecToken, Script script, object obj, DynValue index, bool isNameIndex)
+		/// <summary>
+		/// Performs an "index" "get" operation.
+		/// </summary>
+		/// <param name="ecToken">The execution control token of the script processing thread</param>
+		/// <param name="script">The script originating the request</param>
+		/// <param name="obj">The object (null if a static request is done)</param>
+		/// <param name="index">The index.</param>
+		/// <param name="isDirectIndexing">If set to true, it's indexed with a name, if false it's indexed through brackets.</param>
+		/// <returns></returns>
+		public DynValue Index(ExecutionControlToken ecToken, Script script, object obj, DynValue index, bool isNameIndex)
 		{
 			foreach (IUserDataDescriptor dd in m_Descriptors)
 			{
@@ -73,17 +73,17 @@ namespace MoonSharp.Interpreter.Interop
 			return null;
 		}
 
-        /// <summary>
-        /// Performs an "index" "set" operation.
-        /// </summary>
-        /// <param name="ecToken">The execution control token of the script processing thread</param>
-        /// <param name="script">The script originating the request</param>
-        /// <param name="obj">The object (null if a static request is done)</param>
-        /// <param name="index">The index.</param>
-        /// <param name="value">The value to be set</param>
-        /// <param name="isDirectIndexing">If set to true, it's indexed with a name, if false it's indexed through brackets.</param>
-        /// <returns></returns>
-        public bool SetIndex(ExecutionControlToken ecToken, Script script, object obj, DynValue index, DynValue value, bool isNameIndex)
+		/// <summary>
+		/// Performs an "index" "set" operation.
+		/// </summary>
+		/// <param name="ecToken">The execution control token of the script processing thread</param>
+		/// <param name="script">The script originating the request</param>
+		/// <param name="obj">The object (null if a static request is done)</param>
+		/// <param name="index">The index.</param>
+		/// <param name="value">The value to be set</param>
+		/// <param name="isDirectIndexing">If set to true, it's indexed with a name, if false it's indexed through brackets.</param>
+		/// <returns></returns>
+		public bool SetIndex(ExecutionControlToken ecToken, Script script, object obj, DynValue index, DynValue value, bool isNameIndex)
 		{
 			foreach (IUserDataDescriptor dd in m_Descriptors)
 			{
@@ -104,22 +104,22 @@ namespace MoonSharp.Interpreter.Interop
 		}
 
 
-        /// <summary>
-        /// Gets a "meta" operation on this userdata. If a descriptor does not support this functionality,
-        /// it should return "null" (not a nil). 
-        /// These standard metamethods can be supported (the return value should be a function accepting the
-        /// classic parameters of the corresponding metamethod):
-        /// __add, __sub, __mul, __div, __div, __pow, __unm, __eq, __lt, __le, __lt, __len, __concat, 
-        /// __pairs, __ipairs, __iterator, __call
-        /// These standard metamethods are supported through other calls for efficiency:
-        /// __index, __newindex, __tostring
-        /// </summary>
-        /// <param name="ecToken">The execution control token of the script processing thread</param>
-        /// <param name="script">The script originating the request</param>
-        /// <param name="obj">The object (null if a static request is done)</param>
-        /// <param name="metaname">The name of the metamember.</param>
-        /// <returns></returns>
-        public DynValue MetaIndex(ExecutionControlToken ecToken, Script script, object obj, string metaname)
+		/// <summary>
+		/// Gets a "meta" operation on this userdata. If a descriptor does not support this functionality,
+		/// it should return "null" (not a nil). 
+		/// These standard metamethods can be supported (the return value should be a function accepting the
+		/// classic parameters of the corresponding metamethod):
+		/// __add, __sub, __mul, __div, __div, __pow, __unm, __eq, __lt, __le, __lt, __len, __concat, 
+		/// __pairs, __ipairs, __iterator, __call
+		/// These standard metamethods are supported through other calls for efficiency:
+		/// __index, __newindex, __tostring
+		/// </summary>
+		/// <param name="ecToken">The execution control token of the script processing thread</param>
+		/// <param name="script">The script originating the request</param>
+		/// <param name="obj">The object (null if a static request is done)</param>
+		/// <param name="metaname">The name of the metamember.</param>
+		/// <returns></returns>
+		public DynValue MetaIndex(ExecutionControlToken ecToken, Script script, object obj, string metaname)
 		{
 			foreach (IUserDataDescriptor dd in m_Descriptors)
 			{

@@ -42,12 +42,12 @@ namespace MoonSharp.Interpreter.Execution.VM
 						return DynValue.NewForcedYieldReq();
 					}
 
-                    if (ecToken.IsAbortRequested)
-                    {
-                        throw new ScriptTerminationRequestedException();
-                    }
+					if (ecToken.IsAbortRequested)
+					{
+						throw new ScriptTerminationRequestedException();
+					}
 
-                    ++instructionPtr;
+					++instructionPtr;
 
 					switch (i.OpCode)
 					{
@@ -723,8 +723,8 @@ namespace MoonSharp.Interpreter.Execution.VM
 				});
 
 
-                var ret = fn.Callback.Invoke(new ScriptExecutionContext(ecToken, this, fn.Callback, sref), args, isMethodCall: thisCall);
-                m_ValueStack.RemoveLast(argsCount + 1);
+				var ret = fn.Callback.Invoke(new ScriptExecutionContext(ecToken, this, fn.Callback, sref), args, isMethodCall: thisCall);
+				m_ValueStack.RemoveLast(argsCount + 1);
 				m_ValueStack.Push(ret);
 
 				m_ExecutionStack.Pop();
