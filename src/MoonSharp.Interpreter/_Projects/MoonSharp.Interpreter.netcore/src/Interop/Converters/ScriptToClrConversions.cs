@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization; 
 using MoonSharp.Interpreter.Compatibility;
 
 namespace MoonSharp.Interpreter.Interop.Converters
@@ -143,7 +144,7 @@ namespace MoonSharp.Interpreter.Interop.Converters
 					if (NumericConversions.NumericTypes.Contains(desiredType))
 						return NumericConversions.DoubleToType(desiredType, value.Number);
 					if (stringSubType != StringConversions.StringSubtype.None)
-						str = value.Number.ToString();
+						str = value.Number.ToString(CultureInfo.InvariantCulture);
 					break;
 				case DataType.String:
 					if (stringSubType != StringConversions.StringSubtype.None)

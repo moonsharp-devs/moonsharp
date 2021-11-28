@@ -102,7 +102,7 @@ namespace MoonSharp.Interpreter.CoreLib
 
 		private static int Unicode2Ascii(int i)
 		{
-			if (i >= 0 && i < 255)
+			if (i >= 0 && i <= 255)
 				return i;
 
 			return (int)'?';
