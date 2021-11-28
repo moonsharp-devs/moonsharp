@@ -796,6 +796,29 @@ namespace MoonSharp.Interpreter
 		}
 
 		/// <summary>
+		/// Creates a new coroutine, recycling buffers from a dead coroutine to skip slower buffer creation in Mono.
+		/// </summary>
+		/// <param name="coroutine">The <see cref="Coroutine"/> to recycle. This coroutine's state must be <see cref="CoroutineState.Dead"/></param>
+		/// <param name="function">The function</param>
+		/// <returns>
+		/// The new coroutine handle.
+		/// </returns>
+		public DynValue RecycleCoroutine(Coroutine coroutine, DynValue function)
+		{
+			this.CheckScriptOwnership(coroutine);
+			this.CheckScriptOwnership(function);
+
+			if (coroutine == null || coroutine.Type != Coroutine.CoroutineType.Coroutine)
+				throw new InvalidOperationException("coroutine is not CoroutineType.Coroutine");
+			if (function == null || function.Type != DataType.Function)
+				throw new InvalidOperationException("function is not DataType.Function");
+			if (coroutine.State != CoroutineState.Dead)
+				throw new InvalidOperationException("coroutine's state must be CoroutineState.Dead to recycle");
+
+			return coroutine.Recycle(m_MainProcessor, function.Function);
+		}
+
+		/// <summary>
 		/// Creates a coroutine pointing at the specified function.
 		/// </summary>
 		/// <param name="function">The function.</param>

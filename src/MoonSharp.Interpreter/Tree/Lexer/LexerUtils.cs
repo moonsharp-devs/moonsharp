@@ -171,6 +171,7 @@ namespace MoonSharp.Interpreter.Tree
 						else if (c == '\'') { sb.Append('\''); escape = false; zmode = false; }
 						else if (c == '[') { sb.Append('['); escape = false; zmode = false; }
 						else if (c == ']') { sb.Append(']'); escape = false; zmode = false; }
+						else if (c == '/') { sb.Append('/'); escape = false; zmode = false; }
 						else if (c == 'x') { hex = true; }
 						else if (c == 'u') { unicode_state = 1; }
 						else if (c == 'z') { zmode = true; escape = false; }
