@@ -31,7 +31,9 @@ namespace MoonSharp.Interpreter.Loaders
 
 			m_ResourceAssembly = resourceAssembly;
 			m_Namespace = m_ResourceAssembly.FullName.Split(',').First();
-			m_ResourceNames = new HashSet<string>(m_ResourceAssembly.GetManifestResourceNames());
+            m_Namespace = m_Namespace.Replace('-', '_');
+
+            m_ResourceNames = new HashSet<string>(m_ResourceAssembly.GetManifestResourceNames());
 		}
 
 		private string FileNameToResource(string file)
