@@ -27,6 +27,23 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			Assert.AreEqual(DataType.String, res.Type);
 			Assert.AreEqual("HelloLuauser", res.String);
 		}
+        [Test]
+		public void String_GMatch_2()
+		{
+			string script = @"    
+                s = 'Ррррр Нннннн Сссссс'
+                words = {}
+                for word in s:gmatch('%w+') do table.insert(words, word) end
+                return words
+			";
+
+			DynValue res = Script.RunString(script);
+			Assert.AreEqual(3, res.Table.Length);
+			Assert.AreEqual("Ррррр", res.Table.Get(1).String);
+			Assert.AreEqual("Нннннн", res.Table.Get(2).String);
+			Assert.AreEqual("Сссссс", res.Table.Get(3).String);
+
+		}
 
 		[Test]
 		public void String_Find_1()
@@ -237,6 +254,15 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 				string.gsub(a, '\n', '\n #')
 			";
 			DynValue res = S.DoString(script);
+		}
+		[Test]
+        public void String_GSub_4()
+        {
+            string script = @"
+				return string.gsub('Ррррр Нннннн Сссссс','%S+', 'Z')
+			";
+            DynValue res = Script.RunString(script);
+			Assert.AreEqual("Z Z Z", res.Tuple[0].String);
 		}
 
 		[Test]
