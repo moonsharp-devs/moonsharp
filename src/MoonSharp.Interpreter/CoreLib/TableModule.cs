@@ -170,30 +170,41 @@ namespace MoonSharp.Interpreter.CoreLib
 		public static DynValue remove(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			DynValue vlist = args.AsType(0, "table.remove", DataType.Table, false);
-			DynValue vpos = args.AsType(1, "table.remove", DataType.Number, true);
-			DynValue ret = DynValue.Nil;
 
-			if (args.Count > 2)
-				throw new ScriptRuntimeException("wrong number of arguments to 'remove'");
+            switch (args[1].Type)
+            {
+                case DataType.Nil:
+                    return DynValue.NewString("");
 
-			int len = GetTableLength(executionContext, vlist);
-			Table list = vlist.Table;
+                default:
+                    throw new ScriptRuntimeException(string.Format("bad argument #2 to 'remove' (number expected, got {0})", args[1].Type.ToLuaTypeString()));
 
-			int pos = vpos.IsNil() ? len : (int)vpos.Number;
+                case DataType.Number:
+                    DynValue vpos = args.AsType(1, "table.remove", DataType.Number, true);
+                    DynValue ret = DynValue.Nil;
 
-			if (pos >= len + 1 || (pos < 1 && len > 0))
-				throw new ScriptRuntimeException("bad argument #1 to 'remove' (position out of bounds)");
+                    if (args.Count > 2)
+                        throw new ScriptRuntimeException("wrong number of arguments to 'remove'");
 
-			for (int i = pos; i <= len; i++)
-			{
-				if (i == pos)
-					ret = list.Get(i);
+                    int len = GetTableLength(executionContext, vlist);
+                    Table list = vlist.Table;
 
-				list.Set(i, list.Get(i + 1));
-			}
+                    int pos = vpos.IsNil() ? len : (int)vpos.Number;
 
-			return ret;
-		}
+                    if (pos >= len + 1 || (pos < 0) || (pos == 0 && len > 0 /*this odd behaviour also occur in pure lua - don't throw exception if we try to delete 0 index of empty table(!)*/))
+                        throw new ScriptRuntimeException("bad argument #1 to 'remove' (position out of bounds)");
+
+                    for (int i = pos; i <= len; i++)
+                    {
+                        if (i == pos)
+                            ret = list.Get(i);
+
+                        list.Set(i, list.Get(i + 1));
+                    }
+
+                    return ret;
+            }
+        }
 
 
 		//table.concat (list [, sep [, i [, j]]])
