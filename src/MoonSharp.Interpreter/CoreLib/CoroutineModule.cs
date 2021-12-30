@@ -121,7 +121,18 @@ namespace MoonSharp.Interpreter.CoreLib
 			}
 	
 		}
-
+		
+		[MoonSharpModuleMethod]
+		public static DynValue is_return_value(ScriptExecutionContext executionContext, CallbackArguments args)
+		{
+			return args[0].Type == DataType.ClrCoroutineReturn ? DynValue.True : DynValue.False;
+		}
+		
+		[MoonSharpModuleMethod]
+		public static DynValue get_return_value(ScriptExecutionContext executionContext, CallbackArguments args)
+		{
+			return args[0].Type == DataType.ClrCoroutineReturn ? args[0].ClrCoroutineReturnValue : DynValue.Nil;
+		}
 
 	}
 }
