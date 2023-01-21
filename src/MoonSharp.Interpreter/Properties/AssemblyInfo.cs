@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 
-#if !NET6_0
+#if !NET6_0_OR_GREATER
 
 [assembly: AssemblyTitle("MoonSharp.Interpreter")]
 [assembly: AssemblyDescription("An interpreter for the Lua language")]

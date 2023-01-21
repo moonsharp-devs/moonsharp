@@ -10,7 +10,7 @@
     <AssemblyName>MoonSharp.Interpreter</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <FileAlignment>512</FileAlignment>
-		<TargetFrameworks>net6.0</TargetFrameworks>
+		<TargetFrameworks>net7.0</TargetFrameworks>
     <!--
     <SignAssembly>true</SignAssembly>
     -->
