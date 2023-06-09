@@ -1,0 +1,8 @@
+install:
+  - ps: Install-Product node 5.11 x64
+
+build_script:
+  - npm install
+
+test_script:
+  - npm test

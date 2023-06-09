@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using MoonSharp.Interpreter.Execution.VM;
 using MoonSharp.Interpreter.Interop;
 using MoonSharp.Interpreter.Interop.BasicDescriptors;
 
@@ -12,7 +8,9 @@ namespace MoonSharp.Interpreter
 	/// Exception for all runtime errors. In addition to constructors, it offers a lot of static methods
 	/// generating more "standard" Lua errors.
 	/// </summary>
+#if !(PCL || ((!UNITY_EDITOR) && (ENABLE_DOTNET)) || NETFX_CORE)
 	[Serializable]
+#endif
 	public class ScriptRuntimeException : InterpreterException
 	{
 		/// <summary>
@@ -22,6 +20,17 @@ namespace MoonSharp.Interpreter
 		public ScriptRuntimeException(Exception ex)
 			: base(ex)
 		{
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ScriptRuntimeException"/> class.
+		/// </summary>
+		/// <param name="ex">The ex.</param>
+		public ScriptRuntimeException(ScriptRuntimeException ex)
+			: base(ex, ex.DecoratedMessage)
+		{
+			this.DecoratedMessage = Message;
+			this.DoNotDecorateMessage = true;
 		}
 
 		/// <summary>
@@ -44,11 +53,6 @@ namespace MoonSharp.Interpreter
 		{
 
 		}
-
-		/// <summary>
-		/// Gets or sets a value indicating whether the message should not be decorated
-		/// </summary>
-		public bool DoNotDecorateMessage { get; set; }
 
 		/// <summary>
 		/// Creates a ScriptRuntimeException with a predefined error message specifying that
@@ -249,7 +253,6 @@ namespace MoonSharp.Interpreter
 			return new ScriptRuntimeException("bad argument #{0} to '{1}' (value expected)",
 				argNum + 1, funcName);
 		}
-
 
 		/// <summary>
 		/// Creates a ScriptRuntimeException with a predefined error message specifying that
@@ -500,5 +503,16 @@ namespace MoonSharp.Interpreter
 		{
 			return new ScriptRuntimeException("attempt to access instance member {0}.{1} from a static userdata", typeDescr.Name, desc.Name);
 		}
+
+		/// <summary>
+		/// Rethrows this instance if 
+		/// </summary>
+		/// <returns></returns>
+		public override void Rethrow()
+		{
+			if (Script.GlobalOptions.RethrowExceptionNested)
+				throw new ScriptRuntimeException(this);
+		}
+
 	}
 }

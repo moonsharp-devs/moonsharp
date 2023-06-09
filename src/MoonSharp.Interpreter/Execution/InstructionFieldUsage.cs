@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using MoonSharp.Interpreter.Execution.VM;
 
 namespace MoonSharp.Interpreter.Execution
@@ -85,15 +82,16 @@ namespace MoonSharp.Interpreter.Execution
 				case OpCode.BeginFn:
 					return InstructionFieldUsage.SymbolList | InstructionFieldUsage.NumVal | InstructionFieldUsage.NumVal2;
 				case OpCode.Closure:
-					return InstructionFieldUsage.SymbolList | InstructionFieldUsage.NumVal;
+					return InstructionFieldUsage.SymbolList | InstructionFieldUsage.NumValAsCodeAddress;
 				case OpCode.Nop:
 				case OpCode.Debug:
 				case OpCode.Invalid:
 					return InstructionFieldUsage.Name;
-				case OpCode.FuncMeta:
 				case OpCode.Call:
 				case OpCode.ThisCall:
 					return InstructionFieldUsage.NumVal | InstructionFieldUsage.Name;
+				case OpCode.Meta:
+					return InstructionFieldUsage.NumVal | InstructionFieldUsage.NumVal2 | InstructionFieldUsage.Value | InstructionFieldUsage.Name;
 				default:
 					throw new NotImplementedException(string.Format("InstructionFieldUsage for instruction {0}", (int)op));
 			}

@@ -2,8 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace MoonSharp.Interpreter.DataStructs
 {
@@ -90,6 +88,12 @@ namespace MoonSharp.Interpreter.DataStructs
 		public void Clear()
 		{
 			Array.Clear(m_Storage, 0, m_Storage.Length);
+			m_HeadIdx = 0;
+		}
+
+		public void ClearUsed()
+		{
+			Array.Clear(m_Storage, 0, m_HeadIdx);
 			m_HeadIdx = 0;
 		}
 

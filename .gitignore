@@ -16,6 +16,9 @@ build/
 [Oo]bj/
 bin-debug/
 
+# VS2017 .vs directory
+src/.vs/
+
 
 # Remove generated docs
 

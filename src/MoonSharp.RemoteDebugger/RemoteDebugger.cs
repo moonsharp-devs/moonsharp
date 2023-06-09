@@ -7,7 +7,7 @@ using MoonSharp.RemoteDebugger.Network;
 
 namespace MoonSharp.RemoteDebugger
 {
-	public class RemoteDebuggerService
+	public class RemoteDebuggerService : IDisposable
 	{
 		RemoteDebuggerOptions m_Options;
 		DebugWebHost m_HttpServer;
@@ -82,7 +82,13 @@ namespace MoonSharp.RemoteDebugger
 			return sb.ToString();
 		}
 
-		public string HttpUrlStringLocalHost
+        public void Dispose()
+        {
+            m_HttpServer.Dispose();
+            m_DebugServers.ForEach(s => s.Dispose());
+        }
+
+        public string HttpUrlStringLocalHost
 		{
 			get
 			{
@@ -93,11 +99,5 @@ namespace MoonSharp.RemoteDebugger
 				return null;
 			}
 		}
-
-
-
-
-
-
 	}
 }

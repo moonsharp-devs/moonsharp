@@ -12,6 +12,8 @@
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\..\..\keypair.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -65,6 +67,30 @@
     <Compile Include="..\..\CodeAnalysis\AstNode.cs">
       <Link>AstNode.cs</Link>
     </Compile>
+    <Compile Include="..\..\Compatibility\Framework.cs">
+      <Link>Framework.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Compatibility\Frameworks\Base\FrameworkBase.cs">
+      <Link>FrameworkBase.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Compatibility\Frameworks\FrameworkCLR.cs">
+      <Link>FrameworkCLR.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Compatibility\Frameworks\Base\FrameworkReflectionBase.cs">
+      <Link>FrameworkReflectionBase.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Compatibility\Frameworks\Base\FrameworkClrBase.cs">
+      <Link>FrameworkClrBase.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Compatibility\Frameworks\FrameworkCore.cs">
+      <Link>FrameworkCore.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Compatibility\Frameworks\FrameworkPCL.cs">
+      <Link>FrameworkPCL.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Compatibility\Frameworks\FrameworkWin8.cs">
+      <Link>FrameworkWin8.cs</Link>
+    </Compile>
     <Compile Include="..\..\CoreLib\CoroutineModule.cs">
       <Link>CoroutineModule.cs</Link>
     </Compile>
@@ -98,6 +124,9 @@
     <Compile Include="..\..\CoreLib\IO\StreamFileUserDataBase.cs">
       <Link>StreamFileUserDataBase.cs</Link>
     </Compile>
+    <Compile Include="..\..\CoreLib\JsonModule.cs">
+      <Link>JsonModule.cs</Link>
+    </Compile>
     <Compile Include="..\..\CoreLib\LoadModule.cs">
       <Link>LoadModule.cs</Link>
     </Compile>
@@ -125,11 +154,26 @@
     <Compile Include="..\..\DataStructs\ReferenceEqualityComparer.cs">
       <Link>ReferenceEqualityComparer.cs</Link>
     </Compile>
+    <Compile Include="..\..\Debugging\DebuggerCaps.cs">
+      <Link>DebuggerCaps.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Debugging\DebugService.cs">
+      <Link>DebugService.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Execution\VM\OpCodeMetadataType.cs">
+      <Link>OpCodeMetadataType.cs</Link>
+    </Compile>
     <Compile Include="..\..\Interop\Attributes\MoonSharpPropertyAttribute.cs">
       <Link>MoonSharpPropertyAttribute.cs</Link>
     </Compile>
     <Compile Include="..\..\Interop\Attributes\MoonSharpUserDataMetamethodAttribute.cs">
       <Link>MoonSharpUserDataMetamethodAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\Attributes\MoonSharpHideMemberAttribute.cs">
+      <Link>MoonSharpHideMemberAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\Attributes\MoonSharpHiddenAttribute.cs">
+      <Link>MoonSharpHiddenAttribute.cs</Link>
     </Compile>
     <Compile Include="..\..\Interop\BasicDescriptors\IMemberDescriptor.cs">
       <Link>IMemberDescriptor.cs</Link>
@@ -139,6 +183,9 @@
     </Compile>
     <Compile Include="..\..\Interop\BasicDescriptors\IOverloadableMemberDescriptor.cs">
       <Link>IOverloadableMemberDescriptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\IWireableDescriptor.cs">
+      <Link>IWireableDescriptor.cs</Link>
     </Compile>
     <Compile Include="..\..\Interop\BasicDescriptors\MemberDescriptorAccess.cs">
       <Link>MemberDescriptorAccess.cs</Link>
@@ -176,8 +223,47 @@
     <Compile Include="..\..\Interop\PropertyTableAssigner.cs">
       <Link>PropertyTableAssigner.cs</Link>
     </Compile>
-    <Compile Include="..\..\Interop\StandardDescriptors\EnumDescriptor.cs">
-      <Link>EnumDescriptor.cs</Link>
+    <Compile Include="..\..\Interop\ProxyObjects\DelegateProxyFactory.cs">
+      <Link>DelegateProxyFactory.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\ProxyObjects\IProxyFactory.cs">
+      <Link>IProxyFactory.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\ReflectionSpecialNames.cs">
+      <Link>ReflectionSpecialNames.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\RegistrationPolicies\AutomaticRegistrationPolicy.cs">
+      <Link>AutomaticRegistrationPolicy.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\RegistrationPolicies\DefaultRegistrationPolicy.cs">
+      <Link>DefaultRegistrationPolicy.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\RegistrationPolicies\PermanentRegistrationPolicy.cs">
+      <Link>PermanentRegistrationPolicy.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\RegistrationPolicies\IRegistrationPolicy.cs">
+      <Link>IRegistrationPolicy.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\StandardDescriptors\EventFacade.cs">
+      <Link>EventFacade.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\StandardDescriptors\HardwiredDescriptors\DefaultValue.cs">
+      <Link>DefaultValue.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\StandardDescriptors\HardwiredDescriptors\HardwiredMemberDescriptor.cs">
+      <Link>HardwiredMemberDescriptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\StandardDescriptors\HardwiredDescriptors\HardwiredMethodMemberDescriptor.cs">
+      <Link>HardwiredMethodMemberDescriptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\StandardDescriptors\HardwiredDescriptors\HardwiredUserDataDescriptor.cs">
+      <Link>HardwiredUserDataDescriptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\StandardDescriptors\MemberDescriptors\ArrayMemberDescriptor.cs">
+      <Link>ArrayMemberDescriptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Interop\StandardDescriptors\ProxyUserDataDescriptor.cs">
+      <Link>ProxyUserDataDescriptor.cs</Link>
     </Compile>
     <Compile Include="..\..\Interop\StandardDescriptors\MemberDescriptors\ObjectCallbackMemberDescriptor.cs">
       <Link>ObjectCallbackMemberDescriptor.cs</Link>
@@ -487,6 +573,15 @@
     <Compile Include="..\..\Loaders\InvalidScriptLoader.cs">
       <Link>InvalidScriptLoader.cs</Link>
     </Compile>
+    <Compile Include="..\..\Options\ColonOperatorBehaviour.cs">
+      <Link>ColonOperatorBehaviour.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Options\FuzzySymbolMatchingBehavior.cs">
+      <Link>FuzzySymbolMatchingBehaviour.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Platforms\DotNetCorePlatformAccessor.cs">
+      <Link>DotNetCorePlatformAccessor.cs</Link>
+    </Compile>
     <Compile Include="..\..\REPL\ReplHistoryNavigator.cs">
       <Link>ReplHistoryNavigator.cs</Link>
     </Compile>
@@ -520,22 +615,16 @@
     <Compile Include="..\..\Platforms\LimitedPlatformAccessor.cs">
       <Link>LimitedPlatformAccessor.cs</Link>
     </Compile>
-    <Compile Include="..\..\Platforms\PortableWrappers\Utils.cs">
-      <Link>Utils.cs</Link>
-    </Compile>
     <Compile Include="..\..\Platforms\StandardFileType.cs">
       <Link>StandardFileType.cs</Link>
     </Compile>
     <Compile Include="..\..\Platforms\StandardPlatformAccessor.cs">
       <Link>StandardPlatformAccessor.cs</Link>
     </Compile>
-    <Compile Include="..\..\Platforms\PortableWrappers\Attributes.cs">
+    <Compile Include="..\..\Compatibility\Attributes.cs">
       <Link>Attributes.cs</Link>
     </Compile>
-    <Compile Include="..\..\Platforms\PortableWrappers\ExtensionMethods.cs">
-      <Link>ExtensionMethods.cs</Link>
-    </Compile>
-    <Compile Include="..\..\Platforms\PortableWrappers\Stopwatch.cs">
+    <Compile Include="..\..\Compatibility\Stopwatch.cs">
       <Link>Stopwatch.cs</Link>
     </Compile>
     <Compile Include="..\..\REPL\ReplInterpreter.cs">
@@ -600,6 +689,18 @@
     </Compile>
     <Compile Include="..\..\ScriptOptions.cs">
       <Link>ScriptOptions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Serialization\Json\JsonNull.cs">
+      <Link>JsonNull.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Serialization\Json\JsonTableConverter.cs">
+      <Link>JsonTableConverter.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Serialization\ObjectValueConverter.cs">
+      <Link>ObjectValueConverter.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Serialization\SerializationExtensions.cs">
+      <Link>SerializationExtensions.cs</Link>
     </Compile>
     <Compile Include="..\..\Tree\Expressions\AdjustmentExpression.cs">
       <Link>AdjustmentExpression.cs</Link>

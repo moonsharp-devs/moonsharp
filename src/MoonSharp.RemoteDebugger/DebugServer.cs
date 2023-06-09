@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Xml;
 using MoonSharp.Interpreter;
 using MoonSharp.Interpreter.Debugging;
@@ -13,7 +12,7 @@ using MoonSharp.RemoteDebugger.Threading;
 
 namespace MoonSharp.RemoteDebugger
 {
-	public class DebugServer : IDebugger
+	public class DebugServer : IDebugger, IDisposable
 	{
 		List<DynamicExpression> m_Watches = new List<DynamicExpression>();
 		HashSet<string> m_WatchesChanging = new HashSet<string>();
@@ -452,6 +451,20 @@ namespace MoonSharp.RemoteDebugger
 			SendMessage(string.Format("Error: {0}", ex.DecoratedMessage));
 			m_RequestPause = m_ErrorRegEx.IsMatch(ex.Message);
 			return IsPauseRequested();
+		}
+
+        public void Dispose()
+        {
+            m_Server.Dispose();
+        }
+
+		public void SetDebugService(DebugService debugService)
+		{
+		}
+
+		public DebuggerCaps GetDebuggerCaps()
+		{
+			return DebuggerCaps.CanDebugSourceCode;
 		}
 	}
 }

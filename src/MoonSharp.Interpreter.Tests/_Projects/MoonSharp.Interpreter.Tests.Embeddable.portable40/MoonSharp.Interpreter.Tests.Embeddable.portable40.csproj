@@ -15,6 +15,8 @@
     <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <TargetFrameworkProfile>Profile328</TargetFrameworkProfile>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\..\..\keypair.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -91,12 +93,18 @@
     <Compile Include="..\..\EndToEnd\GotoTests.cs">
       <Link>GotoTests.cs</Link>
     </Compile>
+    <Compile Include="..\..\EndToEnd\JsonSerializationTests.cs">
+      <Link>JsonSerializationTests.cs</Link>
+    </Compile>
     <Compile Include="..\..\EndToEnd\LuaTestSuiteExtract.cs">
       <Link>LuaTestSuiteExtract.cs</Link>
     </Compile>
     <Compile Include="..\..\EndToEnd\MetatableTests.cs">
       <SubType>Code</SubType>
       <Link>MetatableTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\EndToEnd\ProxyObjectsTests.cs">
+      <Link>ProxyObjectsTests.cs</Link>
     </Compile>
     <Compile Include="..\..\EndToEnd\StringLibTests.cs">
       <Link>StringLibTests.cs</Link>
@@ -185,6 +193,9 @@
     </Compile>
     <Compile Include="..\..\Units\InteropTests.cs">
       <Link>InteropTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\_Hardwired.cs">
+      <Link>_Hardwired.cs</Link>
     </Compile>
   </ItemGroup>
   <ItemGroup>

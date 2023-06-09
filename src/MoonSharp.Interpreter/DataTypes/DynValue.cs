@@ -1,13 +1,13 @@
-﻿using System;
+using System;
+using System.Collections;
 using System.Collections.Generic;
-using MoonSharp.Interpreter.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading;
+
 using MoonSharp.Interpreter.Execution;
 using MoonSharp.Interpreter.Execution.VM;
-using System.Collections;
 
 namespace MoonSharp.Interpreter
 {
@@ -338,11 +338,29 @@ namespace MoonSharp.Interpreter
 		}
 
 		/// <summary>
+		/// Creates a new writable value initialized to an empty prime table (a 
+		/// prime table is a table made only of numbers, strings, booleans and other
+		/// prime tables).
+		/// </summary>
+		public static DynValue NewPrimeTable()
+		{
+			return NewTable(new Table(null));
+		}
+
+		/// <summary>
 		/// Creates a new writable value initialized to an empty table.
 		/// </summary>
 		public static DynValue NewTable(Script script)
 		{
 			return NewTable(new Table(script));
+		}
+
+		/// <summary>
+		/// Creates a new writable value initialized to with array contents.
+		/// </summary>
+		public static DynValue NewTable(Script script, params DynValue[] arrayValues)
+		{
+			return NewTable(new Table(script, arrayValues));
 		}
 
 		/// <summary>
@@ -398,6 +416,20 @@ namespace MoonSharp.Interpreter
 			return new DynValue()
 			{
 				m_Object = new YieldRequest() { ReturnValues = args },
+				m_Type = DataType.YieldRequest,
+			};
+		}
+
+		/// <summary>
+		/// Creates a new request for a yield of the current coroutine.
+		/// </summary>
+		/// <param name="args">The yield argumenst.</param>
+		/// <returns></returns>
+		internal static DynValue NewForcedYieldReq()
+		{
+			return new DynValue()
+			{
+				m_Object = new YieldRequest() { Forced = true },
 				m_Type = DataType.YieldRequest,
 			};
 		}
@@ -572,6 +604,42 @@ namespace MoonSharp.Interpreter
 					return ToString();
 			}
 		}
+
+		/// <summary>
+		/// Returns a string which is what it's expected to be output by debuggers.
+		/// </summary>
+		public string ToDebugPrintString()
+		{
+			if (this.m_Object != null && this.m_Object is RefIdObject)
+			{
+				RefIdObject refid = (RefIdObject)m_Object;
+
+				string typeString = this.Type.ToLuaTypeString();
+
+				if (m_Object is UserData)
+				{
+					UserData ud = (UserData)m_Object;
+					string str = ud.Descriptor.AsString(ud.Object);
+					if (str != null)
+						return str;
+				}
+
+				return refid.FormatTypeString(typeString);
+			}
+
+			switch (Type)
+			{
+				case DataType.Tuple:
+					return string.Join("\t", Tuple.Select(t => t.ToPrintString()).ToArray());
+				case DataType.TailCallRequest:
+					return "(TailCallRequest)";
+				case DataType.YieldRequest:
+					return "(YieldRequest)";
+				default:
+					return ToString();
+			}
+		}
+
 
 		/// <summary>
 		/// Returns a <see cref="System.String" /> that represents this instance.
@@ -915,9 +983,23 @@ namespace MoonSharp.Interpreter
 		/// <summary>
 		/// Converts this MoonSharp DynValue to a CLR object of the specified type.
 		/// </summary>
+		public object ToObject(Type desiredType)
+		{
+			//Contract.Requires(desiredType != null);
+			return MoonSharp.Interpreter.Interop.Converters.ScriptToClrConversions.DynValueToObjectOfType(this, desiredType, null, false);
+		}
+
+		/// <summary>
+		/// Converts this MoonSharp DynValue to a CLR object of the specified type.
+		/// </summary>
 		public T ToObject<T>()
 		{
-			return (T)MoonSharp.Interpreter.Interop.Converters.ScriptToClrConversions.DynValueToObjectOfType(this, typeof(T), null, false);
+			T myObject = (T)ToObject(typeof(T));
+			if (myObject == null) {
+				return default(T);
+			}
+			
+			return myObject;
 		}
 
 #if HASDYNAMIC

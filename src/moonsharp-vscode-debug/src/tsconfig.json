@@ -1,0 +1,12 @@
+{
+	"compilerOptions": {
+		"target": "es5",
+		"module": "commonjs",
+		"moduleResolution": "node",
+		"inlineSourceMap": true,
+		"outDir": "../out",
+		"noImplicitAny": false,
+		"removeComments": false,
+		"preserveConstEnums": true
+	}
+}

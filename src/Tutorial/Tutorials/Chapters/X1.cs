@@ -29,6 +29,12 @@ namespace Tutorials.Chapters
 			{
 			}
 
+			public DebuggerCaps GetDebuggerCaps()
+			{
+				return 0;
+			}
+
+
 			public bool IsPauseRequested()
 			{
 				return true;
@@ -70,6 +76,11 @@ namespace Tutorials.Chapters
 
 			public void RefreshBreakpoints(IEnumerable<SourceRef> refs)
 			{
+			}
+
+			public void SetDebugService(DebugService debugService)
+			{
+
 			}
 		}
 

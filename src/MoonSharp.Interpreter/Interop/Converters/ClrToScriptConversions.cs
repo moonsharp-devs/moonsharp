@@ -1,13 +1,43 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Text;
+using MoonSharp.Interpreter.Interop.RegistrationPolicies;
 
 namespace MoonSharp.Interpreter.Interop.Converters
 {
 	internal static class ClrToScriptConversions
 	{
+		/// <summary>
+		/// Tries to convert a CLR object to a MoonSharp value, using "trivial" logic.
+		/// Skips on custom conversions, etc.
+		/// Does NOT throw on failure.
+		/// </summary>
+		internal static DynValue TryObjectToTrivialDynValue(Script script, object obj)
+		{
+			if (obj == null)
+				return DynValue.Nil;
+
+			if (obj is DynValue)
+				return (DynValue)obj;
+
+			Type t = obj.GetType();
+
+			if (obj is bool)
+				return DynValue.NewBoolean((bool)obj);
+
+			if (obj is string || obj is StringBuilder || obj is char)
+				return DynValue.NewString(obj.ToString());
+
+			if (NumericConversions.NumericTypes.Contains(t))
+				return DynValue.NewNumber(NumericConversions.TypeToDouble(t, obj));
+
+			if (obj is Table)
+				return DynValue.NewTable((Table)obj);
+
+			return null;
+		}
+
+
 		/// <summary>
 		/// Tries to convert a CLR object to a MoonSharp value, using "simple" logic.
 		/// Does NOT throw on failure.
@@ -24,7 +54,7 @@ namespace MoonSharp.Interpreter.Interop.Converters
 			var converter = Script.GlobalOptions.CustomConverters.GetClrToScriptCustomConversion(obj.GetType());
 			if (converter != null)
 			{
-				var v = converter(obj);
+				var v = converter(script, obj);
 				if (v != null)
 					return v;
 			}
@@ -52,7 +82,13 @@ namespace MoonSharp.Interpreter.Interop.Converters
 			if (obj is Delegate)
 			{
 				Delegate d = (Delegate)obj;
+
+
+#if NETFX_CORE
+				MethodInfo mi = d.GetMethodInfo();
+#else
 				MethodInfo mi = d.Method;
+#endif
 
 				if (CallbackFunction.CheckCallbackSignature(mi, false))
 					return DynValue.NewCallback((Func<ScriptExecutionContext, CallbackArguments, DynValue>)d);

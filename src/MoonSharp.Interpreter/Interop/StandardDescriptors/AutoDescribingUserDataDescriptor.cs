@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using MoonSharp.Interpreter.Compatibility;
 using MoonSharp.Interpreter.Interop;
 
 namespace MoonSharp.Interpreter
@@ -9,7 +7,7 @@ namespace MoonSharp.Interpreter
 	/// <summary>
 	/// Descriptor which acts as a non-containing adapter from IUserDataType to IUserDataDescriptor
 	/// </summary>
-	internal class AutoDescribingUserDataDescriptor : IUserDataDescriptor
+	public class AutoDescribingUserDataDescriptor : IUserDataDescriptor
 	{
 		private string m_FriendlyName;
 		private Type m_Type;
@@ -126,7 +124,7 @@ namespace MoonSharp.Interpreter
 		/// <returns></returns>
 		public bool IsTypeCompatible(Type type, object obj)
 		{
-			return type.IsInstanceOfType(obj);
+			return Framework.Do.IsInstanceOfType(type, obj);
 		}
 	}
 }

@@ -4,9 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Text;
-using MoonSharp.Interpreter.Execution;
+using MoonSharp.Interpreter.Debugging;
 
 namespace MoonSharp.Interpreter.CoreLib
 {
@@ -44,9 +43,9 @@ namespace MoonSharp.Interpreter.CoreLib
 			if (!v.CastToBool())
 			{
 				if (message.IsNil())
-					throw new ScriptRuntimeException("assertion failed!") { DoNotDecorateMessage = true };
+					throw new ScriptRuntimeException("assertion failed!"); // { DoNotDecorateMessage = true };
 				else
-					throw new ScriptRuntimeException(message.ToPrintString()) { DoNotDecorateMessage = true };
+					throw new ScriptRuntimeException(message.ToPrintString()); // { DoNotDecorateMessage = true };
 			}
 
 			return DynValue.NewTupleNested(args.GetArray());
@@ -64,7 +63,7 @@ namespace MoonSharp.Interpreter.CoreLib
 
 			if (mode == null || mode == "collect" || mode == "restart")
 			{
-#if PCL
+#if PCL || ENABLE_DOTNET
 				GC.Collect();
 #else
 				GC.Collect(2, GCCollectionMode.Forced);
@@ -86,7 +85,33 @@ namespace MoonSharp.Interpreter.CoreLib
 		public static DynValue error(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
 			DynValue message = args.AsType(0, "error", DataType.String, false);
-			throw new ScriptRuntimeException(message.String) { DoNotDecorateMessage = true };
+            		DynValue level = args.AsType(1, "error", DataType.Number, true);
+
+            		Coroutine cor = executionContext.GetCallingCoroutine();
+
+            		WatchItem[] stacktrace = cor.GetStackTrace(0, executionContext.CallingLocation);
+
+            		var e = new ScriptRuntimeException(message.String);
+
+            		if (level.IsNil())
+            		{
+                		level = DynValue.NewNumber(1); // Default
+            		}
+
+            		if (level.Number > 0 && level.Number < stacktrace.Length)
+            		{
+                    		// Lua allows levels up to max. value of a double, while this has to be cast to int
+                    		// Probably never will be a problem, just leaving this note here
+                    		WatchItem wi = stacktrace[(int)level.Number];
+
+                    		e.DecorateMessage(executionContext.GetScript(), wi.Location);
+            		}
+            		else
+            		{
+                		e.DoNotDecorateMessage = true;
+            		}
+
+            		throw e;
 		}
 
 

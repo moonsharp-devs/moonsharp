@@ -5,11 +5,19 @@ using MoonSharp.Interpreter.Execution;
 using NUnit.Framework;
 using MoonSharp.Interpreter.Loaders;
 
-namespace MoonSharp.Interpreter.Tests
+namespace MoonSharp.Interpreter.Tests.EndToEnd
 {
 	[TestFixture]
 	public class SimpleTests
 	{
+		[Test]
+		public void EmptyLongComment()
+		{
+			Script S = new Script(CoreModules.None);
+			DynValue res = S.DoString("--[[]]");
+		}
+
+
 		[Test]
 		public void EmptyChunk()
 		{
@@ -1446,6 +1454,8 @@ namespace MoonSharp.Interpreter.Tests
 		[Test]
 		public void Simple_Delegate_Interop_2()
 		{
+			var oldPolicy = UserData.RegistrationPolicy;
+
 			try
 			{
 				UserData.RegistrationPolicy = Interop.InteropRegistrationPolicy.Automatic;
@@ -1458,7 +1468,7 @@ namespace MoonSharp.Interpreter.Tests
 			}
 			finally
 			{
-				UserData.RegistrationPolicy = Interop.InteropRegistrationPolicy.Explicit;
+				UserData.RegistrationPolicy = oldPolicy;
 			}
 		}
 
@@ -1474,6 +1484,36 @@ namespace MoonSharp.Interpreter.Tests
 				test();
 				");
 		}
+
+		[Test]
+		public void ParsingTest()
+		{
+			Script S = new Script(CoreModules.None);
+			DynValue res = S.LoadString(@"
+				t = {'a', 'b', 'c', ['d'] = 'f', ['e'] = 5, [65] = true, [true] = false}
+				function myFunc()
+				  return 'one', 'two'
+				end
+
+				print('Table Test 1:')
+				for k,v in pairs(t) do
+				  print(tostring(k) .. ' / ' .. tostring(v))
+				end
+				print('Table Test 2:')
+				for X,X in pairs(t) do
+				  print(tostring(X) .. ' / ' .. tostring(X))
+				end
+				print('Function Test 1:')
+				v1,v2 = myFunc()
+				print(v1)
+				print(v2)
+				print('Function Test 2:')
+				v,v = myFunc()
+				print(v)
+				print(v)
+				");			
+		}
+
 
 //		[Test]
 //		public void TestModulesLoadingWithoutCrash()
@@ -1491,6 +1531,26 @@ namespace MoonSharp.Interpreter.Tests
 //			obj.Function.Call();
 //#endif
 //		}
+
+		[Test]
+        	public void NumericConversionFailsIfOutOfBounds()
+        	{
+            		Script S = new Script();
+
+            		S.Globals["my_function_takes_byte"] = (Action<byte>)(p => { });
+
+            		try
+            		{
+                		S.DoString("my_function_takes_byte(2010191) -- a huge number that is definitely not a byte");
+
+                		Assert.Fail(); // ScriptRuntimeException should have been thrown, if it doesn't Assert.Fail should execute
+            		}
+            		catch (ScriptRuntimeException e)
+            		{
+                		//Assert.Pass(e.DecoratedMessage);
+            		}
+        	}
+
 
 	}
 }

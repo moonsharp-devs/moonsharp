@@ -20,6 +20,8 @@
     <SccProvider>
     </SccProvider>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\keypair.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -107,10 +109,24 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\CommandManager.cs" />
+    <Compile Include="Commands\Implementations\CompileCommand.cs" />
+    <Compile Include="Commands\Implementations\DebugCommand.cs" />
+    <Compile Include="Commands\Implementations\ExitCommand.cs" />
+    <Compile Include="Commands\Implementations\HardWireCommand.cs" />
+    <Compile Include="Commands\Implementations\HelpCommand.cs" />
+    <Compile Include="Commands\ICommand.cs" />
+    <Compile Include="Commands\Implementations\RegisterCommand.cs" />
+    <Compile Include="Commands\Implementations\RunCommand.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ShellContext.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\MoonSharp.Hardwire\MoonSharp.Hardwire.net35-client.csproj">
+      <Project>{b25a2316-6897-4caa-be0e-e784071d8199}</Project>
+      <Name>MoonSharp.Hardwire.net35-client</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MoonSharp.Interpreter\MoonSharp.Interpreter.net35-client.csproj">
       <Project>{91ea9b9d-fe03-4273-bdaf-8ad42ede1e59}</Project>
       <Name>MoonSharp.Interpreter.net35-client</Name>

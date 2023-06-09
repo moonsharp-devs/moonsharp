@@ -99,6 +99,12 @@ namespace SynchProjects
 
 		static void Main(string[] args)
 		{
+			Console.ForegroundColor = ConsoleColor.Magenta;
+			Console.WriteLine("********************************************************");
+			Console.WriteLine("* !! REMEMBER TO RSYNC UNITY AND .NET CORE PROJECTS !! *");
+			Console.WriteLine("********************************************************");
+
+
 			const string INTERPRETER_PROJECT = @"{BASEPATH}\MoonSharp.Interpreter\MoonSharp.Interpreter.net35-client.csproj";
 			const string INTERPRETER_SUBPROJECTS_PATHS = @"{BASEPATH}\MoonSharp.Interpreter\_Projects\MoonSharp.Interpreter.{0}\MoonSharp.Interpreter.{0}.csproj";
 			const string INTERPRETER_PATH_PREFIX = @"..\..\";
@@ -107,12 +113,17 @@ namespace SynchProjects
 			const string DEBUGGER_SUBPROJECTS_PATHS = @"{BASEPATH}\MoonSharp.RemoteDebugger\_Projects\MoonSharp.RemoteDebugger.{0}\MoonSharp.RemoteDebugger.{0}.csproj";
 			const string DEBUGGER_PATH_PREFIX = @"..\..\";
 
+			const string VSCODEDEBUGGER_PROJECT = @"{BASEPATH}\MoonSharp.VsCodeDebugger\MoonSharp.VsCodeDebugger.net35-client.csproj";
+			const string VSCODEDEBUGGER_SUBPROJECTS_PATHS = @"{BASEPATH}\MoonSharp.VsCodeDebugger\_Projects\MoonSharp.VsCodeDebugger.{0}\MoonSharp.VsCodeDebugger.{0}.csproj";
+			const string VSCODEDEBUGGER_PATH_PREFIX = @"..\..\";
+
 			const string TESTS_PROJECT = @"{BASEPATH}\MoonSharp.Interpreter.Tests\MoonSharp.Interpreter.Tests.net35-client.csproj";
 			const string TESTS_SUBPROJECTS_PATHS = @"{BASEPATH}\MoonSharp.Interpreter.Tests\_Projects\MoonSharp.Interpreter.Tests.{0}\MoonSharp.Interpreter.Tests.{0}.csproj";
 			const string TESTS_PATH_PREFIX = @"..\..\";
 
 			string[] INTERPRETER_PLATFORMS = new string[] { "net40-client", "portable40" };
 			string[] DEBUGGER_PLATFORMS = new string[] { "net40-client" };
+			string[] VSCODEDEBUGGER_PLATFORMS = new string[] { "net40-client" };
 			string[] TESTS_PLATFORMS = new string[] { "net40-client", "portable40", "Embeddable.portable40" };
 
 			CalcBasePath();
@@ -122,6 +133,9 @@ namespace SynchProjects
 
 			foreach (string platform in DEBUGGER_PLATFORMS)
 				CopyCompileFilesAsLinks(platform, DEBUGGER_PROJECT, DEBUGGER_SUBPROJECTS_PATHS, DEBUGGER_PATH_PREFIX);
+
+			foreach (string platform in VSCODEDEBUGGER_PLATFORMS)
+				CopyCompileFilesAsLinks(platform, VSCODEDEBUGGER_PROJECT, VSCODEDEBUGGER_SUBPROJECTS_PATHS, VSCODEDEBUGGER_PATH_PREFIX);
 
 			foreach (string platform in TESTS_PLATFORMS)
 				CopyCompileFilesAsLinks(platform, TESTS_PROJECT, TESTS_SUBPROJECTS_PATHS, TESTS_PATH_PREFIX);

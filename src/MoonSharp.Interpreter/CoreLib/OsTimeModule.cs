@@ -3,9 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using MoonSharp.Interpreter.Execution;
 
 namespace MoonSharp.Interpreter.CoreLib
 {
@@ -37,7 +35,9 @@ namespace MoonSharp.Interpreter.CoreLib
 		[MoonSharpModuleMethod]
 		public static DynValue clock(ScriptExecutionContext executionContext, CallbackArguments args)
 		{
-			return GetUnixTime(DateTime.UtcNow, Time0);
+			var t = GetUnixTime(DateTime.UtcNow, Time0);
+			if (t.IsNil()) return DynValue.NewNumber(0.0);
+			return t;
 		}
 
 		[MoonSharpModuleMethod]
@@ -121,7 +121,8 @@ namespace MoonSharp.Interpreter.CoreLib
 			}
 			else
 			{
-#if !PCL
+#if !(PCL || ENABLE_DOTNET || NETFX_CORE)
+
 				try
 				{
 					reference = TimeZoneInfo.ConvertTimeFromUtc(reference, TimeZoneInfo.Local);

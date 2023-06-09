@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using MoonSharp.Interpreter.Execution;
+using MoonSharp.Interpreter.Compatibility;
 
 namespace MoonSharp.Interpreter.CoreLib.IO
 {
@@ -192,10 +191,10 @@ namespace MoonSharp.Interpreter.CoreLib.IO
 				return numAsFar.Length == 0;
 
 			if (c == '.')
-				return !numAsFar.Contains('.');
+				return !Framework.Do.StringContainsChar(numAsFar, '.');
 
 			if (c == 'E' || c == 'e')
-				return !(numAsFar.Contains('E') || numAsFar.Contains('e'));
+				return !(Framework.Do.StringContainsChar(numAsFar, 'E') || Framework.Do.StringContainsChar(numAsFar, 'e'));
 
 			return false;
 		}
@@ -212,7 +211,7 @@ namespace MoonSharp.Interpreter.CoreLib.IO
 		protected abstract string Close();
 
 		public abstract bool flush();
-		public abstract long seek(string whence, long offset);
+		public abstract long seek(string whence, long offset = 0);
 		public abstract bool setvbuf(string mode);
 
 		public override string ToString()

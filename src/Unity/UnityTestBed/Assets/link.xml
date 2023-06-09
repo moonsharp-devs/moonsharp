@@ -1,0 +1,20 @@
+<linker>
+    <assembly fullname="MoonSharp.Interpreter.Tests">
+        <type fullname="MoonSharp.*" preserve="all" />
+    </assembly>
+    <assembly fullname="MoonSharp.Interpreter">
+        <type fullname="MoonSharp.*" preserve="all" />
+    </assembly>
+    <assembly fullname="System">
+        <type fullname="System.*" preserve="all"/>
+    </assembly>    
+    <assembly fullname="System.Core">
+        <type fullname="System.*" preserve="all"/>
+    </assembly>
+    <assembly fullname="System.Xml">
+        <type fullname="System.*" preserve="all"/>
+    </assembly>
+    <assembly fullname="mscorlib">
+        <type fullname="System.*" preserve="all"/>
+    </assembly>
+</linker> 

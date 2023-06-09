@@ -1,0 +1,90 @@
+{
+    "name": "moonsharp-debug",
+    "displayName": "MoonSharp Debug",
+    "version": "1.8.2",
+    "publisher": "xanathar",
+    "description": "VS Code Debugger for applications embedding MoonSharp.",
+    "author": {
+        "name": "Marco Mastropaolo",
+        "email": "marco@mastropaolo.com"
+    },
+    "engines": {
+        "vscode": "^1.1.0",
+        "node": "^5.10.0"
+    },
+    "icon": "images/icon.png",
+    "categories": [
+        "Debuggers"
+    ],
+    "private": true,
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/xanathar/moonsharp.git"
+    },
+    "bugs": {
+        "url": "https://github.com/xanathar/moonsharp/issues"
+    },
+    "dependencies": {},
+    "devDependencies": {
+        "@types/es6-collections": "^0.5.29",
+        "@types/es6-promise": "0.0.32",
+        "@types/mocha": "^2.2.32",
+        "@types/node": "^6.0.39",
+        "typescript": "^2.0.2",
+        "mocha": "^3.0.2",
+        "vscode": "^0.11.18",
+        "vscode-debugadapter-testsupport": "^1.13.0"
+    },
+    "scripts": {
+        "prepublish": "node ./node_modules/typescript/bin/tsc -p ./src",
+        "compile": "node ./node_modules/typescript/bin/tsc -p ./src",
+        "watch": "node ./node_modules/typescript/bin/tsc -w -p ./src",
+        "test": "node ./node_modules/mocha/bin/mocha -u tdd ./out/tests/",
+        "postinstall": "node ./node_modules/vscode/bin/install"
+    },
+    "main": "./out/extension",
+    "activationEvents": [
+        "onCommand:extension.getProgramName"
+    ],
+    "contributes": {
+        "breakpoints": [
+            {
+                "language": "lua"
+            },
+            {
+                "language": "text"
+            }
+        ],
+        "debuggers": [
+            {
+                "type": "moonsharp-debug",
+                "label": "MoonSharp",
+
+				"debugServer": 41912,
+
+                "initialConfigurations": [
+                    {
+                        "name": "MoonSharp Attach",
+                        "type": "moonsharp-debug",
+                        "request": "attach",
+						"HELP": "Please set 'debugServer':41912 (or whatever port you ar connecting to) right after the 'version' field in this json."
+                    }
+                ],
+                "configurationAttributes": {
+                    "attach": {
+                        "required": [
+
+                        ],
+                        "properties": {
+                            "HELP": {
+                                "type": "string",
+                                "description": "",
+                                "default": ""
+                            }
+                        }
+                    }
+                }
+            }
+        ]
+    }
+}

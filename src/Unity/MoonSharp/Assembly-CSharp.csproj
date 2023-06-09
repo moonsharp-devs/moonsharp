@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>10.0.20506</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <RootNamespace></RootNamespace>
+    <ProjectGuid>{974D1D9B-6B5C-C2E6-EFAB-24E61B3F506C}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <AssemblyName>Assembly-CSharp</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <BaseDirectory>Assets</BaseDirectory>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>Temp\bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;UNITY_5_3_OR_NEWER;UNITY_5_3_4;UNITY_5_3;UNITY_5;ENABLE_NEW_BUGREPORTER;ENABLE_AUDIO;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_DUCK_TYPING;ENABLE_FRAME_DEBUGGER;ENABLE_GENERICS;ENABLE_HOME_SCREEN;ENABLE_IMAGEEFFECTS;ENABLE_LIGHT_PROBES_LEGACY;ENABLE_MICROPHONE;ENABLE_MULTIPLE_DISPLAYS;ENABLE_PHYSICS;ENABLE_PLUGIN_INSPECTOR;ENABLE_SHADOWS;ENABLE_SINGLE_INSTANCE_BUILD_SETTING;ENABLE_SPRITERENDERER_FLIPPING;ENABLE_SPRITES;ENABLE_SPRITE_POLYGON;ENABLE_TERRAIN;ENABLE_RAKNET;ENABLE_UNET;ENABLE_UNITYEVENTS;ENABLE_VR;ENABLE_WEBCAM;ENABLE_WWW;ENABLE_CLOUD_SERVICES;ENABLE_CLOUD_SERVICES_ADS;ENABLE_CLOUD_HUB;ENABLE_CLOUD_PROJECT_ID;ENABLE_CLOUD_SERVICES_PURCHASING;ENABLE_CLOUD_SERVICES_ANALYTICS;ENABLE_CLOUD_SERVICES_UNET;ENABLE_CLOUD_SERVICES_BUILD;ENABLE_CLOUD_LICENSE;ENABLE_EDITOR_METRICS;ENABLE_EDITOR_METRICS_CACHING;INCLUDE_DYNAMIC_GI;INCLUDE_GI;INCLUDE_IL2CPP;INCLUDE_DIRECTX12;PLATFORM_SUPPORTS_MONO;RENDER_SOFTWARE_CURSOR;ENABLE_LOCALIZATION;ENABLE_ANDROID_ATLAS_ETC1_COMPRESSION;ENABLE_EDITOR_TESTS_RUNNER;UNITY_STANDALONE_OSX;UNITY_STANDALONE;ENABLE_SUBSTANCE;ENABLE_GAMECENTER;ENABLE_TEXTUREID_MAP;ENABLE_RUNTIME_GI;ENABLE_MOVIES;ENABLE_NETWORK;ENABLE_CRUNCH_TEXTURE_COMPRESSION;ENABLE_LOG_MIXED_STACKTRACE;ENABLE_UNITYWEBREQUEST;ENABLE_CLUSTERINPUT;ENABLE_WEBSOCKET_HOST;ENABLE_MONO;DEVELOPMENT_BUILD;ENABLE_PROFILER;UNITY_ASSERTIONS;UNITY_EDITOR;UNITY_EDITOR_64;UNITY_EDITOR_OSX;UNITY_TEAM_LICENSE;UNITY_PRO_LICENSE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <NoWarn>0169</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>Temp\bin\Release\</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <NoWarn>0169</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.XML" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="UnityEngine">
+      <HintPath>/Applications/Unity/Unity.app/Contents/Frameworks/Managed/UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor">
+      <HintPath>/Applications/Unity/Unity.app/Contents/Frameworks/Managed/UnityEditor.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+     <Compile Include="Assets\CustomTest1Behaviour.cs" />
+     <Compile Include="Assets\DebuggerTestBehaviour.cs" />
+     <Compile Include="Assets\MainMenuBehaviour.cs" />
+     <Compile Include="Assets\TestRunnerBehaviour.cs" />
+     <Compile Include="Assets\Tests\EmbeddableNUnitWrapper.cs" />
+     <Compile Include="Assets\Tests\EndToEnd\BinaryDumpTests.cs" />
+     <Compile Include="Assets\Tests\EndToEnd\ClosureTests.cs" />
+     <Compile Include="Assets\Tests\EndToEnd\CollectionsBaseGenRegisteredTests.cs" />
+     <Compile Include="Assets\Tests\EndToEnd\CollectionsBaseInterfGenRegisteredTests.cs" />
+     <Compile Include="Assets\Tests\EndToEnd\CollectionsRegisteredTests.cs" />
+     <Compile Include="Assets\Tests\EndToEnd\ConfigPropertyAssignerTests.cs" />
+     <Compile Include="Assets\Tests\EndToEnd\CoroutineTests.cs" />
+     <Compile Include="Assets\Tests\EndToEnd\DynamicTests.cs" />
+     <Compile Include="Assets\Tests\EndToEnd\ErrorHandlingTests.cs" />
+     <Compile Include="Assets\Tests\EndToEnd\GotoTests.cs" />
+     <Compile Include="Assets\Tests\EndToEnd\JsonSerializationTests.cs" />
+     <Compile Include="Assets\Tests\EndToEnd\LuaTestSuiteExtract.cs" />
+     <Compile Include="Assets\Tests\EndToEnd\MetatableTests.cs" />
+     <Compile Include="Assets\Tests\EndToEnd\ProxyObjectsTests.cs" />
+     <Compile Include="Assets\Tests\EndToEnd\SimpleTests.cs" />
+     <Compile Include="Assets\Tests\EndToEnd\StringLibTests.cs" />
+     <Compile Include="Assets\Tests\EndToEnd\StructAssignmentTechnique.cs" />
+     <Compile Include="Assets\Tests\EndToEnd\TableTests.cs" />
+     <Compile Include="Assets\Tests\EndToEnd\TailCallTests.cs" />
+     <Compile Include="Assets\Tests\EndToEnd\UserDataEnumsTest.cs" />
+     <Compile Include="Assets\Tests\EndToEnd\UserDataEventsTests.cs" />
+     <Compile Include="Assets\Tests\EndToEnd\UserDataFieldsTests.cs" />
+     <Compile Include="Assets\Tests\EndToEnd\UserDataIndexerTests.cs" />
+     <Compile Include="Assets\Tests\EndToEnd\UserDataMetaTests.cs" />
+     <Compile Include="Assets\Tests\EndToEnd\UserDataMethodsTests.cs" />
+     <Compile Include="Assets\Tests\EndToEnd\UserDataNestedTypesTests.cs" />
+     <Compile Include="Assets\Tests\EndToEnd\UserDataOverloadsTests.cs" />
+     <Compile Include="Assets\Tests\EndToEnd\UserDataPropertiesTests.cs" />
+     <Compile Include="Assets\Tests\EndToEnd\Utils.cs" />
+     <Compile Include="Assets\Tests\EndToEnd\VarargsTupleTests.cs" />
+     <Compile Include="Assets\Tests\EndToEnd\VtUserDataFieldsTests.cs" />
+     <Compile Include="Assets\Tests\EndToEnd\VtUserDataIndexerTests.cs" />
+     <Compile Include="Assets\Tests\EndToEnd\VtUserDataMetaTests.cs" />
+     <Compile Include="Assets\Tests\EndToEnd\VtUserDataMethodsTests.cs" />
+     <Compile Include="Assets\Tests\EndToEnd\VtUserDataOverloadsTests.cs" />
+     <Compile Include="Assets\Tests\EndToEnd\VtUserDataPropertiesTests.cs" />
+     <Compile Include="Assets\Tests\TapRunner.cs" />
+     <Compile Include="Assets\Tests\TestMoreTests.cs" />
+     <Compile Include="Assets\Tests\TestRunner.cs" />
+     <Compile Include="Assets\Tests\Units\BinDumpStreamTests.cs" />
+     <Compile Include="Assets\Tests\Units\FastStackTests.cs" />
+     <Compile Include="Assets\Tests\Units\InteropTests.cs" />
+     <Compile Include="Assets\Tests\_Hardwired.cs" />
+     <Compile Include="Assets\Tests\_Projects\MoonSharp.Interpreter.Tests.Embeddable.portable40\_NUnitWrapper.cs" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\105-string.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\310-debug.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\212-function.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\204-grammar.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\305-table.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\101-boolean.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\106-table.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\203-lexico.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\202-expr.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\320-stdin.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\000-sanity.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\309-os.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\223-iterator.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\221-table.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\314-regex.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\107-thread.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\015-forlist.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\231-metatable.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\308-io.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\211-scope.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\222-constructor.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\012-repeat.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\104-number.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\Modules\Test\More.lua.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\232-object.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\301-basic.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\306-math.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\001-if.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\102-function.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\108-userdata.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\Modules\Test\Builder.lua.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\201-assign.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\213-closure.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\014-fornum.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\304-string.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\307-bit.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\002-table.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\011-while.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\200-examples.t.txt" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\214-coroutine.t.txt" />
+     <None Include="Assets\link.xml" />
+     <None Include="Assets\Resources\MoonSharp\Scripts\103-nil.t.txt" />
+ <Reference Include="UnityEngine.UI">
+ <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.Networking">
+ <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/Networking/UnityEngine.Networking.dll</HintPath>
+ </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="Assembly-CSharp-firstpass.csproj">
+      <Project>{B06B9CAB-A8C5-2C10-8C77-B62441346B3F}</Project>      <Name>Assembly-CSharp-firstpass</Name>    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  
+</Project>

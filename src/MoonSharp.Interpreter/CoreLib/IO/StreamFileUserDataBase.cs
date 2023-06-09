@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
+﻿using System.IO;
 
 namespace MoonSharp.Interpreter.CoreLib.IO
 {
@@ -101,7 +97,7 @@ namespace MoonSharp.Interpreter.CoreLib.IO
 			return true;
 		}
 
-		public override long seek(string whence, long offset)
+		public override long seek(string whence, long offset = 0)
 		{
 			CheckFileIsNotClosed();
 			if (whence != null)
