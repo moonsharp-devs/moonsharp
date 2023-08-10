@@ -61,11 +61,14 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		{
 			m_LValues.Add(CheckVar(lcontext, firstExpression));
 
+			List<Expression> leftExpressions = new() {firstExpression};
+
 			while (lcontext.Lexer.Current.Type == TokenType.Comma)
 			{
 				lcontext.Lexer.Next();
-				Expression e = Expression.PrimaryExp(lcontext);
-				m_LValues.Add(CheckVar(lcontext, e));
+				Expression exp = Expression.PrimaryExp(lcontext);
+				m_LValues.Add(CheckVar(lcontext, exp));
+				leftExpressions.Add(exp);
 			}
 
 			string assignmentType = lcontext.Lexer.Current.Text;
@@ -89,11 +92,17 @@ namespace MoonSharp.Interpreter.Tree.Statements
 					_ => throw new InternalErrorException($"Assignment operator not recognised: {assignmentType}"),
 				};
 
-				object operatorChain = BinaryOperatorExpression.BeginOperatorChain();
-				BinaryOperatorExpression.AddExpressionToChain(operatorChain, firstExpression);
-				BinaryOperatorExpression.AddOperatorToChain(operatorChain, new Token(operationTokenType, first.SourceId, first.FromLine, first.FromCol, first.ToLine, first.ToCol, first.PrevLine, first.PrevCol));
-				BinaryOperatorExpression.AddExpressionToChain(operatorChain, m_RValues[0]);
-				m_RValues[0] = BinaryOperatorExpression.CommitOperatorChain(operatorChain, lcontext);
+				for (int valueIndex = 0; valueIndex < m_RValues.Count; valueIndex++)
+				{
+					if (leftExpressions.Count > valueIndex)
+					{
+						object operatorChain = BinaryOperatorExpression.BeginOperatorChain();
+						BinaryOperatorExpression.AddExpressionToChain(operatorChain, leftExpressions[valueIndex]);
+						BinaryOperatorExpression.AddOperatorToChain(operatorChain, new Token(operationTokenType, first.SourceId, first.FromLine, first.FromCol, first.ToLine, first.ToCol, first.PrevLine, first.PrevCol));
+						BinaryOperatorExpression.AddExpressionToChain(operatorChain, m_RValues[valueIndex]);
+						m_RValues[valueIndex] = BinaryOperatorExpression.CommitOperatorChain(operatorChain, lcontext);
+					}
+				}
 			}
 
 			Token last = lcontext.Lexer.Current;
