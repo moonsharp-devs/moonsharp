@@ -68,23 +68,24 @@ namespace MoonSharp.Interpreter.Tree.Statements
 				m_LValues.Add(CheckVar(lcontext, e));
 			}
 
-			char assignmentType = lcontext.Lexer.Current.Text[0];
+			string assignmentType = lcontext.Lexer.Current.Text;
 
 			CheckTokenType(lcontext, TokenType.Op_Assignment);
 
 			m_RValues = Expression.ExprList(lcontext);
 
 			// Replace e.g. "a += b" with "a = a + b"
-			if (assignmentType != '=')
+			if (assignmentType != "=")
 			{
 				TokenType ArithmeticOperation = assignmentType switch
 				{
-					'+' => TokenType.Op_Add,
-					'-' => TokenType.Op_MinusOrSub,
-					'*' => TokenType.Op_Mul,
-					'/' => TokenType.Op_Div,
-					'%' => TokenType.Op_Mod,
-					'^' => TokenType.Op_Pwr,
+					"+=" => TokenType.Op_Add,
+					"-=" => TokenType.Op_MinusOrSub,
+					"*=" => TokenType.Op_Mul,
+					"/=" => TokenType.Op_Div,
+					"%=" => TokenType.Op_Mod,
+					"^=" => TokenType.Op_Pwr,
+					"..=" => TokenType.Op_Concat,
 					_ => throw new InternalErrorException($"Assignment operator not recognised: {assignmentType}"),
 				};
 

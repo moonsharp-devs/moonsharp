@@ -175,7 +175,7 @@ namespace MoonSharp.Interpreter.Tree
 					{
 						char next = CursorCharNext();
 						if (next == '.')
-							return PotentiallyDoubleCharOperator('.', TokenType.Op_Concat, TokenType.VarArgs, fromLine, fromCol);
+							return PotentiallyDoubleCharOperator(TokenType.Op_Concat, '.', TokenType.VarArgs, "...", '=', TokenType.Op_Assignment, "..=", fromLine, fromCol);
 						else if (LexerUtils.CharIsDigit(next))
 							return ReadNumberToken(fromLine, fromCol, true);
 						else
@@ -545,8 +545,25 @@ namespace MoonSharp.Interpreter.Tree
 			else
 				return CreateToken(singleCharToken, fromLine, fromCol, op);
 		}
+		private Token PotentiallyDoubleCharOperator(TokenType singleCharToken, char expectedSecondChar, TokenType doubleCharToken, string doubleCharText, char alternateExpectedSecondChar, TokenType alternateDoubleCharToken, string alternateDoubleCharText, int fromLine, int fromCol)
+		{
+			string op = CursorChar().ToString();
 
+			CursorCharNext();
 
+			if (CursorChar() == expectedSecondChar)
+			{
+				CursorCharNext();
+				return CreateToken(doubleCharToken, fromLine, fromCol, doubleCharText);
+			}
+			else if (CursorChar() == alternateExpectedSecondChar)
+			{
+				CursorCharNext();
+				return CreateToken(alternateDoubleCharToken, fromLine, fromCol, alternateDoubleCharText);
+			}
+			else
+				return CreateToken(singleCharToken, fromLine, fromCol, op);
+		}
 
 		private Token CreateNameToken(string name, int fromLine, int fromCol)
 		{
@@ -561,7 +578,6 @@ namespace MoonSharp.Interpreter.Tree
 				return CreateToken(TokenType.Name, fromLine, fromCol, name);
 			}
 		}
-
 
 		private Token CreateToken(TokenType tokenType, int fromLine, int fromCol, string text = null)
 		{
@@ -588,9 +604,5 @@ namespace MoonSharp.Interpreter.Tree
 
 			return name.ToString();
 		}
-
-
-
-
 	}
 }
