@@ -68,14 +68,36 @@ namespace MoonSharp.Interpreter.Tree.Statements
 				m_LValues.Add(CheckVar(lcontext, e));
 			}
 
+			char assignmentType = lcontext.Lexer.Current.Text[0];
+
 			CheckTokenType(lcontext, TokenType.Op_Assignment);
 
 			m_RValues = Expression.ExprList(lcontext);
 
+			// Replace e.g. "a += b" with "a = a + b"
+			if (assignmentType != '=')
+			{
+				TokenType ArithmeticOperation = assignmentType switch
+				{
+					'+' => TokenType.Op_Add,
+					'-' => TokenType.Op_MinusOrSub,
+					'*' => TokenType.Op_Mul,
+					'/' => TokenType.Op_Div,
+					'%' => TokenType.Op_Mod,
+					'^' => TokenType.Op_Pwr,
+					_ => throw new InternalErrorException($"Assignment operator not recognised: {assignmentType}"),
+				};
+
+				object operatorChain = BinaryOperatorExpression.BeginOperatorChain();
+				BinaryOperatorExpression.AddExpressionToChain(operatorChain, firstExpression);
+				BinaryOperatorExpression.AddOperatorToChain(operatorChain, new Token(ArithmeticOperation, first.SourceId, first.FromLine, first.FromCol, first.ToLine, first.ToCol, first.PrevLine, first.PrevCol));
+				BinaryOperatorExpression.AddExpressionToChain(operatorChain, m_RValues[0]);
+				m_RValues[0] = BinaryOperatorExpression.CommitOperatorChain(operatorChain, lcontext);
+			}
+
 			Token last = lcontext.Lexer.Current;
 			m_Ref = first.GetSourceRefUpTo(last);
 			lcontext.Source.Refs.Add(m_Ref);
-
 		}
 
 		private IVariable CheckVar(ScriptLoadingContext lcontext, Expression firstExpression)
@@ -87,7 +109,6 @@ namespace MoonSharp.Interpreter.Tree.Statements
 
 			return v;
 		}
-
 
 		public override void Compile(Execution.VM.ByteCode bc)
 		{
@@ -106,6 +127,5 @@ namespace MoonSharp.Interpreter.Tree.Statements
 				bc.Emit_Pop(m_RValues.Count);
 			}
 		}
-
 	}
 }
