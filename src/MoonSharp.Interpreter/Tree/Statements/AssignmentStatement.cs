@@ -77,7 +77,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 			// Replace e.g. "a += b" with "a = a + b"
 			if (assignmentType != "=")
 			{
-				TokenType ArithmeticOperation = assignmentType switch
+				TokenType operationTokenType = assignmentType switch
 				{
 					"+=" => TokenType.Op_Add,
 					"-=" => TokenType.Op_MinusOrSub,
@@ -91,7 +91,7 @@ namespace MoonSharp.Interpreter.Tree.Statements
 
 				object operatorChain = BinaryOperatorExpression.BeginOperatorChain();
 				BinaryOperatorExpression.AddExpressionToChain(operatorChain, firstExpression);
-				BinaryOperatorExpression.AddOperatorToChain(operatorChain, new Token(ArithmeticOperation, first.SourceId, first.FromLine, first.FromCol, first.ToLine, first.ToCol, first.PrevLine, first.PrevCol));
+				BinaryOperatorExpression.AddOperatorToChain(operatorChain, new Token(operationTokenType, first.SourceId, first.FromLine, first.FromCol, first.ToLine, first.ToCol, first.PrevLine, first.PrevCol));
 				BinaryOperatorExpression.AddExpressionToChain(operatorChain, m_RValues[0]);
 				m_RValues[0] = BinaryOperatorExpression.CommitOperatorChain(operatorChain, lcontext);
 			}
