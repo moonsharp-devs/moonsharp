@@ -351,15 +351,25 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 
 
-		private void AssignLocal(SymbolRef symref, DynValue value)
+		private void AssignLocal(SymbolRef symref, DynValue value, bool isOmittedArgumentInFunctionCall = false)
 		{
 			var stackframe = m_ExecutionStack.Peek();
 
-			DynValue v = stackframe.LocalScope[symref.i_Index];
-			if (v == null)
-				stackframe.LocalScope[symref.i_Index] = v = DynValue.NewNil();
+			DynValue currentValue = stackframe.LocalScope[symref.i_Index];
+			if (currentValue == null)
+			{
+				if (isOmittedArgumentInFunctionCall && symref.i_Name == WellKnownSymbols.VARARGS)
+				{
+					stackframe.LocalScope[symref.i_Index] = DynValue.Void;
+					return;
+				}
+				else
+				{
+					stackframe.LocalScope[symref.i_Index] = currentValue = DynValue.NewNil();
+				}
+			}
 
-			v.Assign(value);
+			currentValue.Assign(value);
 		}
 
 		private void ExecStoreLcl(Instruction i)
@@ -642,18 +652,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 			{
 				if (i >= argsList.Count)
 				{
-					var stackframe = m_ExecutionStack.Peek();
-					SymbolRef symref = I.SymbolList[i];
-
-					bool nothingWasPassedToVarArgs = symref.i_Name == WellKnownSymbols.VARARGS;
-					if (nothingWasPassedToVarArgs)
-					{
-						stackframe.LocalScope[symref.i_Index] = DynValue.Void;
-					}
-					else
-					{
-						this.AssignLocal(symref, DynValue.NewNil());
-					}
+					this.AssignLocal(I.SymbolList[i], DynValue.NewNil(), isOmittedArgumentInFunctionCall: true);
 				}
 				else if ((i == I.SymbolList.Length - 1) && (I.SymbolList[i].i_Name == WellKnownSymbols.VARARGS))
 				{
