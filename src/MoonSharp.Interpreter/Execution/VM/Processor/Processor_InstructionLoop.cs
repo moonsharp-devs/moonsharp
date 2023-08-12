@@ -642,7 +642,18 @@ namespace MoonSharp.Interpreter.Execution.VM
 			{
 				if (i >= argsList.Count)
 				{
-					this.AssignLocal(I.SymbolList[i], DynValue.NewNil());
+					var stackframe = m_ExecutionStack.Peek();
+					SymbolRef symref = I.SymbolList[i];
+
+					bool nothingWasPassedToVarArgs = symref.i_Name == WellKnownSymbols.VARARGS;
+					if (nothingWasPassedToVarArgs)
+					{
+						stackframe.LocalScope[symref.i_Index] = DynValue.Void;
+					}
+					else
+					{
+						this.AssignLocal(symref, DynValue.NewNil());
+					}
 				}
 				else if ((i == I.SymbolList.Length - 1) && (I.SymbolList[i].i_Name == WellKnownSymbols.VARARGS))
 				{
