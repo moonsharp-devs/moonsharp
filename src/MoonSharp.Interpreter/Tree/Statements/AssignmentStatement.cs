@@ -32,6 +32,10 @@ namespace MoonSharp.Interpreter.Tree.Statements
 				lcontext.Lexer.Next();
 			}
 
+			if (first.Type == TokenType.Local && lcontext.Lexer.Current.Type == TokenType.Op_Assignment && lcontext.Lexer.Current.Text != "=") {
+				throw new SyntaxErrorException(lcontext.Lexer.Current, $"Expected '=' after local, got '{lcontext.Lexer.Current.Text}'.");
+			}
+
 			if (lcontext.Lexer.Current.Type == TokenType.Op_Assignment)
 			{
 				CheckTokenType(lcontext, TokenType.Op_Assignment);
@@ -61,21 +65,54 @@ namespace MoonSharp.Interpreter.Tree.Statements
 		{
 			m_LValues.Add(CheckVar(lcontext, firstExpression));
 
+			List<Expression> leftExpressions = new() {firstExpression};
+
 			while (lcontext.Lexer.Current.Type == TokenType.Comma)
 			{
 				lcontext.Lexer.Next();
-				Expression e = Expression.PrimaryExp(lcontext);
-				m_LValues.Add(CheckVar(lcontext, e));
+				Expression exp = Expression.PrimaryExp(lcontext);
+				m_LValues.Add(CheckVar(lcontext, exp));
+				leftExpressions.Add(exp);
 			}
+
+			Token assignmentType = lcontext.Lexer.Current;
 
 			CheckTokenType(lcontext, TokenType.Op_Assignment);
 
 			m_RValues = Expression.ExprList(lcontext);
 
+			// Replace e.g. "a += b" with "a = a + b"
+			if (assignmentType.Text != "=")
+			{
+				TokenType operationTokenType = assignmentType.Text switch
+				{
+					"+=" => TokenType.Op_Add,
+					"-=" => TokenType.Op_MinusOrSub,
+					"*=" => TokenType.Op_Mul,
+					"/=" => TokenType.Op_Div,
+					"%=" => TokenType.Op_Mod,
+					"^=" => TokenType.Op_Pwr,
+					"..=" => TokenType.Op_Concat,
+					_ => throw new InternalErrorException($"Assignment operator not recognised: {assignmentType.Text}"),
+				};
+				assignmentType.Text = "=";
+
+				for (int valueIndex = 0; valueIndex < m_RValues.Count; valueIndex++)
+				{
+					if (valueIndex < leftExpressions.Count)
+					{
+						object operatorChain = BinaryOperatorExpression.BeginOperatorChain();
+						BinaryOperatorExpression.AddExpressionToChain(operatorChain, leftExpressions[valueIndex]);
+						BinaryOperatorExpression.AddOperatorToChain(operatorChain, new Token(operationTokenType, first.SourceId, first.FromLine, first.FromCol, first.ToLine, first.ToCol, first.PrevLine, first.PrevCol));
+						BinaryOperatorExpression.AddExpressionToChain(operatorChain, m_RValues[valueIndex]);
+						m_RValues[valueIndex] = BinaryOperatorExpression.CommitOperatorChain(operatorChain, lcontext);
+					}
+				}
+			}
+
 			Token last = lcontext.Lexer.Current;
 			m_Ref = first.GetSourceRefUpTo(last);
 			lcontext.Source.Refs.Add(m_Ref);
-
 		}
 
 		private IVariable CheckVar(ScriptLoadingContext lcontext, Expression firstExpression)
@@ -87,7 +124,6 @@ namespace MoonSharp.Interpreter.Tree.Statements
 
 			return v;
 		}
-
 
 		public override void Compile(Execution.VM.ByteCode bc)
 		{
@@ -106,6 +142,5 @@ namespace MoonSharp.Interpreter.Tree.Statements
 				bc.Emit_Pop(m_RValues.Count);
 			}
 		}
-
 	}
 }

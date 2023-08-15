@@ -175,14 +175,14 @@ namespace MoonSharp.Interpreter.Tree
 					{
 						char next = CursorCharNext();
 						if (next == '.')
-							return PotentiallyDoubleCharOperator('.', TokenType.Op_Concat, TokenType.VarArgs, fromLine, fromCol);
+							return PotentiallyDoubleCharOperator(TokenType.Op_Concat, '.', TokenType.VarArgs, "...", '=', TokenType.Op_Assignment, "..=", fromLine, fromCol);
 						else if (LexerUtils.CharIsDigit(next))
 							return ReadNumberToken(fromLine, fromCol, true);
 						else
 							return CreateToken(TokenType.Dot, fromLine, fromCol, ".");
 					}
 				case '+':
-					return CreateSingleCharToken(TokenType.Op_Add, fromLine, fromCol);
+					return PotentiallyDoubleCharOperator('=', TokenType.Op_Add, TokenType.Op_Assignment, fromLine, fromCol);
 				case '-':
 					{
 						char next = CursorCharNext();
@@ -190,19 +190,24 @@ namespace MoonSharp.Interpreter.Tree
 						{
 							return ReadComment(fromLine, fromCol);
 						}
+						else if (next == '=')
+						{
+							CursorCharNext();
+							return CreateToken(TokenType.Op_Assignment, fromLine, fromCol, "-=");
+						}
 						else
 						{
 							return CreateToken(TokenType.Op_MinusOrSub, fromLine, fromCol, "-");
 						}
 					}
 				case '*':
-					return CreateSingleCharToken(TokenType.Op_Mul, fromLine, fromCol);
+					return PotentiallyDoubleCharOperator('=', TokenType.Op_Mul, TokenType.Op_Assignment, fromLine, fromCol);
 				case '/':
-					return CreateSingleCharToken(TokenType.Op_Div, fromLine, fromCol);
+					return PotentiallyDoubleCharOperator('=', TokenType.Op_Div, TokenType.Op_Assignment, fromLine, fromCol);
 				case '%':
-					return CreateSingleCharToken(TokenType.Op_Mod, fromLine, fromCol);
+					return PotentiallyDoubleCharOperator('=', TokenType.Op_Mod, TokenType.Op_Assignment, fromLine, fromCol);
 				case '^':
-					return CreateSingleCharToken(TokenType.Op_Pwr, fromLine, fromCol);
+					return PotentiallyDoubleCharOperator('=', TokenType.Op_Pwr, TokenType.Op_Assignment, fromLine, fromCol);
 				case '$':
 					return PotentiallyDoubleCharOperator('{', TokenType.Op_Dollar, TokenType.Brk_Open_Curly_Shared, fromLine, fromCol);
 				case '#':
@@ -540,8 +545,25 @@ namespace MoonSharp.Interpreter.Tree
 			else
 				return CreateToken(singleCharToken, fromLine, fromCol, op);
 		}
+		private Token PotentiallyDoubleCharOperator(TokenType singleCharToken, char expectedSecondChar, TokenType doubleCharToken, string doubleCharText, char alternateExpectedSecondChar, TokenType alternateDoubleCharToken, string alternateDoubleCharText, int fromLine, int fromCol)
+		{
+			string op = CursorChar().ToString();
 
+			CursorCharNext();
 
+			if (CursorChar() == expectedSecondChar)
+			{
+				CursorCharNext();
+				return CreateToken(doubleCharToken, fromLine, fromCol, doubleCharText);
+			}
+			else if (CursorChar() == alternateExpectedSecondChar)
+			{
+				CursorCharNext();
+				return CreateToken(alternateDoubleCharToken, fromLine, fromCol, alternateDoubleCharText);
+			}
+			else
+				return CreateToken(singleCharToken, fromLine, fromCol, op);
+		}
 
 		private Token CreateNameToken(string name, int fromLine, int fromCol)
 		{
@@ -556,7 +578,6 @@ namespace MoonSharp.Interpreter.Tree
 				return CreateToken(TokenType.Name, fromLine, fromCol, name);
 			}
 		}
-
 
 		private Token CreateToken(TokenType tokenType, int fromLine, int fromCol, string text = null)
 		{
@@ -583,9 +604,5 @@ namespace MoonSharp.Interpreter.Tree
 
 			return name.ToString();
 		}
-
-
-
-
 	}
 }
