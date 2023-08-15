@@ -316,6 +316,7 @@ namespace MoonSharp.Interpreter.Interop.LuaStateInterop
 				while (copied < nresults)
 				{
 					L.Push(DynValue.Nil);
+					copied++;
 				}
 			}
 		}
