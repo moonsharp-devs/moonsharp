@@ -39,7 +39,7 @@ namespace MoonSharp.Interpreter.Tree
 				case TokenType.Function:
 					return new FunctionDefinitionStatement(lcontext, false, null);
 				case TokenType.Local:
-					Token localToken = lcontext.Lexer.Current;
+					Token localToken = tkn;
 					lcontext.Lexer.Next();
 					if (lcontext.Lexer.Current.Type == TokenType.Function)
 						return new FunctionDefinitionStatement(lcontext, true, localToken);
@@ -52,15 +52,13 @@ namespace MoonSharp.Interpreter.Tree
 					return new BreakStatement(lcontext);
 				default:
 					{
-						Token l = lcontext.Lexer.Current;
 						Expression exp = Expression.PrimaryExp(lcontext);
-						FunctionCallExpression fnexp = exp as FunctionCallExpression;
 
-						if (fnexp != null)
-							return new FunctionCallStatement(lcontext, fnexp);
-						else
-							return new AssignmentStatement(lcontext, exp, l);
-					}
+                        if (exp is FunctionCallExpression fnexp)
+                            return new FunctionCallStatement(lcontext, fnexp);
+                        else
+                            return new AssignmentStatement(lcontext, exp, tkn);
+                    }
 			}
 		}
 

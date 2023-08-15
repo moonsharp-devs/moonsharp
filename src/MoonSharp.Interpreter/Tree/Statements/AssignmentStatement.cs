@@ -32,6 +32,10 @@ namespace MoonSharp.Interpreter.Tree.Statements
 				lcontext.Lexer.Next();
 			}
 
+			if (first.Type == TokenType.Local && lcontext.Lexer.Current.Type == TokenType.Op_Assignment && lcontext.Lexer.Current.Text != "=") {
+				throw new SyntaxErrorException(lcontext.Lexer.Current, $"Expected '=' after local, got '{lcontext.Lexer.Current.Text}'.");
+			}
+
 			if (lcontext.Lexer.Current.Type == TokenType.Op_Assignment)
 			{
 				CheckTokenType(lcontext, TokenType.Op_Assignment);
@@ -71,16 +75,16 @@ namespace MoonSharp.Interpreter.Tree.Statements
 				leftExpressions.Add(exp);
 			}
 
-			string assignmentType = lcontext.Lexer.Current.Text;
+			Token assignmentType = lcontext.Lexer.Current;
 
 			CheckTokenType(lcontext, TokenType.Op_Assignment);
 
 			m_RValues = Expression.ExprList(lcontext);
 
 			// Replace e.g. "a += b" with "a = a + b"
-			if (assignmentType != "=")
+			if (assignmentType.Text != "=")
 			{
-				TokenType operationTokenType = assignmentType switch
+				TokenType operationTokenType = assignmentType.Text switch
 				{
 					"+=" => TokenType.Op_Add,
 					"-=" => TokenType.Op_MinusOrSub,
@@ -89,12 +93,13 @@ namespace MoonSharp.Interpreter.Tree.Statements
 					"%=" => TokenType.Op_Mod,
 					"^=" => TokenType.Op_Pwr,
 					"..=" => TokenType.Op_Concat,
-					_ => throw new InternalErrorException($"Assignment operator not recognised: {assignmentType}"),
+					_ => throw new InternalErrorException($"Assignment operator not recognised: {assignmentType.Text}"),
 				};
+				assignmentType.Text = "=";
 
 				for (int valueIndex = 0; valueIndex < m_RValues.Count; valueIndex++)
 				{
-					if (leftExpressions.Count > valueIndex)
+					if (valueIndex < leftExpressions.Count)
 					{
 						object operatorChain = BinaryOperatorExpression.BeginOperatorChain();
 						BinaryOperatorExpression.AddExpressionToChain(operatorChain, leftExpressions[valueIndex]);
