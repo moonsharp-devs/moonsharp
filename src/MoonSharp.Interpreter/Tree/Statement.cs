@@ -54,11 +54,11 @@ namespace MoonSharp.Interpreter.Tree
 					{
 						Expression exp = Expression.PrimaryExp(lcontext);
 
-                        if (exp is FunctionCallExpression fnexp)
-                            return new FunctionCallStatement(lcontext, fnexp);
-                        else
-                            return new AssignmentStatement(lcontext, exp, tkn);
-                    }
+						if (exp is FunctionCallExpression fnexp)
+							return new FunctionCallStatement(lcontext, fnexp);
+						else
+							return new AssignmentStatement(lcontext, exp, tkn);
+					}
 			}
 		}
 
