@@ -80,12 +80,12 @@ namespace DotNetCoreTestRunner
 		// Tests skipped on AOT platforms - known not workings :(
 		static List<string> AOT_SKIPLIST = new List<string>()
 		{
-			//"RegCollGen_List_ExtMeth_Last", 
-			//"VInterop_NIntPropertySetter_None",	
-			//"VInterop_NIntPropertySetter_Lazy",	
-			//"VInterop_NIntPropertySetter_Precomputed",	
-			//"VInterop_Overloads_NumDowncast",	
-			//"VInterop_Overloads_NilSelectsNonOptional",	
+			//"RegCollGen_List_ExtMeth_Last",
+			//"VInterop_NIntPropertySetter_None",
+			//"VInterop_NIntPropertySetter_Lazy",
+			//"VInterop_NIntPropertySetter_Precomputed",
+			//"VInterop_Overloads_NumDowncast",
+			//"VInterop_Overloads_NilSelectsNonOptional",
 			//"VInterop_Overloads_FullDecl",
 			//"VInterop_Overloads_Static2",
 			//"VInterop_Overloads_Cache1",
@@ -106,22 +106,32 @@ namespace DotNetCoreTestRunner
 			Console.WriteLine("1 - Unit tests");
 			Console.WriteLine("2 - Debugger");
 
-			if (args.Length == 1)
+			Regex unitRegex = new Regex(@"^(--?|/)unit$", RegexOptions.IgnoreCase);
+			Regex debuggerRegex = new Regex(@"^(--?|/)debugger$", RegexOptions.IgnoreCase);
+			Regex dumpTypesRegex = new Regex(@"^(--?|/)dump-types$", RegexOptions.IgnoreCase);
+
+			if (args.Any(a => unitRegex.IsMatch(a)))
 			{
-				Regex unitRegex = new Regex(@"^(--?|/)unit$", RegexOptions.IgnoreCase);
+				return TestMain(args);
+			}
 
-				if (unitRegex.IsMatch(args[0]))
+			if (args.Any(a => debuggerRegex.IsMatch(a)))
+			{
+				DebuggerMain(args);
+				return 0;
+			}
+
+			if (args.Any(a => dumpTypesRegex.IsMatch(a)))
+			{
+				string dumpTypesPath = GetDumpTypesPath(args);
+
+				if (dumpTypesPath == null)
 				{
-					return TestMain(args);
+					throw new ArgumentException("/dump-types requires --dump-types <path> or --dump-types=<path>.");
 				}
 
-				Regex debuggerRegex = new Regex(@"^(--?|/)unit$", RegexOptions.IgnoreCase);
-
-				if (debuggerRegex.IsMatch(args[0]))
-				{
-					DebuggerMain(args);
-					return 0;
-				}
+				WriteTypeDump(dumpTypesPath);
+				return 0;
 			}
 
 			while (true)
@@ -195,7 +205,12 @@ namespace DotNetCoreTestRunner
 					Console.ReadKey();
 				}
 
-				//OnTestEnded();
+				string dumpTypesPath = GetDumpTypesPath(args);
+
+				if (dumpTypesPath != null)
+				{
+					WriteTypeDump(dumpTypesPath);
+				}
 
 				return T.Fail;
 			}
@@ -207,13 +222,53 @@ namespace DotNetCoreTestRunner
 
 		}
 
-		private static void OnTestEnded()
+		private static string GetDumpTypesPath(string[] args)
 		{
+			for (int i = 0; i < args.Length; i++)
+			{
+				string arg = args[i];
+
+				if (arg.StartsWith("--dump-types=", StringComparison.OrdinalIgnoreCase) ||
+					arg.StartsWith("/dump-types=", StringComparison.OrdinalIgnoreCase))
+				{
+					int idx = arg.IndexOf('=');
+					string inlinePath = idx >= 0 ? arg.Substring(idx + 1) : "";
+
+					if (!string.IsNullOrWhiteSpace(inlinePath))
+					{
+						return inlinePath;
+					}
+
+					throw new ArgumentException("--dump-types requires a non-empty path.");
+				}
+
+				if (string.Equals(arg, "--dump-types", StringComparison.OrdinalIgnoreCase) ||
+					string.Equals(arg, "/dump-types", StringComparison.OrdinalIgnoreCase))
+				{
+					if (i + 1 < args.Length && !string.IsNullOrWhiteSpace(args[i + 1]))
+					{
+						return args[i + 1];
+					}
+
+					throw new ArgumentException("--dump-types requires a path argument.");
+				}
+			}
+
+			return null;
+		}
+
+		private static void WriteTypeDump(string outputPath)
+		{
+			SeedTypeDumpRegistrations();
+
 			Table dump = UserData.GetDescriptionOfRegisteredTypes(true);
+			File.WriteAllText(outputPath, dump.Serialize());
+		}
 
-			string str = dump.Serialize();
-
-			File.WriteAllText(Path.GetTempPath() + Path.DirectorySeparatorChar + "testdump.lua", str);
+		private static void SeedTypeDumpRegistrations()
+		{
+			// Ensure dump contains at least one known descriptor for CI hardwire verification.
+			UserData.RegisterType<StringBuilder>();
 		}
 
 		private static void Log(TestResult r)

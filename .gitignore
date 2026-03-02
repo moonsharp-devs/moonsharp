@@ -196,3 +196,6 @@ src/Unity/**/Assets/Plugins/**/*.dll
 src/Unity/**/Assets/Plugins/**/*.pdb
 src/Unity/**/Assets/Plugins/**/*.xml
 src/Unity/**/Assets/Plugins/Editor/JetBrains/*.dll
+
+/.artifacts/
+

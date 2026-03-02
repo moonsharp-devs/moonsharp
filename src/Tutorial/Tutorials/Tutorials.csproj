@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>netcoreapp2.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <AssemblyOriginatorKeyFile>keypair.snk</AssemblyOriginatorKeyFile>
         <Authors>MoonSharp</Authors>
         <Description></Description>
@@ -13,7 +13,7 @@
         <Title>Tutorials</Title>
         <SignAssembly>true</SignAssembly>
         <PackageVersion>2.0.0</PackageVersion>
-        <OutputType>WinExe</OutputType>
+        <OutputType>Exe</OutputType>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)'=='Debug'">

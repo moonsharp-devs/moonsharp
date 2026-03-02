@@ -76,9 +76,15 @@ jobs:
           CORE_ARTIFACT_NAME="unity-package-tgz"
           DEBUG_ARTIFACT_NAME="unity-package-vscode-debugger-tgz"
           VSIX_ARTIFACT_NAME="vscode-dap-vsix"
+          CLI_LINUX_ARTIFACT_NAME="moonsharp-cli-sc-linux-x64"
+          CLI_OSX_ARTIFACT_NAME="moonsharp-cli-sc-osx-arm64"
+          CLI_WIN_ARTIFACT_NAME="moonsharp-cli-sc-win-x64"
           CORE_ARTIFACT_ID=""
           DEBUG_ARTIFACT_ID=""
           VSIX_ARTIFACT_ID=""
+          CLI_LINUX_ARTIFACT_ID=""
+          CLI_OSX_ARTIFACT_ID=""
+          CLI_WIN_ARTIFACT_ID=""
           RUN_ID=""
 
           while IFS= read -r CANDIDATE_RUN_ID; do
@@ -90,12 +96,21 @@ jobs:
               --jq ".artifacts[] | select(.name == \"${DEBUG_ARTIFACT_NAME}\" and .expired == false) | .id" | head -n1 || true)"
             CANDIDATE_VSIX_ARTIFACT_ID="$(gh api "/repos/${GITHUB_REPOSITORY}/actions/runs/${CANDIDATE_RUN_ID}/artifacts" \
               --jq ".artifacts[] | select(.name == \"${VSIX_ARTIFACT_NAME}\" and .expired == false) | .id" | head -n1 || true)"
+            CANDIDATE_CLI_LINUX_ARTIFACT_ID="$(gh api "/repos/${GITHUB_REPOSITORY}/actions/runs/${CANDIDATE_RUN_ID}/artifacts" \
+              --jq ".artifacts[] | select(.name == \"${CLI_LINUX_ARTIFACT_NAME}\" and .expired == false) | .id" | head -n1 || true)"
+            CANDIDATE_CLI_OSX_ARTIFACT_ID="$(gh api "/repos/${GITHUB_REPOSITORY}/actions/runs/${CANDIDATE_RUN_ID}/artifacts" \
+              --jq ".artifacts[] | select(.name == \"${CLI_OSX_ARTIFACT_NAME}\" and .expired == false) | .id" | head -n1 || true)"
+            CANDIDATE_CLI_WIN_ARTIFACT_ID="$(gh api "/repos/${GITHUB_REPOSITORY}/actions/runs/${CANDIDATE_RUN_ID}/artifacts" \
+              --jq ".artifacts[] | select(.name == \"${CLI_WIN_ARTIFACT_NAME}\" and .expired == false) | .id" | head -n1 || true)"
 
-            if [ -n "${CANDIDATE_CORE_ARTIFACT_ID}" ] && [ -n "${CANDIDATE_DEBUG_ARTIFACT_ID}" ] && [ -n "${CANDIDATE_VSIX_ARTIFACT_ID}" ]; then
+            if [ -n "${CANDIDATE_CORE_ARTIFACT_ID}" ] && [ -n "${CANDIDATE_DEBUG_ARTIFACT_ID}" ] && [ -n "${CANDIDATE_VSIX_ARTIFACT_ID}" ] && [ -n "${CANDIDATE_CLI_LINUX_ARTIFACT_ID}" ] && [ -n "${CANDIDATE_CLI_OSX_ARTIFACT_ID}" ] && [ -n "${CANDIDATE_CLI_WIN_ARTIFACT_ID}" ]; then
               RUN_ID="${CANDIDATE_RUN_ID}"
               CORE_ARTIFACT_ID="${CANDIDATE_CORE_ARTIFACT_ID}"
               DEBUG_ARTIFACT_ID="${CANDIDATE_DEBUG_ARTIFACT_ID}"
               VSIX_ARTIFACT_ID="${CANDIDATE_VSIX_ARTIFACT_ID}"
+              CLI_LINUX_ARTIFACT_ID="${CANDIDATE_CLI_LINUX_ARTIFACT_ID}"
+              CLI_OSX_ARTIFACT_ID="${CANDIDATE_CLI_OSX_ARTIFACT_ID}"
+              CLI_WIN_ARTIFACT_ID="${CANDIDATE_CLI_WIN_ARTIFACT_ID}"
               break
             fi
           done < <(gh run list \
@@ -104,7 +119,7 @@ jobs:
             --limit 200 \
             --jq ".[] | select(.headSha == \"${TAG_SHA}\" and .conclusion == \"success\") | .databaseId")
 
-          if [ -z "${RUN_ID}" ] || [ -z "${CORE_ARTIFACT_ID}" ] || [ -z "${DEBUG_ARTIFACT_ID}" ] || [ -z "${VSIX_ARTIFACT_ID}" ]; then
+          if [ -z "${RUN_ID}" ] || [ -z "${CORE_ARTIFACT_ID}" ] || [ -z "${DEBUG_ARTIFACT_ID}" ] || [ -z "${VSIX_ARTIFACT_ID}" ] || [ -z "${CLI_LINUX_ARTIFACT_ID}" ] || [ -z "${CLI_OSX_ARTIFACT_ID}" ] || [ -z "${CLI_WIN_ARTIFACT_ID}" ]; then
             echo "No successful workflow run with required release artifacts found for commit ${TAG_SHA}."
             exit 1
           fi
@@ -131,6 +146,16 @@ jobs:
             find "${out_dir}" -maxdepth 1 -name '*.vsix' | head -n1
           }
 
+          download_artifact_cli_file() {
+            local artifact_id="$1"
+            local out_dir="$2"
+            local pattern="$3"
+            mkdir -p "${out_dir}"
+            gh api "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}/zip" > "${out_dir}/artifact.zip"
+            unzip -q -j "${out_dir}/artifact.zip" -d "${out_dir}" >/dev/null
+            find "${out_dir}" -maxdepth 1 -name "${pattern}" | head -n1
+          }
+
           repack_with_release_version() {
             local in_tarball="$1"
             local out_tarball="$2"
@@ -146,6 +171,17 @@ jobs:
             sed -E "s/\"version\"[[:space:]]*:[[:space:]]*\"[^\"]+\"/\"version\": \"${PACKAGE_VERSION}\"/" \
               "${package_json}" > "${package_json}.tmp"
             mv "${package_json}.tmp" "${package_json}"
+
+            # Keep debugger -> interpreter dependency aligned with release version.
+            local package_name
+            package_name="$(sed -nE 's/.*"name"[[:space:]]*:[[:space:]]*"([^"]+)".*/\1/p' "${package_json}" | head -n1)"
+            if [ "${package_name}" = "org.moonsharp.debugger.vscode" ]; then
+              sed -E \
+                "s/(\"org\\.moonsharp\\.moonsharp\"[[:space:]]*:[[:space:]]*\")[^\"]+(\")/\1${PACKAGE_VERSION}\2/" \
+                "${package_json}" > "${package_json}.tmp"
+              mv "${package_json}.tmp" "${package_json}"
+            fi
+
             (
               cd "${repack_dir}"
               tar -czf "${out_tarball}" package
@@ -155,9 +191,12 @@ jobs:
           CORE_TARBALL="$(download_artifact_tgz "${CORE_ARTIFACT_ID}" "${ARTIFACT_TMP}/core")"
           DEBUG_TARBALL="$(download_artifact_tgz "${DEBUG_ARTIFACT_ID}" "${ARTIFACT_TMP}/debug")"
           VSIX_FILE="$(download_artifact_vsix "${VSIX_ARTIFACT_ID}" "${ARTIFACT_TMP}/vsix")"
+          MOONSHARP_CLI_LINUX_FILE="$(download_artifact_cli_file "${CLI_LINUX_ARTIFACT_ID}" "${ARTIFACT_TMP}/moonsharp-cli-linux" '*.tar.gz')"
+          MOONSHARP_CLI_OSX_FILE="$(download_artifact_cli_file "${CLI_OSX_ARTIFACT_ID}" "${ARTIFACT_TMP}/moonsharp-cli-osx" '*.tar.gz')"
+          MOONSHARP_CLI_WIN_FILE="$(download_artifact_cli_file "${CLI_WIN_ARTIFACT_ID}" "${ARTIFACT_TMP}/moonsharp-cli-win" '*.zip')"
 
-          if [ -z "${CORE_TARBALL}" ] || [ -z "${DEBUG_TARBALL}" ] || [ -z "${VSIX_FILE}" ]; then
-            echo "Downloaded artifacts do not contain expected .tgz/.vsix packages."
+          if [ -z "${CORE_TARBALL}" ] || [ -z "${DEBUG_TARBALL}" ] || [ -z "${VSIX_FILE}" ] || [ -z "${MOONSHARP_CLI_LINUX_FILE}" ] || [ -z "${MOONSHARP_CLI_OSX_FILE}" ] || [ -z "${MOONSHARP_CLI_WIN_FILE}" ]; then
+            echo "Downloaded artifacts do not contain expected .tgz/.vsix/.tar.gz/.zip packages."
             exit 1
           fi
 
@@ -170,6 +209,9 @@ jobs:
           echo "CORE_TARBALL_PATH=${CORE_REPACK_TARBALL}" >> "${GITHUB_ENV}"
           echo "DEBUG_TARBALL_PATH=${DEBUG_REPACK_TARBALL}" >> "${GITHUB_ENV}"
           echo "VSCODE_VSIX_PATH=${VSIX_FILE}" >> "${GITHUB_ENV}"
+          echo "MOONSHARP_CLI_LINUX_PATH=${MOONSHARP_CLI_LINUX_FILE}" >> "${GITHUB_ENV}"
+          echo "MOONSHARP_CLI_OSX_PATH=${MOONSHARP_CLI_OSX_FILE}" >> "${GITHUB_ENV}"
+          echo "MOONSHARP_CLI_WIN_PATH=${MOONSHARP_CLI_WIN_FILE}" >> "${GITHUB_ENV}"
 
       - name: Publish package to version branches
         run: |
@@ -238,16 +280,16 @@ jobs:
             gh api -X PATCH "repos/${GITHUB_REPOSITORY}/releases/${RELEASE_ID}" \
               -f name="${RELEASE_NAME}" \
               -F prerelease="${RELEASE_PRERELEASE}" >/dev/null
-            gh release upload "${TAG}" "${CORE_TARBALL_PATH}" "${DEBUG_TARBALL_PATH}" "${VSCODE_VSIX_PATH}" --clobber
+            gh release upload "${TAG}" "${CORE_TARBALL_PATH}" "${DEBUG_TARBALL_PATH}" "${VSCODE_VSIX_PATH}" "${MOONSHARP_CLI_LINUX_PATH}" "${MOONSHARP_CLI_OSX_PATH}" "${MOONSHARP_CLI_WIN_PATH}" --clobber
           else
             if [ "${RELEASE_PRERELEASE}" = "true" ]; then
-              gh release create "${TAG}" "${CORE_TARBALL_PATH}" "${DEBUG_TARBALL_PATH}" "${VSCODE_VSIX_PATH}" \
+              gh release create "${TAG}" "${CORE_TARBALL_PATH}" "${DEBUG_TARBALL_PATH}" "${VSCODE_VSIX_PATH}" "${MOONSHARP_CLI_LINUX_PATH}" "${MOONSHARP_CLI_OSX_PATH}" "${MOONSHARP_CLI_WIN_PATH}" \
                 --target "${TAG_SHA}" \
                 --title "${RELEASE_NAME}" \
                 --notes "Automated UPM release for ${TAG}." \
                 --prerelease
             else
-              gh release create "${TAG}" "${CORE_TARBALL_PATH}" "${DEBUG_TARBALL_PATH}" "${VSCODE_VSIX_PATH}" \
+              gh release create "${TAG}" "${CORE_TARBALL_PATH}" "${DEBUG_TARBALL_PATH}" "${VSCODE_VSIX_PATH}" "${MOONSHARP_CLI_LINUX_PATH}" "${MOONSHARP_CLI_OSX_PATH}" "${MOONSHARP_CLI_WIN_PATH}" \
                 --target "${TAG_SHA}" \
                 --title "${RELEASE_NAME}" \
                 --notes "Automated UPM release for ${TAG}."

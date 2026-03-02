@@ -44,7 +44,10 @@ namespace MoonSharp
 
 			while (true)
 			{
-				InterpreterLoop(interpreter, new ShellContext(script));
+				if (!InterpreterLoop(interpreter, new ShellContext(script)))
+				{
+					break;
+				}
 			}
 		}
 
@@ -59,16 +62,21 @@ namespace MoonSharp
 			return DynValue.Nil;
 		}
 
-		private static void InterpreterLoop(ReplInterpreter interpreter, ShellContext shellContext)
+		private static bool InterpreterLoop(ReplInterpreter interpreter, ShellContext shellContext)
 		{
 			Console.Write(interpreter.ClassicPrompt + " ");
 
 			string s = Console.ReadLine();
 
+			if (s == null)
+			{
+				return false;
+			}
+
 			if (!interpreter.HasPendingCommand && s.StartsWith("!"))
 			{
 				ExecuteCommand(shellContext, s.Substring(1));
-				return;
+				return true;
 			}
 
 			try
@@ -86,6 +94,8 @@ namespace MoonSharp
 			{
 				Console.WriteLine("{0}", ex.Message);
 			}
+
+			return true;
 		}
 
 		private static void Banner()

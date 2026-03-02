@@ -19,5 +19,5 @@ mono ConsoleTestRunner.exe
 #  - sudo ./aottest.sh
 
 # .NET Core Tests
-cd ../../../../DotNetCoreTestRunner/bin/Release/netcoreapp2.0
+cd ../../../../DotNetCoreTestRunner/bin/Release/net8.0
 dotnet DotNetCoreTestRunner.dll /unit

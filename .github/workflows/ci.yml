@@ -79,6 +79,76 @@ jobs:
           name: vscode-dap-vsix
           path: src/moonsharp-vscode-debug/*.vsix
 
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Build MoonSharp CLI (net8.0)
+        run: dotnet build src/MoonSharp/MoonSharp.csproj -c Release -f net8.0 -v minimal
+
+      - name: Build DotNetCoreTestRunner (net8.0)
+        run: dotnet build src/TestRunners/DotNetCoreTestRunner/DotNetCoreTestRunner.csproj -c Release -f net8.0 -v minimal
+
+      - name: Smoke test MoonSharp CLI from stdin
+        run: |
+          set -euo pipefail
+          cat src/MoonSharp/ci-smoke.lua | dotnet run --project src/MoonSharp/MoonSharp.csproj -c Release -f net8.0 > moonsharp-cli-smoke.log
+          grep -q "24" moonsharp-cli-smoke.log
+
+      - name: Hardwire codegen smoke (dump -> -W)
+        run: |
+          set -euo pipefail
+          mkdir -p .artifacts/hardwire
+          dotnet run --project src/TestRunners/DotNetCoreTestRunner/DotNetCoreTestRunner.csproj -c Release -- /dump-types .artifacts/hardwire/testdump.lua
+          dotnet run --project src/MoonSharp/MoonSharp.csproj -c Release -f net8.0 -- -W .artifacts/hardwire/testdump.lua .artifacts/hardwire/HardwiredTypesSmoke.cs
+          test -s .artifacts/hardwire/testdump.lua
+          test -s .artifacts/hardwire/HardwiredTypesSmoke.cs
+          grep -q "StringBuilder" .artifacts/hardwire/testdump.lua
+          grep -q "StringBuilder" .artifacts/hardwire/HardwiredTypesSmoke.cs
+
+      - name: Publish MoonSharp CLI (self-contained linux-x64)
+        run: |
+          set -euo pipefail
+          mkdir -p .artifacts/moonsharp-cli/linux-x64
+          dotnet publish src/MoonSharp/MoonSharp.csproj -c Release -f net8.0 -r linux-x64 --self-contained true -o .artifacts/moonsharp-cli/linux-x64 -v minimal
+          tar -czf .artifacts/moonsharp-cli/moonsharp-cli-sc-linux-x64.tar.gz -C .artifacts/moonsharp-cli/linux-x64 .
+
+      - name: Upload MoonSharp CLI self-contained linux-x64 artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: moonsharp-cli-sc-linux-x64
+          path: .artifacts/moonsharp-cli/moonsharp-cli-sc-linux-x64.tar.gz
+
+      - name: Publish MoonSharp CLI (self-contained osx-arm64)
+        run: |
+          set -euo pipefail
+          mkdir -p .artifacts/moonsharp-cli/osx-arm64
+          dotnet publish src/MoonSharp/MoonSharp.csproj -c Release -f net8.0 -r osx-arm64 --self-contained true -o .artifacts/moonsharp-cli/osx-arm64 -v minimal
+          tar -czf .artifacts/moonsharp-cli/moonsharp-cli-sc-osx-arm64.tar.gz -C .artifacts/moonsharp-cli/osx-arm64 .
+
+      - name: Upload MoonSharp CLI self-contained osx-arm64 artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: moonsharp-cli-sc-osx-arm64
+          path: .artifacts/moonsharp-cli/moonsharp-cli-sc-osx-arm64.tar.gz
+
+      - name: Publish MoonSharp CLI (self-contained win-x64)
+        run: |
+          set -euo pipefail
+          mkdir -p .artifacts/moonsharp-cli/win-x64
+          dotnet publish src/MoonSharp/MoonSharp.csproj -c Release -f net8.0 -r win-x64 --self-contained true -o .artifacts/moonsharp-cli/win-x64 -v minimal
+          (
+            cd .artifacts/moonsharp-cli/win-x64
+            zip -qr ../moonsharp-cli-sc-win-x64.zip .
+          )
+
+      - name: Upload MoonSharp CLI self-contained win-x64 artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: moonsharp-cli-sc-win-x64
+          path: .artifacts/moonsharp-cli/moonsharp-cli-sc-win-x64.zip
+
   unity-testbed-headless:
     runs-on: ubuntu-latest
     needs: docker-ci

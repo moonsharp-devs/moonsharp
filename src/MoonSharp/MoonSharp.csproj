@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>netcoreapp2.0;net45</TargetFrameworks>
+        <TargetFrameworks>net8.0;net45</TargetFrameworks>
         <AssemblyOriginatorKeyFile>keypair.snk</AssemblyOriginatorKeyFile>
         <Authors>MoonSharp</Authors>
         <Description>REPL Interpreter for the MoonSharp language</Description>
@@ -36,7 +36,7 @@
         <ErrorReport>prompt</ErrorReport>
         <WarningLevel>4</WarningLevel>
         <NoWarn />
-        <DocumentationFile>bin\Release\MoonSharp.Interpreter.xml</DocumentationFile>
+        <DocumentationFile>bin\Release\MoonSharp.xml</DocumentationFile>
         <UseVSHostingProcess>false</UseVSHostingProcess>
     </PropertyGroup>
 
