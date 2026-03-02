@@ -266,6 +266,26 @@ namespace MoonSharp.VsCodeDebugger.DebuggerLogic
 			}
 		}
 
+		public bool RequestPause(Script script)
+		{
+			if (script == null)
+			{
+				return false;
+			}
+
+			lock (m_Lock)
+			{
+				if (!m_ThreadIdByScript.TryGetValue(script, out var threadId) || !m_ThreadsById.TryGetValue(threadId, out var state))
+				{
+					return false;
+				}
+
+				state.StopReason = STOP_REASON_PAUSED;
+				state.Debugger.PauseRequested = true;
+				return true;
+			}
+		}
+
 		public override void Initialize(Response response, Table args)
 		{
 			SendResponse(response, new Capabilities(

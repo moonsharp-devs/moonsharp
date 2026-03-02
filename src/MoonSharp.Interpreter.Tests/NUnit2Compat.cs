@@ -1,4 +1,4 @@
-#if !(UNITY_5 || UNITY_5_3_OR_NEWER || UNITY_EDITOR || UNITY_STANDALONE)
+#if !(UNITY_5_3_OR_NEWER || UNITY_EDITOR || UNITY_STANDALONE)
 
 using System;
 using NUnit.Framework.Interfaces;
@@ -35,7 +35,7 @@ namespace NUnit.Framework
                 _expectedException = expectedException;
             }
 
-            #if UNITY_5 || UNITY_5_3_OR_NEWER || UNITY_EDITOR || UNITY_STANDALONE
+            #if UNITY_5_3_OR_NEWER || UNITY_EDITOR || UNITY_STANDALONE
             public override TestResult Execute(ITestExecutionContext context)
             #else
             public override TestResult Execute(TestExecutionContext context)

@@ -1,5 +1,3 @@
-#if (!UNITY_5) || UNITY_STANDALONE
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -140,6 +138,38 @@ namespace MoonSharp.VsCodeDebugger
 					{
 						throw new ArgumentException("Cannot find script associated with debugger.");
 					}
+				}
+			}
+		}
+
+		/// <summary>
+		/// Requests a pause for the specified attached script.
+		/// </summary>
+		public void RequestPause(Script script)
+		{
+			if (script == null)
+			{
+				throw new ArgumentException("Cannot pause null.");
+			}
+
+			lock (m_Lock)
+			{
+				if (m_Session != null)
+				{
+					if (!m_Session.RequestPause(script))
+					{
+						throw new ArgumentException("Cannot find script associated with debugger.");
+					}
+				}
+				else
+				{
+					AsyncDebugger debugger = m_PendingDebuggerList.FirstOrDefault(d => d.Script == script);
+					if (debugger == null)
+					{
+						throw new ArgumentException("Cannot find script associated with debugger.");
+					}
+
+					debugger.PauseRequested = true;
 				}
 			}
 		}
@@ -354,63 +384,3 @@ namespace MoonSharp.VsCodeDebugger
 		}
 	}
 }
-
-#else
-using System;
-using System.Collections.Generic;
-using MoonSharp.Interpreter;
-using MoonSharp.Interpreter.Debugging;
-
-namespace MoonSharp.VsCodeDebugger
-{
-	public class MoonSharpVsCodeDebugServer : IDisposable
-	{
-		public MoonSharpVsCodeDebugServer(int port = 41912)
-		{
-		}
-
-		public void AttachToScript(Script script, string name, Func<SourceCode, string> sourceFinder = null)
-		{
-		}
-
-		public void ReplaceAttachedScript(Script previousScript, Script newScript, string name = null, Func<SourceCode, string> sourceFinder = null)
-		{
-		}
-
-		public IEnumerable<KeyValuePair<int, string>> GetAttachedDebuggersByIdAndName()
-		{
-			yield break;
-		}
-
-		public IEnumerable<KeyValuePair<int, string>> GetListenersByPortAndDebuggerName()
-		{
-			yield break;
-		}
-
-		public IEnumerable<KeyValuePair<int, string>> GetSessionsByPortAndName()
-		{
-			yield break;
-		}
-
-		/// <summary>
-		/// Detaches the specified script. The debugger attached to that script will get disconnected.
-		/// </summary>
-		/// <param name="script">The script.</param>
-		/// <exception cref="ArgumentException">Thrown if the script cannot be found.</exception>
-		public void Detach(Script script)
-		{
-		}
-
-		public Action<string> Logger { get; set; }
-
-		public void Dispose()
-		{
-		}
-
-		public MoonSharpVsCodeDebugServer Start()
-		{
-			return this;
-		}
-	}
-}
-#endif
