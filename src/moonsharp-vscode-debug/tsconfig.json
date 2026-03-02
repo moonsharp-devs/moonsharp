@@ -2,6 +2,10 @@
 	"compilerOptions": {
 		"target": "es6",
 		"module": "commonjs",
+		"types": [
+			"node",
+			"vscode"
+		],
 		"lib": [
 			"es2015"
 		],
@@ -20,7 +24,11 @@
 		"strictNullChecks": true,
 		"noUnusedParameters": false
 	},
+	"include": [
+		"src/**/*.ts"
+	],
 	"exclude": [
-		"node_modules"
+		"node_modules",
+		"src/tests"
 	]
 }

@@ -265,8 +265,9 @@ namespace MoonSharp.VsCodeDebugger.SDK
 		public object[] exceptionBreakpointFilters { get; }
 		public bool supportsExceptionInfoRequest { get; }
 		public bool supportsDelayedStackTraceLoading { get; }
+		public bool supportsSourceRequest { get; }
 
-		public Capabilities(bool supportsConfigurationDoneRequest, bool supportsFunctionBreakpoints, bool supportsConditionalBreakpoints, bool supportsEvaluateForHovers, object[] exceptionBreakpointFilters, bool supportsExceptionInfoRequest, bool supportsDelayedStackTraceLoading)
+		public Capabilities(bool supportsConfigurationDoneRequest, bool supportsFunctionBreakpoints, bool supportsConditionalBreakpoints, bool supportsEvaluateForHovers, object[] exceptionBreakpointFilters, bool supportsExceptionInfoRequest, bool supportsDelayedStackTraceLoading, bool supportsSourceRequest = false)
 		{
 			this.supportsConfigurationDoneRequest = supportsConfigurationDoneRequest;
 			this.supportsFunctionBreakpoints = supportsFunctionBreakpoints;
@@ -275,6 +276,7 @@ namespace MoonSharp.VsCodeDebugger.SDK
 			this.exceptionBreakpointFilters = exceptionBreakpointFilters;
 			this.supportsExceptionInfoRequest = supportsExceptionInfoRequest;
 			this.supportsDelayedStackTraceLoading = supportsDelayedStackTraceLoading;
+			this.supportsSourceRequest = supportsSourceRequest;
 		}
 	}
 
@@ -340,6 +342,18 @@ namespace MoonSharp.VsCodeDebugger.SDK
 		{
 			result = value;
 			variablesReference = reff;
+		}
+	}
+
+	public class SourceResponseBody : ResponseBody
+	{
+		public string content { get; }
+		public string mimeType { get; }
+
+		public SourceResponseBody(string content, string mimeType = null)
+		{
+			this.content = content;
+			this.mimeType = mimeType;
 		}
 	}
 

@@ -9,7 +9,7 @@
         "email": "marco@mastropaolo.com"
     },
     "engines": {
-        "node": "^12.0.0",
+        "node": ">=20.0.0",
         "vscode": "^1.30.0"
     },
     "icon": "images/icon.png",
@@ -26,19 +26,20 @@
     },
     "dependencies": {},
     "devDependencies": {
-        "@types/mocha": "^5.2.5",
-        "@types/node": "^10.12.19",
-        "mocha": "^5.2.0",
-        "typescript": "^3.2.4",
-        "vscode": "^1.1.28",
-        "vscode-debugadapter-testsupport": "^1.13.0"
+        "@vscode/vsce": "3.7.1",
+        "@types/vscode": "1.30.0",
+        "@types/mocha": "5.2.5",
+        "@types/node": "10.12.19",
+        "mocha": "5.2.0",
+        "typescript": "3.2.4",
+        "vscode-debugadapter-testsupport": "1.13.0"
     },
     "scripts": {
-        "prepublish": "node ./node_modules/typescript/bin/tsc -p .",
+        "vscode:prepublish": "npm run compile",
         "compile": "node ./node_modules/typescript/bin/tsc -p .",
         "watch": "node ./node_modules/typescript/bin/tsc -w -p .",
         "test": "node ./node_modules/mocha/bin/mocha -u tdd ./out/tests/",
-        "postinstall": "node ./node_modules/vscode/bin/install"
+        "package:vsix": "npx @vscode/vsce package --out moonsharp-debug.vsix"
     },
     "main": "./out/extension",
     "activationEvents": [

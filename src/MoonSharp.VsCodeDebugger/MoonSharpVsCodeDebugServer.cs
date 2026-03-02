@@ -1,13 +1,13 @@
-﻿#if (!UNITY_5) || UNITY_STANDALONE
+#if (!UNITY_5) || UNITY_STANDALONE
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using MoonSharp.VsCodeDebugger.DebuggerLogic;
 using MoonSharp.Interpreter;
 using MoonSharp.Interpreter.Debugging;
+using MoonSharp.VsCodeDebugger.DebuggerLogic;
 
 namespace MoonSharp.VsCodeDebugger
 {
@@ -18,11 +18,10 @@ namespace MoonSharp.VsCodeDebugger
 	{
 		readonly int m_Port;
 		readonly object m_Lock = new object();
-
-		readonly Dictionary<int, ListenerSessionPair> m_PortSessionDictionary = new Dictionary<int, ListenerSessionPair>();
 		readonly List<AsyncDebugger> m_PendingDebuggerList = new List<AsyncDebugger>();
 
-		MoonSharpDebugSession m_MasterSession;
+		TcpListener m_Listener;
+		ScriptDebugSession m_Session;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MoonSharpVsCodeDebugServer" /> class.
@@ -34,31 +33,8 @@ namespace MoonSharp.VsCodeDebugger
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MoonSharpVsCodeDebugServer" /> class with a default script.
-		/// Note that for this specific script, it will NOT attach the debugger to the script.
-		/// </summary>
-		/// <param name="script">The script object to debug.</param>
-		/// <param name="port">The port on which the debugger listens. It's recommended to use 41912 unless you are going to keep more than one script object around.</param>
-		/// <param name="sourceFinder">A function which gets in input a source code and returns the path to
-		/// source file to use. It can return null and in that case (or if the file cannot be found)
-		/// a temporary file will be generated on the fly.</param>
-		[Obsolete("Use the constructor taking only a port, and the 'AttachToScript' method instead.")]
-		public MoonSharpVsCodeDebugServer(Script script, int port, Func<SourceCode, string> sourceFinder = null)
-		{
-			m_Port = port;
-			m_PendingDebuggerList.Add(new AsyncDebugger(script, sourceFinder ?? (s => s.Name), "Default script"));
-		}
-
-		/// <summary>
 		/// Attaches the specified script to the debug server.
 		/// </summary>
-		/// <param name="script">The script.</param>
-		/// <param name="name">The name of the script.</param>
-		/// <param name="sourceFinder">A function which gets in input a source code and returns the path to
-		/// source file to use. It can return null and in that case (or if the file cannot be found)
-		/// a temporary file will be generated on the fly.</param>
-		/// <exception cref="ArgumentException">If the script is null or has already been attached to this debugger.</exception>
-		/// <exception cref="SocketException">If the server is started, but unable to open an additional port.</exception>
 		public void AttachToScript(Script script, string name, Func<SourceCode, string> sourceFinder = null)
 		{
 			if (script == null)
@@ -68,36 +44,26 @@ namespace MoonSharp.VsCodeDebugger
 
 			lock (m_Lock)
 			{
-				if (m_PortSessionDictionary.Values.Any(p => p.Session.Debugger?.Script == script) || m_PendingDebuggerList.Any((d => d.Script == script)))
+				if (m_Session?.HasScript(script) == true || m_PendingDebuggerList.Any(d => d.Script == script))
 				{
 					throw new ArgumentException("Script already attached to this debug server.");
 				}
 
 				var debugger = new AsyncDebugger(script, sourceFinder ?? (s => s.Name), name);
-
-				if (m_MasterSession is DetachedDebugSession)
+				if (m_Session != null)
 				{
-					ReplaceListenerDebugger(m_Port, debugger);
-				}
-				else if (m_MasterSession == null)
-				{
-					m_PendingDebuggerList.Add(debugger);
+					m_Session.AddDebugger(debugger);
 				}
 				else
 				{
-					StartListener(0, debugger);
+					m_PendingDebuggerList.Add(debugger);
 				}
 			}
 		}
 
 		/// <summary>
-		/// Replaces a script attached to the debug server. Any debug session debugging the previous script will commence debugging of the replacement script.
+		/// Replaces a script attached to the debug server.
 		/// </summary>
-		/// <param name="previousScript">A script already attached for debugging.</param>
-		/// <param name="newScript">A replacement script.</param>
-		/// <param name="name">The name of the replacement script. If null, the previous script name will be reused.</param>
-		/// <param name="sourceFinder">The sourceFinder (see <see cref="AttachToScript"/>) of the replacement script. If null, the previous script sourceFinder will be reused.</param>
-		/// <exception cref="ArgumentException">If the script has not been attached to this debugger.</exception>
 		public void ReplaceAttachedScript(Script previousScript, Script newScript, string name = null, Func<SourceCode, string> sourceFinder = null)
 		{
 			lock (m_Lock)
@@ -105,45 +71,52 @@ namespace MoonSharp.VsCodeDebugger
 				if (newScript == null)
 				{
 					Detach(previousScript);
+					return;
 				}
-				else if (m_PortSessionDictionary.Count > 0)
-				{
-					var session = m_PortSessionDictionary.Values.FirstOrDefault(p => p.Session.Debugger?.Script == previousScript).Session;
 
-					if (session == null)
+				if (m_Session != null)
+				{
+					if (!m_Session.HasScript(previousScript))
 					{
 						throw new ArgumentException($"Cannot replace script \"{name}\" that is not attached to this debug server.");
 					}
 
-					var newDebugger = new AsyncDebugger(newScript, sourceFinder ?? session.Debugger.SourceFinder, name ?? session.Debugger.Name);
-					ReplaceListenerDebugger(session.Port, newDebugger);
+					var selectedName = name ?? "Lua Script";
+					Func<SourceCode, string> selectedSourceFinder = sourceFinder;
+
+					if (selectedSourceFinder == null &&
+						m_Session.TryGetThreadIdForScript(previousScript, out var previousThreadId) &&
+						m_Session.TryGetDebugger(previousThreadId, out var previousDebugger))
+					{
+						selectedSourceFinder = previousDebugger.SourceFinder;
+						selectedName = name ?? previousDebugger.Name;
+					}
+
+					var replacement = new AsyncDebugger(newScript, selectedSourceFinder ?? (s => s.Name), selectedName);
+					m_Session.ReplaceDebugger(previousScript, replacement);
 				}
 				else
 				{
 					int index = m_PendingDebuggerList.FindIndex(d => d.Script == previousScript);
-
 					if (index < 0)
 					{
 						throw new ArgumentException($"Cannot replace script \"{name}\" that is not attached to this pending debug server.");
 					}
 
+					AsyncDebugger previousDebugger = m_PendingDebuggerList[index];
 					previousScript.DetachDebugger();
-
-					var previousDebugger = m_PendingDebuggerList[index];
-					var newDebugger = new AsyncDebugger(newScript, sourceFinder ?? previousDebugger.SourceFinder, name ?? previousDebugger.Name) {
+					var replacement = new AsyncDebugger(newScript, sourceFinder ?? previousDebugger.SourceFinder, name ?? previousDebugger.Name)
+					{
 						PauseRequested = true
 					};
-
-					m_PendingDebuggerList[index] = newDebugger;
+					m_PendingDebuggerList[index] = replacement;
 				}
 			}
 		}
 
 		/// <summary>
-		/// Detaches the specified script. The debugger attached to that script will be disconnected and any corresponding debug session will be terminated.
+		/// Detaches the specified script.
 		/// </summary>
-		/// <param name="script">The script.</param>
-		/// <exception cref="ArgumentException">Thrown if the script cannot be found.</exception>
 		public void Detach(Script script)
 		{
 			if (script == null)
@@ -153,25 +126,20 @@ namespace MoonSharp.VsCodeDebugger
 
 			lock (m_Lock)
 			{
-				if (m_MasterSession != null)
+				if (m_Session != null)
 				{
-					if (m_MasterSession.Debugger?.Script == script)
+					if (!m_Session.RemoveDebugger(script))
 					{
-						ReplaceListenerDebugger(m_Port, null);
-					}
-					else
-					{
-						var listenerSessionPair = m_PortSessionDictionary.Values.FirstOrDefault(d => d.Session.Debugger?.Script == script);
-
-						if (listenerSessionPair.Session != null)
-						{
-							StopListener(listenerSessionPair.Session.Port);
-						}
+						throw new ArgumentException("Cannot find script associated with debugger.");
 					}
 				}
 				else
 				{
-					m_PendingDebuggerList.RemoveAll((d) => d.Script == script);
+					int removed = m_PendingDebuggerList.RemoveAll(d => d.Script == script);
+					if (removed == 0)
+					{
+						throw new ArgumentException("Cannot find script associated with debugger.");
+					}
 				}
 			}
 		}
@@ -183,11 +151,13 @@ namespace MoonSharp.VsCodeDebugger
 		{
 			lock (m_Lock)
 			{
-				return m_PortSessionDictionary.Values
-					.Where(p => p.Session.Debugger != null)
-					.Select(p => new KeyValuePair<int, string>(p.Session.Debugger.Id, p.Session.Debugger.Name))
-					.Concat(m_PendingDebuggerList.Select(d => new KeyValuePair<int, string>(d.Id, d.Name)))
-					.OrderBy(p => p.Key);
+				if (m_Session != null)
+				{
+					return m_Session.GetAttachedDebuggersByIdAndName().ToList();
+				}
+
+				int threadId = 1;
+				return m_PendingDebuggerList.Select(d => new KeyValuePair<int, string>(threadId++, d.Name)).ToList();
 			}
 		}
 
@@ -198,21 +168,36 @@ namespace MoonSharp.VsCodeDebugger
 		{
 			lock (m_Lock)
 			{
-				return m_PortSessionDictionary.Values
-					.Select(p => new KeyValuePair<int, string>(((IPEndPoint) p.Listener.LocalEndpoint).Port, p.Session.Name))
-					.OrderBy(p => p.Key);
+				if (m_Listener == null)
+				{
+					return new List<KeyValuePair<int, string>>();
+				}
+
+				return new List<KeyValuePair<int, string>>
+				{
+					new KeyValuePair<int, string>(((IPEndPoint)m_Listener.LocalEndpoint).Port, "MoonSharp")
+				};
 			}
 		}
 
 		/// <summary>
-		/// Gets a list of the attached debuggers by id and name
+		/// Gets a list of the attached listeners by port and debugger summary
 		/// </summary>
 		public IEnumerable<KeyValuePair<int, string>> GetListenersByPortAndDebuggerName()
 		{
 			lock (m_Lock)
 			{
-				return m_PortSessionDictionary.Keys
-					.Select(port => new KeyValuePair<int, string>(port, m_PortSessionDictionary[port].Session.Debugger?.Name ?? "Unattached"));
+				if (m_Listener == null)
+				{
+					return new List<KeyValuePair<int, string>>();
+				}
+
+				int count = m_Session?.GetAttachedDebuggersByIdAndName().Count() ?? m_PendingDebuggerList.Count;
+
+				return new List<KeyValuePair<int, string>>
+				{
+					new KeyValuePair<int, string>(((IPEndPoint)m_Listener.LocalEndpoint).Port, $"{count} script(s)")
+				};
 			}
 		}
 
@@ -221,279 +206,105 @@ namespace MoonSharp.VsCodeDebugger
 		/// </summary>
 		public Action<string> Logger { get; set; }
 
-
 		/// <summary>
-		/// Gets the debugger object. Obsolete, use the AttachToScript method instead.
-		/// </summary>
-		[Obsolete("Use the AttachToScript method instead.")]
-		public IDebugger GetDebugger()
-		{
-			return m_MasterSession?.Debugger;
-		}
-
-		/// <summary>
-		/// Gets or sets the current script by ID (see GetAttachedDebuggersByIdAndName). Obsolete.
-		/// </summary>
-		[Obsolete("Each script/debugger now has its own debug session.")]
-		public int? CurrentId
-		{
-			get { return m_MasterSession?.Debugger?.Id; }
-			set
-			{
-				if (m_MasterSession?.Debugger?.Id != value)
-				{
-					lock (m_Lock)
-					{
-						if (m_MasterSession != null)
-						{
-							if (value == null)
-							{
-								AsyncDebugger currentDebugger = m_MasterSession.Debugger;
-
-								ReplaceListenerDebugger(m_Port, null);
-
-								if (currentDebugger != null)
-								{
-									StartListener(0, currentDebugger);
-								}
-							}
-							else
-							{
-								MoonSharpDebugSession session = m_PortSessionDictionary.Values.FirstOrDefault(p => p.Session.Debugger?.Id == value).Session;
-
-								if (session == null)
-								{
-									throw new ArgumentException("Cannot find debugger with given Id.");
-								}
-
-								SwapListenerDebuggers(m_Port, session.Port);
-							}
-						}
-						else if (value != null)
-						{
-							int index = m_PendingDebuggerList.FindIndex(d => d.Id == value);
-
-							if (index < 0)
-							{
-								throw new ArgumentException("Cannot find debugger with given Id.");
-							}
-
-							AsyncDebugger debugger = m_PendingDebuggerList[index];
-							m_PendingDebuggerList.RemoveAt(index);
-							m_PendingDebuggerList.Insert(0, debugger);
-						}
-					}
-				}
-			}
-		}
-
-		/// <summary>
-		/// Gets or sets the current script. New vscode connections will attach to this script. Changing the current script does NOT disconnect
-		/// connected clients. Obsolete.
-		/// </summary>
-		[Obsolete("Each script/debugger now has its own debug session.")]
-		public Script Current
-		{
-			get { return m_MasterSession?.Debugger?.Script; }
-			set
-			{
-				if (value == null)
-				{
-					CurrentId = null;
-				}
-				else
-				{
-					lock (m_Lock)
-					{
-						MoonSharpDebugSession session = m_PortSessionDictionary.Values.FirstOrDefault(p => p.Session.Debugger?.Script == value).Session;
-
-						if (session == null)
-						{
-							throw new ArgumentException("Cannot find debugger with given script associated.");
-						}
-
-						CurrentId = session.Debugger.Id;
-					}
-				}
-			}
-		}
-
-		/// <summary>
-		/// Stops listening
+		/// Stops listening.
 		/// </summary>
 		public void Dispose()
 		{
 			lock (m_Lock)
 			{
-				int port;
-
-				while ((port = m_PortSessionDictionary.Keys.FirstOrDefault()) != 0)
-				{
-					StopListener(port);
-				}
+				m_Session?.Terminate();
+				m_Session = null;
+				m_Listener?.Stop();
+				m_Listener = null;
+				m_PendingDebuggerList.Clear();
 			}
 		}
 
 		/// <summary>
-		/// Starts listening on the localhost for incoming connections.
+		/// Starts listening on localhost for incoming connections.
 		/// </summary>
 		public MoonSharpVsCodeDebugServer Start()
 		{
 			lock (m_Lock)
 			{
-				if (m_MasterSession != null)
+				if (m_Session != null)
 				{
 					throw new InvalidOperationException("Cannot start; server has already been started.");
 				}
 
-				m_MasterSession = StartListener(m_Port, m_PendingDebuggerList.FirstOrDefault());
+				m_Listener = new TcpListener(IPAddress.Loopback, m_Port);
+				m_Listener.Start();
+				int port = ((IPEndPoint)m_Listener.LocalEndpoint).Port;
+				m_Session = new ScriptDebugSession(port, this);
 
-				foreach (AsyncDebugger debugger in m_PendingDebuggerList.Skip(1))
+				foreach (AsyncDebugger debugger in m_PendingDebuggerList)
 				{
-					StartListener(0, debugger);
+					m_Session.AddDebugger(debugger);
 				}
 
 				m_PendingDebuggerList.Clear();
 
+				SpawnThread("VsCodeDebugServer_" + port, ListenThread);
 				return this;
 			}
 		}
 
-		private MoonSharpDebugSession StartListener(int desiredPort, AsyncDebugger debugger)
+		void ListenThread()
 		{
+			TcpListener listener;
+			ScriptDebugSession session;
+
 			lock (m_Lock)
 			{
-				TcpListener listener = new TcpListener(IPAddress.Loopback, desiredPort);
-				listener.Start();
-
-				int port = ((IPEndPoint) listener.LocalEndpoint).Port;
-
-				MoonSharpDebugSession session = debugger != null
-					? (MoonSharpDebugSession) new ScriptDebugSession(port, this, debugger)
-					: new DetachedDebugSession(port, this);
-
-				debugger?.Script.AttachDebugger(debugger);
-
-				ListenerSessionPair listenerSessionPair = new ListenerSessionPair(listener, session);
-				m_PortSessionDictionary.Add(port, listenerSessionPair);
-
-				SpawnThread("VsCodeDebugServer_" + port, () => {
-					ListenThread(listener);
-				});
-
-				return session;
+				listener = m_Listener;
+				session = m_Session;
 			}
-		}
 
-		private void StopListener(int port)
-		{
-			var listener = m_PortSessionDictionary[port].Listener;
-			var session = m_PortSessionDictionary[port].Session;
-
-			m_PortSessionDictionary.Remove(port); // Prevent listener accepting further connections
-
-			if (session.ClientConnected)
+			if (listener == null || session == null)
 			{
-				session.Debugger?.Script?.DetachDebugger();
-				session.Terminate();
-			}
-			else
-			{
-				listener.Stop();
-			}
-		}
-
-		private void ReplaceListenerDebugger(int port, AsyncDebugger debugger)
-		{
-			MoonSharpDebugSession previousSession = m_PortSessionDictionary[port].Session;
-			TcpListener listener = m_PortSessionDictionary[port].Listener;
-
-			MoonSharpDebugSession newSession = debugger != null
-				? (MoonSharpDebugSession) new ScriptDebugSession(port, this, debugger)
-				: new DetachedDebugSession(port, this);
-
-			if (debugger != null && previousSession?.ClientConnected == true)
-			{
-				// If a client is connected, we pause the new debugger. This gives the client a chance to set breakpoints, before execution continues.
-				debugger.PauseRequested = true;
+				return;
 			}
 
-			previousSession?.Debugger?.Script?.DetachDebugger();
-			debugger?.Script?.AttachDebugger(debugger);
-
-			m_PortSessionDictionary[port] = new ListenerSessionPair(listener, newSession);
-
-			if (port == m_Port)
-			{
-				m_MasterSession = newSession;
-			}
-
-			previousSession?.Terminate(true);
-		}
-
-		private void SwapListenerDebuggers(int port1, int port2)
-		{
-			MoonSharpDebugSession session1 = m_PortSessionDictionary[port1].Session;
-			MoonSharpDebugSession session2 = m_PortSessionDictionary[port2].Session;
-
-			AsyncDebugger session1Debugger = session1.Debugger;
-			AsyncDebugger session2Debugger = session2.Debugger;
-
-			if (session2Debugger != null || port1 == m_Port)
-			{
-				ReplaceListenerDebugger(port1, session2Debugger);
-			}
-			else
-			{
-				StopListener(port1);
-			}
-
-			if (session1Debugger != null || port2 == m_Port)
-			{
-				ReplaceListenerDebugger(port2, session1Debugger);
-			}
-			else
-			{
-				StopListener(port2);
-			}
-		}
-
-		private void ListenThread(TcpListener listener)
-		{
-			int port = ((IPEndPoint) listener.LocalEndpoint).Port;
+			int port = ((IPEndPoint)listener.LocalEndpoint).Port;
+			string sessionIdentifier = port.ToString();
 
 			try
 			{
-				var sessionIdentifier = port.ToString();
-
 				while (true)
 				{
-					var clientSocket = listener.AcceptSocket();
-
+					Socket clientSocket = listener.AcceptSocket();
 					Log("[{0}] : Accepted connection from client {1}", sessionIdentifier, clientSocket.RemoteEndPoint);
 
-					MoonSharpDebugSession threadSession;
-
-					lock (m_Lock)
+					if (session.ClientConnected)
 					{
-						threadSession = m_PortSessionDictionary[port].Session;
+						Log("[{0}] : Rejecting connection because a debug client is already connected", sessionIdentifier);
+						try
+						{
+							clientSocket.Shutdown(SocketShutdown.Both);
+						}
+						catch (SocketException)
+						{
+							// ignore
+						}
+						finally
+						{
+							clientSocket.Close();
+						}
+						continue;
 					}
 
-					if (threadSession == null)
+					SpawnThread("VsCodeDebugSession_" + sessionIdentifier, () =>
 					{
-						break;
-					}
-
-					SpawnThread("VsCodeDebugSession_" + sessionIdentifier, () => {
 						using (var networkStream = new NetworkStream(clientSocket))
 						{
 							try
 							{
-								threadSession.ProcessLoop(networkStream, networkStream);
+								session.ProcessLoop(networkStream, networkStream);
 							}
 							catch (Exception ex)
 							{
-								Log("[{0}] : Error : {1}", ex.Message);
+								Log("[{0}] : Error : {1}", sessionIdentifier, ex.Message);
 							}
 						}
 
@@ -516,59 +327,30 @@ namespace MoonSharp.VsCodeDebugger
 			}
 			catch (SocketException)
 			{
-				// ignore - expected when we stop waiting for a listener to connect.
+				// expected when stopping listener
 			}
-			catch (Exception e)
+			catch (Exception ex)
 			{
-				Log("Fatal error in listening thread : {0}", e.Message);
-			}
-			finally
-			{
-				listener.Stop();
-
-				lock (m_Lock)
-				{
-					if (m_PortSessionDictionary.TryGetValue(port, out var pair) && pair.Listener == listener)
-					{
-						m_PortSessionDictionary.Remove(port);
-					}
-				}
+				Log("Fatal error in listening thread : {0}", ex.Message);
 			}
 		}
 
-		private void Log(string format, params object[] args)
+		void Log(string format, params object[] args)
 		{
 			Action<string> logger = Logger;
-
 			if (logger != null)
 			{
-				string msg = string.Format(format, args);
-				logger(msg);
+				logger(string.Format(format, args));
 			}
 		}
 
-
-		private static void SpawnThread(string name, Action threadProc)
+		static void SpawnThread(string name, Action threadProc)
 		{
 			new System.Threading.Thread(() => threadProc())
 			{
 				IsBackground = true,
 				Name = name
-			}
-			.Start();
-		}
-
-
-		private struct ListenerSessionPair
-		{
-			public TcpListener Listener { get; }
-			public MoonSharpDebugSession Session { get; }
-
-			public ListenerSessionPair(TcpListener listener, MoonSharpDebugSession session)
-			{
-				Listener = listener;
-				Session = session;
-			}
+			}.Start();
 		}
 	}
 }
@@ -584,11 +366,6 @@ namespace MoonSharp.VsCodeDebugger
 	public class MoonSharpVsCodeDebugServer : IDisposable
 	{
 		public MoonSharpVsCodeDebugServer(int port = 41912)
-		{
-		}
-
-		[Obsolete("Use the constructor taking only a port, and the 'Attach' method instead.")]
-		public MoonSharpVsCodeDebugServer(Script script, int port, Func<SourceCode, string> sourceFinder = null)
 		{
 		}
 
@@ -610,17 +387,9 @@ namespace MoonSharp.VsCodeDebugger
 			yield break;
 		}
 
-		public int? CurrentId
+		public IEnumerable<KeyValuePair<int, string>> GetSessionsByPortAndName()
 		{
-			get { return null; }
-			set { }
-		}
-
-
-		public Script Current
-		{
-			get { return null; }
-			set { }
+			yield break;
 		}
 
 		/// <summary>
@@ -630,17 +399,9 @@ namespace MoonSharp.VsCodeDebugger
 		/// <exception cref="ArgumentException">Thrown if the script cannot be found.</exception>
 		public void Detach(Script script)
 		{
-
 		}
 
 		public Action<string> Logger { get; set; }
-
-
-		[Obsolete("Use the Attach method instead.")]
-		public IDebugger GetDebugger()
-		{
-			return null;
-		}
 
 		public void Dispose()
 		{
@@ -650,7 +411,6 @@ namespace MoonSharp.VsCodeDebugger
 		{
 			return this;
 		}
-
 	}
 }
 #endif

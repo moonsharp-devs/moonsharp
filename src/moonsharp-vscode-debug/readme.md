@@ -48,4 +48,12 @@ It requires the application to be embedding MoonSharp 1.8.0.0 (or later) and exp
 }
 ```
 
+## Development
 
+Build and package the extension with `npm`:
+
+```bash
+npm install
+npm run compile
+npm run package:vsix
+```

@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>netstandard2.0;net35;net40</TargetFrameworks>
+        <TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
         <AssemblyOriginatorKeyFile>..\keypair.snk</AssemblyOriginatorKeyFile>
         <Authors>MoonSharp</Authors>
         <Description>Remote Debugger for the MoonSharp interpreter</Description>
         <Copyright>Copyright © 2014-2015, Marco Mastropaolo</Copyright>
         <PackageProjectUrl>https://www.moonsharp.org</PackageProjectUrl>
-        <PackageLicenseUrl>https://raw.githubusercontent.com/xanathar/moonsharp/master/LICENSE</PackageLicenseUrl>
+        <PackageLicenseUrl>https://raw.githubusercontent.com/moonsharp-devs/moonsharp/main/LICENSE</PackageLicenseUrl>
         <RepositoryUrl>https://github.com/xanathar/moonsharp/</RepositoryUrl>
         <PackageId>MoonSharp.VsCodeDebugger</PackageId>
         <Title>MoonSharp.VsCodeDebugger</Title>
