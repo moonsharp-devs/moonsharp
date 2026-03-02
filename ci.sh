@@ -9,7 +9,7 @@ dotnet build -c Release src/TestRunners/ConsoleTestRunner/ConsoleTestRunner.cspr
 dotnet build -c Release src/TestRunners/DotNetCoreTestRunner/DotNetCoreTestRunner.csproj
 
 # Mono Tests
-cd src/TestRunners/ConsoleTestRunner/bin/Release/net35
+cd src/TestRunners/ConsoleTestRunner/bin/Release/net45
 mono ConsoleTestRunner.exe
 
 # Mono ahead of time compilation tests

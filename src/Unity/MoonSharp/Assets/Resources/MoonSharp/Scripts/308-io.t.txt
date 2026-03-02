@@ -31,7 +31,7 @@ See "Programming in Lua", section 21 "The I/O Library".
 
 require 'Test.More'
 
-local lua = [[\git\moonsharp\src\Tools\lua52.exe]]
+local lua = [[lua]]
 
 plan(67)
 

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>netstandard2.0;net35;net40</TargetFrameworks>
+        <TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
         <AssemblyOriginatorKeyFile>..\keypair.snk</AssemblyOriginatorKeyFile>
         <Authors>MoonSharp</Authors>
         <Description></Description>
@@ -171,8 +171,12 @@
       <ProjectReference Include="..\MoonSharp.Interpreter\MoonSharp.Interpreter.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <PackageReference Include="NUnit" Version="2.6.4" />
+    <ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
+      <PackageReference Include="NUnit" Version="3.13.3" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)'=='net45'">
+      <PackageReference Include="NUnit" Version="3.5.0" />
     </ItemGroup>
 
 </Project>

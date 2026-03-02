@@ -226,7 +226,8 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			catch (SyntaxErrorException ex)
 			{
 				caught = true;
-				Assert.IsNotNullOrEmpty(ex.Message);
+				Assert.IsNotNull(ex.Message);
+				Assert.IsNotEmpty(ex.Message);
 			}
 
 			Assert.IsTrue(caught);

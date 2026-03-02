@@ -75,8 +75,10 @@ jobs:
           set -euo pipefail
           CORE_ARTIFACT_NAME="unity-package-tgz"
           DEBUG_ARTIFACT_NAME="unity-package-vscode-debugger-tgz"
+          VSIX_ARTIFACT_NAME="vscode-dap-vsix"
           CORE_ARTIFACT_ID=""
           DEBUG_ARTIFACT_ID=""
+          VSIX_ARTIFACT_ID=""
           RUN_ID=""
 
           while IFS= read -r CANDIDATE_RUN_ID; do
@@ -86,11 +88,14 @@ jobs:
               --jq ".artifacts[] | select(.name == \"${CORE_ARTIFACT_NAME}\" and .expired == false) | .id" | head -n1 || true)"
             CANDIDATE_DEBUG_ARTIFACT_ID="$(gh api "/repos/${GITHUB_REPOSITORY}/actions/runs/${CANDIDATE_RUN_ID}/artifacts" \
               --jq ".artifacts[] | select(.name == \"${DEBUG_ARTIFACT_NAME}\" and .expired == false) | .id" | head -n1 || true)"
+            CANDIDATE_VSIX_ARTIFACT_ID="$(gh api "/repos/${GITHUB_REPOSITORY}/actions/runs/${CANDIDATE_RUN_ID}/artifacts" \
+              --jq ".artifacts[] | select(.name == \"${VSIX_ARTIFACT_NAME}\" and .expired == false) | .id" | head -n1 || true)"
 
-            if [ -n "${CANDIDATE_CORE_ARTIFACT_ID}" ] && [ -n "${CANDIDATE_DEBUG_ARTIFACT_ID}" ]; then
+            if [ -n "${CANDIDATE_CORE_ARTIFACT_ID}" ] && [ -n "${CANDIDATE_DEBUG_ARTIFACT_ID}" ] && [ -n "${CANDIDATE_VSIX_ARTIFACT_ID}" ]; then
               RUN_ID="${CANDIDATE_RUN_ID}"
               CORE_ARTIFACT_ID="${CANDIDATE_CORE_ARTIFACT_ID}"
               DEBUG_ARTIFACT_ID="${CANDIDATE_DEBUG_ARTIFACT_ID}"
+              VSIX_ARTIFACT_ID="${CANDIDATE_VSIX_ARTIFACT_ID}"
               break
             fi
           done < <(gh run list \
@@ -99,8 +104,8 @@ jobs:
             --limit 200 \
             --jq ".[] | select(.headSha == \"${TAG_SHA}\" and .conclusion == \"success\") | .databaseId")
 
-          if [ -z "${RUN_ID}" ] || [ -z "${CORE_ARTIFACT_ID}" ] || [ -z "${DEBUG_ARTIFACT_ID}" ]; then
-            echo "No successful workflow run with both UPM artifacts found for commit ${TAG_SHA}."
+          if [ -z "${RUN_ID}" ] || [ -z "${CORE_ARTIFACT_ID}" ] || [ -z "${DEBUG_ARTIFACT_ID}" ] || [ -z "${VSIX_ARTIFACT_ID}" ]; then
+            echo "No successful workflow run with required release artifacts found for commit ${TAG_SHA}."
             exit 1
           fi
 
@@ -115,6 +120,15 @@ jobs:
             gh api "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}/zip" > "${out_dir}/artifact.zip"
             unzip -q -j "${out_dir}/artifact.zip" -d "${out_dir}" >/dev/null
             find "${out_dir}" -maxdepth 1 -name '*.tgz' | head -n1
+          }
+
+          download_artifact_vsix() {
+            local artifact_id="$1"
+            local out_dir="$2"
+            mkdir -p "${out_dir}"
+            gh api "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}/zip" > "${out_dir}/artifact.zip"
+            unzip -q -j "${out_dir}/artifact.zip" -d "${out_dir}" >/dev/null
+            find "${out_dir}" -maxdepth 1 -name '*.vsix' | head -n1
           }
 
           repack_with_release_version() {
@@ -140,9 +154,10 @@ jobs:
 
           CORE_TARBALL="$(download_artifact_tgz "${CORE_ARTIFACT_ID}" "${ARTIFACT_TMP}/core")"
           DEBUG_TARBALL="$(download_artifact_tgz "${DEBUG_ARTIFACT_ID}" "${ARTIFACT_TMP}/debug")"
+          VSIX_FILE="$(download_artifact_vsix "${VSIX_ARTIFACT_ID}" "${ARTIFACT_TMP}/vsix")"
 
-          if [ -z "${CORE_TARBALL}" ] || [ -z "${DEBUG_TARBALL}" ]; then
-            echo "Downloaded artifacts do not contain expected .tgz packages."
+          if [ -z "${CORE_TARBALL}" ] || [ -z "${DEBUG_TARBALL}" ] || [ -z "${VSIX_FILE}" ]; then
+            echo "Downloaded artifacts do not contain expected .tgz/.vsix packages."
             exit 1
           fi
 
@@ -154,6 +169,7 @@ jobs:
 
           echo "CORE_TARBALL_PATH=${CORE_REPACK_TARBALL}" >> "${GITHUB_ENV}"
           echo "DEBUG_TARBALL_PATH=${DEBUG_REPACK_TARBALL}" >> "${GITHUB_ENV}"
+          echo "VSCODE_VSIX_PATH=${VSIX_FILE}" >> "${GITHUB_ENV}"
 
       - name: Publish package to version branches
         run: |
@@ -222,16 +238,16 @@ jobs:
             gh api -X PATCH "repos/${GITHUB_REPOSITORY}/releases/${RELEASE_ID}" \
               -f name="${RELEASE_NAME}" \
               -F prerelease="${RELEASE_PRERELEASE}" >/dev/null
-            gh release upload "${TAG}" "${CORE_TARBALL_PATH}" "${DEBUG_TARBALL_PATH}" --clobber
+            gh release upload "${TAG}" "${CORE_TARBALL_PATH}" "${DEBUG_TARBALL_PATH}" "${VSCODE_VSIX_PATH}" --clobber
           else
             if [ "${RELEASE_PRERELEASE}" = "true" ]; then
-              gh release create "${TAG}" "${CORE_TARBALL_PATH}" "${DEBUG_TARBALL_PATH}" \
+              gh release create "${TAG}" "${CORE_TARBALL_PATH}" "${DEBUG_TARBALL_PATH}" "${VSCODE_VSIX_PATH}" \
                 --target "${TAG_SHA}" \
                 --title "${RELEASE_NAME}" \
                 --notes "Automated UPM release for ${TAG}." \
                 --prerelease
             else
-              gh release create "${TAG}" "${CORE_TARBALL_PATH}" "${DEBUG_TARBALL_PATH}" \
+              gh release create "${TAG}" "${CORE_TARBALL_PATH}" "${DEBUG_TARBALL_PATH}" "${VSCODE_VSIX_PATH}" \
                 --target "${TAG_SHA}" \
                 --title "${RELEASE_NAME}" \
                 --notes "Automated UPM release for ${TAG}."

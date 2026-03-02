@@ -1,7 +1,5 @@
 ﻿using MoonSharp.Interpreter;
 using System;
-using System.Diagnostics;
-using System.IO;
 using MoonSharp.Interpreter.Loaders;
 
 namespace Test
@@ -32,8 +30,6 @@ require 'test2'
 			}
 
 			Console.WriteLine(">> DONE");
-
-			Console.ReadKey();
 		}
 	}
 }

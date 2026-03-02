@@ -1,27 +1,23 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-BASE_DIR="$(dirname $0)"
+BASE_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-# -- DO NOT CHANGE ORDER OTHERWISE WE RISK COPY OVERS...
+sync_cs_tree_preserve_meta() {
+  local source_dir="$1"
+  local dest_dir="$2"
+  local label="$3"
 
-echo Cleaning...
-echo ... Unity
-rm -R ./Unity/MoonSharp/Assets/Tests
-rm -R ./Unity/MoonSharp/Assets/Plugins/MoonSharp/Interpreter
-rm -R ./Unity/MoonSharp/Assets/Plugins/MoonSharp/Debugger
-mkdir ./Unity/MoonSharp/Assets/Tests
-mkdir ./Unity/MoonSharp/Assets/Plugins/MoonSharp/Interpreter
-mkdir ./Unity/MoonSharp/Assets/Plugins/MoonSharp/Debugger
+  mkdir -p "${dest_dir}"
 
-echo
+  # Remove only mirrored C# files; keep Unity .meta files/GUIDs stable.
+  find "${dest_dir}" -type f -name '*.cs' -delete
 
-echo Copying files...
+  echo "... ${label}"
+  rsync -a --prune-empty-dirs --exclude 'obj/' --exclude '*.csproj' --include '*/' --include '*.cs' --exclude '*' "${source_dir}/" "${dest_dir}/"
+}
 
-echo ... Unity - interpreter
-rsync -a --prune-empty-dirs --exclude 'obj/' --exclude "*.csproj" --include '*/' --include '*.cs' --exclude '*' "$BASE_DIR/MoonSharp.Interpreter/" "$BASE_DIR/Unity/MoonSharp/Assets/Plugins/MoonSharp/Interpreter/"
-
-echo ... Unity - vscode debugger...
-rsync -a --prune-empty-dirs --exclude 'obj/' --exclude "*.csproj" --include '*/' --include '*.cs' --exclude '*' "$BASE_DIR/MoonSharp.VsCodeDebugger/" "$BASE_DIR/Unity/MoonSharp/Assets/Plugins/MoonSharp/Debugger/"
-
-echo ... Unity - unit tests...
-rsync -a --prune-empty-dirs --exclude 'obj/' --exclude "*.csproj" --include '*/' --include '*.cs' --exclude '*' "$BASE_DIR/MoonSharp.Interpreter.Tests/" "$BASE_DIR/Unity/MoonSharp/Assets/Tests/"
+echo "Syncing Unity/MoonSharp source mirrors..."
+sync_cs_tree_preserve_meta "${BASE_DIR}/MoonSharp.Interpreter" "${BASE_DIR}/Unity/MoonSharp/Assets/Plugins/MoonSharp/Interpreter" "Unity - interpreter"
+sync_cs_tree_preserve_meta "${BASE_DIR}/MoonSharp.VsCodeDebugger" "${BASE_DIR}/Unity/MoonSharp/Assets/Plugins/MoonSharp/Debugger" "Unity - vscode debugger"
+sync_cs_tree_preserve_meta "${BASE_DIR}/MoonSharp.Interpreter.Tests" "${BASE_DIR}/Unity/MoonSharp/Assets/Tests" "Unity - unit tests"

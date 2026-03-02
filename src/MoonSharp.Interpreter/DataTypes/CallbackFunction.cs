@@ -89,11 +89,7 @@ namespace MoonSharp.Interpreter
 			if (accessMode == InteropAccessMode.Default)
 				accessMode = m_DefaultAccessMode;
 
-#if !NET35 && !NET40 && (!UNITY_5 || Unit_5_6_OR_NEWER)
-			MethodMemberDescriptor descr = new MethodMemberDescriptor(del.GetMethodInfo(), accessMode);
-#else
 			MethodMemberDescriptor descr = new MethodMemberDescriptor(del.Method, accessMode);
-#endif
 			return descr.GetCallbackFunction(script, del.Target);
 		}
 

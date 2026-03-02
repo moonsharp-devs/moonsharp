@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>netstandard2.0;net35;net40</TargetFrameworks>
+        <TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
         <AssemblyOriginatorKeyFile>keypair.snk</AssemblyOriginatorKeyFile>
         <Authors>MoonSharp</Authors>
         <Description>An interpreter for the Lua language</Description>
@@ -46,7 +46,7 @@
         <DefineConstants>$(DefineConstants);DOTNET_CORE</DefineConstants>
     </PropertyGroup>
 
-    <PropertyGroup Condition=" '$(TargetFramework)' != 'net35' ">
+    <PropertyGroup>
         <DefineConstants>$(DefineConstants);HASDYNAMIC</DefineConstants>
     </PropertyGroup>
 

@@ -57,3 +57,93 @@ jobs:
         with:
           name: unity-package-vscode-debugger-tgz
           path: .upm-staging/org.moonsharp.debugger.vscode/*.tgz
+
+      - name: Install VSCode extension dependencies
+        run: |
+          cd src/moonsharp-vscode-debug
+          npm install
+
+      - name: Compile VSCode extension
+        run: |
+          cd src/moonsharp-vscode-debug
+          npm run compile
+
+      - name: Build VSCode extension VSIX
+        run: |
+          cd src/moonsharp-vscode-debug
+          npm run package:vsix
+
+      - name: Upload VSCode extension VSIX artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: vscode-dap-vsix
+          path: src/moonsharp-vscode-debug/*.vsix
+
+  unity-testbed-headless:
+    runs-on: ubuntu-latest
+    needs: docker-ci
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Build Unity test dependencies (net45)
+        run: |
+          cd src
+          dotnet build MoonSharp.Interpreter.Tests/MoonSharp.Interpreter.Tests.csproj -c Release -f net45 -v minimal
+
+      - name: Sync UnityTestBed plugins
+        run: |
+          cd src
+          ./Unity/ResynchAssets.sh
+
+      - name: Run UnityTestBed scene in batchmode (GameCI)
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          projectPath: src/Unity/UnityTestBed
+          unityVersion: 2019.4.41f2
+          targetPlatform: StandaloneLinux64
+          buildMethod: MoonSharp.UnityTestBed.BatchRunner.Run
+          allowDirtyBuild: true
+          customParameters: -batchmode -nographics -logFile -
+
+  devtools-build:
+    runs-on: ubuntu-latest
+    needs: docker-ci
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Mono runtime
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mono-runtime
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Build DevTools Playground
+        run: dotnet build src/DevTools/Playground/Playground.csproj -c Release -v minimal
+
+      - name: Run DevTools Playground
+        run: mono bin/Release/net45/Playground.exe
+        working-directory: src/DevTools/Playground
+
+      - name: Build DevTools PerformanceComparison
+        run: dotnet build src/DevTools/PerformanceComparison/PerformanceComparison.csproj -c Release -v minimal
+
+      - name: Run DevTools PerformanceComparison (MoonSharp vs NLua)
+        run: dotnet run --project src/DevTools/PerformanceComparison/PerformanceComparison.csproj -c Release
+
+      - name: Build DevTools VsCodeDebugger_Testbed
+        run: dotnet build src/DevTools/VsCodeDebugger_Testbed/VsCodeDebugger_Testbed.csproj -c Release -v minimal

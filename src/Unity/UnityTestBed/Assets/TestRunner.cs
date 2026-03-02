@@ -12,6 +12,13 @@ using MoonSharp.Interpreter.Interop.RegistrationPolicies;
 
 public class TestRunner : MonoBehaviour
 {
+	public static bool IsStarted { get; private set; }
+	public static bool IsCompleted { get; private set; }
+	public static int OkCount { get; private set; }
+	public static int FailCount { get; private set; }
+	public static int SkippedCount { get; private set; }
+	public static int TotalCount { get; private set; }
+	public static string FinalSummary { get; private set; }
 
     public class HardwireAndLogPolicy : IRegistrationPolicy
     {
@@ -54,6 +61,14 @@ public class TestRunner : MonoBehaviour
 	// Use this for initialization
 	void Start()
 	{
+		IsStarted = true;
+		IsCompleted = false;
+		OkCount = 0;
+		FailCount = 0;
+		SkippedCount = 0;
+		TotalCount = 0;
+		FinalSummary = null;
+
         Script.DefaultOptions.ScriptLoader = new MoonSharp.Interpreter.Loaders.UnityAssetsScriptLoader(ReadAllScripts());
 
 		Debug.Log("STARTED!");
@@ -148,19 +163,25 @@ public class TestRunner : MonoBehaviour
 
 	IEnumerator DoTests()
 	{
-        MyNamespace.MyClass.Initialize();
-        SKIPLIST.AddRange(HARDWIRE_SKIPLIST);
-        UserData.RegistrationPolicy = new HardwireAndLogPolicy();
-
-
+		MyNamespace.MyClass.Initialize();
+		SKIPLIST.AddRange(HARDWIRE_SKIPLIST);
+		UserData.RegistrationPolicy = new HardwireAndLogPolicy();
 
 		MoonSharp.Interpreter.Tests.TestRunner tr = new MoonSharp.Interpreter.Tests.TestRunner(Log);
 
-        foreach (var r in tr.IterateOnTests(null, SKIPLIST.ToArray()))
+		foreach (var r in tr.IterateOnTests(null, SKIPLIST.ToArray()))
 		{
 			Log(r);
 			yield return null;
 		}
+
+		OkCount = tr.Ok;
+		FailCount = tr.Fail;
+		SkippedCount = tr.Skipped;
+		TotalCount = tr.Total;
+		FinalSummary = string.Format("OK: {0}/{3}, Failed: {1}/{3}, Skipped: {2}/{3}", OkCount, FailCount, SkippedCount, TotalCount);
+		Debug.Log(FinalSummary);
+		IsCompleted = true;
 	}
 
 	void Log(TestResult r)
@@ -168,6 +189,7 @@ public class TestRunner : MonoBehaviour
 		if (r.Type == TestResultType.Fail)
 		{
             Console_WriteLine("[FAIL] | {0} - {1} - {2}", r.TestName, r.Message, ""); // r.Exception);
+			Debug.LogError(string.Format("[FAIL] {0} - {1}", r.TestName, r.Message));
 		}
 		else if (r.Type == TestResultType.Ok)
 		{
@@ -179,7 +201,7 @@ public class TestRunner : MonoBehaviour
 		}
 		else
 		{
-			//Console_WriteLine("{0}", r.Message);
+			Console_WriteLine("{0}", r.Message);
 		}
 	}
 

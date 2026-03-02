@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net35;net40</TargetFrameworks>
+        <TargetFrameworks>net45</TargetFrameworks>
         <AssemblyOriginatorKeyFile>..\keypair.snk</AssemblyOriginatorKeyFile>
         <Authors>MoonSharp</Authors>
         <Description></Description>

@@ -167,11 +167,9 @@ end
 			lua.RegisterFunction("check", typeof(Program).GetMethod("NCheck"));
 
 			var hanoiPath = Path.GetTempPath() + Path.DirectorySeparatorChar + "hanoi.lua";
-
 			File.WriteAllText(hanoiPath, scriptText);
 
 #if !PROFILER
-
 			var fn = lua.LoadFile(hanoiPath);
 
 			sw = Stopwatch.StartNew();
@@ -180,7 +178,6 @@ end
 				fn.Call();
 			}
 			sw.Stop();
-
 #endif
 
 			Console.WriteLine("NLua  : {0} ms", sw.ElapsedMilliseconds);
@@ -192,8 +189,6 @@ end
 			Console.WriteLine("");
 			Console.WriteLine("=== NLua  ===");
 			//Console.WriteLine(g_NLuaStr.ToString());
-
-			Console.ReadKey();
 		}
 	}
 }

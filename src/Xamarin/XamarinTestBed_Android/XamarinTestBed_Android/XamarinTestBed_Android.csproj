@@ -42,8 +42,8 @@
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
     <Reference Include="Mono.Android" />
-    <Reference Include="Antlr4.Runtime.net35">
-      <HintPath>..\..\..\MoonSharpTests\bin\Debug\Antlr4.Runtime.net35.dll</HintPath>
+    <Reference Include="Antlr4.Runtime">
+      <HintPath>..\..\..\MoonSharpTests\bin\Debug\Antlr4.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\..\..\MoonSharpTests\bin\Debug\nunit.framework.dll</HintPath>

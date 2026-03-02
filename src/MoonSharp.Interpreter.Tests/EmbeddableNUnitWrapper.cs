@@ -1,4 +1,4 @@
-﻿#if EMBEDTEST || UNITY_5
+#if EMBEDTEST || UNITY_5 || UNITY_5_3_OR_NEWER || UNITY_EDITOR || UNITY_STANDALONE
 
 using System;
 using System.Collections.Generic;
@@ -64,7 +64,17 @@ namespace NUnit.Framework
 			IsFalse(string.IsNullOrEmpty(p), "String is null or empty");
 		}
 
+		public static void IsNotEmpty(string p)
+		{
+			IsFalse(string.IsNullOrEmpty(p), "String is null or empty");
+		}
+
 		internal static void IsTrue(bool p)
+		{
+			IsTrue(p, "Value not true");
+		}
+
+		public static void True(bool p)
 		{
 			IsTrue(p, "Value not true");
 		}

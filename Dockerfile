@@ -35,7 +35,6 @@ COPY src/MoonSharp.RemoteDebugger src/MoonSharp.RemoteDebugger/
 COPY src/MoonSharp.VsCodeDebugger src/MoonSharp.VsCodeDebugger/
 COPY src/TestRunners/ConsoleTestRunner src/TestRunners/ConsoleTestRunner/
 COPY src/TestRunners/DotNetCoreTestRunner src/TestRunners/DotNetCoreTestRunner/
-COPY src/packages src/packages/
 COPY src/moonsharp_ci.sln src/moonsharp_ci.sln
 
 ENTRYPOINT ["sh", "/build/ci.sh"]

@@ -1,7 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>netstandard2.0;net35;net40</TargetFrameworks>
+        <TargetFrameworks>net8.0;net45</TargetFrameworks>
+        <OutputType>Exe</OutputType>
         <AssemblyOriginatorKeyFile>keypair.snk</AssemblyOriginatorKeyFile>
         <Authors>MoonSharp</Authors>
         <Description></Description>
@@ -48,10 +49,6 @@
     <ItemGroup>
       <ProjectReference Include="..\..\MoonSharp.VsCodeDebugger\MoonSharp.VsCodeDebugger.csproj" />
       <ProjectReference Include="..\..\MoonSharp.Interpreter\MoonSharp.Interpreter.csproj" />
-    </ItemGroup>
-
-    <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-      <PackageReference Include="System.CodeDom" Version="4.5.0" />
     </ItemGroup>
 
 </Project>

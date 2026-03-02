@@ -65,7 +65,7 @@ namespace Tutorials.Chapters
 			{
 			}
 
-			public void Update(WatchType watchType, IEnumerable<WatchItem> items)
+			public void Update(WatchType watchType, IEnumerable<WatchItem> items, int stackFrameIndex)
 			{
 			}
 

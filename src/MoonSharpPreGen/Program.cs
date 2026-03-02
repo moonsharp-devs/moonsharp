@@ -29,10 +29,6 @@ namespace MoonSharpPreGen
 			Console.WriteLine("    typelistfiles : text files containing the list of types to describe.");
 			Console.WriteLine("    -out : output file containing the descriptors");
 			Console.WriteLine("    -outtype : which language to generate the sources: either cs, vb or dll (default:cs)");
-
-
-
-			Console.ReadKey();
 		}
 	}
 }
