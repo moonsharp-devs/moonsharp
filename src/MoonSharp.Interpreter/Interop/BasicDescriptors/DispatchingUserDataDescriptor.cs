@@ -178,7 +178,7 @@ namespace MoonSharp.Interpreter.Interop.BasicDescriptors
 		{
 			IOverloadableMemberDescriptor odesc = desc as IOverloadableMemberDescriptor;
 
-			if (odesc != null)
+			if (odesc != null && !(desc is MethodMemberDescriptorCoroutine))
 			{
 				if (members.ContainsKey(name))
 				{

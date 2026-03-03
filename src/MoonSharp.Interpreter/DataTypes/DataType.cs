@@ -64,6 +64,10 @@ namespace MoonSharp.Interpreter
 		/// A request to coroutine.yield
 		/// </summary>
 		YieldRequest,
+		/// <summary>
+		/// Return a value from a clr coroutine
+		/// </summary>
+		ClrCoroutineReturn,
 	}
 
 	/// <summary>
@@ -114,6 +118,8 @@ namespace MoonSharp.Interpreter
 					return "userdata";
 				case DataType.Thread:
 					return "coroutine";
+				case DataType.ClrCoroutineReturn:
+					return "coroutine_return";
 				case DataType.Tuple:
 				case DataType.TailCallRequest:
 				case DataType.YieldRequest:
@@ -164,6 +170,8 @@ namespace MoonSharp.Interpreter
 					return "userdata";
 				case DataType.Thread:
 					return "thread";
+				case DataType.ClrCoroutineReturn:
+					return "coroutine_return";
 				case DataType.Tuple:
 				case DataType.TailCallRequest:
 				case DataType.YieldRequest:

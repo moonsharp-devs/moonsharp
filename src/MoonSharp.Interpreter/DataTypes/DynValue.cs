@@ -76,6 +76,11 @@ namespace MoonSharp.Interpreter
 		/// Gets the tail call data.
 		/// </summary>
 		public UserData UserData { get { return m_Object as UserData; } }
+		
+		/// <summary>
+		/// Gets the clr couroutine return value
+		/// </summary>
+		public DynValue ClrCoroutineReturnValue { get { return m_Object as DynValue; } }
 
 		/// <summary>
 		/// Returns true if this instance is write protected.
@@ -370,6 +375,14 @@ namespace MoonSharp.Interpreter
 			{
 				m_Object = userData,
 				m_Type = DataType.UserData,
+			};
+		}
+
+		public static DynValue NewClrCoroutineReturn(DynValue returnedValue) {
+			return new DynValue()
+			{
+				m_Object = returnedValue,
+				m_Type = DataType.ClrCoroutineReturn,
 			};
 		}
 

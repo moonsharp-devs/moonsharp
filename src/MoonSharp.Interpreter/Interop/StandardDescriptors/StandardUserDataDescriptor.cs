@@ -78,7 +78,12 @@ namespace MoonSharp.Interpreter.Interop
 			{
 				if (membersToIgnore.Contains(mi.Name)) continue;
 
-				MethodMemberDescriptor md = MethodMemberDescriptor.TryCreateIfVisible(mi, this.AccessMode);
+				MethodMemberDescriptor md;
+				if (mi.CustomAttributes.Any(data => data.AttributeType == typeof(MoonSharpClrCoroutineAttribute))) {
+					md = MethodMemberDescriptorCoroutine.TryCreateCoroutineIfVisible(mi, this.AccessMode);
+				} else {
+					md = MethodMemberDescriptor.TryCreateIfVisible(mi, this.AccessMode);
+				}
 
 				if (md != null)
 				{
