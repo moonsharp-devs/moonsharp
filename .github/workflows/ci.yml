@@ -151,39 +151,271 @@ jobs:
 
   unity-testbed-headless:
     runs-on: ubuntu-latest
-    needs: docker-ci
+    timeout-minutes: 35
+    env:
+      UNITY_EDITOR_IMAGE: unityci/editor:ubuntu-2019.4.41f2-linux-il2cpp-3
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Check Unity credentials
+        id: unity-creds
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_TOTP_KEY: ${{ secrets.UNITY_TOTP_KEY }}
+        run: |
+          set -euo pipefail
+
+          missing=0
+          [ -n "${UNITY_EMAIL:-}" ] || missing=1
+          [ -n "${UNITY_PASSWORD:-}" ] || missing=1
+          [ -n "${UNITY_TOTP_KEY:-}" ] || missing=1
+
+          if [ "$missing" -eq 1 ]; then
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
+            echo "Missing one or more required UNITY_* secrets (UNITY_EMAIL, UNITY_PASSWORD, UNITY_TOTP_KEY). UnityTestBed will be skipped."
+          else
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+            echo "All required UNITY_* secrets are present. UnityTestBed will run."
+          fi
+
+      - name: Setup Node
+        if: steps.unity-creds.outputs.should_run == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Cache npm
+        if: steps.unity-creds.outputs.should_run == 'true'
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: unity-license-activate-npm-${{ runner.os }}-2be4152c6ade907c090817c988588d5d9f3bc974
+          restore-keys: |
+            unity-license-activate-npm-${{ runner.os }}-
+
+      - name: Install unity-license-activate
+        if: steps.unity-creds.outputs.should_run == 'true'
+        run: |
+          npm install --global github:game-ci/unity-license-activate#2be4152c6ade907c090817c988588d5d9f3bc974
+          npm install --global unity-verify-code
+
+      - name: Restore Unity editor image cache
+        if: steps.unity-creds.outputs.should_run == 'true'
+        id: unity-image-cache-restore
+        uses: actions/cache/restore@v4
+        with:
+          path: /tmp/unity-editor-image.tar
+          key: unity-editor-image-${{ runner.os }}-ubuntu-2019.4.41f2-linux-il2cpp-3
+
+      - name: Load cached Unity editor image
+        if: steps.unity-creds.outputs.should_run == 'true' && steps.unity-image-cache-restore.outputs.cache-hit == 'true'
+        run: docker load -i /tmp/unity-editor-image.tar
+
+      - name: Pull Unity editor image
+        if: steps.unity-creds.outputs.should_run == 'true' && steps.unity-image-cache-restore.outputs.cache-hit != 'true'
+        id: unity-image-pull
+        run: docker pull "$UNITY_EDITOR_IMAGE"
+
+      - name: Start Unity test container
+        if: steps.unity-creds.outputs.should_run == 'true'
+        id: unity-container
+        run: |
+          set -euo pipefail
+
+          workdir="$PWD/_unity-license"
+          mkdir -p "$workdir"
+          container_name="unity-testbed-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+
+          docker rm -f "$container_name" >/dev/null 2>&1 || true
+          docker run -d \
+            --name "$container_name" \
+            --workdir /github/workspace \
+            --volume "$PWD:/github/workspace" \
+            --volume "$workdir:/license" \
+            "$UNITY_EDITOR_IMAGE" \
+            /bin/bash -lc "sleep infinity" >/dev/null
+
+          echo "container_name=$container_name" >> "$GITHUB_OUTPUT"
+
+      - name: Generate fresh ALF
+        if: steps.unity-creds.outputs.should_run == 'true'
+        id: unity-alf-fresh
+        run: |
+          set -euo pipefail
+
+          workdir="$PWD/_unity-license"
+          container_name="${{ steps.unity-container.outputs.container_name }}"
+
+          rm -f "$workdir"/*.alf || true
+
+          set +e
+          timeout 60 docker exec "$container_name" /bin/bash -lc \
+            'cd /license && unity-editor -logFile /license/unity-alf.log -batchmode -nographics -quit -createManualActivationFile'
+          alf_exit=$?
+          set -e
+
+          alf_path="$(find "$workdir" -maxdepth 1 -type f -name '*.alf' | head -n 1)"
+          if [ -z "${alf_path:-}" ]; then
+            echo "::error::No .alf generated for Unity license activation."
+            echo "ALF generation exit code: $alf_exit"
+            tail -n 200 "$workdir/unity-alf.log" || true
+            exit 1
+          fi
+
+          echo "alf_path=$alf_path" >> "$GITHUB_OUTPUT"
+
+      - name: Exchange fresh ALF to ULF
+        if: steps.unity-creds.outputs.should_run == 'true'
+        id: unity-license-fresh
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_TOTP_KEY: ${{ secrets.UNITY_TOTP_KEY }}
+        run: |
+          set -euo pipefail
+
+          workdir="$PWD/_unity-license"
+          fresh_alf="${{ steps.unity-alf-fresh.outputs.alf_path }}"
+
+          if [ -z "${fresh_alf:-}" ] || [ ! -s "$fresh_alf" ]; then
+            echo "::error::Fresh ALF missing before exchange."
+            exit 1
+          fi
+
+          cd "$workdir"
+          rm -f "$workdir"/*.ulf || true
+
+          fresh_exit=1
+          for attempt in 1 2 3; do
+            set +e
+            timeout 60 unity-license-activate \
+              "$UNITY_EMAIL" \
+              "$UNITY_PASSWORD" \
+              "$fresh_alf" \
+              --authenticator-key "$UNITY_TOTP_KEY" \
+              >"$workdir/unity-license-activate-fresh.stdout" \
+              2>"$workdir/unity-license-activate-fresh.stderr"
+            fresh_exit=$?
+            set -e
+            if [ "$fresh_exit" -eq 0 ]; then
+              break
+            fi
+            if grep -q "2FA (Email)" "$workdir/unity-license-activate-fresh.stdout"; then
+              echo "::error::Unity requested Email 2FA, so UNITY_TOTP_KEY cannot be used. Configure this Unity account for Authenticator App 2FA or provide mailbox automation for unity-verify-code."
+              break
+            fi
+            if grep -Eq "ERR_NETWORK_CHANGED|ETIMEDOUT|Navigation timeout" "$workdir/unity-license-activate-fresh.stderr" "$workdir/unity-license-activate-fresh.stdout"; then
+              echo "Transient network/navigation failure on fresh ALF exchange attempt $attempt/3; retrying."
+              sleep 3
+            else
+              break
+            fi
+          done
+
+          if [ "$fresh_exit" -ne 0 ]; then
+            echo "::error::Fresh ALF exchange failed with exit code $fresh_exit."
+            tail -n 200 "$workdir/unity-license-activate-fresh.stdout" || true
+            tail -n 200 "$workdir/unity-license-activate-fresh.stderr" || true
+            exit 1
+          fi
+
+          ulf_path="$(find "$workdir" -maxdepth 1 -type f -name '*.ulf' | head -n 1)"
+          if [ -z "${ulf_path:-}" ]; then
+            echo "::error::No .ulf produced by fresh ALF exchange."
+            exit 1
+          fi
+
       - name: Setup .NET
+        if: steps.unity-creds.outputs.should_run == 'true'
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "8.0.x"
 
       - name: Build Unity test dependencies (net45)
+        if: steps.unity-creds.outputs.should_run == 'true'
         run: |
           cd src
           dotnet build MoonSharp.Interpreter.Tests/MoonSharp.Interpreter.Tests.csproj -c Release -f net45 -v minimal
 
       - name: Sync UnityTestBed plugins
+        if: steps.unity-creds.outputs.should_run == 'true'
         run: |
           cd src
           ./Unity/ResynchAssets.sh
 
-      - name: Run UnityTestBed scene in batchmode (GameCI)
-        uses: game-ci/unity-builder@v4
-        env:
-          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
-          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+      - name: Activate Unity license inside container
+        if: steps.unity-creds.outputs.should_run == 'true'
+        id: unity-activate-container
+        run: |
+          set -euo pipefail
+
+          workdir="$PWD/_unity-license"
+          container_name="${{ steps.unity-container.outputs.container_name }}"
+          ulf_path="$(find "$workdir" -maxdepth 1 -type f -name '*.ulf' | head -n 1)"
+
+          if [ -z "${ulf_path:-}" ] || [ ! -s "$ulf_path" ]; then
+            echo "::error::No .ulf available to install in Unity container."
+            exit 1
+          fi
+
+          ulf_file="$(basename "$ulf_path")"
+
+          set +e
+          timeout 60 docker exec "$container_name" /bin/bash -lc \
+            "unity-editor -logFile /license/unity-activate.log -batchmode -nographics -quit -manualLicenseFile /license/$ulf_file"
+          activate_exit=$?
+          set -e
+
+          if [ "$activate_exit" -ne 0 ]; then
+            if grep -q "License file loaded." "$workdir/unity-activate.log"; then
+              echo "::warning::Unity returned exit $activate_exit during manual license install, but log confirms license file loaded. Continuing."
+            else
+              echo "::error::Unity license install failed in container (exit $activate_exit)."
+              tail -n 200 "$workdir/unity-activate.log" || true
+              exit 1
+            fi
+          fi
+
+      - name: Run UnityTestBed scene in batchmode (Docker)
+        if: steps.unity-creds.outputs.should_run == 'true'
+        timeout-minutes: 5
+        run: |
+          set -euo pipefail
+
+          container_name="${{ steps.unity-container.outputs.container_name }}"
+
+          docker exec "$container_name" /bin/bash -lc \
+            'unity-editor -batchmode -nographics -quit -projectPath /github/workspace/src/Unity/UnityTestBed -executeMethod MoonSharp.UnityTestBed.BatchRunner.Run -logFile -'
+
+      - name: Export Unity editor image for cache
+        if: always() && steps.unity-creds.outputs.should_run == 'true' && steps.unity-image-pull.conclusion == 'success'
+        id: unity-image-cache-export
+        run: |
+          set -euo pipefail
+          if docker image inspect "$UNITY_EDITOR_IMAGE" >/dev/null 2>&1; then
+            docker save "$UNITY_EDITOR_IMAGE" -o /tmp/unity-editor-image.tar
+            echo "has_tar=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_tar=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Save Unity editor image cache
+        if: always() && steps.unity-creds.outputs.should_run == 'true' && steps.unity-image-pull.conclusion == 'success' && steps.unity-image-cache-export.outputs.has_tar == 'true'
+        uses: actions/cache/save@v4
         with:
-          projectPath: src/Unity/UnityTestBed
-          unityVersion: 2019.4.41f2
-          targetPlatform: StandaloneLinux64
-          buildMethod: MoonSharp.UnityTestBed.BatchRunner.Run
-          allowDirtyBuild: true
-          customParameters: -batchmode -nographics -logFile -
+          path: /tmp/unity-editor-image.tar
+          key: unity-editor-image-${{ runner.os }}-ubuntu-2019.4.41f2-linux-il2cpp-3
+
+      - name: Stop Unity test container
+        if: always() && steps.unity-creds.outputs.should_run == 'true' && steps.unity-container.outputs.container_name != ''
+        run: |
+          docker rm -f "${{ steps.unity-container.outputs.container_name }}" >/dev/null 2>&1 || true
+
+      - name: UnityTestBed skipped
+        if: steps.unity-creds.outputs.should_run != 'true'
+        run: 'echo "UnityTestBed skipped: UNITY_EMAIL, UNITY_PASSWORD, or UNITY_TOTP_KEY is missing."'
 
   devtools-build:
     runs-on: ubuntu-latest
