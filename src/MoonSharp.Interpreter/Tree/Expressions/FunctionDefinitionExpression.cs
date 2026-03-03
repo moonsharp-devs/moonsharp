@@ -39,7 +39,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 				CheckTokenType(lcontext, TokenType.Function);
 
 			// here lexer should be at the '(' or at the '|'
-			Token openRound = CheckTokenType(lcontext, isLambda ? TokenType.Lambda : TokenType.Brk_Open_Round);
+			Token openRound = CheckTokenType(lcontext, isLambda ? TokenType.Op_BitwiseOr_Or_Lambda : TokenType.Brk_Open_Round);
 
 			List<string> paramnames = BuildParamList(lcontext, pushSelfParam, openRound, isLambda);
 			// here lexer is at first token of body
@@ -102,7 +102,7 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 		private List<string> BuildParamList(ScriptLoadingContext lcontext, bool pushSelfParam, Token openBracketToken, bool isLambda)
 		{
-			TokenType closeToken = isLambda ? TokenType.Lambda : TokenType.Brk_Close_Round;
+			TokenType closeToken = isLambda ? TokenType.Op_BitwiseOr_Or_Lambda : TokenType.Brk_Close_Round;
 
 			List<string> paramnames = new List<string>();
 

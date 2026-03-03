@@ -50,12 +50,19 @@ namespace MoonSharp.Interpreter.Execution.VM
 		Sub,		// Subtraction of the two topmost operands on the v-stack
 		Mul,		// Multiplication of the two topmost operands on the v-stack
 		Div,		// Division of the two topmost operands on the v-stack
+		FloorDiv,		// Floor Division of the two topmost operands on the v-stack
 		Mod,		// Modulus of the two topmost operands on the v-stack
 		Not,		// Logical inversion of the topmost operand on the v-stack
 		Len,		// Size operator of the topmost operand on the v-stack
 		Neg,		// Negation (unary minus) operator of the topmost operand on the v-stack
 		Power,		// Power of the two topmost operands on the v-stack
 		CNot,		// Conditional NOT - takes second operand from the v-stack (must be bool), if true execs a NOT otherwise execs a TOBOOL
+		BitwiseAnd,	// Bitwise AND of the two topmost operands on the v-stack
+		BitwiseOr,	// Bitwise OR of the two topmost operands on the v-stack
+		BitwiseXor,	// Bitwise XOR of the two topmost operands on the v-stack
+		BitwiseLShift,	// Bitwise Left Shift of the two topmost operands on the v-stack
+		BitwiseRShift,	// Bitwise Right Shift of the two topmost operands on the v-stack
+		BitwiseNot,	// Unary Bitwise NOT of the topmost operand on the v-stack
 
 
 		// Type conversions and manipulations

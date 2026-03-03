@@ -35,6 +35,7 @@ namespace MoonSharp.Interpreter.Execution
 				case OpCode.Sub:
 				case OpCode.Mul:
 				case OpCode.Div:
+				case OpCode.FloorDiv:
 				case OpCode.Mod:
 				case OpCode.Not:
 				case OpCode.Len:
@@ -42,6 +43,12 @@ namespace MoonSharp.Interpreter.Execution
 				case OpCode.Power:
 				case OpCode.CNot:
 				case OpCode.ToBool:
+				case OpCode.BitwiseAnd:
+				case OpCode.BitwiseOr:
+				case OpCode.BitwiseXor:
+				case OpCode.BitwiseLShift:
+				case OpCode.BitwiseRShift:
+				case OpCode.BitwiseNot:
 					return InstructionFieldUsage.None;
 				case OpCode.Pop:
 				case OpCode.Copy:

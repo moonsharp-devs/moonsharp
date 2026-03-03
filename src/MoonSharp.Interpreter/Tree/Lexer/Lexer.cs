@@ -154,17 +154,30 @@ namespace MoonSharp.Interpreter.Tree
 			{
 				case '|':
 					CursorCharNext();
-					return CreateToken(TokenType.Lambda, fromLine, fromCol, "|");
+					return CreateToken(TokenType.Op_BitwiseOr_Or_Lambda, fromLine, fromCol, "|");
 				case ';':
 					CursorCharNext();
 					return CreateToken(TokenType.SemiColon, fromLine, fromCol, ";");
 				case '=':
 					return PotentiallyDoubleCharOperator('=', TokenType.Op_Assignment, TokenType.Op_Equal, fromLine, fromCol);
+				case '&':
+					CursorCharNext();
+					return CreateToken(TokenType.Op_BitwiseAnd, fromLine, fromCol, "&");
 				case '<':
-					return PotentiallyDoubleCharOperator('=', TokenType.Op_LessThan, TokenType.Op_LessThanEqual, fromLine, fromCol);
+					return PotentiallyDoubleCharOperator('=', '<', TokenType.Op_LessThan, TokenType.Op_LessThanEqual, TokenType.Op_BitwiseLShift, fromLine, fromCol);
 				case '>':
-					return PotentiallyDoubleCharOperator('=', TokenType.Op_GreaterThan, TokenType.Op_GreaterThanEqual, fromLine, fromCol);
+					return PotentiallyDoubleCharOperator('=', '>', TokenType.Op_GreaterThan, TokenType.Op_GreaterThanEqual, TokenType.Op_BitwiseRShift, fromLine, fromCol);
 				case '~':
+					if (CursorCharNext() != '=')
+					{
+						CursorCharNext();
+						return CreateToken(TokenType.Op_BitwiseXor_Or_BitwiseNot, fromLine, fromCol, "~");
+					}
+					else
+					{
+						CursorCharNext();
+						return CreateToken(TokenType.Op_NotEqual, fromLine, fromCol, "~=");
+					}
 				case '!':
 					if (CursorCharNext() != '=')
 						throw new SyntaxErrorException(CreateToken(TokenType.Invalid, fromLine, fromCol), "unexpected symbol near '{0}'", c);
@@ -198,7 +211,7 @@ namespace MoonSharp.Interpreter.Tree
 				case '*':
 					return CreateSingleCharToken(TokenType.Op_Mul, fromLine, fromCol);
 				case '/':
-					return CreateSingleCharToken(TokenType.Op_Div, fromLine, fromCol);
+					return PotentiallyDoubleCharOperator('/', TokenType.Op_Div, TokenType.Op_FloorDiv, fromLine, fromCol);
 				case '%':
 					return CreateSingleCharToken(TokenType.Op_Mod, fromLine, fromCol);
 				case '^':
@@ -536,6 +549,28 @@ namespace MoonSharp.Interpreter.Tree
 			{
 				CursorCharNext();
 				return CreateToken(doubleCharToken, fromLine, fromCol, op + expectedSecondChar);
+			}
+			else
+				return CreateToken(singleCharToken, fromLine, fromCol, op);
+		}
+
+		private Token PotentiallyDoubleCharOperator(char expectedSecondChar, char expectedSecondChar2, TokenType singleCharToken, TokenType doubleCharToken, TokenType doubleCharToken2, int fromLine, int fromCol)
+		{
+			string op = CursorChar().ToString();
+
+			CursorCharNext();
+
+			var ch = CursorChar();
+
+			if (ch == expectedSecondChar)
+			{
+				CursorCharNext();
+				return CreateToken(doubleCharToken, fromLine, fromCol, op + expectedSecondChar);
+			}
+			else if (ch == expectedSecondChar2)
+			{
+				CursorCharNext();
+				return CreateToken(doubleCharToken2, fromLine, fromCol, op + expectedSecondChar2);
 			}
 			else
 				return CreateToken(singleCharToken, fromLine, fromCol, op);

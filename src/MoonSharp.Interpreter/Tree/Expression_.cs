@@ -148,7 +148,7 @@ namespace MoonSharp.Interpreter.Tree
 				case TokenType.Function:
 					lcontext.Lexer.Next();
 					return new FunctionDefinitionExpression(lcontext, false, false);
-				case TokenType.Lambda:
+				case TokenType.Op_BitwiseOr_Or_Lambda:
 					return new FunctionDefinitionExpression(lcontext, false, true);
 				default:
 					return PrimaryExp(lcontext);

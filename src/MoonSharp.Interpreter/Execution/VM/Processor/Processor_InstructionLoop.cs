@@ -74,6 +74,10 @@ namespace MoonSharp.Interpreter.Execution.VM
 							instructionPtr = ExecNeg(i, instructionPtr);
 							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
 							break;
+						case OpCode.BitwiseNot:
+							instructionPtr = ExecBitwiseNot(i, instructionPtr);
+							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
+							break;
 						case OpCode.Sub:
 							instructionPtr = ExecSub(i, instructionPtr);
 							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
@@ -86,12 +90,36 @@ namespace MoonSharp.Interpreter.Execution.VM
 							instructionPtr = ExecDiv(i, instructionPtr);
 							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
 							break;
+						case OpCode.FloorDiv:
+							instructionPtr = ExecFloorDiv(i, instructionPtr);
+							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
+							break;
 						case OpCode.Mod:
 							instructionPtr = ExecMod(i, instructionPtr);
 							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
 							break;
 						case OpCode.Power:
 							instructionPtr = ExecPower(i, instructionPtr);
+							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
+							break;
+						case OpCode.BitwiseAnd:
+							instructionPtr = ExecBitwiseAnd(i, instructionPtr);
+							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
+							break;
+						case OpCode.BitwiseOr:
+							instructionPtr = ExecBitwiseOr(i, instructionPtr);
+							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
+							break;
+						case OpCode.BitwiseXor:
+							instructionPtr = ExecBitwiseXor(i, instructionPtr);
+							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
+							break;
+						case OpCode.BitwiseLShift:
+							instructionPtr = ExecBitwiseLShift(i, instructionPtr);
+							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
+							break;
+						case OpCode.BitwiseRShift:
+							instructionPtr = ExecBitwiseRShift(i, instructionPtr);
 							if (instructionPtr == YIELD_SPECIAL_TRAP) goto yield_to_calling_coroutine;
 							break;
 						case OpCode.Eq:
@@ -993,6 +1021,28 @@ namespace MoonSharp.Interpreter.Execution.VM
 				else throw ScriptRuntimeException.ArithmeticOnNonNumber(l, r);
 			}
 		}
+
+		private int ExecFloorDiv(Instruction i, int instructionPtr)
+		{
+			DynValue r = m_ValueStack.Pop().ToScalar();
+			DynValue l = m_ValueStack.Pop().ToScalar();
+
+			double? rn = r.CastToNumber();
+			double? ln = l.CastToNumber();
+
+			if (ln.HasValue && rn.HasValue)
+			{
+				m_ValueStack.Push(DynValue.NewNumber(Math.Floor(ln.Value / rn.Value)));
+				return instructionPtr;
+			}
+			else
+			{
+				int ip = Internal_InvokeBinaryMetaMethod(l, r, "__idiv", instructionPtr);
+				if (ip >= 0) return ip;
+				else throw ScriptRuntimeException.ArithmeticOnNonNumber(l, r);
+			}
+		}
+
 		private int ExecPower(Instruction i, int instructionPtr)
 		{
 			DynValue r = m_ValueStack.Pop().ToScalar();
@@ -1015,6 +1065,126 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 		}
 
+		private int ExecBitwiseAnd(Instruction i, int instructionPtr)
+		{
+			DynValue r = m_ValueStack.Pop().ToScalar();
+			DynValue l = m_ValueStack.Pop().ToScalar();
+
+			double? rn = r.CastToNumber();
+			double? ln = l.CastToNumber();
+
+			if (ln.HasValue && rn.HasValue)
+			{
+				uint uln = (uint)Math.IEEERemainder(ln.Value, Math.Pow(2.0, 32.0));
+				uint urn = (uint)Math.IEEERemainder(rn.Value, Math.Pow(2.0, 32.0));
+
+				m_ValueStack.Push(DynValue.NewNumber(uln & urn));
+				return instructionPtr;
+			}
+			else
+			{
+				int ip = Internal_InvokeBinaryMetaMethod(l, r, "__band", instructionPtr);
+				if (ip >= 0) return ip;
+				else throw ScriptRuntimeException.ArithmeticOnNonNumber(l, r);
+			}
+		}
+
+		private int ExecBitwiseOr(Instruction i, int instructionPtr)
+		{
+			DynValue r = m_ValueStack.Pop().ToScalar();
+			DynValue l = m_ValueStack.Pop().ToScalar();
+
+			double? rn = r.CastToNumber();
+			double? ln = l.CastToNumber();
+
+			if (ln.HasValue && rn.HasValue)
+			{
+				uint uln = (uint)Math.IEEERemainder(ln.Value, Math.Pow(2.0, 32.0));
+				uint urn = (uint)Math.IEEERemainder(rn.Value, Math.Pow(2.0, 32.0));
+
+				m_ValueStack.Push(DynValue.NewNumber(uln | urn));
+				return instructionPtr;
+			}
+			else
+			{
+				int ip = Internal_InvokeBinaryMetaMethod(l, r, "__bor", instructionPtr);
+				if (ip >= 0) return ip;
+				else throw ScriptRuntimeException.ArithmeticOnNonNumber(l, r);
+			}
+		}
+
+		private int ExecBitwiseXor(Instruction i, int instructionPtr)
+		{
+			DynValue r = m_ValueStack.Pop().ToScalar();
+			DynValue l = m_ValueStack.Pop().ToScalar();
+
+			double? rn = r.CastToNumber();
+			double? ln = l.CastToNumber();
+
+			if (ln.HasValue && rn.HasValue)
+			{
+				uint uln = (uint)Math.IEEERemainder(ln.Value, Math.Pow(2.0, 32.0));
+				uint urn = (uint)Math.IEEERemainder(rn.Value, Math.Pow(2.0, 32.0));
+
+				m_ValueStack.Push(DynValue.NewNumber(uln ^ urn));
+				return instructionPtr;
+			}
+			else
+			{
+				int ip = Internal_InvokeBinaryMetaMethod(l, r, "__bxor", instructionPtr);
+				if (ip >= 0) return ip;
+				else throw ScriptRuntimeException.ArithmeticOnNonNumber(l, r);
+			}
+		}
+
+		private int ExecBitwiseLShift(Instruction i, int instructionPtr)
+		{
+			DynValue r = m_ValueStack.Pop().ToScalar();
+			DynValue l = m_ValueStack.Pop().ToScalar();
+
+			double? rn = r.CastToNumber();
+			double? ln = l.CastToNumber();
+
+			if (ln.HasValue && rn.HasValue)
+			{
+				int iln = (int)Math.IEEERemainder(ln.Value, Math.Pow(2.0, 32.0));
+				int irn = (int)Math.IEEERemainder(rn.Value, Math.Pow(2.0, 32.0));
+
+				m_ValueStack.Push(DynValue.NewNumber(irn < 0 ? iln >> -irn : iln << irn));
+				return instructionPtr;
+			}
+			else
+			{
+				int ip = Internal_InvokeBinaryMetaMethod(l, r, "__shl", instructionPtr);
+				if (ip >= 0) return ip;
+				else throw ScriptRuntimeException.ArithmeticOnNonNumber(l, r);
+			}
+		}
+
+		private int ExecBitwiseRShift(Instruction i, int instructionPtr)
+		{
+			DynValue r = m_ValueStack.Pop().ToScalar();
+			DynValue l = m_ValueStack.Pop().ToScalar();
+
+			double? rn = r.CastToNumber();
+			double? ln = l.CastToNumber();
+
+			if (ln.HasValue && rn.HasValue)
+			{
+				int iln = (int)Math.IEEERemainder(ln.Value, Math.Pow(2.0, 32.0));
+				int irn = (int)Math.IEEERemainder(rn.Value, Math.Pow(2.0, 32.0));
+
+				m_ValueStack.Push(DynValue.NewNumber(irn < 0 ? iln << -irn : iln >> irn));
+				return instructionPtr;
+			}
+			else
+			{
+				int ip = Internal_InvokeBinaryMetaMethod(l, r, "__shr", instructionPtr);
+				if (ip >= 0) return ip;
+				else throw ScriptRuntimeException.ArithmeticOnNonNumber(l, r);
+			}
+		}
+
 		private int ExecNeg(Instruction i, int instructionPtr)
 		{
 			DynValue r = m_ValueStack.Pop().ToScalar();
@@ -1028,6 +1198,25 @@ namespace MoonSharp.Interpreter.Execution.VM
 			else
 			{
 				int ip = Internal_InvokeUnaryMetaMethod(r, "__unm", instructionPtr);
+				if (ip >= 0) return ip;
+				else throw ScriptRuntimeException.ArithmeticOnNonNumber(r);
+			}
+		}
+
+		private int ExecBitwiseNot(Instruction i, int instructionPtr)
+		{
+			DynValue r = m_ValueStack.Pop().ToScalar();
+			double? rn = r.CastToNumber();
+
+			if (rn.HasValue)
+			{
+				uint urn = (uint)Math.IEEERemainder(rn.Value, Math.Pow(2.0, 32.0));
+				m_ValueStack.Push(DynValue.NewNumber(~urn));
+				return instructionPtr;
+			}
+			else
+			{
+				int ip = Internal_InvokeUnaryMetaMethod(r, "__bnot", instructionPtr);
 				if (ip >= 0) return ip;
 				else throw ScriptRuntimeException.ArithmeticOnNonNumber(r);
 			}

@@ -30,6 +30,14 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 			Div = 0x2000,
 			Mod = 0x4000,
 			Power = 0x8000,
+
+			BitwiseAnd = 0x10000,
+			BitwiseOr = 0x20000,
+			BitwiseXor = 0x40000,
+			BitwiseLShift = 0x100000,
+			BitwiseRShift = 0x200000,
+
+			FloorDiv = 0x400000,
 		}
 
 
@@ -49,10 +57,14 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 		}
 
 		const Operator POWER = Operator.Power;
-		const Operator MUL_DIV_MOD = Operator.Mul | Operator.Div | Operator.Mod;
+		const Operator MUL_DIV_MOD = Operator.Mul | Operator.Div | Operator.Mod | Operator.FloorDiv;
 		const Operator ADD_SUB = Operator.Add | Operator.Sub;
 		const Operator STRCAT = Operator.StrConcat;
+		const Operator BITWISE_SHIFT = Operator.BitwiseLShift | Operator.BitwiseRShift;
 		const Operator COMPARES = Operator.Less | Operator.Greater | Operator.GreaterOrEqual | Operator.LessOrEqual | Operator.Equal | Operator.NotEqual;
+		const Operator BITWISE_AND = Operator.BitwiseAnd;
+		const Operator BITWISE_XOR = Operator.BitwiseXor;
+		const Operator BITWISE_OR = Operator.BitwiseOr;
 		const Operator LOGIC_AND = Operator.And;
 		const Operator LOGIC_OR = Operator.Or;
 
@@ -125,9 +137,21 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 			if ((opfound & STRCAT) != 0)
 				nodes = PrioritizeRightAssociative(nodes, lcontext, STRCAT);
+			
+			if ((opfound & BITWISE_SHIFT) != 0)
+				nodes = PrioritizeLeftAssociative(nodes, lcontext, BITWISE_SHIFT);
 
 			if ((opfound & COMPARES) != 0)
 				nodes = PrioritizeLeftAssociative(nodes, lcontext, COMPARES);
+			
+			if ((opfound & BITWISE_AND) != 0)
+				nodes = PrioritizeLeftAssociative(nodes, lcontext, BITWISE_AND);
+			
+			if ((opfound & BITWISE_XOR) != 0)
+				nodes = PrioritizeLeftAssociative(nodes, lcontext, BITWISE_XOR);
+			
+			if ((opfound & BITWISE_OR) != 0)
+				nodes = PrioritizeLeftAssociative(nodes, lcontext, BITWISE_OR);
 
 			if ((opfound & LOGIC_AND) != 0)
 				nodes = PrioritizeLeftAssociative(nodes, lcontext, LOGIC_AND);
@@ -232,10 +256,22 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 					return Operator.Mul;
 				case TokenType.Op_Div:
 					return Operator.Div;
+				case TokenType.Op_FloorDiv:
+					return Operator.FloorDiv;
 				case TokenType.Op_Mod:
 					return Operator.Mod;
 				case TokenType.Op_Pwr:
 					return Operator.Power;
+				case TokenType.Op_BitwiseAnd:
+					return Operator.BitwiseAnd;
+				case TokenType.Op_BitwiseOr_Or_Lambda:
+					return Operator.BitwiseOr;
+				case TokenType.Op_BitwiseXor_Or_BitwiseNot:
+					return Operator.BitwiseXor;
+				case TokenType.Op_BitwiseLShift:
+					return Operator.BitwiseLShift;
+				case TokenType.Op_BitwiseRShift:
+					return Operator.BitwiseRShift;
 				default:
 					throw new InternalErrorException("Unexpected binary operator '{0}'", token.Text);
 			}
@@ -287,10 +323,22 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 					return OpCode.Mul;
 				case Operator.Div:
 					return OpCode.Div;
+				case Operator.FloorDiv:
+					return OpCode.FloorDiv;
 				case Operator.Mod:
 					return OpCode.Mod;
 				case Operator.Power:
 					return OpCode.Power;
+				case Operator.BitwiseAnd:
+					return OpCode.BitwiseAnd;
+				case Operator.BitwiseOr:
+					return OpCode.BitwiseOr;
+				case Operator.BitwiseXor:
+					return OpCode.BitwiseXor;
+				case Operator.BitwiseLShift:
+					return OpCode.BitwiseLShift;
+				case Operator.BitwiseRShift:
+					return OpCode.BitwiseRShift;
 				default:
 					throw new InternalErrorException("Unsupported operator {0}", op);
 			}
@@ -392,11 +440,45 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 					return d1 * d2;
 				case Operator.Div:
 					return d1 / d2;
+				case Operator.FloorDiv:
+					return Math.Floor(d1 / d2);
 				case Operator.Mod:
 					{
 						double mod = Math.IEEERemainder(d1, d2);
 						if (mod < 0) mod += d2;
 						return mod;
+					}
+				case Operator.Power:
+					return Math.Pow(d1, d2);
+				case Operator.BitwiseAnd:
+					{
+						uint ud1 = (uint)Math.IEEERemainder(d1, Math.Pow(2.0, 32.0));
+						uint ud2 = (uint)Math.IEEERemainder(d2, Math.Pow(2.0, 32.0));
+						return ud1 & ud2;
+					}
+				case Operator.BitwiseOr:
+					{
+						uint ud1 = (uint)Math.IEEERemainder(d1, Math.Pow(2.0, 32.0));
+						uint ud2 = (uint)Math.IEEERemainder(d2, Math.Pow(2.0, 32.0));
+						return ud1 | ud2;
+					}
+				case Operator.BitwiseXor:
+					{
+						uint ud1 = (uint)Math.IEEERemainder(d1, Math.Pow(2.0, 32.0));
+						uint ud2 = (uint)Math.IEEERemainder(d2, Math.Pow(2.0, 32.0));
+						return ud1 ^ ud2;
+					}
+				case Operator.BitwiseLShift:
+					{
+						int id1 = (int)Math.IEEERemainder(d1, Math.Pow(2.0, 32.0));
+						int id2 = (int)Math.IEEERemainder(d2, Math.Pow(2.0, 32.0));
+						return id2 < 0 ? id1 >> -id2 : id1 << id2;
+					}
+				case Operator.BitwiseRShift:
+					{
+						int id1 = (int)Math.IEEERemainder(d1, Math.Pow(2.0, 32.0));
+						int id2 = (int)Math.IEEERemainder(d2, Math.Pow(2.0, 32.0));
+						return id2 < 0 ? id1 << -id2 : id1 >> id2;
 					}
 				default:
 					throw new DynamicExpressionException("Unsupported operator {0}", m_Operator);

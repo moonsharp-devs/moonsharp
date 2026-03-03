@@ -32,6 +32,9 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 				case "-":
 					bc.Emit_Operator(OpCode.Neg);
 					break;
+				case "~":
+					bc.Emit_Operator(OpCode.BitwiseNot);
+					break;
 				default:
 					throw new InternalErrorException("Unexpected unary operator '{0}'", m_OpText);
 			}
@@ -55,6 +58,18 @@ namespace MoonSharp.Interpreter.Tree.Expressions
 
 						if (d.HasValue)
 							return DynValue.NewNumber(-d.Value);
+
+						throw new DynamicExpressionException("Attempt to perform arithmetic on non-numbers.");
+					}
+				case "~":
+					{
+						double? d = v.CastToNumber();
+
+						if (d.HasValue)
+						{
+							uint ud = (uint)Math.IEEERemainder(d.Value, Math.Pow(2.0, 32.0));
+							return DynValue.NewNumber(~ud);
+						}
 
 						throw new DynamicExpressionException("Attempt to perform arithmetic on non-numbers.");
 					}

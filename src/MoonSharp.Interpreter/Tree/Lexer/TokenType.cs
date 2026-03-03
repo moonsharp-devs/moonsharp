@@ -15,7 +15,7 @@ namespace MoonSharp.Interpreter.Tree
 		False,
 		For,
 		Function,
-		Lambda,
+		Op_BitwiseOr_Or_Lambda,
 		Goto,
 		If,
 		In,
@@ -52,6 +52,7 @@ namespace MoonSharp.Interpreter.Tree
 		Op_Pwr,
 		Op_Mod,
 		Op_Div,
+		Op_FloorDiv,
 		Op_Mul,
 		Op_MinusOrSub,
 		Op_Add,
@@ -68,6 +69,11 @@ namespace MoonSharp.Interpreter.Tree
 
 		Brk_Open_Curly_Shared,
 		Op_Dollar,
+
+		Op_BitwiseAnd,
+		Op_BitwiseXor_Or_BitwiseNot,
+		Op_BitwiseLShift,
+		Op_BitwiseRShift
 	}
 
 
