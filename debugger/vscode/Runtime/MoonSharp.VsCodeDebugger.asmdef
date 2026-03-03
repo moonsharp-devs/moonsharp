@@ -1,0 +1,16 @@
+{
+  "name": "MoonSharp.VsCodeDebugger",
+  "rootNamespace": "MoonSharp.VsCodeDebugger",
+  "references": [
+    "MoonSharp.Interpreter"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

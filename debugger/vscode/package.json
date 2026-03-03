@@ -1,0 +1,14 @@
+{
+  "name": "org.moonsharp.debugger.vscode",
+  "version": "3.0.0-beta.1",
+  "displayName": "MoonSharp VSCode Debugger",
+  "description": "Optional VSCode debug server for MoonSharp.",
+  "unity": "2020.3",
+  "author": {
+    "name": "MoonSharp Contributors"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "org.moonsharp.moonsharp": "3.0.0-beta.1"
+  }
+}
