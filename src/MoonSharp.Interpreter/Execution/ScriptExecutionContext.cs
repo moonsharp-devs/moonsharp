@@ -54,6 +54,17 @@ namespace MoonSharp.Interpreter
 			} 
 		}
 
+		public SourceRef GetFunctionSourceCodeRef(Closure fn)
+		{
+			var i = fn.EntryPointByteCodeLocation;
+			return m_Processor.FindMeta(ref i).SourceCodeRef;
+		}
+
+		public string GetFunctionName(Closure fn)
+		{
+			var i = fn.EntryPointByteCodeLocation;
+			return m_Processor.FindMeta(ref i).Name;
+		}
 
 		/// <summary>
 		/// Gets the metatable associated with the given value.

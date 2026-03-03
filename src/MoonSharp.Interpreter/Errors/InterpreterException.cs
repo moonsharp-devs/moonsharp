@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using MoonSharp.Interpreter.Debugging;
 
 namespace MoonSharp.Interpreter
@@ -86,11 +87,36 @@ namespace MoonSharp.Interpreter
 				}
 				else if (sref != null)
 				{
-					this.DecoratedMessage = string.Format("{0}: {1}", sref.FormatLocation(script), this.Message);
+					var buffer = new StringBuilder($"{sref.FormatLocation(script)}: {this.Message}");
+					if (CallStack != null)
+					{
+						buffer.AppendLine();
+						foreach (var item in CallStack)
+							if (item.Location != null)
+								buffer.AppendLine($"{item.Location.FormatLocation(script)}: {item.Name}");
+							else
+								buffer.AppendLine($"unknown: {item.Name}");
+					}
+					else
+						new object();
+
+					this.DecoratedMessage = buffer.ToString();
 				}
 				else
 				{
-					this.DecoratedMessage = string.Format("bytecode:{0}: {1}", ip, this.Message);
+					var buffer = new StringBuilder($"bytecode:{ip}: {this.Message}");
+					if (CallStack != null)
+					{
+						buffer.AppendLine();
+						foreach (var item in CallStack)
+							if (item.Location != null)
+								buffer.AppendLine($"{item.Location.FormatLocation(script)}: {item.Name}");
+							else
+								buffer.AppendLine($"unknown: {item.Name}");
+					}
+					else
+						new object();
+					this.DecoratedMessage = buffer.ToString();
 				}
 			}
 		}
