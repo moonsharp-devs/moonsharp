@@ -44,13 +44,13 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 
 
-		private int Internal_InvokeUnaryMetaMethod(DynValue op1, string eventName, int instructionPtr)
+		private int Internal_InvokeUnaryMetaMethod(ExecutionControlToken ecToken, DynValue op1, string eventName, int instructionPtr)
 		{
 			DynValue m = null;
 
 			if (op1.Type == DataType.UserData)
 			{
-				m = op1.UserData.Descriptor.MetaIndex(m_Script, op1.UserData.Object, eventName);
+				m = op1.UserData.Descriptor.MetaIndex(ecToken, m_Script, op1.UserData.Object, eventName);
 			}
 
 			if (m == null)
@@ -69,16 +69,16 @@ namespace MoonSharp.Interpreter.Execution.VM
 			{
 				m_ValueStack.Push(m);
 				m_ValueStack.Push(op1);
-				return Internal_ExecCall(1, instructionPtr);
+				return Internal_ExecCall(ecToken, 1, instructionPtr);
 			}
 			else
 			{
 				return -1;
 			}
 		}
-		private int Internal_InvokeBinaryMetaMethod(DynValue l, DynValue r, string eventName, int instructionPtr, DynValue extraPush = null)
+		private int Internal_InvokeBinaryMetaMethod(ExecutionControlToken ecToken, DynValue l, DynValue r, string eventName, int instructionPtr, DynValue extraPush = null)
 		{
-			var m = GetBinaryMetamethod(l, r, eventName);
+			var m = GetBinaryMetamethod(ecToken, l, r, eventName);
 
 			if (m != null)
 			{
@@ -88,7 +88,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				m_ValueStack.Push(m);
 				m_ValueStack.Push(l);
 				m_ValueStack.Push(r);
-				return Internal_ExecCall(2, instructionPtr);
+				return Internal_ExecCall(ecToken, 2, instructionPtr);
 			}
 			else
 			{

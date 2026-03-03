@@ -61,7 +61,7 @@ namespace MoonSharp.Interpreter.Interop
 		}
 
 
-		public DynValue Index(Script script, DynValue index, bool isDirectIndexing)
+		public DynValue Index(ExecutionControlToken ecToken, Script script, DynValue index, bool isDirectIndexing)
 		{
 			if (index.Type == DataType.String)
 			{
@@ -83,12 +83,12 @@ namespace MoonSharp.Interpreter.Interop
 			return null;
 		}
 
-		public bool SetIndex(Script script, DynValue index, DynValue value, bool isDirectIndexing)
+		public bool SetIndex(ExecutionControlToken ecToken, Script script, DynValue index, DynValue value, bool isDirectIndexing)
 		{
 			return false;
 		}
 
-		public DynValue MetaIndex(Script script, string metaname)
+		public DynValue MetaIndex(ExecutionControlToken ecToken, Script script, string metaname)
 		{
 			if (metaname == "__call")
 				return DynValue.NewCallback(LuaIteratorCallback);

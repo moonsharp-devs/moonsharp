@@ -291,12 +291,12 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 				get { return typeof(SomeOtherClassCustomDescriptor); }
 			}
 
-			public DynValue Index(Script script, object obj, DynValue index, bool dummy)
+			public DynValue Index(ExecutionControlToken ecToken, Script script, object obj, DynValue index, bool dummy)
 			{
 				return DynValue.NewNumber(index.Number * 4);
 			}
 
-			public bool SetIndex(Script script, object obj, DynValue index, DynValue value, bool dummy)
+			public bool SetIndex(ExecutionControlToken ecToken, Script script, object obj, DynValue index, DynValue value, bool dummy)
 			{
 				throw new NotImplementedException();
 			}
@@ -306,7 +306,7 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 				return null;
 			}
 
-			public DynValue MetaIndex(Script script, object obj, string metaname)
+			public DynValue MetaIndex(ExecutionControlToken ecToken, Script script, object obj, string metaname)
 			{
 				return null;
 			}
@@ -322,17 +322,17 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 		public class SelfDescribingClass : IUserDataType
 		{
-			public DynValue Index(Script script, DynValue index, bool isNameIndex)
+			public DynValue Index(ExecutionControlToken ecToken, Script script, DynValue index, bool isNameIndex)
 			{
 				return DynValue.NewNumber(index.Number * 3);
 			}
 
-			public bool SetIndex(Script script, DynValue index, DynValue value, bool isNameIndex)
+			public bool SetIndex(ExecutionControlToken ecToken, Script script, DynValue index, DynValue value, bool isNameIndex)
 			{
 				throw new NotImplementedException();
 			}
 
-			public DynValue MetaIndex(Script script, string metaname)
+			public DynValue MetaIndex(ExecutionControlToken ecToken, Script script, string metaname)
 			{
 				throw new NotImplementedException();
 			}

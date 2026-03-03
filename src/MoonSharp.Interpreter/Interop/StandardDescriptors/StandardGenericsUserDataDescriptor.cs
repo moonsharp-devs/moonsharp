@@ -37,13 +37,13 @@ namespace MoonSharp.Interpreter.Interop
 		public Type Type { get; private set; }
 
 		/// <inheritdoc/>
-		public DynValue Index(Script script, object obj, DynValue index, bool isDirectIndexing)
+		public DynValue Index(ExecutionControlToken ecToken, Script script, object obj, DynValue index, bool isDirectIndexing)
 		{
 			return null;
 		}
 
 		/// <inheritdoc/>
-		public bool SetIndex(Script script, object obj, DynValue index, DynValue value, bool isDirectIndexing)
+		public bool SetIndex(ExecutionControlToken ecToken, Script script, object obj, DynValue index, DynValue value, bool isDirectIndexing)
 		{
 			return false;
 		}
@@ -55,7 +55,7 @@ namespace MoonSharp.Interpreter.Interop
 		}
 
 		/// <inheritdoc/>
-		public DynValue MetaIndex(Script script, object obj, string metaname)
+		public DynValue MetaIndex(ExecutionControlToken ecToken, Script script, object obj, string metaname)
 		{
 			return null;
 		}

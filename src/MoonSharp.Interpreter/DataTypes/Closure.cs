@@ -1,4 +1,7 @@
 ﻿using System.Collections.Generic;
+#if HASDYNAMIC
+using System.Threading.Tasks;
+#endif
 using MoonSharp.Interpreter.Execution;
 
 namespace MoonSharp.Interpreter
@@ -101,6 +104,50 @@ namespace MoonSharp.Interpreter
 		{
 			return OwnerScript.Call(this, args);
 		}
+
+
+#if HASDYNAMIC
+		/// <summary>
+		/// Asynchronously calls this function with the specified args
+		/// 
+		/// This method is supported only on .NET 4.x and .NET 4.x PCL targets.
+		/// </summary>
+		/// <param name="function">The function.</param>
+		/// <returns></returns>
+		/// <exception cref="System.ArgumentException">Thrown if function is not of DataType.Function</exception>
+		public Task<DynValue> CallAsync(ExecutionControlToken ecToken)
+		{
+			return OwnerScript.CallAsync(ecToken, this);
+		}
+
+		/// <summary>
+		/// Asynchronously calls this function with the specified args
+		/// 
+		/// This method is supported only on .NET 4.x and .NET 4.x PCL targets.
+		/// </summary>
+		/// <param name="function">The function.</param>
+		/// <param name="args">The arguments to pass to the function.</param>
+		/// <returns></returns>
+		/// <exception cref="System.ArgumentException">Thrown if function is not of DataType.Function</exception>
+		public Task<DynValue> CallAsync(ExecutionControlToken ecToken, params object[] args)
+		{
+			return OwnerScript.CallAsync(ecToken, this, args);
+		}
+
+		/// <summary>
+		/// Asynchronously calls this function with the specified args
+		/// 
+		/// This method is supported only on .NET 4.x and .NET 4.x PCL targets.
+		/// </summary>
+		/// <param name="function">The function.</param>
+		/// <param name="args">The arguments to pass to the function.</param>
+		/// <returns></returns>
+		/// <exception cref="System.ArgumentException">Thrown if function is not of DataType.Function</exception>
+		public Task<DynValue> CallAsync(ExecutionControlToken ecToken, params DynValue[] args)
+		{
+			return OwnerScript.CallAsync(ecToken, this, args);
+		}
+#endif
 
 
 		/// <summary>

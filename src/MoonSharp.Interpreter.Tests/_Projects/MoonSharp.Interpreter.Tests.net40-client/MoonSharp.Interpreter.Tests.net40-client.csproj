@@ -213,6 +213,7 @@
     <Compile Include="..\..\_Hardwired.cs">
       <Link>_Hardwired.cs</Link>
     </Compile>
+    <Compile Include="..\..\EndToEnd\AsyncTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\MoonSharp.Interpreter\_Projects\MoonSharp.Interpreter.net40-client\MoonSharp.Interpreter.net40-client.csproj">
