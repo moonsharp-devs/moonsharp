@@ -31,7 +31,7 @@ namespace MoonSharp.Interpreter.Loaders
 		public UnityAssetsScriptLoader(string assetsPath = null)
 		{
 			assetsPath = assetsPath ?? DEFAULT_PATH;
-#if UNITY_5
+#if UNITY_5 || UNITY_2017_1_OR_NEWER
             LoadResourcesUnityNative(assetsPath);
 #else
 			LoadResourcesWithReflection(assetsPath);
@@ -48,7 +48,7 @@ namespace MoonSharp.Interpreter.Loaders
 			m_Resources = scriptToCodeMap;
 		}
 
-#if UNITY_5
+#if UNITY_5 || UNITY_2017_1_OR_NEWER
         void LoadResourcesUnityNative(string assetsPath)
         {
             try

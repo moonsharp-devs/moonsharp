@@ -84,7 +84,7 @@ namespace MoonSharp.Interpreter.Platforms
 			IsUnityNative = true;
 #endif
 #else
-#if UNITY_5
+#if UNITY_5 || UNITY_2017_1_OR_NEWER
 			IsRunningOnUnity = true;
 			IsUnityNative = true;
 
