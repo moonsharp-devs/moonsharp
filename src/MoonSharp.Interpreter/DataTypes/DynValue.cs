@@ -687,7 +687,7 @@ namespace MoonSharp.Interpreter
 			DynValue rv = ToScalar();
 			if (rv.Type == DataType.Number)
 			{
-				return rv.Number.ToString();
+				return rv.Number.ToString(CultureInfo.InvariantCulture);
 			}
 			else if (rv.Type == DataType.String)
 			{
