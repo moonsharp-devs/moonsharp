@@ -289,7 +289,7 @@ namespace MoonSharp.Interpreter
 		/// <summary>
 		/// Creates a new request for a yield of the current coroutine.
 		/// </summary>
-		/// <param name="args">The yield argumenst.</param>
+		/// <param name="args">The yield arguments.</param>
 		/// <returns></returns>
 		public static DynValue NewYieldReq(DynValue[] args)
 		{
@@ -303,7 +303,7 @@ namespace MoonSharp.Interpreter
 		/// <summary>
 		/// Creates a new request for a yield of the current coroutine.
 		/// </summary>
-		/// <param name="args">The yield argumenst.</param>
+		/// <param name="args">The yield arguments.</param>
 		/// <returns></returns>
 		internal static DynValue NewForcedYieldReq()
 		{

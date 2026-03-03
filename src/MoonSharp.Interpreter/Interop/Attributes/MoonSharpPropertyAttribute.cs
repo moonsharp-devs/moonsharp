@@ -4,7 +4,7 @@ namespace MoonSharp.Interpreter
 {
 
 	/// <summary>
-	/// Marks a property as a configruation property
+	/// Marks a property as a configuration property
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Property, Inherited = true, AllowMultiple = true)]
 	public sealed class MoonSharpPropertyAttribute : Attribute
