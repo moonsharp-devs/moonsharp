@@ -1205,20 +1205,20 @@ namespace MoonSharp.Interpreter.Execution.VM
 			tbl.Table.Set(key, val.ToScalar());
 		}
 
+		DynValue lastBurnedValueInIndexSet;
 		private int ExecIndexSet(Instruction i, int instructionPtr)
 		{
 			int nestedMetaOps = 100; // sanity check, to avoid potential infinite loop here
 
 			// stack: vals.. - base - index
 			bool isNameIndex = i.OpCode == OpCode.IndexSetN;
-			bool isMultiIndex = (i.OpCode == OpCode.IndexSetL);
+			bool isMultiIndex = i.OpCode == OpCode.IndexSetL;
 
 			DynValue originalIdx = i.Value ?? m_ValueStack.Pop();
 			DynValue idx = originalIdx.ToScalar();
 			DynValue obj = m_ValueStack.Pop().ToScalar();
-			var value = GetStoreValue(i);
-			DynValue h = null;
-
+			DynValue value = GetStoreValue(i);
+			DynValue newIndexMetaMethod;
 
 			while (nestedMetaOps > 0)
 			{
@@ -1235,9 +1235,9 @@ namespace MoonSharp.Interpreter.Execution.VM
 						}
 					}
 
-					h = GetMetamethodRaw(obj, "__newindex");
+					newIndexMetaMethod = GetMetamethodRaw(obj, "__newindex");
 
-					if (h == null || h.IsNil())
+					if (newIndexMetaMethod == null || newIndexMetaMethod.IsNil())
 					{
 						if (isMultiIndex) throw new ScriptRuntimeException("cannot multi-index a table. userdata expected");
 
@@ -1258,18 +1258,30 @@ namespace MoonSharp.Interpreter.Execution.VM
 				}
 				else
 				{
-					h = GetMetamethodRaw(obj, "__newindex");
+					newIndexMetaMethod = GetMetamethodRaw(obj, "__newindex");
 
-					if (h == null || h.IsNil())
+					if (newIndexMetaMethod == null || newIndexMetaMethod.IsNil())
 						throw ScriptRuntimeException.IndexType(obj);
 				}
 
-				if (h.Type == DataType.Function || h.Type == DataType.ClrFunction)
+				if (newIndexMetaMethod.Type == DataType.Function || newIndexMetaMethod.Type == DataType.ClrFunction)
 				{
 					if (isMultiIndex) throw new ScriptRuntimeException("cannot multi-index through metamethods. userdata expected");
-					m_ValueStack.Pop(); // burn extra value ?
 
-					m_ValueStack.Push(h);
+					// Burn extra value
+					DynValue burnedValue = m_ValueStack.Pop();
+					if (burnedValue.Type != DataType.Void)
+					{
+						lastBurnedValueInIndexSet = burnedValue;
+					}
+					// Restore burned value
+					if (value.Type == DataType.Void && lastBurnedValueInIndexSet != null)
+					{
+						value = lastBurnedValueInIndexSet;
+						lastBurnedValueInIndexSet = null;
+					}
+
+					m_ValueStack.Push(newIndexMetaMethod);
 					m_ValueStack.Push(obj);
 					m_ValueStack.Push(idx);
 					m_ValueStack.Push(value);
@@ -1277,8 +1289,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 				}
 				else
 				{
-					obj = h;
-					h = null;
+					obj = newIndexMetaMethod;
 				}
 			}
 			throw ScriptRuntimeException.LoopInNewIndex();
@@ -1290,14 +1301,13 @@ namespace MoonSharp.Interpreter.Execution.VM
 
 			// stack: base - index
 			bool isNameIndex = i.OpCode == OpCode.IndexN;
-
-			bool isMultiIndex = (i.OpCode == OpCode.IndexL);
+			bool isMultiIndex = i.OpCode == OpCode.IndexL;
 
 			DynValue originalIdx = i.Value ?? m_ValueStack.Pop();
 			DynValue idx = originalIdx.ToScalar();
 			DynValue obj = m_ValueStack.Pop().ToScalar();
 
-			DynValue h = null;
+			DynValue indexMetaMethod;
 
 
 			while (nestedMetaOps > 0)
@@ -1317,9 +1327,9 @@ namespace MoonSharp.Interpreter.Execution.VM
 						}
 					}
 
-					h = GetMetamethodRaw(obj, "__index");
+					indexMetaMethod = GetMetamethodRaw(obj, "__index");
 
-					if (h == null || h.IsNil())
+					if (indexMetaMethod == null || indexMetaMethod.IsNil())
 					{
 						if (isMultiIndex) throw new ScriptRuntimeException("cannot multi-index a table. userdata expected");
 
@@ -1343,33 +1353,27 @@ namespace MoonSharp.Interpreter.Execution.VM
 				}
 				else
 				{
-					h = GetMetamethodRaw(obj, "__index");
+					indexMetaMethod = GetMetamethodRaw(obj, "__index");
 
-					if (h == null || h.IsNil())
+					if (indexMetaMethod == null || indexMetaMethod.IsNil())
 						throw ScriptRuntimeException.IndexType(obj);
 				}
 
-				if (h.Type == DataType.Function || h.Type == DataType.ClrFunction)
+				if (indexMetaMethod.Type == DataType.Function || indexMetaMethod.Type == DataType.ClrFunction)
 				{
 					if (isMultiIndex) throw new ScriptRuntimeException("cannot multi-index through metamethods. userdata expected");
-					m_ValueStack.Push(h);
+					m_ValueStack.Push(indexMetaMethod);
 					m_ValueStack.Push(obj);
 					m_ValueStack.Push(idx);
 					return Internal_ExecCall(2, instructionPtr);
 				}
 				else
 				{
-					obj = h;
-					h = null;
+					obj = indexMetaMethod;
 				}
 			}
 
 			throw ScriptRuntimeException.LoopInIndex();
 		}
-
-
-
-
-
 	}
 }
