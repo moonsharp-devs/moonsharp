@@ -161,6 +161,12 @@ namespace MoonSharp.Interpreter
 
 		private void PerformTableSet<T>(LinkedListIndex<T, TablePair> listIndex, T key, DynValue keyDynValue, DynValue value, bool isNumber, int appendKey)
 		{
+			if (value == null)
+			{
+				PerformTableRemove(listIndex, key, isNumber);
+				return;
+			}
+
 			TablePair prev = listIndex.Set(key, new TablePair(keyDynValue, value));
 
 			// If this is an insert, we can invalidate all iterators and collect dead keys
