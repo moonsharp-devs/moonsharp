@@ -3,11 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
+/*
 namespace System.Diagnostics
 {
 	internal class Stopwatch
 	{
+		
 		DateTime startTime, stopTime;
 
 		public void Start() 
@@ -38,4 +39,5 @@ namespace System.Diagnostics
 
 	}
 }
+*/
 #endif

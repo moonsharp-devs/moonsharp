@@ -1,0 +1,71 @@
+<Project ToolsVersion="15.0">
+
+  <PropertyGroup>
+
+    <GenerateLibraryLayout>true</GenerateLibraryLayout>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+
+	<!--
+	Force all projects of this folder to use a different output
+	path to avoid intermediate output collisions
+	-->
+  	<BaseOutputPath>bin\$(MSBuildProjectName)</BaseOutputPath>
+  	<BaseIntermediateOutputPath>obj\$(MSBuildProjectName)</BaseIntermediateOutputPath>
+  	<DefaultItemExcludes>$(DefaultItemExcludes);obj/**;bin/**</DefaultItemExcludes>
+  
+  	<PublishRepositoryUrl>true</PublishRepositoryUrl>
+  	<EmbedUntrackedSources>true</EmbedUntrackedSources>
+  	<IncludeSymbols>true</IncludeSymbols>
+  	<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Authors>Ben Askren</Authors>
+    <Company>42nd Parallel, LLC</Company>
+    <Description>Convenience classes for Serilog logging</Description>
+    <Copyright>2023, 4nd Parallel</Copyright>
+    <PackageProjectUrl>https://github.com/baskren/P42.Serilog.QuickLog</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/baskren/P42.Serilog.QuickLog</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReleaseNotes>Inital Public Release</PackageReleaseNotes>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+	<PackageIcon>moonsharp.png</PackageIcon>
+	<PackageReadmeFile>README.md</PackageReadmeFile>
+
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)'=='Debug' ">
+        <DebugSymbols>true</DebugSymbols>
+    </PropertyGroup>
+
+	<ItemGroup>
+		<None Include="..\..\..\..\moonsharp.png" Pack="true" PackagePath="\" />
+		<None Include="..\..\..\..\README.md" Pack="true" PackagePath="\" />
+		<None Include="..\..\..\..\LICENSE" Pack="true" PackagePath="\" />
+	</ItemGroup>
+  
+    <!-- PROJECT REFERENCES -->
+    <ItemGroup>
+  	    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All"/>
+    </ItemGroup>	
+	
+    <!-- https://docs.microsoft.com/en-us/visualstudio/msbuild/msbuild-targets?view=vs-2022#default-build-targets -->
+    <Target Name="B1" BeforeTargets="BeforeBuild">
+        <Message Text=" " Importance="high"/>
+        <Message Text=" " Importance="high"/>
+        <Message Text=" " Importance="high"/>
+        <Message Text="===============================  [ $(AssemblyName) : $(TargetFramework) : $(Configuration) : $(P42TargetPlatform) : $(Version) ] ===============================" Importance="high"/>
+        <Message Text="COMPILE: ($Compile)"/>
+    </Target>
+  
+    <Target Name="NuGetMove" AfterTargets="Pack" Condition=" $(LocalNuGet) != '' AND $(P42TargetPlatform) == '' ">
+        <Message Text=" " Importance="high"/>
+        <Message Text=" " Importance="high"/>
+        <Message Text=" " Importance="high"/>
+        <Message Text="=============================== NUGET PACK [$(AssemblyName) : $(TargetFramework) : $(Configuration) : $(P42TargetPlatform) : $(Version) ] ===============================" Importance="high"/>
+        <Message Importance="high" Text="NuGetPath= $([System.IO.Path]::Combine('.',bin,$(Configuration),$(AssemblyName).$(Version).nupkg)) "/>
+        <Move SourceFiles="$([System.IO.Path]::Combine('.',bin,$(Configuration),$(AssemblyName).$(Version).nupkg))"  DestinationFolder=" $(LocalNuGet) " />
+        <Move SourceFiles="$([System.IO.Path]::Combine('.',bin,$(Configuration),$(AssemblyName).$(Version).snupkg))" DestinationFolder=" $(LocalNuGet) " />
+        <Message Importance="high" Text="PACKAGE SAVED TO:  $(LocalNuGet)) " />
+    </Target>   
+
+</Project>
