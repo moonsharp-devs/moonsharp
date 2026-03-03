@@ -27,6 +27,8 @@ namespace MoonSharp.Interpreter
 			this.ScriptLoader = defaults.ScriptLoader;
 
 			this.CheckThreadAccess = defaults.CheckThreadAccess;
+
+			this.LocalTimeZoneInfo = defaults.LocalTimeZoneInfo;
 		}
 
 		/// <summary>
@@ -88,13 +90,17 @@ namespace MoonSharp.Interpreter
 		/// Gets or sets a value indicating whether the thread check is enabled.
 		/// A "lazy" thread check is performed everytime execution is entered to ensure that no two threads
 		/// calls MoonSharp execution concurrently. However 1) the check is performed best effort (thus, it might
-		/// not detect all issues) and 2) it might trigger in very odd legal situations (like, switching threads 
+		/// not detect all issues) and 2) it might trigger in very odd legal situations (like, switching threads
 		/// inside a CLR-callback without actually having concurrency.
-		/// 
+		///
 		/// Disable this option if the thread check is giving problems in your scenario, but please check that
 		/// you are not calling MoonSharp execution concurrently as it is not supported.
 		/// </summary>
 		public bool CheckThreadAccess { get; set; }
 
+		/// <summary>
+		/// Gets or sets the local time zone. If null, TimeZoneInfo.Local is used.
+		/// </summary>
+		public TimeZoneInfo LocalTimeZoneInfo { get; set; }
 	}
 }

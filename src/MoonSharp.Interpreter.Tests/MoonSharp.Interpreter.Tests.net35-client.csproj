@@ -135,6 +135,7 @@
     <Compile Include="EndToEnd\StringLibTests.cs" />
     <Compile Include="EndToEnd\StructAssignmentTechnique.cs" />
     <Compile Include="EndToEnd\TailCallTests.cs" />
+    <Compile Include="EndToEnd\TimeZoneTests.cs" />
     <Compile Include="EndToEnd\UserDataEventsTests.cs" />
     <Compile Include="EndToEnd\UserDataEnumsTest.cs" />
     <Compile Include="EndToEnd\UserDataNestedTypesTests.cs" />
