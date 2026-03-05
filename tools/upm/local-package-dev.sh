@@ -2,20 +2,22 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-VERSION="${1:-2.0.0-local}"
+VERSION="${1:-2.0.0-local-dev}"
 source "$REPO_ROOT/tools/upm/upm-common.sh"
 
+DEV_ROOT="$REPO_ROOT/.upm-dev"
+
 CORE_SRC_DIR="$REPO_ROOT/src/MoonSharp.Interpreter"
-CORE_OUT_DIR="$REPO_ROOT/.upm-staging/org.moonsharp.moonsharp"
+CORE_OUT_DIR="$DEV_ROOT/org.moonsharp.moonsharp"
 
 DEBUG_SRC_DIR="$REPO_ROOT/src/MoonSharp.VsCodeDebugger"
-DEBUG_OUT_DIR="$REPO_ROOT/.upm-staging/org.moonsharp.debugger.vscode"
+DEBUG_OUT_DIR="$DEV_ROOT/org.moonsharp.debugger.vscode"
 
 stage_core_package() {
   rm -rf "$CORE_OUT_DIR"
   mkdir -p "$CORE_OUT_DIR/Runtime"
 
-  upm_rsync_filtered "$CORE_SRC_DIR" "$CORE_OUT_DIR/Runtime"
+  upm_link_top_level_entries "$CORE_SRC_DIR" "$CORE_OUT_DIR/Runtime"
 
   cat > "$CORE_OUT_DIR/package.json" <<JSON
 {
@@ -49,28 +51,24 @@ JSON
 JSON
 
   cp "$REPO_ROOT/LICENSE" "$CORE_OUT_DIR/LICENSE"
-
   cat > "$CORE_OUT_DIR/README.md" <<README
-# MoonSharp Unity Package
+# MoonSharp Unity Package (Dev Symlink Layout)
 
-Install options:
-
-1. Local path in Unity \`manifest.json\`:
-   \`"org.moonsharp.moonsharp": "file:$CORE_OUT_DIR"\`
-2. Tarball via Unity Package Manager:
-   Use "Add package from tarball..." and select a release \`.tgz\` asset.
+Install in Unity \`manifest.json\`:
+\`"org.moonsharp.moonsharp": "file:$CORE_OUT_DIR"\`
 README
 
-  generate_unity_metas_recursive "$CORE_OUT_DIR" "org.moonsharp.moonsharp"
+  generate_unity_metas_shallow "$CORE_OUT_DIR/Runtime" "org.moonsharp.moonsharp"
+  generate_unity_metas_shallow "$CORE_OUT_DIR" "org.moonsharp.moonsharp"
 
-  echo "Staged: $CORE_OUT_DIR"
+  echo "Staged dev package: $CORE_OUT_DIR"
 }
 
 stage_vscode_debugger_package() {
   rm -rf "$DEBUG_OUT_DIR"
   mkdir -p "$DEBUG_OUT_DIR/Runtime"
 
-  upm_rsync_filtered "$DEBUG_SRC_DIR" "$DEBUG_OUT_DIR/Runtime"
+  upm_link_top_level_entries "$DEBUG_SRC_DIR" "$DEBUG_OUT_DIR/Runtime"
 
   cat > "$DEBUG_OUT_DIR/package.json" <<JSON
 {
@@ -109,21 +107,17 @@ JSON
 JSON
 
   cp "$REPO_ROOT/LICENSE" "$DEBUG_OUT_DIR/LICENSE"
-
   cat > "$DEBUG_OUT_DIR/README.md" <<README
-# MoonSharp VSCode Debugger Unity Package
+# MoonSharp VSCode Debugger Unity Package (Dev Symlink Layout)
 
-Install options:
-
-1. Local path in Unity \`manifest.json\`:
-   \`"org.moonsharp.debugger.vscode": "file:$DEBUG_OUT_DIR"\`
-2. Tarball via Unity Package Manager:
-   Use "Add package from tarball..." and select a release \`.tgz\` asset.
+Install in Unity \`manifest.json\`:
+\`"org.moonsharp.debugger.vscode": "file:$DEBUG_OUT_DIR"\`
 README
 
-  generate_unity_metas_recursive "$DEBUG_OUT_DIR" "org.moonsharp.debugger.vscode"
+  generate_unity_metas_shallow "$DEBUG_OUT_DIR/Runtime" "org.moonsharp.debugger.vscode"
+  generate_unity_metas_shallow "$DEBUG_OUT_DIR" "org.moonsharp.debugger.vscode"
 
-  echo "Staged: $DEBUG_OUT_DIR"
+  echo "Staged dev package: $DEBUG_OUT_DIR"
 }
 
 stage_core_package
