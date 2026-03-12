@@ -26,7 +26,6 @@ namespace MoonSharp.Interpreter.Execution
 				case OpCode.Scalar:
 				case OpCode.IterUpd:
 				case OpCode.IterPrep:
-				case OpCode.NewTable:
 				case OpCode.Concat:
 				case OpCode.LessEq:
 				case OpCode.Less:
@@ -44,6 +43,7 @@ namespace MoonSharp.Interpreter.Execution
 				case OpCode.ToBool:
 					return InstructionFieldUsage.None;
 				case OpCode.Pop:
+				case OpCode.NewTable:
 				case OpCode.Copy:
 				case OpCode.TblInitI:
 				case OpCode.ExpTuple:
