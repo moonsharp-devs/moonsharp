@@ -36,6 +36,7 @@ namespace MoonSharp.VsCodeDebugger.DebuggerLogic
 		readonly Dictionary<Script, int> m_ThreadIdByScript = new Dictionary<Script, int>();
 		readonly Dictionary<int, VariableReferenceState> m_VariableReferencesById = new Dictionary<int, VariableReferenceState>();
 
+		string m_ClientBasePath;
 		int m_NextThreadId = 1;
 		int m_NextVariableReferenceId = 1;
 		int m_SelectedThreadId = -1;
@@ -332,6 +333,7 @@ namespace MoonSharp.VsCodeDebugger.DebuggerLogic
 
 		public override void Attach(Response response, Table arguments)
 		{
+			m_ClientBasePath = arguments?["path"]?.ToString();
 			SendResponse(response);
 		}
 
@@ -545,6 +547,13 @@ namespace MoonSharp.VsCodeDebugger.DebuggerLogic
 				SourceRef sourceRef = frame.Location ?? DefaultSourceRef;
 				int sourceIdx = sourceRef.SourceIdx;
 				string sourceFile = state.Debugger.GetSourceFile(sourceIdx);
+
+				// If the source path is relative and the client provided a base path, combine them
+				if (sourceFile != null && m_ClientBasePath != null && !Path.IsPathRooted(sourceFile))
+				{
+					sourceFile = Path.Combine(m_ClientBasePath, sourceFile);
+				}
+
 				SourceCode sourceCode = state.Debugger.GetSource(sourceIdx);
 				bool sourceAvailable = !sourceRef.IsClrLocation && sourceCode != null;
 				int sourceReference = sourceAvailable ? EncodeSourceReference(state.ThreadId, sourceIdx) : 0;
@@ -788,6 +797,15 @@ namespace MoonSharp.VsCodeDebugger.DebuggerLogic
 					foreach (var threadState in m_ThreadsById.Values)
 					{
 						SourceCode threadSource = threadState.Debugger.FindSourceByName(path);
+
+						// If no match and client provided a base path, try matching with the relative path
+						if (threadSource == null && m_ClientBasePath != null
+							&& path.StartsWith(m_ClientBasePath, StringComparison.Ordinal))
+						{
+							string relativePath = path.Substring(m_ClientBasePath.Length).TrimStart('/', '\\');
+							threadSource = threadState.Debugger.FindSourceByName(relativePath);
+						}
+
 						if (threadSource != null)
 						{
 							source = threadSource;
