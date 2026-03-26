@@ -212,9 +212,9 @@ namespace MoonSharp.Interpreter.Interop
 
 				return BuildReturnValue(script, outParams, pars, retv);
 			}
-			catch (Exception e)
+			catch
 			{
-				throw e;
+				throw;
 			}
 		}
 
