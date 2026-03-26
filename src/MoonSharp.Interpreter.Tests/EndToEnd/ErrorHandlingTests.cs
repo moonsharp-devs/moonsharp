@@ -154,5 +154,36 @@ return a()
 			}
 		}
 
+		private class ClassWithMember
+		{
+			public void MethodWithError()
+			{
+				throw new NullReferenceException();
+			}
+		}
+		
+		[Test]
+		public void Errors_Get_OriginalException_WhenUsingMember()
+		{
+			string luaScript = 
+				@"
+	objectWithMethod.MethodWithError();
+";
+			Script script = new Script(CoreModules.None);
+			
+			UserData.RegisterType<ClassWithMember>();
+
+			script.Globals["objectWithMethod"] = new ClassWithMember();
+
+			try
+			{
+				script.DoString(luaScript);
+			}
+			catch (Exception e)
+			{
+				Assert.IsTrue(e.StackTrace.Contains("MoonSharp.Interpreter.Tests.EndToEnd.ErrorHandlingTests.ClassWithMember.MethodWithError() "), "Exception should contain c# error line");
+			}
+		}
+
 	}
 }
