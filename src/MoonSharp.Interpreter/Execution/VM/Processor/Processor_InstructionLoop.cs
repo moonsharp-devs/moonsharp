@@ -729,9 +729,9 @@ namespace MoonSharp.Interpreter.Execution.VM
 					m_ValueStack.RemoveLast(argsCount + 1);
 					m_ValueStack.Push(ret);
 				}
-				catch (Exception e)
+				catch
 				{
-					throw e;
+					throw;
 				}
 
 				m_ExecutionStack.Pop();

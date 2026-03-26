@@ -127,5 +127,32 @@ return a()
 			Assert.AreEqual("!cba", res.String);
 		}
 
+		private DynValue MethodWithError()
+		{
+			throw new NullReferenceException();
+		}
+		
+		[Test]
+		public void Errors_Get_OriginalException()
+		{
+			string luaScript = 
+@"
+	callMethodWithError();
+";
+			Script script = new Script(CoreModules.None);
+
+			script.Globals["callMethodWithError"] = DynValue.NewCallback((c, a) => MethodWithError());
+
+			try
+			{
+				DynValue res = script.DoString(luaScript);
+
+			}
+			catch (Exception e)
+			{
+				Assert.IsTrue(e.StackTrace.Contains("MoonSharp.Interpreter.Tests.EndToEnd.ErrorHandlingTests.MethodWithError()"), "Exception should contain c# error line");
+			}
+		}
+
 	}
 }
