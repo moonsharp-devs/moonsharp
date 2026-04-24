@@ -297,47 +297,153 @@ namespace MoonSharp.Interpreter.CoreLib
 		//}
 
 
-		//[MoonSharpMethod]
-		//public static DynValue getinfo(ScriptExecutionContext executionContext, CallbackArguments args)
-		//{
-		//	Coroutine cor = executionContext.GetCallingCoroutine();
-		//	int vfArgIdx = 0;
+		[MoonSharpModuleMethod]
+		public static DynValue getinfo(ScriptExecutionContext executionContext, CallbackArguments args)
+		{
+			Coroutine cor = executionContext.GetCallingCoroutine();
+			int vfArgIdx = 0;
 
-		//	if (args[0].Type == DataType.Thread)
-		//		cor = args[0].Coroutine;
+			if (args[0].Type == DataType.Thread)
+				cor = args[0].Coroutine;
 
-		//	DynValue vf = args[vfArgIdx+0];
-		//	DynValue vwhat = args[vfArgIdx+1];
-
-		//	args.AsType(vfArgIdx + 1, "getinfo", DataType.String, true);
+			DynValue vf = args[vfArgIdx+0];
+			DynValue vwhat = args[vfArgIdx+1];
 			
-		//	string what = vwhat.CastToString() ?? "nfSlu";
+			//args.AsType(vfArgIdx + 1, "getinfo", DataType.String, true);
+			
+			string what = vwhat.CastToString() ?? "nfSlu";
 
-		//	DynValue vt = DynValue.NewTable(executionContext.GetScript());
-		//	Table t = vt.Table;
+			DynValue vt = DynValue.NewTable(executionContext.GetScript());
+			Table t = vt.Table;
+			if (vf.Type == DataType.Function || vf.Type == DataType.ClrFunction)
+			{
+				GetInfoAboutFunction(t, vf, what, executionContext);
+				return vt;
+			}
+			else if (vf.Type == DataType.Number)
+			{
+				var stackTrace = cor.GetStackTrace((int)vf.Number);
+				if (stackTrace.Length <= 0)
+					return DynValue.Nil;
+				var info = stackTrace[0];
+				if (what.Contains("S"))
+				{
+					var source = executionContext.OwnerScript.GetSourceCode(info.Location.SourceIdx);
+					if (source != null)
+					{
+						t["source"] = source != null ? source.Name : "[C]";
+						t["short_src"] = source.Name.Substring(0, Math.Min(source.Name.Length, 60));
+						t["what"] = "Lua";
+					}
+					else
+					{
+						t["source"] = "[C]";
+						t["short_src"] = "[C]";
+						t["what"] = "C";
+					}
+				}
 
-		//	if (vf.Type == DataType.Function)
-		//	{
-		//		Closure f = vf.Function;
-		//		executionContext.GetInfoForFunction
-		//	}
-		//	else if (vf.Type == DataType.ClrFunction)
-		//	{
+				if (what.Contains("L"))
+				{
 
-		//	}
-		//	else if (vf.Type == DataType.Number || vf.Type == DataType.String)
-		//	{
+				}
 
-		//	}
-		//	else
-		//	{
-		//		args.AsType(vfArgIdx + 0, "getinfo", DataType.Number, true);
-		//	}
+				if (what.Contains("n"))
+				{
 
-		//	return vt;
+				}
 
+				if (what.Contains("u"))
+				{
 
-		//}
+				}
+				t["linedefined"] = info.Location.FromLine;
+				t["lastlinedefined"] = info.Location.ToLine;
+				return vt;
+			}
+			return DynValue.Nil;
+		}
+
+		private static void GetInfoAboutFunction(Table infoTable, DynValue function, string what, ScriptExecutionContext executionContext)
+		{
+			if (function.Type == DataType.Function)
+			{
+				Closure f = function.Function;
+				var sourceRef = executionContext.GetFunctionSourceCodeRef(f);
+				var source = executionContext.OwnerScript.GetSourceCode(sourceRef.SourceIdx);
+				if (what.Contains("S"))
+				{
+					infoTable["source"] = source.Name;
+					infoTable["short_src"] = source.Name.Substring(0, Math.Min(source.Name.Length, 60));
+
+					infoTable["what"] = "Lua";
+				}
+
+				if (what.Contains("L"))
+				{
+					var lines = new Table(executionContext.OwnerScript);
+					for (int i = sourceRef.FromLine; i <= sourceRef.ToLine; i++)
+						lines.Append(DynValue.NewString(source.Lines[i]));
+					infoTable["activelines"] = lines;
+				}
+
+				if (what.Contains("n"))
+				{
+					var name = executionContext.GetFunctionName(f);
+					infoTable["name"] = name;
+					var symbolRef = executionContext.FindSymbolByName(name);
+					switch (symbolRef.Type)
+					{
+						case SymbolRefType.Global:
+							infoTable["namewhat"] = "global";
+							break;
+						case SymbolRefType.Local:
+							infoTable["namewhat"] = "local";
+							break;
+						case SymbolRefType.DefaultEnv:
+							infoTable["namewhat"] = "field";
+							break;
+					}
+				}
+
+				if (what.Contains("u"))
+				{
+					infoTable["nups"] = f.GetUpvaluesCount();
+				}
+
+				infoTable["linedefined"] = sourceRef.FromLine;
+				infoTable["lastlinedefined"] = sourceRef.ToLine;
+			}
+			else if (function.Type == DataType.ClrFunction)
+			{
+				CallbackFunction f = function.Callback;
+				if (what.Contains("S"))
+				{
+					infoTable["source"] = "[C]";
+					infoTable["short_src"] = "[C]";
+					infoTable["what"] = "C";
+				}
+
+				if (what.Contains("n"))
+				{
+					var symbolRef = executionContext.FindSymbolByName(f.Name);
+					infoTable["name"] = f.Name;
+					switch (symbolRef.Type)
+					{
+						case SymbolRefType.Global:
+							infoTable["namewhat"] = "global";
+							break;
+						case SymbolRefType.Local:
+							infoTable["namewhat"] = "local";
+							break;
+						case SymbolRefType.DefaultEnv:
+							infoTable["namewhat"] = "field";
+							break;
+					}
+				}
+			}
+
+		}
 
 	}
 }

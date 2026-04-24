@@ -101,7 +101,7 @@ namespace MoonSharp.Interpreter.CoreLib.StringLib
 		};
 
 
-		public const int MAXCCALLS = 200;
+		public const int MAXCCALLS = 1000;
 		public const char L_ESC = '%';
 		public const string SPECIALS = "^$*+?.([%-";
 
@@ -959,7 +959,7 @@ namespace MoonSharp.Interpreter.CoreLib.StringLib
 						case 's':
 							{
 								uint l;
-								CharPtr s = LuaLCheckLString(L, arg, out l);
+								CharPtr s = LuaLCheckLString(L, arg, out l, true);
 								if ((strchr(form, '.') == null) && l >= 100)
 								{
 									/* no precision and string is too long to be formatted;

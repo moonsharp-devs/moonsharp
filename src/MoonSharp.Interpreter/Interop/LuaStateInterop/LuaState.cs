@@ -59,6 +59,11 @@ namespace MoonSharp.Interpreter.Interop.LuaStateInterop
 			return v;
 		}
 
+		public void Remove(int idx)
+		{
+			m_Stack.RemoveAt(m_Stack.Count - 1);
+		}
+
 		public DynValue[] GetTopArray(int num)
 		{
 			DynValue[] rets = new DynValue[num];
