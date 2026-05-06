@@ -109,13 +109,17 @@ namespace MoonSharp.Interpreter.Interop
 		/// <returns>
 		/// A new MethodMemberDescriptor or null.
 		/// </returns>
-		public static MethodMemberDescriptor TryCreateIfVisible(MethodBase methodBase, InteropAccessMode accessMode, bool forceVisibility = false)
+		public static IMemberDescriptor TryCreateIfVisible(MethodBase methodBase, InteropAccessMode accessMode, bool forceVisibility = false)
 		{
 			if (!CheckMethodIsCompatible(methodBase, false))
 				return null;
 
 			if (forceVisibility || (methodBase.GetVisibilityFromAttributes() ?? methodBase.IsPublic))
+			{
+				if (methodBase.IsGenericMethodDefinition && methodBase is MethodInfo mi)
+					return new GenericMethodMemberDescriptor(mi);
 				return new MethodMemberDescriptor(methodBase, accessMode);
+			}
 
 			return null;
 		}
@@ -127,19 +131,10 @@ namespace MoonSharp.Interpreter.Interop
 		/// <param name="throwException">if set to <c>true</c> an exception with the proper error message is thrown if not compatible.</param>
 		/// <returns></returns>
 		/// <exception cref="System.ArgumentException">
-		/// Thrown if throwException is <c>true</c> and one of this applies:
-		/// The method contains unresolved generic parameters, or has an unresolved generic return type
-		/// or
-		/// The method contains pointer parameters, or has a pointer return type
+		/// Thrown if throwException is <c>true</c> and the method contains pointer parameters, or has a pointer return type
 		/// </exception>
 		public static bool CheckMethodIsCompatible(MethodBase methodBase, bool throwException)
 		{
-			if (methodBase.ContainsGenericParameters)
-			{
-				if (throwException) throw new ArgumentException("Method cannot contain unresolved generic parameters");
-				return false;
-			}
-
 			if (methodBase.GetParameters().Any(p => p.ParameterType.IsPointer))
 			{
 				if (throwException) throw new ArgumentException("Method cannot contain pointer parameters");
