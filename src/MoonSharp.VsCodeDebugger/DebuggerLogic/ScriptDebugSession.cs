@@ -174,7 +174,6 @@ namespace MoonSharp.VsCodeDebugger.DebuggerLogic
 				debugger.Script.AttachDebugger(debugger);
 				if (ClientConnected)
 				{
-					debugger.PauseRequested = true;
 					debugger.Client = state.ClientProxy;
 					SendEvent(new ThreadEvent("started", threadId));
 				}
@@ -234,7 +233,6 @@ namespace MoonSharp.VsCodeDebugger.DebuggerLogic
 				debugger.Script.AttachDebugger(debugger);
 				if (ClientConnected)
 				{
-					debugger.PauseRequested = true;
 					debugger.Client = state.ClientProxy;
 				}
 
@@ -556,7 +554,7 @@ namespace MoonSharp.VsCodeDebugger.DebuggerLogic
 
 				SourceCode sourceCode = state.Debugger.GetSource(sourceIdx);
 				bool sourceAvailable = !sourceRef.IsClrLocation && sourceCode != null;
-				int sourceReference = sourceAvailable ? EncodeSourceReference(state.ThreadId, sourceIdx) : 0;
+				int sourceReference = sourceAvailable && (!Path.IsPathRooted(sourceFile) || !File.Exists(sourceFile)) ? EncodeSourceReference(state.ThreadId, sourceIdx) : 0;
 				string sourcePath = sourceRef.IsClrLocation ? "(native)" : (sourceFile != null ? ConvertDebuggerPathToClient(sourceFile) : null);
 				string sourceName = sourceRef.IsClrLocation
 					? sourcePath
