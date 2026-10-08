@@ -53,7 +53,7 @@ namespace MoonSharp.Interpreter.Execution.Scopes
 		internal int ResolveLRefs(BuildTimeScopeFrame buildTimeScopeFrame)
 		{
 			int firstVal = -1;
-			int lastVal = -1;
+			int lastVal = buildTimeScopeFrame.GetPosForNextVar() - 1;
 
 			foreach (SymbolRef lref in m_DefinedNames.Values)
 			{

@@ -180,6 +180,26 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 		}
 
 		[Test]
+		public void Goto_LabelInEmptyScope_PreservesOuterLocals()
+		{
+			string script = @"
+				local outer = 1
+				if true then
+					-- no locals here
+					if true then
+						local inner
+					end
+					::label::
+				end
+				return outer
+				";
+
+			DynValue res = Script.RunString(script);
+			Assert.AreEqual(DataType.Number, res.Type);
+			Assert.AreEqual(1, res.Number);
+		}
+
+		[Test]
 		public void Goto_JumpOutOfScopes()
 		{
 			string script = @"
