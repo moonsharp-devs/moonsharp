@@ -48,6 +48,24 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			}
 		}
 
+		public class ConstructorCallClass
+		{
+			public ConstructorCallClass()
+			{
+				OptionalProp = 77;
+			}
+
+			public ConstructorCallClass(int intProp)
+				: this()
+			{
+				IntProp = intProp;
+			}
+
+			public int IntProp { get; set; }
+			public int OptionalProp { get; set; }
+			public string Name { get; set; }
+		}
+
 		public void Test_IntPropertyGetter(InteropAccessMode opt)
 		{
 			string script = @"    
@@ -850,6 +868,45 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 			Assert.AreEqual(obj, S.Globals["myobj"]);
 			Assert.AreEqual(19, obj.IntProp);
+		}
+
+		[Test]
+		public void Interop_TypeCallInvokesConstructor()
+		{
+			Script S = new Script();
+
+			UserData.UnregisterType<ConstructorCallClass>();
+			UserData.RegisterType<ConstructorCallClass>();
+
+			S.Globals["mytype"] = typeof(ConstructorCallClass);
+
+			DynValue res = S.DoString(@"
+				local obj = mytype(12);
+				return obj.IntProp, obj.OptionalProp;");
+
+			Assert.AreEqual(DataType.Tuple, res.Type);
+			Assert.AreEqual(12, res.Tuple[0].Number);
+			Assert.AreEqual(77, res.Tuple[1].Number);
+		}
+
+		[Test]
+		public void Interop_TypeCallTableInitializerSetsProperties()
+		{
+			Script S = new Script();
+
+			UserData.UnregisterType<ConstructorCallClass>();
+			UserData.RegisterType<ConstructorCallClass>();
+
+			S.Globals["mytype"] = typeof(ConstructorCallClass);
+
+			DynValue res = S.DoString(@"
+				local obj = mytype{ IntProp = 12, OptionalProp = nil, Name = 'ok' };
+				return obj.IntProp, obj.OptionalProp, obj.Name;");
+
+			Assert.AreEqual(DataType.Tuple, res.Type);
+			Assert.AreEqual(12, res.Tuple[0].Number);
+			Assert.AreEqual(77, res.Tuple[1].Number);
+			Assert.AreEqual("ok", res.Tuple[2].String);
 		}
 
 		[Test]

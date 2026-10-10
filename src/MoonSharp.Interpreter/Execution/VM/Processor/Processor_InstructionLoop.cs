@@ -829,8 +829,11 @@ namespace MoonSharp.Interpreter.Execution.VM
 			}
 
 			if (csi.Continuation != null)
+			{
 				m_ValueStack.Push(csi.Continuation.Invoke(new ScriptExecutionContext(this, csi.Continuation, i.SourceCodeRef),
 					new DynValue[1] { m_ValueStack.Pop() }));
+				retpoint = Internal_CheckForTailRequests(i, retpoint);
+			}
 
 			return retpoint;
 		}
@@ -1347,7 +1350,7 @@ namespace MoonSharp.Interpreter.Execution.VM
 					}
 
 					m_ValueStack.Push(v.AsReadOnly());
-					return instructionPtr;
+					return Internal_CheckForTailRequests(i, instructionPtr);
 				}
 				else
 				{

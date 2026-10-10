@@ -528,6 +528,8 @@ namespace MoonSharp.Interpreter.Interop.BasicDescriptors
 					return MultiDispatchLessThanOrEqual(script, obj);
 				case "__len":
 					return TryDispatchLength(script, obj);
+				case "__call":
+					return TryDispatchStaticConstructor(script, obj);
 				case "__tonumber":
 					return TryDispatchToNumber(script, obj);
 				case "__tobool":
@@ -642,6 +644,55 @@ namespace MoonSharp.Interpreter.Interop.BasicDescriptors
 				if (v != null) return v;
 			}
 			return null;
+		}
+
+
+		private DynValue TryDispatchStaticConstructor(Script script, object obj)
+		{
+			if (obj != null)
+				return null;
+
+			IMemberDescriptor ctor = m_Members.GetOrDefault("__new").WithAccessOrNull(MemberDescriptorAccess.CanExecute);
+			if (ctor == null)
+				return null;
+
+			return DynValue.NewCallback((context, args) =>
+			{
+				if (args.Count == 2 && args[1].Type == DataType.Table)
+				{
+					DynValue result = ExecuteStaticConstructor(script, ctor, context, new DynValue[0]);
+					AssignTableInitializer(script, result, args[1].Table);
+					return result;
+				}
+
+				return ExecuteStaticConstructor(script, ctor, context, args.GetArray(1));
+			}, "__call");
+		}
+
+		private static DynValue ExecuteStaticConstructor(Script script, IMemberDescriptor ctor, ScriptExecutionContext context, IList<DynValue> args)
+		{
+			DynValue callback = ctor.GetValue(script, null);
+			if (callback.Type != DataType.ClrFunction)
+				throw new ScriptRuntimeException("a clr callback was expected in member {0}, while a {1} was found", ctor.Name, callback.Type);
+
+			return callback.Callback.ClrCallback(context, new CallbackArguments(args, false));
+		}
+
+		private static void AssignTableInitializer(Script script, DynValue target, Table initializer)
+		{
+			if (target.Type != DataType.UserData)
+				throw new ScriptRuntimeException("constructor table initializer expected userdata, got {0}", target.Type);
+
+			UserData ud = target.UserData;
+
+			foreach (TablePair pair in initializer.Pairs)
+			{
+				if (pair.Value.IsNil())
+					continue;
+
+				if (!ud.Descriptor.SetIndex(script, ud.Object, pair.Key, pair.Value, pair.Key.Type == DataType.String))
+					throw ScriptRuntimeException.UserDataMissingField(ud.Descriptor.Name, pair.Key.ToPrintString());
+			}
 		}
 
 
