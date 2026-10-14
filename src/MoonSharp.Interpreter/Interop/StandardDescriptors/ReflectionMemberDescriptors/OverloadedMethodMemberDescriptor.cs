@@ -307,6 +307,7 @@ namespace MoonSharp.Interpreter.Interop
 			int argsBase = args.IsMethodCall ? 1 : 0;
 			int argsCnt = argsBase;
 			bool varArgsUsed = false;
+			GenericMethodMemberDescriptor genericMethod = method as GenericMethodMemberDescriptor;
 
 
 			for (int i = 0; i < method.Parameters.Length; i++)
@@ -318,6 +319,18 @@ namespace MoonSharp.Interpreter.Interop
 					continue;
 
 				Type parameterType = method.Parameters[i].Type;
+
+				if (genericMethod != null && i < genericMethod.GenericParameterCount)
+				{
+					DynValue arg = args.RawGet(argsCnt, false);
+					int score = IsGenericTypeArgument(arg)
+						? ScriptToClrConversions.WEIGHT_EXACT_MATCH
+						: ScriptToClrConversions.WEIGHT_NO_MATCH;
+
+					totalScore = Math.Min(totalScore, score);
+					argsCnt += 1;
+					continue;
+				}
 
 				if ((parameterType == typeof(Script)) || (parameterType == typeof(ScriptExecutionContext)) || (parameterType == typeof(CallbackArguments)))
 					continue;
@@ -399,6 +412,14 @@ namespace MoonSharp.Interpreter.Interop
 			System.Diagnostics.Debug.WriteLine(string.Format("[OVERLOAD] : Score {0} for method {1}", totalScore, method.SortDiscriminant));
 #endif
 			return totalScore;
+		}
+
+		private static bool IsGenericTypeArgument(DynValue arg)
+		{
+			return arg != null
+				&& arg.Type == DataType.UserData
+				&& arg.UserData.Object == null
+				&& arg.UserData.Descriptor != null;
 		}
 
 		private static int CalcScoreForSingleArgument(ParameterDescriptor desc, Type parameterType, DynValue arg, bool isOptional)

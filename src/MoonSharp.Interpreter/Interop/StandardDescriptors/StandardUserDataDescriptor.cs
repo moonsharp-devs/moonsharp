@@ -78,7 +78,7 @@ namespace MoonSharp.Interpreter.Interop
 			{
 				if (membersToIgnore.Contains(mi.Name)) continue;
 
-				MethodMemberDescriptor md = MethodMemberDescriptor.TryCreateIfVisible(mi, this.AccessMode);
+				IMemberDescriptor md = MethodMemberDescriptor.TryCreateIfVisible(mi, this.AccessMode);
 
 				if (md != null)
 				{

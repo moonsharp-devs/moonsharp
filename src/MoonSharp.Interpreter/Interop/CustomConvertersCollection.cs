@@ -149,7 +149,17 @@ namespace MoonSharp.Interpreter.Interop
 		/// <returns>The converter function, or null if not found</returns>
 		public Func<Script, object, DynValue> GetClrToScriptCustomConversion(Type clrDataType)
 		{
-			return m_Clr2Script.GetOrDefault(clrDataType);
+			if (clrDataType == null)
+				return null;
+
+			Func<Script, object, DynValue> converter = m_Clr2Script.GetOrDefault(clrDataType);
+			if (converter != null)
+				return converter;
+
+			if (clrDataType.IsGenericType)
+				return m_Clr2Script.GetOrDefault(clrDataType.GetGenericTypeDefinition());
+
+			return null;
 		}
 
 		/// Sets a custom converter from a CLR data type. Set null to remove a previous custom converter.

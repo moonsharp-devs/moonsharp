@@ -26,5 +26,42 @@ namespace MoonSharp.Interpreter.Tests.Units
 
 		}
 
+		[Test]
+		public void Converter_ClrToScriptGenericTypeDefinition()
+		{
+			try
+			{
+				Script.GlobalOptions.CustomConverters.Clear();
+				Script.GlobalOptions.CustomConverters.SetClrToScriptCustomConversion(
+					typeof(GenericConversionTarget<>),
+					(_s, obj) => DynValue.NewString(obj.GetType().GetGenericArguments()[0].Name + ":" + ((IGenericConversionTarget)obj).Value));
+
+				Script script = new Script();
+				DynValue value = DynValue.FromObject(script, new GenericConversionTarget<int>("ok"));
+
+				Assert.AreEqual(DataType.String, value.Type);
+				Assert.AreEqual("Int32:ok", value.String);
+			}
+			finally
+			{
+				Script.GlobalOptions.CustomConverters.Clear();
+			}
+		}
+
+		private interface IGenericConversionTarget
+		{
+			string Value { get; }
+		}
+
+		private class GenericConversionTarget<T> : IGenericConversionTarget
+		{
+			public GenericConversionTarget(string value)
+			{
+				Value = value;
+			}
+
+			public string Value { get; private set; }
+		}
+
 	}
 }

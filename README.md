@@ -16,7 +16,7 @@ Features:
 * Runs on IL2CPP converted code
 * No external dependencies, implemented in as few targets as possible
 * Easy and performant interop with CLR objects, with runtime code generation where supported
-* Interop with methods, extension methods, overloads, fields, properties and indexers supported
+* Interop with methods, generic methods, extension methods, overloads, fields, properties and indexers supported
 * Support for the complete Lua standard library with very few exceptions (mostly located on the 'debug' module) and a few extensions (in the string library, mostly)
 * Async method support
 * Supports dumping/loading bytecode for obfuscation and quicker parsing at runtime

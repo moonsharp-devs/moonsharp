@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MoonSharp.Interpreter.Interop;
 using NUnit.Framework;
 
 namespace MoonSharp.Interpreter.Tests.EndToEnd
@@ -9,6 +10,48 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 	[TestFixture]
 	class CoroutineTests
 	{
+		private class YieldingIndexTarget
+		{
+		}
+
+		private class YieldingIndexDescriptor : IUserDataDescriptor
+		{
+			public string Name
+			{
+				get { return "YieldingIndexTarget"; }
+			}
+
+			public Type Type
+			{
+				get { return typeof(YieldingIndexTarget); }
+			}
+
+			public DynValue Index(Script script, object obj, DynValue index, bool isDirectIndexing)
+			{
+				return DynValue.NewYieldReq(new[] { DynValue.NewString("yielded:" + index.String) });
+			}
+
+			public bool SetIndex(Script script, object obj, DynValue index, DynValue value, bool isDirectIndexing)
+			{
+				return false;
+			}
+
+			public string AsString(object obj)
+			{
+				return null;
+			}
+
+			public DynValue MetaIndex(Script script, object obj, string metaname)
+			{
+				return null;
+			}
+
+			public bool IsTypeCompatible(Type type, object obj)
+			{
+				return type.IsInstanceOfType(obj);
+			}
+		}
+
 		[Test]
 		public void Coroutine_Basic()
 		{
@@ -200,6 +243,38 @@ checkresume(6, false, 'cannot resume dead coroutine');
 			}
 
 			Assert.AreEqual("1234567", ret);
+		}
+
+		[Test]
+		public void Coroutine_UserDataIndexCanYield()
+		{
+			string code = @"
+				return function(target)
+					state = 'before'
+					local value = target.value
+					state = 'after'
+					return value
+				end
+				";
+
+			Script script = new Script();
+			DynValue function = script.DoString(code);
+			DynValue coroutine = script.CreateCoroutine(function);
+			DynValue target = UserData.Create(new YieldingIndexTarget(), new YieldingIndexDescriptor());
+
+			DynValue yielded = coroutine.Coroutine.Resume(target);
+
+			Assert.AreEqual(CoroutineState.Suspended, coroutine.Coroutine.State);
+			Assert.AreEqual(DataType.String, yielded.Type);
+			Assert.AreEqual("yielded:value", yielded.String);
+			Assert.AreEqual("before", script.Globals.Get("state").String);
+
+			DynValue returned = coroutine.Coroutine.Resume(DynValue.NewString("resumed"));
+
+			Assert.AreEqual(CoroutineState.Dead, coroutine.Coroutine.State);
+			Assert.AreEqual(DataType.String, returned.Type);
+			Assert.AreEqual("resumed", returned.String);
+			Assert.AreEqual("after", script.Globals.Get("state").String);
 		}
 
 

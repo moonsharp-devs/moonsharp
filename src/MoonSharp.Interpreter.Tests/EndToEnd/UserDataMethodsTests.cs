@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using MoonSharp.Interpreter.Compatibility;
 using MoonSharp.Interpreter.Interop;
@@ -218,6 +219,31 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 				return p7;
 			}
 
+			public static string GenericStaticDescribe<T>(T value)
+			{
+				return typeof(T).Name + ":" + value;
+			}
+
+			public static string GenericStaticDescribeTypes<T1, T2>()
+			{
+				return typeof(T1).Name + "+" + typeof(T2).Name;
+			}
+
+			public static string GenericStaticDescribeParams<T>(params T[] values)
+			{
+				return typeof(T).Name + ":" + string.Join(",", values.Select(v => v == null ? "<null>" : v.ToString()).ToArray());
+			}
+
+			public static string GenericOverloadStealing(string value)
+			{
+				return "nongeneric:" + value;
+			}
+
+			public static string GenericOverloadStealing<T>(T value)
+			{
+				return "generic:" + typeof(T).Name + ":" + value;
+			}
+
 			public string Format(string s, params object[] args)
 			{
 				return string.Format(s, args);
@@ -228,6 +254,16 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			{
 				Assert.IsNotNull(s);
 				return ConcatS(p1, p2, p3, p4, p5, p6, p7, p8, this, p10);
+			}
+
+			public string GenericInstanceDescribe<T>(T value)
+			{
+				return ToString() + ":" + typeof(T).Name + ":" + value;
+			}
+
+			public string GenericInstanceTypeName<T>()
+			{
+				return ToString() + ":" + typeof(T).Name;
 			}
 
 			public override string ToString()
@@ -247,6 +283,21 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 			public int CompareTo(object obj)
 			{
 				throw new NotImplementedException();
+			}
+		}
+
+		public class GenericMethodPayload
+		{
+			private readonly string m_Value;
+
+			public GenericMethodPayload(string value)
+			{
+				m_Value = value;
+			}
+
+			public override string ToString()
+			{
+				return m_Value;
 			}
 		}
 
@@ -659,6 +710,130 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 			Assert.AreEqual(DataType.String, res.Type);
 			Assert.AreEqual("1%2", res.String);
+		}
+
+		[Test]
+		public void Interop_GenericMethods()
+		{
+			Script S = new Script();
+			SomeClass obj = new SomeClass();
+
+			UserData.UnregisterType<SomeClass>();
+			UserData.UnregisterType<GenericMethodPayload>();
+			UserData.UnregisterType<SomeOtherClass>();
+			UserData.UnregisterType<int>();
+			UserData.RegisterType<SomeClass>();
+			UserData.RegisterType<GenericMethodPayload>();
+			UserData.RegisterType<SomeOtherClass>();
+			UserData.RegisterType<int>();
+
+			S.Globals.Set("static", UserData.CreateStatic<SomeClass>());
+			S.Globals.Set("obj", UserData.Create(obj));
+			S.Globals["payloadType"] = typeof(GenericMethodPayload);
+			S.Globals["otherPayloadType"] = typeof(SomeOtherClass);
+			S.Globals["intType"] = typeof(int);
+			S.Globals.Set("payload", UserData.Create(new GenericMethodPayload("value")));
+
+			DynValue res = S.DoString(@"
+				a = static.GenericStaticDescribe(payloadType, payload);
+				b = obj:GenericInstanceDescribe(payloadType, payload);
+				c = static.GenericStaticDescribeTypes(payloadType, otherPayloadType);
+				return a .. '|' .. b .. '|' .. c;");
+
+			Assert.AreEqual(DataType.String, res.Type);
+			Assert.AreEqual("GenericMethodPayload:value|!SOMECLASS!:GenericMethodPayload:value|GenericMethodPayload+SomeOtherClass", res.String);
+
+			res = S.DoString("return obj.GenericInstanceTypeName(payloadType);");
+
+			Assert.AreEqual(DataType.String, res.Type);
+			Assert.AreEqual("!SOMECLASS!:GenericMethodPayload", res.String);
+
+			res = S.DoString("return static.GenericStaticDescribe(intType, 42);");
+
+			Assert.AreEqual(DataType.String, res.Type);
+			Assert.AreEqual("Int32:42", res.String);
+		}
+
+		[Test]
+		public void Interop_GenericMethodDescriptor_InstanceDotCall_UsesFirstArgumentAsType()
+		{
+			Script S = new Script();
+
+			UserData.UnregisterType<SomeClass>();
+			UserData.UnregisterType<GenericMethodPayload>();
+			UserData.RegisterType<SomeClass>();
+			UserData.RegisterType<GenericMethodPayload>();
+
+			MethodInfo mi = typeof(SomeClass).GetMethod("GenericInstanceTypeName");
+			GenericMethodMemberDescriptor descriptor = new GenericMethodMemberDescriptor(mi);
+			CallbackArguments args = new CallbackArguments(new[] { UserData.CreateStatic<GenericMethodPayload>() }, false);
+
+			DynValue res = descriptor.Execute(S, new SomeClass(), null, args);
+
+			Assert.AreEqual(DataType.String, res.Type);
+			Assert.AreEqual("!SOMECLASS!:GenericMethodPayload", res.String);
+		}
+
+		[Test]
+		public void Interop_GenericMethodDescriptor_UsesConstructedParameterTypes()
+		{
+			Script S = new Script();
+
+			UserData.UnregisterType<SomeClass>();
+			UserData.UnregisterType<int>();
+			UserData.RegisterType<SomeClass>();
+			UserData.RegisterType<int>();
+
+			MethodInfo mi = typeof(SomeClass).GetMethod("GenericStaticDescribe");
+			GenericMethodMemberDescriptor descriptor = new GenericMethodMemberDescriptor(mi);
+			CallbackArguments args = new CallbackArguments(new[] { UserData.CreateStatic<int>(), DynValue.NewNumber(42) }, false);
+
+			DynValue res = descriptor.Execute(S, null, null, args);
+
+			Assert.AreEqual(DataType.String, res.Type);
+			Assert.AreEqual("Int32:42", res.String);
+		}
+
+		[Test]
+		public void Interop_GenericMethodDescriptor_PacksConstructedParamsArguments()
+		{
+			Script S = new Script();
+
+			UserData.UnregisterType<SomeClass>();
+			UserData.UnregisterType<int>();
+			UserData.RegisterType<SomeClass>();
+			UserData.RegisterType<int>();
+
+			MethodInfo mi = typeof(SomeClass).GetMethod("GenericStaticDescribeParams");
+			GenericMethodMemberDescriptor descriptor = new GenericMethodMemberDescriptor(mi);
+			CallbackArguments args = new CallbackArguments(new[]
+			{
+				UserData.CreateStatic<int>(),
+				DynValue.NewNumber(1),
+				DynValue.NewNumber(2),
+				DynValue.NewNumber(3)
+			}, false);
+
+			DynValue res = descriptor.Execute(S, null, null, args);
+
+			Assert.AreEqual(DataType.String, res.Type);
+			Assert.AreEqual("Int32:1,2,3", res.String);
+		}
+
+		[Test]
+		public void Interop_GenericMethodOverload_DoesNotStealNonGenericCall()
+		{
+			Script S = new Script();
+
+			UserData.UnregisterType<SomeClass>();
+			UserData.RegisterType<SomeClass>();
+
+			S.Globals.Set("static", UserData.CreateStatic<SomeClass>());
+
+			DynValue res = S.DoString("return static.GenericOverloadStealing('value');");
+
+			Assert.AreEqual(DataType.String, res.Type);
+			Assert.AreEqual("nongeneric:value", res.String);
 		}
 
 		public void Test_ListMethod(InteropAccessMode opt)
