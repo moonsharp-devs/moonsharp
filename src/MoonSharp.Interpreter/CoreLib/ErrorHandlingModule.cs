@@ -24,16 +24,29 @@ namespace MoonSharp.Interpreter.CoreLib
 			DynValue handlerBeforeUnwind)
 		{
 			DynValue v = args[0];
-			DynValue[] a = new DynValue[args.Count - 1];
+			int firstArg = 1;
 
-			for (int i = 1; i < args.Count; i++)
-				a[i - 1] = args[i];
+			if (v.Type != DataType.Function && v.Type != DataType.ClrFunction)
+			{
+				DynValue metamethod = executionContext.GetMetamethod(v, "__call");
+				if (metamethod != null && (metamethod.Type == DataType.Function || metamethod.Type == DataType.ClrFunction))
+				{
+					v = metamethod;
+					// __call receives the original value before the supplied arguments.
+					firstArg = 0;
+				}
+			}
 
-			if (args[0].Type == DataType.ClrFunction)
+			DynValue[] a = new DynValue[args.Count - firstArg];
+
+			for (int i = firstArg; i < args.Count; i++)
+				a[i - firstArg] = args[i];
+
+			if (v.Type == DataType.ClrFunction)
 			{
 				try
 				{
-					DynValue ret = args[0].Callback.Invoke(executionContext, a);
+					DynValue ret = v.Callback.Invoke(executionContext, a);
 					if (ret.Type == DataType.TailCallRequest)
 					{
 						if (ret.TailCallData.Continuation != null || ret.TailCallData.ErrorHandler != null)
@@ -63,7 +76,7 @@ namespace MoonSharp.Interpreter.CoreLib
 					return DynValue.NewTupleNested(DynValue.False, DynValue.NewString(ex.DecoratedMessage));
 				}
 			}
-			else if (args[0].Type != DataType.Function)
+			else if (v.Type != DataType.Function)
 			{
 				return DynValue.NewTupleNested(DynValue.False, DynValue.NewString("attempt to " + funcName + " a non-function"));
 			}
