@@ -36,13 +36,13 @@ It requires the application to be embedding MoonSharp 1.8.0.0 (or later) and exp
 ```
 {
     "version": "0.2.0",
-    "debugServer" : 41912,
     "configurations": [
         {
             "name": "MoonSharp Attach",
             "type": "moonsharp-debug",
             "request": "attach",
-            "HELP": "Please set 'debugServer':41912 (or whatever port you ar connecting to) right after the 'version' field in this json."
+            "debugServer": 41912,
+            "HELP": "Please set 'debugServer':41912 (or whatever port you are connecting to) right after the 'request' field in this json."
         }
     ]
 }
