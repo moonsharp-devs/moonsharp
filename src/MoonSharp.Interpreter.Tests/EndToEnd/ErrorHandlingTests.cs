@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Linq;
 using System.Text;
 using NUnit.Framework;
@@ -127,6 +129,7 @@ return a()
 			Assert.AreEqual("!cba", res.String);
 		}
 
+		[MethodImpl(MethodImplOptions.NoInlining)]
 		private DynValue MethodWithError()
 		{
 			throw new NullReferenceException();
@@ -143,19 +146,13 @@ return a()
 
 			script.Globals["callMethodWithError"] = DynValue.NewCallback((c, a) => MethodWithError());
 
-			try
-			{
-				DynValue res = script.DoString(luaScript);
-
-			}
-			catch (Exception e)
-			{
-				Assert.IsTrue(e.StackTrace.Contains("MoonSharp.Interpreter.Tests.EndToEnd.ErrorHandlingTests.MethodWithError()"), "Exception should contain c# error line");
-			}
+			var exception = Assert.Throws<NullReferenceException>(() => script.DoString(luaScript));
+			AssertOriginalExceptionFrame(exception, typeof(ErrorHandlingTests));
 		}
 
 		private class ClassWithMember
 		{
+			[MethodImpl(MethodImplOptions.NoInlining)]
 			public void MethodWithError()
 			{
 				throw new NullReferenceException();
@@ -175,14 +172,19 @@ return a()
 
 			script.Globals["objectWithMethod"] = new ClassWithMember();
 
-			try
+			var exception = Assert.Throws<NullReferenceException>(() => script.DoString(luaScript));
+			AssertOriginalExceptionFrame(exception, typeof(ClassWithMember));
+		}
+
+		private static void AssertOriginalExceptionFrame(Exception exception, Type declaringType)
+		{
+			var frames = new StackTrace(exception).GetFrames();
+			Assert.IsNotNull(frames, "Exception should retain its stack frames");
+			Assert.IsTrue(frames.Any(frame =>
 			{
-				script.DoString(luaScript);
-			}
-			catch (Exception e)
-			{
-				Assert.IsTrue(e.StackTrace.Contains("MoonSharp.Interpreter.Tests.EndToEnd.ErrorHandlingTests.ClassWithMember.MethodWithError() "), "Exception should contain c# error line");
-			}
+				var method = frame.GetMethod();
+				return method != null && method.DeclaringType == declaringType && method.Name == "MethodWithError";
+			}), "Exception should retain the original C# throwing method");
 		}
 
 	}
