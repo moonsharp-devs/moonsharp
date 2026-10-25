@@ -55,7 +55,7 @@ namespace MoonSharp.Interpreter
 					isMethodCall = (args.Count > 0 && args[0].Type == DataType.UserData);
 			}
 
-			return ClrCallback(executionContext, new CallbackArguments(args, isMethodCall));
+			return ClrCallback(executionContext, new CallbackArguments(args, isMethodCall)) ?? DynValue.Nil;
 		}
 
 		/// <summary>
