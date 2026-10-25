@@ -1533,5 +1533,17 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 				//Assert.Pass(e.DecoratedMessage);
 			}
 		}
+
+		[Test]
+		public void ClrCallbackReturningNullIsNil()
+		{
+			Script S = new Script();
+			S.Globals["f"] = new CallbackFunction((ctx, args) => null);
+
+			DynValue res = S.DoString("return f()");
+
+			Assert.AreEqual(DataType.Nil, res.Type);
+		}
+
 	}
 }
