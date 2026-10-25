@@ -563,5 +563,20 @@ namespace MoonSharp.Interpreter.Tests.EndToEnd
 
 		}
 
+
+		[Test]
+		public void TableMultipleKeysErrorMessageIsFormatted()
+		{
+			Table t = new Table(null);
+
+			var missing = Assert.Throws<ScriptRuntimeException>(() => t.Get("a", "b", "c"));
+			StringAssert.Contains("Key 'a'", missing.Message);
+
+			t.Set("a", DynValue.NewNumber(1));
+
+			var notTable = Assert.Throws<ScriptRuntimeException>(() => t.Get("a", "b", "c"));
+			StringAssert.Contains("Key 'a'", notTable.Message);
+		}
+
 	}
 }

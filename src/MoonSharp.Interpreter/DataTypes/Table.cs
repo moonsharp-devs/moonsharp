@@ -135,10 +135,10 @@ namespace MoonSharp.Interpreter
 				DynValue vt = t.RawGet(key);
 
 				if (vt == null)
-					throw new ScriptRuntimeException("Key '{0}' did not point to anything");
+					throw new ScriptRuntimeException("Key '{0}' did not point to anything", key);
 
 				if (vt.Type != DataType.Table)
-					throw new ScriptRuntimeException("Key '{0}' did not point to a table");
+					throw new ScriptRuntimeException("Key '{0}' did not point to a table", key);
 
 				t = vt.Table;
 				key = keys[i];
